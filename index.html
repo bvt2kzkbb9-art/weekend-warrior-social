@@ -8,7 +8,7 @@
   <title>Witaj — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
@@ -195,82 +195,8 @@
 </main>
 
 <script type="module">
-  import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
-
-  // Require login
-  checkAuth(async (user) => {
-    try {
-      const data = await getCurrentUserData(user.uid);
-      if (!data) throw new Error('Brak danych profilu.');
-      render(user, data);
-    } catch (err) {
-      console.error(err);
-      showToast('Błąd ładowania profilu. Odśwież stronę.', 'error');
-    }
-  });
-
-  function render(user, data) {
-    const points   = data.points ?? 0;
-    const level    = data.level  ?? getLevel(points);
-    const rankObj  = getRank(points);
-    const progress = getRankProgress(points);
-    const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
-    const nextRank = RANKS[rankIdx + 1] ?? null;
-
-    // Avatar
-    const name    = data.displayName || user.displayName || 'W';
-    const initials= name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const avatarEl = document.getElementById('user-avatar');
-
-    if (user.photoURL || data.photoURL) {
-      const imgSrc = user.photoURL || data.photoURL;
-      avatarEl.innerHTML = '';
-      const img = document.createElement('img');
-      img.src       = imgSrc;
-      img.alt       = 'Avatar';
-      img.className = 'avatar av-xl';
-      img.onerror   = () => { avatarEl.innerHTML = ''; avatarEl.textContent = initials; };
-      avatarEl.appendChild(img);
-    } else {
-      avatarEl.textContent = initials;
-    }
-
-    // Text fields
-    document.getElementById('user-name').textContent  = data.displayName || user.displayName || 'Wojownik';
-    document.getElementById('user-email').textContent = data.email        || user.email       || '';
-
-    // Badges
-    document.getElementById('rank-badge').textContent  = `${rankObj.emoji} ${rankObj.label}`;
-    document.getElementById('level-badge').textContent = `Poziom ${level}`;
-
-    // Stats
-    document.getElementById('stat-points').textContent     = points.toLocaleString('pl-PL');
-    document.getElementById('stat-level').textContent      = level;
-    document.getElementById('stat-rank-emoji').textContent = rankObj.emoji;
-    document.getElementById('stat-rank-emoji').className   = `stat-value ${rankObj.cssClass}`;
-
-    // Progress bar
-    const bar = document.getElementById('xp-bar');
-    bar.style.width = progress + '%';
-    bar.setAttribute('aria-valuenow', progress);
-    document.getElementById('xp-percent').textContent = progress + '%';
-
-    // Sublabels
-    document.getElementById('rank-current-label').textContent =
-      `${rankObj.emoji} ${rankObj.label} (${rankObj.min.toLocaleString('pl-PL')} pkt)`;
-    document.getElementById('rank-next-label').textContent = nextRank
-      ? `${nextRank.emoji} ${nextRank.label} (${nextRank.min.toLocaleString('pl-PL')} pkt)`
-      : '🏅 Maks. ranga!';
-
-    // Show dashboard
-    document.getElementById('skeleton').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-  }
-
-  // Logout handlers
-  document.getElementById('logout-btn')?.addEventListener('click', logout);
-  document.getElementById('logout-mobile')?.addEventListener('click', logout);
+  import { initDashboard } from './js/profile.js';
+  initDashboard();
 </script>
 
 </body>
