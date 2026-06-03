@@ -6,6 +6,22 @@
   <meta name="theme-color" content="#0A0A0B" />
   <meta name="description" content="Weekend Warrior Social — Profil" />
   <title>Profil — Weekend Warrior Social</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WWS Arena" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg" />
+  <!-- OG / Social -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Weekend Warrior Social" />
+  <meta property="og:description" content="Portal społecznościowy dla wojowników weekendu. Wyzwania, ranking, osiągnięcia." />
+  <meta property="og:image"       content="assets/icons/icon-512.svg" />
+  <meta name="twitter:card"       content="summary" />
+  <meta name="twitter:title"      content="Weekend Warrior Social ⚔️" />
+  <meta name="twitter:description"content="Dołącz. Walcz. Zwyciężaj." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="css/style.css" />
@@ -381,6 +397,20 @@
       </div>
     </div>
 
+    <!-- Invite section -->
+    <div style="text-align:center;margin-top:1.25rem;animation:fadeInUp 0.4s ease 0.49s both;">
+      <button id="profile-invite-btn" class="btn btn-secondary btn-sm"
+              style="gap:0.5rem;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Zaproś wojownika (skopiuj link)
+      </button>
+    </div>
+
     <!-- Member since -->
     <div class="member-since" id="member-since"></div>
 
@@ -393,8 +423,30 @@
 
 <script type="module">
   import { initProfilePage } from './js/profile.js';
+  import { initInviteButton } from './js/social.js';
+  import { auth } from './js/firebase.js';
+  import { onAuthStateChanged } from './js/auth.js';
+
   initProfilePage();
+
+  // Wire invite button
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      initInviteButton(document.getElementById('profile-invite-btn'), user.uid);
+    }
+  });
 </script>
 
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[SW] Registered:', reg.scope))
+          .catch(err => console.warn('[SW] Registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

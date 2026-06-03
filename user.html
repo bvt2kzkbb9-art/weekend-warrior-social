@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <meta name="description" content="Profil wojownika — Weekend Warrior Social" />
+  <title>Profil — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WWS Arena" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg" />
+</head>
+<body>
+
+<div class="bg-orbs" aria-hidden="true"></div>
+
+<!-- ── Navigation ── -->
+<nav class="nav" aria-label="Główna nawigacja">
+  <span class="nav-brand">⚔ WWS</span>
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg><span>Start</span>
+  </a>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg><span>Feed</span>
+  </a>
+  <a href="challenges.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg><span>Wyzwania</span>
+  </a>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+    </svg><span>Ranking</span>
+  </a>
+  <a href="profile.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg><span>Profil</span>
+  </a>
+  <div class="nav-actions">
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>Wyloguj
+    </button>
+  </div>
+</nav>
+
+<!-- ── Content ── -->
+<main class="content-area page">
+
+  <!-- Back button -->
+  <div style="margin-bottom:1rem;">
+    <button onclick="history.back()" class="btn btn-ghost btn-sm" style="color:var(--text-muted);padding-left:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Wróć
+    </button>
+  </div>
+
+  <!-- Skeleton -->
+  <div id="user-skeleton">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);
+                padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:0.875rem;">
+      <div class="skeleton" style="width:96px;height:96px;border-radius:50%;"></div>
+      <div class="skeleton" style="height:22px;width:160px;border-radius:6px;"></div>
+      <div class="skeleton" style="height:14px;width:100px;border-radius:4px;"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <div class="skeleton" style="height:24px;width:90px;border-radius:20px;"></div>
+        <div class="skeleton" style="height:24px;width:80px;border-radius:20px;"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem;">
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
+    </div>
+    <div class="skeleton" style="height:90px;border-radius:var(--r-lg);margin-top:1rem;"></div>
+  </div>
+
+  <!-- User content -->
+  <div id="user-content" class="hidden">
+
+    <!-- Hero card -->
+    <div class="profile-page-hero">
+      <div id="up-avatar"
+           class="avatar-placeholder av-xl avatar-ring"
+           style="font-size:2rem;font-family:var(--font-hd);">
+      </div>
+      <div id="up-name"  class="profile-page-name">—</div>
+      <div id="up-username" class="profile-page-username"></div>
+      <div id="up-bio"   class="profile-page-bio"></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
+        <span id="up-rank-badge"  class="badge badge-gold"></span>
+        <span id="up-level-badge" class="badge badge-blue"></span>
+        <span id="up-legend-badge" class="badge badge-gold hidden"
+              style="background:rgba(212,175,55,0.2);color:#D4AF37;">👑 Legenda Areny</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="profile-stats-row">
+      <div class="stat-card">
+        <div id="up-points" class="stat-value" style="color:var(--gold);">0</div>
+        <div class="stat-label">Punkty XP</div>
+      </div>
+      <div class="stat-card">
+        <div id="up-level" class="stat-value" style="color:var(--blue);">1</div>
+        <div class="stat-label">Poziom</div>
+      </div>
+      <div class="stat-card">
+        <div id="up-rank-emoji" class="stat-value rank-rookie">🥉</div>
+        <div class="stat-label">Ranga</div>
+      </div>
+    </div>
+
+    <!-- XP bar -->
+    <div class="profile-xp-card">
+      <div class="xp-row">
+        <span class="xp-label">Postęp do następnej rangi</span>
+        <span id="up-xp-pct" class="xp-val">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="up-xp-bar" class="progress-fill" style="width:0%;"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        </div>
+      </div>
+      <div class="xp-sublabels">
+        <span id="up-rank-cur" class="xp-sublabel"></span>
+        <span id="up-rank-nxt" class="xp-sublabel"></span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div id="up-actions" style="display:flex;gap:0.75rem;margin-top:1rem;flex-wrap:wrap;">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Achievements preview -->
+    <div class="achievements-preview" style="margin-top:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+        <h4 style="font-size:0.9375rem;font-family:var(--font-hd);">🏆 Osiągnięcia</h4>
+        <span id="up-ach-count" class="badge badge-gold">0</span>
+      </div>
+      <div class="achievements-grid" id="up-ach-grid"></div>
+    </div>
+
+    <!-- Posts preview -->
+    <div class="welcome-section" style="margin-top:1rem;">
+      <div class="welcome-header">
+        <h3 style="font-size:1rem;">Ostatnie posty</h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <div id="up-posts-list" style="display:flex;flex-direction:column;gap:0.75rem;">
+        <p style="font-size:0.875rem;color:var(--text-muted);text-align:center;padding:0.5rem;">
+          Ładowanie postów...
+        </p>
+      </div>
+    </div>
+
+    <div style="height:1rem;"></div>
+  </div>
+
+  <!-- Not found -->
+  <div id="user-not-found" class="hidden" style="text-align:center;padding:3rem 1rem;">
+    <div style="font-size:2.5rem;margin-bottom:0.875rem;">🐍</div>
+    <div style="font-family:var(--font-hd);font-size:1.1rem;font-weight:700;
+                color:var(--text-primary);margin-bottom:0.375rem;">
+      Wojownik nie znaleziony
+    </div>
+    <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">
+      Ten profil nie istnieje lub został usunięty.
+    </p>
+    <a href="ranking.html" class="btn btn-primary btn-sm">Zobacz Ranking</a>
+  </div>
+
+</main>
+
+<script type="module">
+  import { checkAuth, logout, showToast } from './js/auth.js';
+  import { db, COL, RANKS, getRank, getLevel, getRankProgress } from './js/firebase.js';
+  import { ACHIEVEMENTS } from './js/achievements.js';
+  import {
+    doc, getDoc, collection, query,
+    where, orderBy, limit, getDocs,
+  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+  // Get UID from URL ?uid=XXX
+  const params    = new URLSearchParams(window.location.search);
+  const targetUid = params.get('uid');
+
+  checkAuth(async (me) => {
+    document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+    // Redirect to own profile
+    if (!targetUid || targetUid === me.uid) {
+      window.location.replace('profile.html');
+      return;
+    }
+
+    await loadUserProfile(targetUid, me);
+  });
+
+  async function loadUserProfile(uid, me) {
+    try {
+      const snap = await getDoc(doc(db, COL.USERS, uid));
+      if (!snap.exists()) {
+        showNotFound(); return;
+      }
+      const data = snap.data();
+      renderProfile(data, me);
+      loadUserPosts(uid);
+    } catch (err) {
+      console.error('[user.html]', err);
+      showNotFound();
+    }
+  }
+
+  function renderProfile(data, me) {
+    const points   = Number(data.points) || 0;
+    const level    = getLevel(points);
+    const rankObj  = getRank(points);
+    const progress = getRankProgress(points);
+    const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
+    const nextRank = RANKS[rankIdx + 1] ?? null;
+
+    // Avatar
+    const name     = data.displayName || 'Wojownik';
+    const initials = name.split(' ').map(w => w[0] ?? '').join('').slice(0,2).toUpperCase();
+    const avatarEl = document.getElementById('up-avatar');
+
+    if (data.photoURL) {
+      avatarEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src   = data.photoURL; img.alt = 'Avatar';
+      img.className = 'avatar av-xl';
+      img.onerror = () => { avatarEl.innerHTML = ''; avatarEl.textContent = initials; };
+      avatarEl.appendChild(img);
+    } else {
+      avatarEl.textContent = initials;
+    }
+
+    // Legend gold ring
+    if (data.isLegend) {
+      avatarEl.style.borderColor = '#D4AF37';
+      avatarEl.style.boxShadow   = '0 0 24px rgba(212,175,55,0.5)';
+      document.getElementById('up-legend-badge')?.classList.remove('hidden');
+    }
+
+    // Text
+    document.getElementById('up-name').textContent     = name;
+    document.getElementById('up-username').textContent = '@' + (data.username || name.toLowerCase().replace(/\s+/g,'_'));
+    document.getElementById('up-bio').textContent      = data.bio || '';
+
+    // Badges
+    document.getElementById('up-rank-badge').textContent  = `${rankObj.emoji} ${rankObj.label}`;
+    document.getElementById('up-level-badge').textContent = `Poziom ${level}`;
+
+    // Stats
+    document.getElementById('up-points').textContent     = points.toLocaleString('pl-PL');
+    document.getElementById('up-level').textContent      = String(level);
+    const emojiEl = document.getElementById('up-rank-emoji');
+    if (emojiEl) { emojiEl.textContent = rankObj.emoji; emojiEl.className = `stat-value ${rankObj.cssClass}`; }
+
+    // XP bar
+    const bar = document.getElementById('up-xp-bar');
+    if (bar) { bar.style.width = progress + '%'; bar.setAttribute('aria-valuenow', progress); }
+    document.getElementById('up-xp-pct').textContent     = progress + '%';
+    document.getElementById('up-rank-cur').textContent   = `${rankObj.emoji} ${rankObj.label} (${rankObj.min.toLocaleString('pl-PL')} pkt)`;
+    document.getElementById('up-rank-nxt').textContent   = nextRank
+      ? `${nextRank.emoji} ${nextRank.label} (${nextRank.min.toLocaleString('pl-PL')} pkt)`
+      : '🏅 Maks. ranga!';
+
+    // Achievements
+    renderAchievements(data);
+
+    // Action buttons
+    renderActions(data, me);
+
+    // Update title & OG
+    document.title = `${name} — Weekend Warrior Social`;
+
+    // Show content
+    document.getElementById('user-skeleton')?.classList.add('hidden');
+    document.getElementById('user-content')?.classList.remove('hidden');
+  }
+
+  function renderAchievements(data) {
+    const grid     = document.getElementById('up-ach-grid');
+    const countEl  = document.getElementById('up-ach-count');
+    const unlocked = Array.isArray(data.achievements) ? data.achievements : [];
+
+    if (countEl) countEl.textContent = unlocked.length + '/' + ACHIEVEMENTS.length;
+
+    ACHIEVEMENTS.slice(0, 8).forEach(ach => {
+      const isUnlocked = unlocked.includes(ach.id) || ach.check(data);
+      const chip = document.createElement('div');
+      chip.className = `achievement-chip${isUnlocked ? '' : ' locked'}`;
+      chip.title     = ach.name;
+      chip.innerHTML = `
+        <div class="achievement-emoji">${isUnlocked ? ach.emoji : '🔒'}</div>
+        <div class="achievement-chip-name">${isUnlocked ? ach.name : '???'}</div>
+      `;
+      grid?.appendChild(chip);
+    });
+  }
+
+  function renderActions(data, me) {
+    const wrap = document.getElementById('up-actions');
+    if (!wrap) return;
+
+    // Challenge button → opens challenges page with duel intent
+    const challengeBtn = document.createElement('a');
+    challengeBtn.href      = `challenges.html?duel=${data.uid}&name=${encodeURIComponent(data.displayName||'Wojownik')}`;
+    challengeBtn.className = 'btn btn-primary btn-sm';
+    challengeBtn.innerHTML = '⚔️ Rzuć wyzwanie';
+
+    // Share profile button
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'btn btn-secondary btn-sm';
+    shareBtn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      Udostępnij profil`;
+
+    shareBtn.addEventListener('click', () => {
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({
+          title: `${data.displayName} — Weekend Warrior Social`,
+          text:  `Sprawdź profil wojownika ${data.displayName}!`,
+          url,
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(url)
+          .then(() => showToast('Link skopiowany! 📋', 'success'))
+          .catch(() => showToast('Nie udało się skopiować.', 'error'));
+      }
+    });
+
+    wrap.appendChild(challengeBtn);
+    wrap.appendChild(shareBtn);
+  }
+
+  async function loadUserPosts(uid) {
+    const listEl = document.getElementById('up-posts-list');
+    if (!listEl) return;
+
+    try {
+      const q    = query(
+        collection(db, COL.POSTS),
+        where('authorId', '==', uid),
+        orderBy('createdAt', 'desc'),
+        limit(3)
+      );
+      const snap = await getDocs(q);
+
+      listEl.innerHTML = '';
+
+      if (snap.empty) {
+        listEl.innerHTML = `<p style="font-size:0.875rem;color:var(--text-muted);
+                              text-align:center;padding:0.5rem;font-style:italic;">
+          Ten wojownik jeszcze nic nie opublikował.
+        </p>`;
+        return;
+      }
+
+      snap.forEach(d => {
+        const post = d.data();
+        const time = formatTime(post.createdAt);
+        const div  = document.createElement('div');
+        div.style.cssText = `
+          padding:0.875rem;background:var(--bg-elevated);
+          border-radius:var(--r-md);border:1px solid var(--border);`;
+        div.innerHTML = `
+          <div style="font-size:0.875rem;color:var(--text-secondary);
+                      line-height:1.6;margin-bottom:0.375rem;
+                      display:-webkit-box;-webkit-line-clamp:3;
+                      -webkit-box-orient:vertical;overflow:hidden;">
+            ${escHtml(post.content || '')}
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted);
+                      display:flex;align-items:center;gap:0.75rem;">
+            <span>${time}</span>
+            ${post.likesCount > 0 ? `<span>❤️ ${post.likesCount}</span>` : ''}
+            ${post.commentsCount > 0 ? `<span>💬 ${post.commentsCount}</span>` : ''}
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+
+    } catch (err) {
+      console.warn('[loadUserPosts]', err.message);
+      listEl.innerHTML = `<p style="font-size:0.875rem;color:var(--text-muted);
+                            text-align:center;padding:0.5rem;">
+        Brak dostępu do postów.
+      </p>`;
+    }
+  }
+
+  function showNotFound() {
+    document.getElementById('user-skeleton')?.classList.add('hidden');
+    document.getElementById('user-not-found')?.classList.remove('hidden');
+  }
+
+  function formatTime(ts) {
+    if (!ts) return '';
+    const date = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts));
+    if (isNaN(date)) return '';
+    return date.toLocaleDateString('pl-PL', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+</body>
+</html>

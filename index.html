@@ -212,14 +212,34 @@
 
 <script type="module">
   import { initDashboard } from './js/profile.js';
+  import { injectInviteBanner, openUserProfile } from './js/social.js';
+  import { auth } from './js/firebase.js';
+  import { onAuthStateChanged } from './js/auth.js';
 
   // First-time visitor → show onboarding
   if (!localStorage.getItem('wws_onboarded')) {
     localStorage.setItem('wws_onboarded', '1');
-    // Only redirect if not logged in (auth will handle it)
   }
 
   initDashboard();
+
+  // Inject invite banner after dashboard loads
+  onAuthStateChanged(auth, (user) => {
+    if (!user) return;
+    // Wait for dashboard to render
+    setTimeout(() => {
+      const dashboard = document.getElementById('dashboard');
+      if (dashboard && !document.getElementById('inject-invite-btn')) {
+        injectInviteBanner(dashboard, user.uid);
+      }
+      // Make own avatar clickable → own profile
+      const avatarEl = document.getElementById('user-avatar');
+      if (avatarEl) {
+        avatarEl.style.cursor = 'pointer';
+        avatarEl.addEventListener('click', () => window.location.href = 'profile.html');
+      }
+    }, 1200);
+  });
 </script>
 
 
