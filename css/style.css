@@ -2642,3 +2642,299 @@ p  { font-size: 0.9375rem; }
   padding: 0.75rem 0 0.25rem;
   animation: fadeInUp 0.4s var(--ease) 0.42s both;
 }
+
+
+/* ============================================================
+   ACHIEVEMENTS — Components
+   ============================================================ */
+
+/* ── Achievements header ───────────────────────────────────── */
+.achievements-header {
+  margin-bottom: 1rem;
+  animation: fadeInUp 0.35s var(--ease) both;
+}
+
+.achievements-title {
+  font-family: var(--font-hd);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.achievements-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Progress summary card ─────────────────────────────────── */
+.ach-summary-card {
+  background: linear-gradient(135deg,
+    rgba(212,175,55,0.1) 0%,
+    rgba(212,175,55,0.03) 100%);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-xl);
+  padding: 1.25rem 1.375rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-gold);
+  animation: fadeInUp 0.4s var(--ease) both;
+}
+
+.ach-summary-icon {
+  font-size: 2.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  animation: floatCrown 3s ease-in-out infinite;
+}
+
+.ach-summary-info { flex: 1; min-width: 0; }
+
+.ach-summary-count {
+  font-family: var(--font-hd);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.ach-summary-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.ach-summary-bar-wrap {
+  margin-top: 0.625rem;
+}
+
+/* ── Category section ──────────────────────────────────────── */
+.ach-category {
+  margin-bottom: 1.25rem;
+  animation: fadeInUp 0.4s var(--ease) both;
+}
+
+.ach-category-title {
+  font-family: var(--font-hd);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.625rem;
+  padding-left: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ach-category-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Achievement card ──────────────────────────────────────── */
+.ach-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+  .ach-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.ach-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--t) var(--ease);
+  cursor: default;
+}
+
+.ach-card.unlocked {
+  border-color: var(--gold-border);
+  background: linear-gradient(135deg,
+    rgba(212,175,55,0.08) 0%,
+    var(--bg-card) 100%);
+  box-shadow: 0 0 16px rgba(212,175,55,0.1);
+}
+
+.ach-card.unlocked:hover {
+  border-color: rgba(212,175,55,0.45);
+  box-shadow: 0 0 24px rgba(212,175,55,0.18);
+  transform: translateY(-1px);
+}
+
+.ach-card.locked {
+  opacity: 0.45;
+  filter: grayscale(0.3);
+}
+
+/* Shine effect on unlock */
+.ach-card.unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(212,175,55,0.07) 50%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.ach-icon {
+  font-size: 2rem;
+  line-height: 1;
+  position: relative;
+}
+
+.ach-card.locked .ach-icon {
+  filter: grayscale(1);
+}
+
+/* Lock overlay */
+.ach-lock {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 0.75rem;
+  background: var(--bg-elevated);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-mid);
+}
+
+.ach-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.ach-desc {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.ach-card.unlocked .ach-name { color: var(--text-primary); }
+
+/* Unlocked checkmark */
+.ach-unlocked-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ach-unlocked-badge svg {
+  width: 10px;
+  height: 10px;
+  display: block;
+  color: #fff;
+}
+
+/* ── Unlock animation popup ────────────────────────────────── */
+.unlock-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 300;
+  background: var(--bg-card);
+  border: 2px solid var(--gold);
+  border-radius: var(--r-xl);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(212,175,55,0.3);
+  min-width: 280px;
+  max-width: 340px;
+  animation: unlockPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  pointer-events: none;
+}
+
+@keyframes unlockPop {
+  from { transform: translate(-50%,-50%) scale(0.6); opacity: 0; }
+  to   { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+}
+
+.unlock-popup-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
+.unlock-popup-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.375rem;
+}
+.unlock-popup-name  {
+  font-family: var(--font-hd);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+.unlock-popup-desc  { font-size: 0.875rem; color: var(--text-secondary); }
+
+/* Confetti backdrop */
+.unlock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 290;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.25s ease both;
+}
+
+/* ── XP toast special ──────────────────────────────────────── */
+.xp-gain-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 250;
+  background: var(--bg-card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-full);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gold);
+  box-shadow: 0 4px 20px rgba(212,175,55,0.25);
+  animation: xpFloat 2.5s ease forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@keyframes xpFloat {
+  0%   { opacity:0; transform: translateY(8px) scale(0.9); }
+  15%  { opacity:1; transform: translateY(0)   scale(1); }
+  75%  { opacity:1; transform: translateY(-8px) scale(1); }
+  100% { opacity:0; transform: translateY(-20px) scale(0.95); }
+}
