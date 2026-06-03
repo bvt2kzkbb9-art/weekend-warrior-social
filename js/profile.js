@@ -45,10 +45,15 @@ export async function loadProfile() {
     currentProfile = profileSnap.data();
 
     renderProfile(currentProfile);
-  } catch (error) {
-    console.error(error);
-    alert('Błąd podczas pobierania profilu.');
-  }
+    } catch (error) {
+  console.error('PROFILE ERROR');
+  console.error(error);
+  console.error(error.code);
+  console.error(error.message);
+
+  alert(error.message);
+}
+  
 }
 
 // ======================================================
