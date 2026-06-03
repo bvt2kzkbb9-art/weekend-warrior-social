@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <title>Brak połączenia — Weekend Warrior Social</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0A0A0B;color:#fff;font-family:'Inter',sans-serif;
+         min-height:100vh;display:flex;align-items:center;justify-content:center;
+         padding:1.5rem;text-align:center;}
+    .wrap{max-width:340px;}
+    .icon{font-size:4rem;margin-bottom:1.25rem;
+          animation:flicker 3s ease-in-out infinite;}
+    h1{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;
+       color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    p{font-size:0.9375rem;color:#A5ADBA;line-height:1.65;margin-bottom:1.5rem;}
+    .quote{font-style:italic;color:#D4AF37;font-size:0.875rem;
+           padding:0.875rem 1rem;
+           border-left:3px solid rgba(212,175,55,0.4);
+           background:rgba(212,175,55,0.05);border-radius:0 8px 8px 0;
+           margin-bottom:1.5rem;text-align:left;}
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;
+         padding:0.875rem 1.75rem;
+         background:linear-gradient(135deg,#D4AF37,#A88B28);
+         border:none;border-radius:12px;color:#000;
+         font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+         letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;
+         transition:all .2s ease;}
+    .btn:hover{filter:brightness(1.1);box-shadow:0 4px 20px rgba(212,175,55,.3);}
+    @keyframes flicker{0%,100%{opacity:1}50%{opacity:.6}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="icon">🔥</div>
+  <h1>Pochodnia przygasa</h1>
+  <p>Brak połączenia z Areną.<br>Sprawdź internet i wróć do walki.</p>
+  <div class="quote">"Wojownik bez połączenia to wojownik w ciemności. Ale ciemność mija."</div>
+  <button class="btn" onclick="window.location.reload()">
+    ⚔️ Spróbuj ponownie
+  </button>
+</div>
+</body>
+</html>

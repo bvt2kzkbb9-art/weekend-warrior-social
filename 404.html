@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <title>404 — Strona nie istnieje</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0A0A0B;color:#fff;font-family:'Inter',sans-serif;
+         min-height:100vh;display:flex;align-items:center;justify-content:center;
+         padding:2rem;text-align:center;overflow:hidden;}
+    .orb{position:fixed;width:500px;height:500px;border-radius:50%;
+         background:radial-gradient(circle,rgba(212,175,55,0.06) 0%,transparent 65%);
+         top:-150px;left:50%;transform:translateX(-50%);pointer-events:none;}
+    .wrap{max-width:360px;position:relative;z-index:1;}
+    .num{font-family:'Rajdhani',sans-serif;font-size:clamp(5rem,20vw,8rem);
+         font-weight:800;color:transparent;
+         -webkit-text-stroke:2px rgba(212,175,55,0.35);
+         line-height:1;margin-bottom:0.5rem;
+         animation:glow 3s ease-in-out infinite;}
+    .icon{font-size:3rem;margin-bottom:1rem;}
+    h1{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;
+       color:#D4AF37;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;}
+    p{font-size:0.9375rem;color:#A5ADBA;line-height:1.65;margin-bottom:0.75rem;}
+    .quote{font-style:italic;color:#B8A87A;font-size:0.875rem;
+           padding:0.875rem 1rem;
+           border-left:3px solid rgba(212,175,55,0.35);
+           background:rgba(212,175,55,0.05);border-radius:0 8px 8px 0;
+           margin-bottom:1.75rem;text-align:left;line-height:1.6;}
+    .btns{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+    .btn-gold{display:inline-flex;align-items:center;gap:0.5rem;
+              padding:0.875rem 1.5rem;
+              background:linear-gradient(135deg,#D4AF37,#A88B28);
+              border:none;border-radius:12px;color:#000;text-decoration:none;
+              font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:800;
+              letter-spacing:0.04em;text-transform:uppercase;
+              transition:all .2s ease;}
+    .btn-gold:hover{filter:brightness(1.1);box-shadow:0 4px 20px rgba(212,175,55,.3);}
+    .btn-ghost{display:inline-flex;align-items:center;gap:0.5rem;
+               padding:0.875rem 1.25rem;
+               background:transparent;
+               border:1px solid rgba(255,255,255,0.1);border-radius:12px;
+               color:#A5ADBA;text-decoration:none;
+               font-family:'Inter',sans-serif;font-size:0.9375rem;font-weight:500;
+               transition:all .2s ease;}
+    .btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,0.2);}
+    @keyframes glow{0%,100%{-webkit-text-stroke-color:rgba(212,175,55,0.35)}
+                    50%{-webkit-text-stroke-color:rgba(212,175,55,0.7)}}
+  </style>
+</head>
+<body>
+<div class="orb"></div>
+<div class="wrap">
+  <div class="num">404</div>
+  <div class="icon">🐍</div>
+  <h1>Wąż ukrył ścieżkę</h1>
+  <p>Ta strona nie istnieje lub została przeniesiona.<br>Wróć na arenę.</p>
+  <div class="quote">
+    "Nie każda droga prowadzi do celu.<br>
+    Mądry wojownik zawraca i szuka właściwej."
+  </div>
+  <div class="btns">
+    <a href="index.html" class="btn-gold">⚔️ Wróć na Arenę</a>
+    <a href="feed.html"  class="btn-ghost">Feed</a>
+  </div>
+</div>
+</body>
+</html>

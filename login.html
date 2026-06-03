@@ -6,6 +6,22 @@
   <meta name="theme-color" content="#0A0A0B" />
   <meta name="description" content="Weekend Warrior Social — Logowanie" />
   <title>Logowanie — Weekend Warrior Social</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WWS Arena" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg" />
+  <!-- OG / Social -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Weekend Warrior Social" />
+  <meta property="og:description" content="Portal społecznościowy dla wojowników weekendu. Wyzwania, ranking, osiągnięcia." />
+  <meta property="og:image"       content="assets/icons/icon-512.svg" />
+  <meta name="twitter:card"       content="summary" />
+  <meta name="twitter:title"      content="Weekend Warrior Social ⚔️" />
+  <meta name="twitter:description"content="Dołącz. Walcz. Zwyciężaj." />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="css/style.css" />
@@ -120,9 +136,27 @@
 
 <script type="module">
   import { initLoginForm, redirectIfLogged } from './js/auth.js';
+
+  // First-time visitor without account → show onboarding
+  if (!localStorage.getItem('wws_onboarded') && !localStorage.getItem('wws_seen_login')) {
+    localStorage.setItem('wws_seen_login','1');
+    window.location.replace('onboarding.html');
+  }
+
   redirectIfLogged();
   initLoginForm();
 </script>
 
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[SW] Registered:', reg.scope))
+          .catch(err => console.warn('[SW] Registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>
