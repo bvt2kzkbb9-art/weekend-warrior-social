@@ -3,402 +3,390 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Weekend Warrior Social — Profil</title>
-
+  <meta name="theme-color" content="#0A0A0B" />
+  <meta name="description" content="Weekend Warrior Social — Profil" />
+  <title>Profil — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="css/style.css" />
-
-  <style>
-    .profile-page {
-      min-height: 100vh;
-      background: #0a0a0b;
-      color: #ffffff;
-      padding: 24px;
-    }
-
-    .profile-container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .profile-header {
-      background: #121317;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 24px;
-      padding: 32px;
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .avatar {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #d4af37;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 42px;
-      font-weight: 700;
-      color: #000;
-      flex-shrink: 0;
-    }
-
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .profile-info h1 {
-      margin: 0;
-      font-size: 2rem;
-    }
-
-    .profile-info p {
-      margin: 6px 0;
-      color: #a5adba;
-    }
-
-    .rank-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(212,175,55,.15);
-      border: 1px solid rgba(212,175,55,.3);
-      color: #d4af37;
-      padding: 8px 14px;
-      border-radius: 999px;
-      margin-top: 12px;
-      font-weight: 600;
-    }
-
-    .profile-actions {
-      margin-left: auto;
-    }
-
-    .btn-edit {
-      border: none;
-      background: #d4af37;
-      color: #000;
-      padding: 12px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: #121317;
-      border-radius: 20px;
-      padding: 20px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #d4af37;
-    }
-
-    .stat-label {
-      color: #a5adba;
-      margin-top: 6px;
-      font-size: .9rem;
-    }
-
-    .card {
-      background: #121317;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 16px;
-    }
-
-    .xp-bar {
-      width: 100%;
-      height: 14px;
-      background: #1a1c22;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .xp-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg,#d4af37,#ffd95c);
-      transition: width .4s ease;
-    }
-
-    .activity-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .activity-item {
-      background: #1a1c22;
-      padding: 14px;
-      border-radius: 12px;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1000;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      width: 100%;
-      max-width: 500px;
-      background: #121317;
-      border-radius: 24px;
-      padding: 24px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      background: #1a1c22;
-      color: white;
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 20px;
-    }
-
-    .btn-primary {
-      background: #d4af37;
-      color: #000;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-secondary {
-      background: #1a1c22;
-      color: #fff;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    @media(max-width:768px) {
-      .profile-header {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .profile-actions {
-        margin-left: 0;
-      }
-    }
-  </style>
 </head>
+<body>
 
-<body class="profile-page">
+<div class="bg-orbs" aria-hidden="true"></div>
 
-<div class="profile-container">
+<!-- ── Navigation ── -->
+<nav class="nav" aria-label="Główna nawigacja">
+  <span class="nav-brand">⚔ WWS</span>
 
-  <section class="profile-header">
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    <span>Start</span>
+  </a>
 
-    <div class="avatar" id="avatar">
-      W
-    </div>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span>Feed</span>
+  </a>
 
-    <div class="profile-info">
-      <h1 id="displayName">Ładowanie...</h1>
-      <p id="email">...</p>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+      <polyline points="17 6 23 6 23 12"/>
+    </svg>
+    <span>Ranking</span>
+  </a>
 
-      <div class="rank-badge">
-        <span id="rankEmoji">🥉</span>
-        <span id="rankName">Rookie</span>
+  <a href="profile.html" class="nav-item active" aria-current="page">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span>Profil</span>
+  </a>
+
+  <div class="nav-actions">
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Wyloguj
+    </button>
+  </div>
+</nav>
+
+<!-- ── Content ── -->
+<main class="content-area page">
+
+  <!-- ── SKELETON ── -->
+  <div id="profile-skeleton">
+    <div class="profile-skeleton-hero">
+      <div class="skeleton" style="width:96px;height:96px;border-radius:50%;"></div>
+      <div class="skeleton" style="height:22px;width:160px;border-radius:6px;"></div>
+      <div class="skeleton" style="height:14px;width:100px;border-radius:4px;"></div>
+      <div class="skeleton" style="height:14px;width:220px;border-radius:4px;"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <div class="skeleton" style="height:24px;width:90px;border-radius:20px;"></div>
+        <div class="skeleton" style="height:24px;width:80px;border-radius:20px;"></div>
       </div>
-
-      <p id="levelText">
-        Poziom 1
-      </p>
     </div>
-
-    <div class="profile-actions">
-      <button class="btn-edit" id="editProfileBtn">
-        Edytuj profil
-      </button>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem;">
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:78px;border-radius:var(--r-lg);"></div>
     </div>
-
-  </section>
-
-  <section class="stats-grid">
-
-    <div class="stat-card">
-      <div class="stat-value" id="points">0</div>
-      <div class="stat-label">Punkty</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-value" id="level">1</div>
-      <div class="stat-label">Poziom</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-value" id="postsCount">0</div>
-      <div class="stat-label">Posty</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-value" id="followersCount">0</div>
-      <div class="stat-label">Obserwujący</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-value" id="followingCount">0</div>
-      <div class="stat-label">Obserwowani</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-value" id="achievementsCount">0</div>
-      <div class="stat-label">Osiągnięcia</div>
-    </div>
-
-  </section>
-
-  <section class="card">
-
-    <h2>Postęp rangi</h2>
-
-    <div class="xp-bar">
-      <div class="xp-fill" id="xpFill"></div>
-    </div>
-
-    <p id="progressText">
-      0%
-    </p>
-
-  </section>
-
-  <section class="card">
-
-    <h2>Bio</h2>
-
-    <p id="bio">
-      Brak opisu.
-    </p>
-
-  </section>
-
-  <section class="card">
-
-    <h2>Lokalizacja</h2>
-
-    <p id="location">
-      Nie podano lokalizacji.
-    </p>
-
-  </section>
-
-  <section class="card">
-
-    <h2>Historia aktywności</h2>
-
-    <div class="activity-list">
-
-      <div class="activity-item">
-        Konto utworzone.
-      </div>
-
-      <div class="activity-item">
-        Dołączono do Weekend Warrior Social.
-      </div>
-
-    </div>
-
-  </section>
-
-</div>
-
-<div class="modal" id="editModal">
-
-  <div class="modal-content">
-
-    <h2>Edytuj profil</h2>
-
-    <form id="profileForm">
-
-      <div class="form-group">
-        <label>Nazwa użytkownika</label>
-        <input type="text" id="editDisplayName">
-      </div>
-
-      <div class="form-group">
-        <label>Bio</label>
-        <textarea id="editBio" rows="4"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Lokalizacja</label>
-        <input type="text" id="editLocation">
-      </div>
-
-      <div class="modal-actions">
-
-        <button type="button" class="btn-secondary" id="closeModal">
-          Anuluj
-        </button>
-
-        <button type="submit" class="btn-primary">
-          Zapisz zmiany
-        </button>
-
-      </div>
-
-    </form>
-
+    <div class="skeleton" style="height:90px;border-radius:var(--r-lg);margin-top:1rem;"></div>
+    <div class="skeleton" style="height:56px;border-radius:var(--r-xl);margin-top:1rem;"></div>
+    <div class="skeleton" style="height:56px;border-radius:var(--r-xl);margin-top:0.75rem;"></div>
   </div>
 
-</div>
+  <!-- ── PROFILE CONTENT ── -->
+  <div id="profile-content" class="hidden">
 
-<script type="module" src="./js/profile.js"></script>
+    <!-- Hero card -->
+    <div class="profile-page-hero">
+
+      <!-- Avatar z upload -->
+      <div class="profile-avatar-wrap" id="profile-avatar-wrap"
+           role="button" tabindex="0" aria-label="Zmień avatar">
+        <div class="profile-avatar-el" id="profile-avatar-el"></div>
+        <div class="avatar-upload-overlay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span>Zmień</span>
+        </div>
+        <div class="avatar-upload-progress" id="avatar-upload-progress">0%</div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input type="file" id="avatar-file-input"
+             accept="image/jpeg,image/png,image/webp"
+             style="display:none;" aria-hidden="true" />
+
+      <!-- Info -->
+      <div>
+        <div class="profile-page-name" id="profile-display-name">Wojownik</div>
+        <div class="profile-page-username" id="profile-username">@wojownik</div>
+      </div>
+
+      <!-- Bio -->
+      <p class="profile-page-bio" id="profile-bio"></p>
+
+      <!-- Badges -->
+      <div class="profile-badges">
+        <span id="profile-rank-badge" class="badge badge-gold">🥉 Rookie</span>
+        <span id="profile-level-badge" class="badge badge-blue">Poziom 1</span>
+      </div>
+
+      <!-- Email small -->
+      <div style="font-size:0.8125rem;color:var(--text-muted);" id="profile-email-display"></div>
+
+    </div>
+
+    <!-- Stats row -->
+    <div class="profile-stats-row">
+      <div class="stat-card">
+        <div id="profile-stat-points" class="stat-value" style="color:var(--gold);">0</div>
+        <div class="stat-label">Punkty XP</div>
+      </div>
+      <div class="stat-card">
+        <div id="profile-stat-level" class="stat-value" style="color:var(--blue);">1</div>
+        <div class="stat-label">Poziom</div>
+      </div>
+      <div class="stat-card">
+        <div id="profile-stat-rank" class="stat-value rank-rookie">🥉</div>
+        <div class="stat-label">Ranga</div>
+      </div>
+    </div>
+
+    <!-- XP Progress -->
+    <div class="profile-xp-card">
+      <div class="xp-row">
+        <span class="xp-label">Postęp do następnej rangi</span>
+        <span id="profile-xp-percent" class="xp-val">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="profile-xp-bar" class="progress-fill" style="width:0%;"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        </div>
+      </div>
+      <div class="xp-sublabels">
+        <span id="profile-rank-current" class="xp-sublabel"></span>
+        <span id="profile-rank-next"    class="xp-sublabel"></span>
+      </div>
+    </div>
+
+    <!-- Achievements preview -->
+    <div class="achievements-preview">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h4 style="font-size:0.9375rem;font-family:var(--font-hd);">🏆 Osiągnięcia</h4>
+        <a href="achievements.html" style="font-size:0.8125rem;color:var(--gold);font-weight:500;">
+          Wszystkie →
+        </a>
+      </div>
+      <div class="achievements-grid" id="achievements-grid"></div>
+    </div>
+
+    <!-- ── Edit profile (accordion) ── -->
+    <div class="profile-edit-card">
+      <div class="profile-section-header" id="edit-profile-header"
+           role="button" tabindex="0" aria-expanded="false">
+        <div class="profile-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edytuj profil
+        </div>
+        <svg id="edit-profile-chevron" class="section-chevron"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <div class="profile-section-body" id="edit-profile-body">
+        <form id="edit-profile-form" class="edit-form" novalidate>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-display-name">Imię / Pseudonim</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input id="edit-display-name" type="text"
+                     class="form-input" placeholder="Twój pseudonim"
+                     maxlength="32" autocomplete="name" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="edit-bio">Opis profilu</label>
+            <textarea id="edit-bio" class="bio-textarea"
+                      placeholder="Napisz coś o sobie... (max 200 znaków)"
+                      maxlength="200" rows="3"></textarea>
+            <span class="form-hint">Max. 200 znaków</span>
+          </div>
+
+          <button id="save-profile-btn" type="submit" class="btn btn-primary btn-full">
+            Zapisz zmiany
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Change password (accordion) ── -->
+    <div class="profile-edit-card">
+      <div class="profile-section-header" id="password-header"
+           role="button" tabindex="0" aria-expanded="false">
+        <div class="profile-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Zmień hasło
+        </div>
+        <svg id="password-chevron" class="section-chevron"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <div class="profile-section-body" id="password-body">
+        <form id="change-password-form" class="edit-form" novalidate autocomplete="off">
+
+          <div class="form-group">
+            <label class="form-label" for="current-password">Aktualne hasło</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <input id="current-password" type="password"
+                     class="form-input has-toggle"
+                     placeholder="Wpisz aktualne hasło"
+                     autocomplete="current-password" />
+              <button type="button" class="input-toggle"
+                      onclick="const i=document.getElementById('current-password');i.type=i.type==='password'?'text':'password';"
+                      aria-label="Pokaż hasło">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-password">Nowe hasło</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <input id="new-password" type="password"
+                     class="form-input has-toggle"
+                     placeholder="Min. 6 znaków"
+                     autocomplete="new-password" />
+              <button type="button" class="input-toggle"
+                      onclick="const i=document.getElementById('new-password');i.type=i.type==='password'?'text':'password';"
+                      aria-label="Pokaż nowe hasło">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirm-new-password">Potwierdź nowe hasło</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <input id="confirm-new-password" type="password"
+                     class="form-input has-toggle"
+                     placeholder="Powtórz nowe hasło"
+                     autocomplete="new-password" />
+              <button type="button" class="input-toggle"
+                      onclick="const i=document.getElementById('confirm-new-password');i.type=i.type==='password'?'text':'password';"
+                      aria-label="Pokaż potwierdzenie hasła">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button id="save-password-btn" type="submit" class="btn btn-secondary btn-full">
+            Zmień hasło
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Danger zone (accordion) ── -->
+    <div class="danger-zone">
+      <div class="profile-section-header" id="danger-header"
+           role="button" tabindex="0" aria-expanded="false">
+        <div class="profile-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Strefa niebezpieczna
+        </div>
+        <svg id="danger-chevron" class="section-chevron"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <div class="danger-section-body" id="danger-body">
+        <div class="danger-item">
+          <div class="danger-item-info">
+            <div class="danger-item-title">Wyloguj się</div>
+            <div class="danger-item-desc">Zakończ sesję na tym urządzeniu.</div>
+          </div>
+          <button id="danger-logout-btn" class="btn btn-danger btn-sm">
+            Wyloguj
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member since -->
+    <div class="member-since" id="member-since"></div>
+
+    <!-- Bottom padding -->
+    <div style="height:1rem;"></div>
+
+  </div><!-- /profile-content -->
+
+</main>
+
+<script type="module">
+  import { initProfilePage } from './js/profile.js';
+  initProfilePage();
+</script>
 
 </body>
 </html>
