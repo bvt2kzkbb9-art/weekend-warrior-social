@@ -24,6 +24,7 @@ import {
 } from './auth.js';
 
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
+import { makeAvatarsClickable, openUserProfile } from './social.js';
 
 import {
   collection,
@@ -403,6 +404,9 @@ function startFeedStream() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) loadMoreBtn.style.display = hasMorePosts ? 'block' : 'none';
 
+    // Make avatars clickable
+    makeAvatarsClickable(feedList);
+
     // Animacje
     feedList?.querySelectorAll('.post-card').forEach((el, i) => {
       el.style.animationDelay = (i * 0.04) + 's';
@@ -518,7 +522,7 @@ function createPostElement(postId, data) {
   el.innerHTML = `
     <!-- Header -->
     <div class="post-header">
-      <div class="post-avatar">${avatarHTML}</div>
+      <div class="post-avatar" data-user-uid="${data.authorId}" style="cursor:pointer;">${avatarHTML}</div>
       <div class="post-meta">
         <div class="post-author">${escHtml(data.authorName || 'Wojownik')}</div>
         <div class="post-time">${timeStr}</div>

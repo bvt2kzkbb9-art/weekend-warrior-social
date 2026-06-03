@@ -28,6 +28,7 @@ import {
 import {
   checkAuth, logout, getCurrentUserData, showToast,
 } from './auth.js';
+import { makeAvatarsClickable } from './social.js';
 
 import {
   collection,
@@ -380,7 +381,7 @@ function renderList(users, myPosition) {
     row.innerHTML = `
       <div class="ranking-pos ${posClass}">${pos}</div>
       <div class="ranking-user">
-        <div class="ranking-avatar">${avatarHTML}</div>
+        <div class="ranking-avatar" data-user-uid="${userData.uid}" style="cursor:pointer;">${avatarHTML}</div>
         <div class="ranking-user-info">
           <div class="ranking-name${isMe ? ' is-me' : ''}">${escHtml(userData.displayName || 'Wojownik')}</div>
           <div class="ranking-rank-badge">${rankObj.emoji} ${rankObj.label}</div>
@@ -392,6 +393,9 @@ function renderList(users, myPosition) {
 
     listEl.appendChild(row);
   });
+
+  // Make avatars clickable
+  makeAvatarsClickable(listEl);
 
   // Jeśli user jest poza TOP i lista ma >= 3 pozycje — dodaj separator + jego pozycję
   if (myPosition > users.length && myPosition > 0) {
