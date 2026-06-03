@@ -99,3 +99,6 @@ export function getRankProgress(points = 0) {
 }
 
 export default app;
+
+// ── Storage (eksportowane dla feed.js) ──────────────────────
+export { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
