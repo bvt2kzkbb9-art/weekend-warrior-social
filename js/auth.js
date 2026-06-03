@@ -172,7 +172,10 @@ export async function ensureUserDoc(user, extra = {}) {
     try {
   await setDoc(ref, data);
 
-  alert('USER DOC CREATED');
+alert(
+  'PROFIL ZAPISANY\n\nUID:\n' +
+  user.uid
+);
 
   return data;
 
