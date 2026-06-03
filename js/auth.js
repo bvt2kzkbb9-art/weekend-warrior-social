@@ -1,24 +1,12 @@
 /**
  * ============================================================
  * WEEKEND WARRIOR SOCIAL — auth.js
- * Firebase SDK 10.12.2 | ES Modules
+ * Firebase SDK 10.12.2 | ES Modules | GitHub Pages Ready
  * ============================================================
- *
- * Eksporty publiczne:
- *   showToast(msg, type, duration)
- *   ensureUserDoc(user, extra?)    → tworzy/zwraca profil Firestore
- *   getCurrentUserData(uid)        → pobiera profil, auto-naprawia brak doc
- *   checkAuth(callback?)           → guard — wymaga logowania
- *   redirectIfLogged(dest?)        → guard — przekieruj jeśli zalogowany
- *   logout()
- *   initLoginForm()
- *   initRegisterForm()
- *   auth                           → re-export dla innych modułów
- *   onAuthStateChanged             → re-export dla innych modułów
  */
 
 import {
-  auth, db, googleProvider, COL, getRank, getLevel,
+  auth, db, googleProvider, COL,
 } from './firebase.js';
 
 import {
@@ -123,9 +111,9 @@ function clearAllErrors(form) {
 
 function toggleVisibility(input, btn) {
   if (!input || !btn) return;
-  const show = input.type === 'password';
-  input.type     = show ? 'text' : 'password';
-  btn.innerHTML  = show ? EYE_OFF : EYE_ON;
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  btn.innerHTML = show ? EYE_OFF : EYE_ON;
   btn.setAttribute('aria-label', show ? 'Ukryj hasło' : 'Pokaż hasło');
 }
 
@@ -148,13 +136,13 @@ const FB_ERRORS = {
   'auth/network-request-failed':  'Błąd połączenia. Sprawdź internet.',
   'auth/popup-closed-by-user':    null,
   'auth/cancelled-popup-request': null,
-  'auth/popup-blocked':           'Przeglądarka zablokowała okno logowania. Zezwól na popup.',
+  'auth/popup-blocked':           'Przeglądarka zablokowała popup. Zezwól na wyskakujące okna.',
   'auth/user-disabled':           'To konto zostało zablokowane.',
-  'permission-denied':            'Brak uprawnień do Firestore. Sprawdź reguły bezpieczeństwa.',
 };
 
 function fbMsg(code) {
-  return FB_ERRORS[code] ?? `Błąd: ${code ?? 'nieznany'}`;
+  if (code in FB_ERRORS) return FB_ERRORS[code];
+  return `Błąd (${code ?? 'nieznany'})`;
 }
 
 
@@ -164,50 +152,64 @@ function fbMsg(code) {
 
 /**
  * Tworzy dokument users/{uid} gdy nie istnieje.
- * Gdy istnieje — aktualizuje tylko lastActive.
- * Zawsze zwraca aktualne dane profilu.
+ * Gdy istnieje — aktualizuje tylko lastActive (nie krytyczne).
+ * Zawsze zwraca dane profilu.
  *
- * @param {import('firebase/auth').User} user
- * @param {Object} extra  — dodatkowe pola przy rejestracji (displayName, username)
- * @returns {Promise<Object>} dane profilu
+ * NIE rzuca błędu permission-denied jako fatal —
+ * logowanie nie powinno być blokowane przez Firestore.
  */
 export async function ensureUserDoc(user, extra = {}) {
   const TAG = '[ensureUserDoc]';
 
   if (!user?.uid) {
     console.error(TAG, '❌ Brak user.uid');
-    throw new Error('Brak user.uid');
+    return null;
   }
 
   console.log(TAG, '🔍 Sprawdzam users/' + user.uid);
 
-  const ref  = doc(db, COL.USERS, user.uid);
-  let   snap;
-
+  let snap;
   try {
-    snap = await getDoc(ref);
+    snap = await getDoc(doc(db, COL.USERS, user.uid));
   } catch (err) {
-    console.error(TAG, '❌ getDoc failed:', err.code, err.message);
-    throw err;
+    // permission-denied przy getDoc = reguły blokują odczyt
+    // Nie blokujemy logowania — zwracamy dane z Auth
+    console.error(TAG, '❌ getDoc error:', err.code, err.message);
+    if (err.code === 'permission-denied') {
+      console.warn(TAG, '⚠️ Reguły Firestore blokują odczyt. Sprawdź Firebase Console → Firestore → Rules.');
+    }
+    return buildFallbackProfile(user, extra);
   }
 
-  // ── Dokument istnieje → aktualizuj lastActive ────────────
+  // Dokument istnieje
   if (snap.exists()) {
-    console.log(TAG, '✅ Dokument istnieje, aktualizuję lastActive');
-
-    try {
-      await updateDoc(ref, { lastActive: serverTimestamp() });
-    } catch (err) {
-      // Nie krytyczne — loguj ale nie rzucaj
-      console.warn(TAG, '⚠️ Nie udało się zaktualizować lastActive:', err.message);
-    }
-
+    console.log(TAG, '✅ Dokument istnieje');
+    // Próba aktualizacji lastActive — nie krytyczna
+    updateLastActiveSilent(user.uid);
     return snap.data();
   }
 
-  // ── Dokument nie istnieje → utwórz ──────────────────────
+  // Dokument nie istnieje — utwórz
   console.log(TAG, '📝 Tworzę nowy dokument users/' + user.uid);
 
+  const data = buildProfileData(user, extra);
+
+  try {
+    await setDoc(doc(db, COL.USERS, user.uid), data);
+    console.log(TAG, '✅ Dokument utworzony:', data.displayName);
+    return data;
+  } catch (err) {
+    console.error(TAG, '❌ setDoc error:', err.code, err.message);
+    if (err.code === 'permission-denied') {
+      console.warn(TAG, '⚠️ Reguły Firestore blokują zapis.');
+      console.warn(TAG, 'Wymagane reguły:\n' + REQUIRED_RULES);
+    }
+    // Zwróć dane bez zapisu — przynajmniej dashboard zadziała
+    return data;
+  }
+}
+
+function buildProfileData(user, extra = {}) {
   const displayName = (extra.displayName || user.displayName || 'Wojownik').trim();
   const username    = (extra.username    || displayName)
     .toLowerCase()
@@ -215,12 +217,12 @@ export async function ensureUserDoc(user, extra = {}) {
     .replace(/[^a-z0-9_]/g, '')
     .slice(0, 30) || 'wojownik';
 
-  const data = {
+  return {
     uid:         user.uid,
     displayName,
     username,
-    email:       user.email       ?? '',
-    photoURL:    user.photoURL    ?? '',
+    email:       user.email    ?? '',
+    photoURL:    user.photoURL ?? '',
     bio:         '',
     points:      0,
     level:       1,
@@ -228,25 +230,51 @@ export async function ensureUserDoc(user, extra = {}) {
     createdAt:   serverTimestamp(),
     lastActive:  serverTimestamp(),
   };
-
-  try {
-    await setDoc(ref, data);
-    console.log(TAG, '✅ Dokument utworzony pomyślnie:', data);
-  } catch (err) {
-    console.error(TAG, '❌ setDoc failed:', err.code, err.message);
-    throw err;
-  }
-
-  return data;
 }
+
+// Fallback gdy Firestore niedostępny — używa danych z Firebase Auth
+function buildFallbackProfile(user, extra = {}) {
+  const displayName = extra.displayName || user.displayName || 'Wojownik';
+  return {
+    uid:         user.uid,
+    displayName,
+    username:    displayName.toLowerCase().replace(/\s+/g, '_').slice(0, 30),
+    email:       user.email    ?? '',
+    photoURL:    user.photoURL ?? '',
+    bio:         '',
+    points:      0,
+    level:       1,
+    rank:        'Rookie',
+    _fallback:   true, // oznacza że dane nie są z Firestore
+  };
+}
+
+async function updateLastActiveSilent(uid) {
+  try {
+    await updateDoc(doc(db, COL.USERS, uid), { lastActive: serverTimestamp() });
+  } catch {
+    // Cicha porażka — nie blokuje niczego
+  }
+}
+
+const REQUIRED_RULES = `
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}`;
 
 /**
  * Pobiera dane użytkownika z Firestore.
- * Jeśli dokument nie istnieje, automatycznie go tworzy (auto-repair).
+ * Auto-repair: jeśli dokument nie istnieje — tworzy go.
+ * Fallback: jeśli Firestore niedostępny — dane z Auth.
  *
- * @param {string}                        uid
- * @param {import('firebase/auth').User}  [authUser]  — opcjonalnie do auto-repair
- * @returns {Promise<Object|null>}
+ * NIGDY nie rzuca błędu który blokuje UI.
  */
 export async function getCurrentUserData(uid, authUser = null) {
   const TAG = '[getCurrentUserData]';
@@ -263,27 +291,32 @@ export async function getCurrentUserData(uid, authUser = null) {
     snap = await getDoc(doc(db, COL.USERS, uid));
   } catch (err) {
     console.error(TAG, '❌ getDoc error:', err.code, err.message);
-    throw err;
+
+    if (err.code === 'permission-denied') {
+      console.warn(TAG, '⚠️ permission-denied! Sprawdź reguły Firestore:' + REQUIRED_RULES);
+    }
+
+    // Fallback z Auth jeśli mamy użytkownika
+    const user = authUser ?? auth.currentUser;
+    if (user) {
+      console.warn(TAG, '⚠️ Używam danych fallback z Auth (bez Firestore)');
+      return buildFallbackProfile(user);
+    }
+
+    throw err; // Re-throw tylko gdy brak fallbacku
   }
 
-  // ── Dokument istnieje ────────────────────────────────────
+  // Dokument istnieje
   if (snap.exists()) {
     const data = snap.data();
-    console.log(TAG, '✅ Dane pobrane:', {
-      uid:         data.uid,
-      displayName: data.displayName,
-      points:      data.points,
-      rank:        data.rank,
-      level:       data.level,
-    });
+    console.log(TAG, '✅ Dane pobrane:', data.displayName, '| pkt:', data.points, '| ranga:', data.rank);
     return data;
   }
 
-  // ── Auto-repair: dokument nie istnieje ───────────────────
-  console.warn(TAG, '⚠️ Dokument users/' + uid + ' nie istnieje — uruchamiam auto-repair');
+  // Dokument nie istnieje — auto-repair
+  console.warn(TAG, '⚠️ Dokument nie istnieje, auto-repair...');
 
   const user = authUser ?? auth.currentUser;
-
   if (!user) {
     console.error(TAG, '❌ Brak auth.currentUser — nie można naprawić');
     return null;
@@ -291,11 +324,11 @@ export async function getCurrentUserData(uid, authUser = null) {
 
   try {
     const newData = await ensureUserDoc(user);
-    console.log(TAG, '✅ Auto-repair zakończony pomyślnie');
+    console.log(TAG, '✅ Auto-repair zakończony');
     return newData;
   } catch (err) {
-    console.error(TAG, '❌ Auto-repair failed:', err.code, err.message);
-    throw err;
+    console.error(TAG, '❌ Auto-repair failed:', err.message);
+    return buildFallbackProfile(user);
   }
 }
 
@@ -307,10 +340,7 @@ export async function getCurrentUserData(uid, authUser = null) {
 /**
  * Wymaga zalogowania.
  * Niezalogowany → login.html
- * Zalogowany    → wywołuje callback(user)
- *
- * @param {function} [callback]
- * @returns {Promise<import('firebase/auth').User>}
+ * Zalogowany    → callback(user)
  */
 export function checkAuth(callback) {
   console.log('[checkAuth] Sprawdzam stan logowania...');
@@ -320,7 +350,7 @@ export function checkAuth(callback) {
       unsub();
 
       if (!user) {
-        console.warn('[checkAuth] ❌ Użytkownik niezalogowany → login.html');
+        console.warn('[checkAuth] ❌ Niezalogowany → login.html');
         window.location.replace('login.html');
         return;
       }
@@ -328,7 +358,6 @@ export function checkAuth(callback) {
       console.log('[checkAuth] ✅ Zalogowany:', user.uid, user.email);
 
       if (typeof callback === 'function') {
-        // Callback async — łapiemy błędy
         try {
           const result = callback(user);
           if (result instanceof Promise) {
@@ -338,12 +367,13 @@ export function checkAuth(callback) {
             });
           }
         } catch (err) {
-          console.error('[checkAuth] ❌ Synchroniczny błąd w callback:', err);
+          console.error('[checkAuth] ❌ Sync błąd w callback:', err);
           reject(err);
         }
       }
 
       resolve(user);
+
     }, (err) => {
       console.error('[checkAuth] ❌ onAuthStateChanged error:', err);
       reject(err);
@@ -352,16 +382,14 @@ export function checkAuth(callback) {
 }
 
 /**
- * Jeśli użytkownik zalogowany → przekieruj do index.html
- * Używane na login.html i register.html.
- *
- * @param {string} [dest='index.html']
+ * Jeśli zalogowany → przekieruj do index.html.
+ * Używaj na login.html i register.html.
  */
 export function redirectIfLogged(dest = 'index.html') {
   const unsub = onAuthStateChanged(auth, (user) => {
     unsub();
     if (user) {
-      console.log('[redirectIfLogged] Użytkownik zalogowany → redirect do', dest);
+      console.log('[redirectIfLogged] Zalogowany → redirect:', dest);
       window.location.replace(dest);
     }
   });
@@ -373,15 +401,13 @@ export function redirectIfLogged(dest = 'index.html') {
 // ════════════════════════════════════════════════════════════
 
 export async function logout() {
-  const TAG = '[logout]';
-  console.log(TAG, 'Wylogowuję...');
-
+  console.log('[logout] Wylogowuję...');
   try {
     await signOut(auth);
-    console.log(TAG, '✅ Wylogowano pomyślnie');
+    console.log('[logout] ✅ Wylogowano');
     window.location.replace('login.html');
   } catch (err) {
-    console.error(TAG, '❌ signOut failed:', err);
+    console.error('[logout] ❌', err);
     showToast('Błąd podczas wylogowywania.', 'error');
   }
 }
@@ -394,11 +420,11 @@ export async function logout() {
 function calcStrength(pwd) {
   if (!pwd) return 0;
   let s = 0;
-  if (pwd.length >= 6)              s++;
-  if (pwd.length >= 10)             s++;
-  if (/[A-Z]/.test(pwd))            s++;
-  if (/[0-9]/.test(pwd))            s++;
-  if (/[^A-Za-z0-9]/.test(pwd))    s++;
+  if (pwd.length >= 6)           s++;
+  if (pwd.length >= 10)          s++;
+  if (/[A-Z]/.test(pwd))         s++;
+  if (/[0-9]/.test(pwd))         s++;
+  if (/[^A-Za-z0-9]/.test(pwd)) s++;
   if (s <= 1) return 1;
   if (s <= 3) return 2;
   return 3;
@@ -436,17 +462,13 @@ export function initLoginForm() {
   const forgotLink = document.getElementById('forgot-link');
   const toggleBtn  = document.getElementById('toggle-password');
 
-  if (!form) {
-    console.warn(TAG, '⚠️ #login-form nie znaleziony w DOM');
-    return;
-  }
+  if (!form) { console.warn(TAG, '⚠️ #login-form nie znaleziony'); return; }
+  console.log(TAG, '✅ Init');
 
-  console.log(TAG, '✅ Inicjalizacja formularza logowania');
-
-  // Toggle widoczności hasła
+  // Toggle hasła
   toggleBtn?.addEventListener('click', () => toggleVisibility(passInput, toggleBtn));
 
-  // ── Submit: email + hasło ────────────────────────────────
+  // Submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearAllErrors(form);
@@ -454,57 +476,50 @@ export function initLoginForm() {
     const email    = emailInput?.value.trim() ?? '';
     const password = passInput?.value         ?? '';
 
-    console.log(TAG, 'Submit — email:', email);
-
     let ok = true;
-    if (!email)    { setFieldError(emailInput, 'Podaj adres e-mail.');  ok = false; }
-    if (!password) { setFieldError(passInput,  'Podaj hasło.');         ok = false; }
+    if (!email)    { setFieldError(emailInput, 'Podaj adres e-mail.'); ok = false; }
+    if (!password) { setFieldError(passInput,  'Podaj hasło.');        ok = false; }
     if (!ok) return;
 
     setLoading(submitBtn, true);
+    console.log(TAG, '🔐 Loguję:', email);
 
     try {
-      console.log(TAG, '🔐 signInWithEmailAndPassword...');
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      console.log(TAG, '✅ Zalogowano:', cred.user.uid);
+      console.log(TAG, '✅ Auth OK:', cred.user.uid);
 
-      // Upewnij się że dokument istnieje (auto-repair po ewentualnym braku)
-      await ensureUserDoc(cred.user);
-
-      showToast('Zalogowano pomyślnie! Witaj z powrotem ⚔️', 'success');
+      showToast('Zalogowano! Witaj z powrotem ⚔️', 'success');
       setTimeout(() => window.location.replace('index.html'), 600);
 
     } catch (err) {
-      console.error(TAG, '❌ Błąd logowania:', err.code, err.message);
+      console.error(TAG, '❌', err.code, err.message);
       const msg = fbMsg(err.code);
       if (msg) showToast(msg, 'error');
       setLoading(submitBtn, false);
     }
   });
 
-  // ── Google login ─────────────────────────────────────────
+  // Google
   googleBtn?.addEventListener('click', async () => {
-    console.log(TAG, '🔐 signInWithPopup (Google)...');
     setLoading(googleBtn, true);
+    console.log(TAG, '🔐 Google popup...');
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log(TAG, '✅ Google login:', result.user.uid, result.user.email);
-
-      await ensureUserDoc(result.user);
+      console.log(TAG, '✅ Google OK:', result.user.uid);
 
       showToast('Zalogowano przez Google! 🎉', 'success');
       setTimeout(() => window.location.replace('index.html'), 600);
 
     } catch (err) {
-      console.error(TAG, '❌ Google login error:', err.code, err.message);
+      console.error(TAG, '❌ Google:', err.code, err.message);
       const msg = fbMsg(err.code);
       if (msg) showToast(msg, 'error');
       setLoading(googleBtn, false);
     }
   });
 
-  // ── Reset hasła ──────────────────────────────────────────
+  // Reset hasła
   forgotLink?.addEventListener('click', async (e) => {
     e.preventDefault();
     const email = emailInput?.value.trim() ?? '';
@@ -515,14 +530,13 @@ export function initLoginForm() {
       return;
     }
 
-    console.log(TAG, '📧 sendPasswordResetEmail:', email);
+    console.log(TAG, '📧 Reset email:', email);
 
     try {
       await sendPasswordResetEmail(auth, email);
-      console.log(TAG, '✅ Email resetujący wysłany');
-      showToast('Link do resetowania hasła wysłany. Sprawdź skrzynkę! 📬', 'success', 5500);
+      showToast('Link resetujący wysłany! Sprawdź skrzynkę 📬', 'success', 5500);
     } catch (err) {
-      console.error(TAG, '❌ Reset email error:', err.code, err.message);
+      console.error(TAG, '❌ Reset:', err.code, err.message);
       const msg = fbMsg(err.code);
       if (msg) showToast(msg, 'error');
     }
@@ -549,18 +563,14 @@ export function initRegisterForm() {
   const toggleConfirm = document.getElementById('toggle-confirm');
   const strengthBars  = document.querySelectorAll('.strength-bar');
 
-  if (!form) {
-    console.warn(TAG, '⚠️ #register-form nie znaleziony w DOM');
-    return;
-  }
-
-  console.log(TAG, '✅ Inicjalizacja formularza rejestracji');
+  if (!form) { console.warn(TAG, '⚠️ #register-form nie znaleziony'); return; }
+  console.log(TAG, '✅ Init');
 
   // Toggles
   togglePass?.addEventListener('click',    () => toggleVisibility(passInput,    togglePass));
   toggleConfirm?.addEventListener('click', () => toggleVisibility(confirmInput, toggleConfirm));
 
-  // Siła hasła — live
+  // Siła hasła
   passInput?.addEventListener('input', () => {
     renderStrength(strengthBars, calcStrength(passInput.value));
     if (confirmInput?.value) {
@@ -570,7 +580,6 @@ export function initRegisterForm() {
     }
   });
 
-  // Confirm live
   confirmInput?.addEventListener('input', () => {
     if (!confirmInput.value) { clearFieldError(confirmInput); return; }
     confirmInput.value === passInput?.value
@@ -578,7 +587,7 @@ export function initRegisterForm() {
       : setFieldError(confirmInput, 'Hasła nie są identyczne.');
   });
 
-  // ── Submit ───────────────────────────────────────────────
+  // Submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearAllErrors(form);
@@ -589,52 +598,46 @@ export function initRegisterForm() {
     const confirm     = confirmInput?.value      ?? '';
     const termsOk     = termsCheck?.checked      ?? false;
 
-    console.log(TAG, 'Submit — name:', displayName, '| email:', email);
-
     let ok = true;
-
     if (!displayName || displayName.length < 2) {
-      setFieldError(nameInput, 'Podaj imię lub pseudonim (min. 2 znaki).');
-      ok = false;
+      setFieldError(nameInput, 'Podaj imię lub pseudonim (min. 2 znaki).'); ok = false;
     }
     if (!email) {
-      setFieldError(emailInput, 'Podaj adres e-mail.');
-      ok = false;
+      setFieldError(emailInput, 'Podaj adres e-mail.'); ok = false;
     }
     if (!password || password.length < 6) {
-      setFieldError(passInput, 'Hasło musi mieć minimum 6 znaków.');
-      ok = false;
+      setFieldError(passInput, 'Hasło musi mieć min. 6 znaków.'); ok = false;
     }
     if (password !== confirm) {
-      setFieldError(confirmInput, 'Hasła nie są identyczne.');
-      ok = false;
+      setFieldError(confirmInput, 'Hasła nie są identyczne.'); ok = false;
     }
     if (!termsOk) {
-      showToast('Zaakceptuj regulamin, aby kontynuować.', 'error');
-      ok = false;
+      showToast('Zaakceptuj regulamin, aby kontynuować.', 'error'); ok = false;
     }
     if (!ok) return;
 
     setLoading(submitBtn, true);
+    console.log(TAG, '📝 Rejestruję:', email, '|', displayName);
 
     try {
-      console.log(TAG, '📝 createUserWithEmailAndPassword...');
+      // 1. Utwórz konto w Auth
       const cred = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(TAG, '✅ Konto Auth utworzone:', cred.user.uid);
+      console.log(TAG, '✅ Auth konto:', cred.user.uid);
 
-      // Ustaw displayName w Auth
+      // 2. Ustaw displayName w Auth
       await updateProfile(cred.user, { displayName });
-      console.log(TAG, '✅ updateProfile displayName:', displayName);
+      console.log(TAG, '✅ displayName set:', displayName);
 
-      // Utwórz dokument Firestore
+      // 3. Utwórz dokument Firestore (nie blokuje redirectu nawet przy błędzie)
       const username = displayName
         .toLowerCase()
         .replace(/\s+/g, '_')
         .replace(/[^a-z0-9_]/g, '')
         .slice(0, 30) || 'wojownik';
 
-      await ensureUserDoc(cred.user, { displayName, username });
-      console.log(TAG, '✅ Dokument Firestore utworzony');
+      ensureUserDoc(cred.user, { displayName, username })
+        .then(() => console.log(TAG, '✅ Firestore doc ready'))
+        .catch(err => console.error(TAG, '⚠️ Firestore doc error (nie blokuje):', err.code));
 
       showToast('Konto utworzone! Witaj na arenie ⚔️', 'success');
       setTimeout(() => window.location.replace('index.html'), 700);
@@ -647,22 +650,24 @@ export function initRegisterForm() {
     }
   });
 
-  // ── Google rejestracja ───────────────────────────────────
+  // Google
   googleBtn?.addEventListener('click', async () => {
-    console.log(TAG, '🔐 signInWithPopup (Google) — rejestracja...');
     setLoading(googleBtn, true);
+    console.log(TAG, '🔐 Google popup (rejestracja)...');
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log(TAG, '✅ Google:', result.user.uid, result.user.email);
+      console.log(TAG, '✅ Google:', result.user.uid);
 
-      await ensureUserDoc(result.user);
+      ensureUserDoc(result.user)
+        .then(() => console.log(TAG, '✅ Firestore doc ready'))
+        .catch(err => console.error(TAG, '⚠️ Firestore doc error:', err.code));
 
       showToast('Konto połączone z Google! 🎉', 'success');
       setTimeout(() => window.location.replace('index.html'), 600);
 
     } catch (err) {
-      console.error(TAG, '❌ Google register error:', err.code, err.message);
+      console.error(TAG, '❌ Google:', err.code, err.message);
       const msg = fbMsg(err.code);
       if (msg) showToast(msg, 'error');
       setLoading(googleBtn, false);
@@ -671,5 +676,5 @@ export function initRegisterForm() {
 }
 
 
-// ── Re-eksporty dla innych modułów ───────────────────────────
+// Re-eksporty
 export { onAuthStateChanged, auth };
