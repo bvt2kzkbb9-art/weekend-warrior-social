@@ -169,8 +169,23 @@ export async function ensureUserDoc(user, extra = {}) {
       createdAt:   serverTimestamp(),
     };
 
-    await setDoc(ref, data);
-    return data;
+    try {
+  await setDoc(ref, data);
+
+  console.log('USER DOC CREATED');
+  console.log(data);
+
+  return data;
+
+} catch (e) {
+
+  console.error('SETDOC ERROR');
+  console.error(e);
+  console.error(e.code);
+  console.error(e.message);
+
+  throw e;
+}
   }
 
   return snap.data();
