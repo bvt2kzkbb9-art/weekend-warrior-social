@@ -23,6 +23,8 @@ import {
   checkAuth, logout, getCurrentUserData, showToast,
 } from './auth.js';
 
+import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
+
 import {
   collection,
   doc,
@@ -100,6 +102,9 @@ export function initFeed() {
 
     setupComposeBox();
     startFeedStream();
+
+    // Sprawdź dzienny bonus XP
+    checkDailyLogin(user.uid).catch(() => {});
 
     // Logout
     document.getElementById('logout-btn')?.addEventListener('click', logout);
@@ -277,6 +282,9 @@ async function submitPost() {
       (document.getElementById('char-count').textContent = MAX_POST_LENGTH);
 
     showToast('Post opublikowany! ⚔️', 'success');
+
+    // Przyznaj XP za post
+    awardXP(currentUser.uid, XP_ACTIONS.POST_CREATED).catch(() => {});
 
   } catch (err) {
     console.error(TAG, '❌', err.code, err.message);
@@ -650,6 +658,11 @@ async function toggleLike(postId, data, postEl) {
 
   console.log(TAG, isLiked ? '💔 Unlike' : '❤️ Like', postId);
 
+  // Przyznaj XP autorowi posta za otrzymany lajk
+  if (!isLiked && data.authorId && data.authorId !== currentUser?.uid) {
+    awardXP(data.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(() => {});
+  }
+
   try {
     await updateDoc(postRef, {
       likes:      isLiked ? arrayRemove(uid) : arrayUnion(uid),
@@ -806,6 +819,9 @@ async function submitComment(postId, postEl) {
     }
 
     console.log(TAG, '✅ Komentarz dodany');
+
+    // XP za komentarz (komentujący)
+    awardXP(currentUser.uid, XP_ACTIONS.COMMENT_ADDED).catch(() => {});
 
   } catch (err) {
     console.error(TAG, '❌', err.code, err.message);
