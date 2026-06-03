@@ -1,11 +1,10 @@
-/* ============================================================
-   WEEKEND WARRIOR SOCIAL — Design System v3
-   Dark Premium | Mobile-First | Production Ready
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
 
-/* ── Variables ─────────────────────────────────────────────── */
+/* ============================================================
+   WEEKEND WARRIOR SOCIAL — Design System v3
+   Dark Premium | Mobile-First | GitHub Pages Ready
+   ============================================================ */
+
 :root {
   --bg-base:        #0A0A0B;
   --bg-card:        #121317;
@@ -20,11 +19,9 @@
 
   --gold:           #D4AF37;
   --gold-dim:       #A88B28;
-  --gold-glow:      rgba(212,175,55,0.18);
   --gold-border:    rgba(212,175,55,0.28);
 
   --blue:           #4F8CFF;
-  --blue-dim:       #2E5ECC;
 
   --success:        #16C784;
   --error:          #EF4444;
@@ -42,14 +39,13 @@
   --r-md:   10px;
   --r-lg:   16px;
   --r-xl:   22px;
-  --r-2xl:  28px;
   --r-full: 9999px;
 
   --font:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-hd: 'Rajdhani', sans-serif;
 
-  --ease:   cubic-bezier(0.4,0,0.2,1);
-  --t:      0.2s;
+  --ease: cubic-bezier(0.4,0,0.2,1);
+  --t:    0.2s;
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
@@ -78,7 +74,7 @@ body {
   overflow-x: hidden;
 }
 
-/* CRITICAL: SVG/img must not stretch */
+/* CRITICAL: prevent SVG/img from stretching */
 img {
   display: block;
   max-width: 100%;
@@ -152,24 +148,24 @@ h1, h2, h3, h4 {
   letter-spacing: 0.015em;
 }
 
-h1 { font-size: clamp(1.4rem, 3.5vw, 2rem);   font-weight: 700; }
+h1 { font-size: clamp(1.4rem, 3.5vw, 2rem);    font-weight: 700; }
 h2 { font-size: clamp(1.15rem, 2.5vw, 1.5rem); font-weight: 700; }
-h3 { font-size: clamp(1rem, 2vw, 1.2rem);      font-weight: 600; }
-h4 { font-size: 1rem; font-weight: 600; }
+h3 { font-size: clamp(1rem, 2vw, 1.2rem);       font-weight: 600; }
+h4 { font-size: 1rem;                            font-weight: 600; }
 p  { font-size: 0.9375rem; }
 
 /* ── Utility ───────────────────────────────────────────────── */
-.hidden   { display: none !important; }
-.flex     { display: flex; }
+.hidden          { display: none !important; }
+.flex            { display: flex; }
 .items-center    { align-items: center; }
 .justify-between { justify-content: space-between; }
 .justify-center  { justify-content: center; }
-.flex-col { flex-direction: column; }
-.gap-sm   { gap: 0.5rem; }
-.gap-md   { gap: 1rem; }
-.w-full   { width: 100%; }
-.text-center { text-align: center; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flex-col        { flex-direction: column; }
+.gap-sm          { gap: 0.5rem; }
+.gap-md          { gap: 1rem; }
+.w-full          { width: 100%; }
+.text-center     { text-align: center; }
+.truncate        { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Auth page layout ──────────────────────────────────────── */
 .auth-page {
@@ -225,7 +221,6 @@ p  { font-size: 0.9375rem; }
   animation: pulseGold 2.5s ease-in-out infinite;
 }
 
-/* Force SVG inside logo mark to correct size */
 .auth-logo-mark svg {
   width: 26px;
   height: 26px;
@@ -289,7 +284,7 @@ p  { font-size: 0.9375rem; }
 
 .forgot-link:hover { opacity: 0.75; }
 
-/* ── Input wrapper with icon ───────────────────────────────── */
+/* ── Input wrapper ─────────────────────────────────────────── */
 .input-wrap {
   position: relative;
   display: flex;
@@ -304,7 +299,6 @@ p  { font-size: 0.9375rem; }
   padding-right: 2.75rem;
 }
 
-/* Input icon — fixed size, absolutely positioned */
 .input-icon {
   position: absolute;
   left: 0.875rem;
@@ -318,15 +312,12 @@ p  { font-size: 0.9375rem; }
   display: block;
 }
 
-/* Prevent SVG inside input-icon from stretching */
-.input-icon svg,
-.input-icon > * {
+.input-icon svg {
   width: 16px;
   height: 16px;
   display: block;
 }
 
-/* Toggle button */
 .input-toggle {
   position: absolute;
   right: 0;
@@ -368,16 +359,14 @@ p  { font-size: 0.9375rem; }
   outline: none;
   transition:
     border-color var(--t) var(--ease),
-    box-shadow var(--t) var(--ease),
-    background var(--t) var(--ease);
+    box-shadow   var(--t) var(--ease),
+    background   var(--t) var(--ease);
   -webkit-appearance: none;
   appearance: none;
   line-height: 1.4;
 }
 
-.form-input::placeholder {
-  color: var(--text-muted);
-}
+.form-input::placeholder { color: var(--text-muted); }
 
 .form-input:focus {
   border-color: var(--gold);
@@ -390,9 +379,7 @@ p  { font-size: 0.9375rem; }
   box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
 }
 
-.form-input.valid {
-  border-color: var(--success);
-}
+.form-input.valid { border-color: var(--success); }
 
 .form-error-msg {
   font-size: 0.75rem;
@@ -488,10 +475,10 @@ p  { font-size: 0.9375rem; }
   line-height: 1;
   cursor: pointer;
   transition:
-    background var(--t) var(--ease),
-    box-shadow var(--t) var(--ease),
-    transform var(--t) var(--ease),
-    opacity var(--t) var(--ease);
+    background  var(--t) var(--ease),
+    box-shadow  var(--t) var(--ease),
+    transform   var(--t) var(--ease),
+    opacity     var(--t) var(--ease);
   position: relative;
   overflow: hidden;
   white-space: nowrap;
@@ -515,15 +502,13 @@ p  { font-size: 0.9375rem; }
   pointer-events: none;
 }
 
-/* Loading state */
+/* Loading */
 .btn.loading {
   pointer-events: none;
   color: transparent !important;
 }
 
-.btn.loading svg {
-  opacity: 0;
-}
+.btn.loading svg { opacity: 0; }
 
 .btn.loading::after {
   content: '';
@@ -612,9 +597,9 @@ p  { font-size: 0.9375rem; }
   line-height: 1;
   cursor: pointer;
   transition:
-    background var(--t) var(--ease),
-    border-color var(--t) var(--ease),
-    transform var(--t) var(--ease);
+    background     var(--t) var(--ease),
+    border-color   var(--t) var(--ease),
+    transform      var(--t) var(--ease);
   -webkit-tap-highlight-color: transparent;
   position: relative;
   overflow: hidden;
@@ -627,7 +612,6 @@ p  { font-size: 0.9375rem; }
 
 .btn-google:active { transform: scale(0.98); }
 
-/* Google logo — fixed size, must not stretch */
 .btn-google .google-logo {
   width: 20px;
   height: 20px;
@@ -849,9 +833,7 @@ p  { font-size: 0.9375rem; }
 }
 
 @media (min-width: 768px) {
-  .content-area {
-    padding: calc(62px + 1.5rem) 1.5rem 2.5rem;
-  }
+  .content-area { padding: calc(62px + 1.5rem) 1.5rem 2.5rem; }
 }
 
 /* ── Card ──────────────────────────────────────────────────── */
@@ -884,8 +866,8 @@ p  { font-size: 0.9375rem; }
   line-height: 1.6;
 }
 
-.badge-gold    { background: rgba(212,175,55,0.13); color: var(--gold);    border: 1px solid var(--gold-border); }
-.badge-blue    { background: rgba(79,140,255,0.12); color: var(--blue);    border: 1px solid rgba(79,140,255,0.28); }
+.badge-gold    { background: rgba(212,175,55,0.13);  color: var(--gold);    border: 1px solid var(--gold-border); }
+.badge-blue    { background: rgba(79,140,255,0.12);  color: var(--blue);    border: 1px solid rgba(79,140,255,0.28); }
 .badge-success { background: rgba(22,199,132,0.12); color: var(--success); border: 1px solid rgba(22,199,132,0.28); }
 
 /* ── Avatar ────────────────────────────────────────────────── */
@@ -982,7 +964,7 @@ p  { font-size: 0.9375rem; }
 .rank-champion { color: var(--gold); }
 .rank-legend   { color: #B9F2FF; }
 
-/* ── Dashboard sections ────────────────────────────────────── */
+/* ── Dashboard ─────────────────────────────────────────────── */
 .profile-hero {
   display: flex;
   align-items: center;
@@ -1054,10 +1036,7 @@ p  { font-size: 0.9375rem; }
   margin-top: 0.5rem;
 }
 
-.xp-sublabel {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-}
+.xp-sublabel { font-size: 0.6875rem; color: var(--text-muted); }
 
 .welcome-section {
   background: var(--bg-card);
