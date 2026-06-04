@@ -15,6 +15,7 @@
  */
 
 import { auth, db, COL } from './firebase.js';
+import { injectNotifBell } from './notifications.js';
 import { checkAuth, logout, getCurrentUserData, showToast } from './auth.js';
 import { awardXP } from './xp.js';
 
@@ -209,6 +210,7 @@ export function initChallengesPage() {
   checkAuth(async (user) => {
     currentUser = user;
     console.log(TAG, '✅ Wojownik:', user.uid, user.displayName);
+    injectNotifBell(user.uid);
 
     try {
       currentUserData = await getCurrentUserData(user.uid, user);
@@ -741,7 +743,9 @@ async function openDuelSelector(ch = null) {
   // Get list of other users
   let users = [];
   try {
+    console.log('[openDuelSelector] Pobieranie użytkowników...');
     const snap = await getDocs(collection(db, COL.USERS));
+    console.log('[openDuelSelector] Znaleziono:', snap.size, 'użytkowników');
     snap.forEach(d => {
       if (d.id !== currentUser.uid) {
         users.push({ ...d.data(), uid: d.id });
@@ -829,25 +833,66 @@ async function openDuelSelector(ch = null) {
 
 async function sendDuel(targetId, targetName, ch) {
   const TAG = '[sendDuel]';
+
+  // Pokaż widoczny debug na ekranie (tymczasowo)
+  function showDebug(msg) {
+    let dbg = document.getElementById('duel-debug');
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.id = 'duel-debug';
+      dbg.style.cssText = `
+        position:fixed;bottom:5rem;left:1rem;right:1rem;z-index:9999;
+        background:#1a1a1a;border:1px solid #D4AF37;border-radius:8px;
+        padding:.75rem 1rem;font-size:.75rem;font-family:monospace;
+        color:#D4AF37;max-height:200px;overflow-y:auto;
+        white-space:pre-wrap;word-break:break-all;
+      `;
+      document.body.appendChild(dbg);
+      setTimeout(() => dbg?.remove(), 15000);
+    }
+    dbg.textContent += msg + '\n';
+  }
+
+  showDebug('sendDuel start');
+  showDebug('targetId: ' + targetId);
+  showDebug('ch.id: ' + ch?.id);
+  showDebug('currentUser.uid: ' + currentUser?.uid);
+
   try {
-    await addDoc(collection(db, 'duels'), {
+    const data = {
       challengerId:   currentUser.uid,
       challengerName: currentUserData?.displayName || currentUser.displayName || 'Wojownik',
-      challengerPhoto:currentUserData?.photoURL || currentUser.photoURL || '',
-      targetId,
-      targetName,
+      challengerPhoto:currentUserData?.photoURL    || currentUser.photoURL    || '',
+      targetId:       targetId,
+      targetName:     targetName,
       challengeId:    ch.id,
       challengeTitle: ch.title,
       challengeXP:    ch.xp,
       status:         'pending',
       expiresAt:      Timestamp.fromDate(new Date(Date.now() + 24 * 60 * 60 * 1000)),
       createdAt:      serverTimestamp(),
-    });
-    console.log(TAG, '✅ Duel wysłany do', targetName);
+    };
+
+    showDebug('Wysyłam do Firestore...');
+    const ref = await addDoc(collection(db, 'duels'), data);
+    showDebug('✅ OK! id: ' + ref.id);
+
+    console.log(TAG, '✅ Duel wysłany do', targetName, 'id:', ref.id);
     showToast(`⚔️ Wyzwanie rzucone! ${targetName} ma 24h na odpowiedź.`, 'success', 4000);
+
   } catch (err) {
-    console.error(TAG, '❌', err.code);
-    showToast('Błąd wysyłania wyzwania.', 'error');
+    showDebug('❌ code: ' + err.code);
+    showDebug('message: ' + err.message);
+    console.error(TAG, '❌ code:', err.code, '| message:', err.message);
+
+    const msg = err.code === 'permission-denied'
+      ? 'Brak uprawnień. Reguły Firestore nie pozwalają.'
+      : err.code === 'unavailable'
+      ? 'Brak połączenia z Firebase.'
+      : err.code === 'not-found'
+      ? 'Kolekcja duels nie istnieje.'
+      : `Błąd: ${err.code ?? err.message}`;
+    showToast(msg, 'error');
   }
 }
 
