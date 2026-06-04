@@ -25,6 +25,7 @@ import {
 
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
 import { makeAvatarsClickable, openUserProfile } from './social.js';
+import { injectNotifBell } from './notifications.js';
 
 import {
   collection,
@@ -101,6 +102,7 @@ export function initFeed() {
       };
     }
 
+    injectNotifBell(user.uid);
     setupComposeBox();
     startFeedStream();
 
@@ -665,6 +667,15 @@ async function toggleLike(postId, data, postEl) {
   // Przyznaj XP autorowi posta za otrzymany lajk
   if (!isLiked && data.authorId && data.authorId !== currentUser?.uid) {
     awardXP(data.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(() => {});
+    // Notification for post author
+    const { createNotification } = await import('./notifications.js');
+    const senderName = currentUser?.displayName || 'Wojownik';
+    createNotification(data.authorId, {
+      type:  'like',
+      title: `${senderName} polubił Twój post ❤️`,
+      body:  data.content?.slice(0,60) || 'Ktoś polubił Twój post',
+      url:   'feed.html',
+    }).catch(() => {});
   }
 
   try {
@@ -826,6 +837,18 @@ async function submitComment(postId, postEl) {
 
     // XP za komentarz (komentujący)
     awardXP(currentUser.uid, XP_ACTIONS.COMMENT_ADDED).catch(() => {});
+
+    // Notify post author about comment
+    if (postEl.dataset && postEl.dataset.authorId && postEl.dataset.authorId !== currentUser?.uid) {
+      const { createNotification } = await import('./notifications.js');
+      const senderName = currentUserData?.displayName || currentUser?.displayName || 'Wojownik';
+      createNotification(postEl.dataset.authorId, {
+        type:  'comment',
+        title: `${senderName} skomentował Twój post 💬`,
+        body:  content.slice(0,60),
+        url:   'feed.html',
+      }).catch(() => {});
+    }
 
   } catch (err) {
     console.error(TAG, '❌', err.code, err.message);

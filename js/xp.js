@@ -19,6 +19,7 @@
  */
 
 import { auth, db, COL, getRank, getLevel } from './firebase.js';
+import { createNotification } from './notifications.js';
 
 import {
   doc,
@@ -95,6 +96,19 @@ export async function awardXP(uid, action, meta = {}) {
     await updateDoc(userRef, updateData);
 
     console.log(TAG, `✅ ${uid}: ${oldPoints} → ${newPoints} pkt | Lvl ${newLevel} | ${newRank.label}`);
+
+    // Notif dla właściciela
+    if (uid === auth.currentUser?.uid) {
+      // Self notification handled by XP toast
+    } else if (action.xp >= 10) {
+      // Notify other user they got XP
+      createNotification(uid, {
+        type:  'xp',
+        title: `+${action.xp} XP zdobyte! ⭐`,
+        body:  action.label,
+        url:   'index.html',
+      }).catch(() => {});
+    }
 
     // Sprawdź awans rangi
     const oldRank = getRank(oldPoints);
