@@ -232,7 +232,11 @@ export function initChallengesPage() {
     startLoreBanner();
 
     document.getElementById('logout-btn')?.addEventListener('click', logout);
-    document.getElementById('ch-invite-btn')?.addEventListener('click', openDuelSelector);
+    document.getElementById('ch-invite-btn')?.addEventListener('click', () => {
+    // Przekaż pierwsze dostępne wyzwanie z załadowanej listy
+    const firstCh = challenges.find(c2 => c2.id) ?? CHALLENGES[0];
+    openDuelSelector(firstCh);
+  });
   });
 }
 
@@ -762,8 +766,21 @@ async function openDuelSelector(ch = null) {
 
   document.querySelector('.ch-duel-modal-backdrop')?.remove();
 
-  // If no specific challenge, let user pick
-  const challengeToSend = ch ?? CHALLENGES[0];
+  // Upewnij się że wyzwanie ma id
+  let challengeToSend = ch ?? CHALLENGES[0];
+
+  // Jeśli id undefined — pobierz z Firestore lub użyj lokalnego
+  if (!challengeToSend?.id) {
+    // Spróbuj znaleźć w allChallengesCache lub załaduj lokalny
+    const localCh = challenges.find(c2 => c2.id) ?? CHALLENGES.find(c2 => c2.id);
+    challengeToSend = localCh ?? { ...CHALLENGES[0], id: CHALLENGES[0].id };
+    console.log('[openDuelSelector] Fallback challenge:', challengeToSend?.id, challengeToSend?.title);
+  }
+
+  if (!challengeToSend?.id) {
+    showToast('Błąd: wyzwanie nie ma ID. Odśwież stronę.', 'error');
+    return;
+  }
 
   const backdrop = document.createElement('div');
   backdrop.className = 'ch-duel-modal-backdrop';
@@ -852,6 +869,11 @@ async function sendDuel(targetId, targetName, ch) {
     }
     dbg.textContent += msg + '\n';
   }
+
+  // Walidacja przed wysłaniem
+  if (!targetId) { showToast('Brak ID celu.', 'error'); return; }
+  if (!ch?.id)   { showToast('Brak ID wyzwania. Odśwież stronę.', 'error'); return; }
+  if (!currentUser?.uid) { showToast('Nie jesteś zalogowany.', 'error'); return; }
 
   showDebug('sendDuel start');
   showDebug('targetId: ' + targetId);
