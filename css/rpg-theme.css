@@ -1,25 +1,51 @@
 /* ============================================
-   WEEKEND WARRIOR — UNOVERRIDABLE DARK SILVER THEME
+   WEEKEND WARRIOR — MINIMAL SILVER THEME
    ============================================ */
 
+/* Kolory */
 :root {
   --bg-body: #0B0D14;
   --bg-card: #151922;
+  --bg-panel: #1A1D26;
 
   --text-main: #F5F7FA;
-  --text-muted: #CBD5E1;
+  --text-muted: #A9B0BD;
+  --text-bright: #FFFFFF;
 
   --accent-silver: #C0C7D1;
   --accent-white: #FFFFFF;
+
+  --border: #2A2E39;
+  --border-strong: #3A3F4B;
 
   --btn-dark: #1A1D26;
   --btn-dark-hover: #2A2E3A;
 }
 
-/* GLOBAL */
+/* GLOBAL RESET MOTYWU */
+html body * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* TŁA */
 html body {
-  background-color: var(--bg-body) !important;
+  background: var(--bg-body) !important;
   color: var(--text-main) !important;
+}
+
+/* KARTY */
+html body .card,
+html body .panel,
+html body .box,
+html body .section,
+html body .feed-item,
+html body .profile-card,
+html body .notification-item {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
 }
 
 /* TEKST */
@@ -33,119 +59,90 @@ html body h5 {
 
 html body p,
 html body span,
-html body li,
-html body div {
+html body div,
+html body li {
   color: var(--text-main) !important;
 }
 
-html body .text-muted,
-html body .meta,
-html body .subtitle,
-html body .small,
-html body .timestamp {
-  color: var(--text-muted) !important;
-}
-
-/* LINKI */
-html body a {
-  color: var(--accent-silver) !important;
-}
-
-html body a:hover {
-  color: var(--accent-white) !important;
-}
-
-/* KARTY / SEKCJE */
-html body .card,
-html body .panel,
-html body .box,
-html body .container,
-html body .section,
-html body .profile-card,
-html body .feed-item,
-html body .comment-box,
-html body .notification-item {
-  background-color: var(--bg-card) !important;
-  color: var(--text-main) !important;
-  border-color: var(--accent-silver) !important;
-}
-
-/* PRZYCISKI — PRZYCIEMNIONE */
+/* PRZYCISKI */
 html body button,
 html body .btn,
 html body input[type="submit"],
 html body input[type="button"] {
   background: var(--btn-dark) !important;
   color: var(--accent-silver) !important;
-  border: 1px solid var(--accent-silver) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 8px !important;
   transition: 0.2s ease !important;
 }
 
 html body button:hover,
-html body .btn:hover,
-html body input[type="submit"]:hover,
-html body input[type="button"]:hover {
+html body .btn:hover {
   background: var(--btn-dark-hover) !important;
   color: var(--accent-white) !important;
-  border-color: var(--accent-white) !important;
-}
-
-/* INPUTY */
-html body input,
-html body textarea,
-html body select {
-  background: #0F1118 !important;
-  color: var(--text-main) !important;
-  border-color: var(--accent-silver) !important;
-}
-
-html body input:focus,
-html body textarea:focus,
-html body select:focus {
-  border-color: var(--accent-white) !important;
 }
 
 /* AVATARY */
 html body .avatar,
 html body .profile-img,
 html body .round-img {
-  border-color: var(--accent-silver) !important;
+  border: 2px solid var(--accent-silver) !important;
 }
 
-/* XP / RANGI / ODZNAKI */
+/* XP / RANGI */
 html body .xp,
 html body .rank,
 html body .badge,
 html body .achievement {
   color: var(--accent-white) !important;
-  border-color: var(--accent-white) !important;
-}
-
-/* REAKCJE */
-html body .feed-reaction,
-html body .reaction-btn {
-  color: var(--accent-silver) !important;
-}
-
-html body .feed-reaction:hover,
-html body .reaction-btn:hover {
-  color: var(--accent-white) !important;
-}
-
-/* POWIADOMIENIA */
-html body .notification-item.unread {
-  border-left-color: var(--accent-white) !important;
+  border-color: var(--accent-silver) !important;
 }
 
 /* TABS */
 html body .tab,
 html body .feed-tab {
-  color: var(--accent-silver) !important;
-  border-bottom-color: transparent !important;
+  color: var(--text-muted) !important;
+  border-bottom: 2px solid transparent !important;
 }
 
 html body .tab.active,
 html body .feed-tab.active {
   color: var(--accent-white) !important;
   border-bottom-color: var(--accent-white) !important;
+}
+
+/* USUNIĘCIE ZŁOTA */
+html body [class*="gold"],
+html body [style*="gold"],
+html body .rpg-btn-gold,
+html body .ch-card-num,
+html body .ch-xp-badge,
+html body .rpg-ch-xp,
+html body .rpg-char-rank,
+html body .rank-sub,
+html body .profile-rank-tag {
+  color: var(--accent-silver) !important;
+  border-color: var(--accent-silver) !important;
+  background: transparent !important;
+}
+
+/* USUNIĘCIE ORNAMENTÓW */
+html body .rpg-ch-card::before,
+html body .rpg-ch-card::after,
+html body .ch-card::before,
+html body .ch-card::after,
+html body .quiz-parchment::before,
+html body .quiz-parchment::after {
+  display: none !important;
+}
+
+/* USUNIĘCIE GLOW */
+html body [class*="glow"],
+html body [style*="glow"] {
+  box-shadow: none !important;
+}
+
+/* USUNIĘCIE GRADIENTÓW */
+html body * {
+  background-image: none !important;
 }
