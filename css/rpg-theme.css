@@ -1421,3 +1421,27 @@ main,
     background: #0D0C0A !important;
     color: #E8D5A0 !important;
 }
+@media (max-width: 767px){
+
+.rpg-layout{
+    display:block !important;
+}
+
+.rpg-sidebar-left,
+.rpg-sidebar-right{
+    display:none !important;
+}
+
+.rpg-main{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+body,
+html{
+    overflow-x:hidden !important;
+}
+
+}
