@@ -18,7 +18,6 @@ import { auth, db, COL } from './firebase.js';
 import { injectNotifBell } from './notifications.js';
 import { checkAuth, logout, getCurrentUserData, showToast } from './auth.js';
 import { awardXP } from './xp.js';
-import { initDuels, openSendDuelModal, destroyDuels } from './duels.js';
 
 import {
   collection, doc, addDoc, getDoc, getDocs,
@@ -229,17 +228,15 @@ export function initChallengesPage() {
 
     setupTabs();
     subscribeUserChallenges();
+    subscribeDuels();
     startLoreBanner();
 
     document.getElementById('logout-btn')?.addEventListener('click', logout);
     document.getElementById('ch-invite-btn')?.addEventListener('click', () => {
-      // Użyj nowego modułu duels.js z pełną listą wyzwań z id
-      const allCh = [...CHALLENGES, ...challenges.filter(c2 => c2.id && !CHALLENGES.find(lc => lc.id === c2.id))];
-      openSendDuelModal(allCh);
-    });
-
-    // Inicjalizuj system dueli
-    initDuels(user, currentUserData);
+    // Przekaż pierwsze dostępne wyzwanie z załadowanej listy
+    const firstCh = challenges.find(c2 => c2.id) ?? CHALLENGES[0];
+    openDuelSelector(firstCh);
+  });
   });
 }
 
@@ -603,8 +600,7 @@ function openDetailModal(ch) {
     // Duel
     backdrop.querySelector('#ch-detail-duel-btn')?.addEventListener('click', () => {
       backdrop.remove();
-      // Nowy moduł duels.js — ch ma zawsze poprawne id z CHALLENGES
-      openSendDuelModal([ch, ...CHALLENGES.filter(lc => lc.id !== ch.id)]);
+      openDuelSelector(ch);
     });
   }
 }
@@ -855,12 +851,34 @@ async function openDuelSelector(ch = null) {
 async function sendDuel(targetId, targetName, ch) {
   const TAG = '[sendDuel]';
 
+  // Pokaż widoczny debug na ekranie (tymczasowo)
+  function showDebug(msg) {
+    let dbg = document.getElementById('duel-debug');
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.id = 'duel-debug';
+      dbg.style.cssText = `
+        position:fixed;bottom:5rem;left:1rem;right:1rem;z-index:9999;
+        background:#1a1a1a;border:1px solid #D4AF37;border-radius:8px;
+        padding:.75rem 1rem;font-size:.75rem;font-family:monospace;
+        color:#D4AF37;max-height:200px;overflow-y:auto;
+        white-space:pre-wrap;word-break:break-all;
+      `;
+      document.body.appendChild(dbg);
+      setTimeout(() => dbg?.remove(), 15000);
+    }
+    dbg.textContent += msg + '\n';
+  }
 
   // Walidacja przed wysłaniem
   if (!targetId) { showToast('Brak ID celu.', 'error'); return; }
   if (!ch?.id)   { showToast('Brak ID wyzwania. Odśwież stronę.', 'error'); return; }
   if (!currentUser?.uid) { showToast('Nie jesteś zalogowany.', 'error'); return; }
 
+  showDebug('sendDuel start');
+  showDebug('targetId: ' + targetId);
+  showDebug('ch.id: ' + ch?.id);
+  showDebug('currentUser.uid: ' + currentUser?.uid);
 
   try {
     const data = {
@@ -877,12 +895,16 @@ async function sendDuel(targetId, targetName, ch) {
       createdAt:      serverTimestamp(),
     };
 
+    showDebug('Wysyłam do Firestore...');
     const ref = await addDoc(collection(db, 'duels'), data);
+    showDebug('✅ OK! id: ' + ref.id);
 
     console.log(TAG, '✅ Duel wysłany do', targetName, 'id:', ref.id);
     showToast(`⚔️ Wyzwanie rzucone! ${targetName} ma 24h na odpowiedź.`, 'success', 4000);
 
   } catch (err) {
+    showDebug('❌ code: ' + err.code);
+    showDebug('message: ' + err.message);
     console.error(TAG, '❌ code:', err.code, '| message:', err.message);
 
     const msg = err.code === 'permission-denied'

@@ -132,18 +132,12 @@ const FB_ERRORS = {
   'auth/invalid-email':           'Podaj prawidłowy adres e-mail.',
   'auth/email-already-in-use':    'Ten adres e-mail jest już zajęty.',
   'auth/weak-password':           'Hasło jest za słabe (min. 6 znaków).',
-  'auth/too-many-requests':       'Zbyt wiele prób. Poczekaj chwilę i spróbuj ponownie.',
+  'auth/too-many-requests':       'Zbyt wiele prób. Poczekaj chwilę.',
   'auth/network-request-failed':  'Błąd połączenia. Sprawdź internet.',
   'auth/popup-closed-by-user':    null,
   'auth/cancelled-popup-request': null,
   'auth/popup-blocked':           'Przeglądarka zablokowała popup. Zezwól na wyskakujące okna.',
   'auth/user-disabled':           'To konto zostało zablokowane.',
-  'auth/missing-email':           'Podaj adres e-mail.',
-  'auth/requires-recent-login':   'Zaloguj się ponownie aby wykonać tę operację.',
-  'auth/account-exists-with-different-credential': 'Konto z tym e-mailem istnieje z inną metodą logowania.',
-  'auth/operation-not-allowed':   'Ta metoda logowania jest wyłączona w Firebase Console.',
-  'auth/expired-action-code':     'Link wygasł. Wyślij nowy link resetujący.',
-  'auth/invalid-action-code':     'Nieprawidłowy link resetujący. Wyślij nowy.',
 };
 
 function fbMsg(code) {
@@ -514,11 +508,6 @@ export function initLoginForm() {
       const result = await signInWithPopup(auth, googleProvider);
       console.log(TAG, '✅ Google OK:', result.user.uid);
 
-      // Utwórz/zaktualizuj dokument Firestore (nie blokuje redirectu)
-      ensureUserDoc(result.user)
-        .then(() => console.log(TAG, '✅ Firestore doc ready (Google login)'))
-        .catch(err => console.error(TAG, '⚠️ Firestore doc error:', err.code));
-
       showToast('Zalogowano przez Google! 🎉', 'success');
       setTimeout(() => window.location.replace('index.html'), 600);
 
@@ -533,8 +522,6 @@ export function initLoginForm() {
   // Reset hasła
   forgotLink?.addEventListener('click', async (e) => {
     e.preventDefault();
-    clearFieldError(emailInput);
-
     const email = emailInput?.value.trim() ?? '';
 
     if (!email) {
@@ -543,47 +530,15 @@ export function initLoginForm() {
       return;
     }
 
-    // Prosta walidacja formatu email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFieldError(emailInput, 'Podaj prawidłowy adres e-mail.');
-      emailInput?.focus();
-      return;
-    }
-
-    console.log(TAG, '📧 Reset hasła dla:', email);
-
-    // Zablokuj link żeby uniknąć podwójnego kliknięcia
-    if (forgotLink.dataset.sending === '1') return;
-    forgotLink.dataset.sending = '1';
-    forgotLink.style.opacity   = '0.5';
+    console.log(TAG, '📧 Reset email:', email);
 
     try {
       await sendPasswordResetEmail(auth, email);
-      console.log(TAG, '✅ Reset email wysłany na:', email);
-      showToast('Link resetujący wysłany! Sprawdź skrzynkę pocztową (też spam) 📬', 'success', 7000);
-      // Wyczyść pole po sukcesie
-      passInput && (passInput.value = '');
+      showToast('Link resetujący wysłany! Sprawdź skrzynkę 📬', 'success', 5500);
     } catch (err) {
-      console.error(TAG, '❌ Reset error — code:', err.code, '| message:', err.message);
-
-      // Firebase zwraca user-not-found lub invalid-email
-      const RESET_ERRORS = {
-        'auth/user-not-found':    'Nie znaleziono konta z tym adresem e-mail.',
-        'auth/invalid-email':     'Podaj prawidłowy adres e-mail.',
-        'auth/too-many-requests': 'Zbyt wiele prób. Poczekaj chwilę i spróbuj ponownie.',
-        'auth/network-request-failed': 'Brak połączenia z internetem.',
-        // Nowsze wersje Firebase mogą zwracać invalid-credential zamiast user-not-found
-        'auth/invalid-credential': 'Nie znaleziono konta z tym adresem e-mail.',
-      };
-
-      const msg = RESET_ERRORS[err.code]
-        ?? `Błąd wysyłania: ${err.code ?? err.message}`;
-
-      showToast(msg, 'error', 6000);
-      setFieldError(emailInput, msg);
-    } finally {
-      forgotLink.dataset.sending = '0';
-      forgotLink.style.opacity   = '1';
+      console.error(TAG, '❌ Reset:', err.code, err.message);
+      const msg = fbMsg(err.code);
+      if (msg) showToast(msg, 'error');
     }
   });
 }
