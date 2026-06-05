@@ -17,7 +17,7 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
-
+ 
 <!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">
   <span class="nav-brand">⚔ WWS</span>
@@ -41,15 +41,25 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Bohater</span>
   </a>
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;
+      min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;
+      font-size:.5rem;font-weight:800;align-items:center;justify-content:center;
+      border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
   <div class="nav-actions">
     <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);" title="Wyloguj">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </nav>
-
+ 
 <main class="content-area page" style="max-width:640px;">
-
+ 
   <!-- Skeleton -->
   <div id="profile-skeleton" style="padding:.75rem 0;">
     <div style="text-align:center;padding:1.5rem 0 1rem;">
@@ -61,10 +71,10 @@
     <div class="skeleton" style="height:80px;border-radius:var(--r-lg);margin-bottom:.75rem;"></div>
     <div class="skeleton" style="height:140px;border-radius:var(--r-lg);"></div>
   </div>
-
+ 
   <!-- Profile content -->
   <div id="profile-content" class="hidden">
-
+ 
     <!-- Hero section -->
     <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
       <div class="profile-hero">
@@ -87,7 +97,7 @@
           </div>
         </div>
       </div>
-
+ 
       <!-- Stats grid -->
       <div class="profile-stats-grid" style="padding:0 .875rem .875rem;">
         <div class="profile-stat">
@@ -111,14 +121,14 @@
           <span class="profile-stat-label">Seria</span>
         </div>
       </div>
-
+ 
       <!-- Action buttons -->
       <div style="padding:0 .875rem .875rem;display:flex;gap:.625rem;">
         <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="flex:1;">⚔ Rzuć Wyzwanie</a>
         <button id="edit-profile-btn" class="rpg-btn rpg-btn-outline" style="flex:1;">✏ Edytuj Postać</button>
       </div>
     </div>
-
+ 
     <!-- Achievements -->
     <div class="rpg-panel" style="margin-bottom:.875rem;">
       <div class="rpg-panel-header">
@@ -127,7 +137,7 @@
       </div>
       <div id="achievements-grid" class="achievements-grid"></div>
     </div>
-
+ 
     <!-- Challenge history -->
     <div class="rpg-panel" style="margin-bottom:.875rem;">
       <div class="rpg-panel-header">
@@ -142,7 +152,7 @@
         Pokaż więcej
       </button>
     </div>
-
+ 
     <!-- Login streak calendar -->
     <div class="rpg-panel" style="margin-bottom:.875rem;">
       <div class="rpg-panel-header">
@@ -157,13 +167,34 @@
         </div>
       </div>
     </div>
-
+ 
     <!-- Danger zone -->
     <div class="rpg-panel" style="margin-bottom:1rem;border-color:rgba(139,0,0,.3);">
       <div class="rpg-panel-header">
         <div class="rpg-panel-title" style="color:#CC4444;">⚠ Strefa Zagrożenia</div>
       </div>
       <div style="padding:.875rem;display:flex;flex-direction:column;gap:.625rem;">
+ 
+        <!-- Dark / Light mode toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+          padding:.625rem .75rem;background:var(--bg-elevated);
+          border-radius:var(--r-md);border:1px solid var(--border);">
+          <div>
+            <div style="font-family:var(--font-hd);font-size:.875rem;font-weight:700;
+              color:var(--text-primary);">Tryb wyświetlania</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.1rem;">
+              Ciemny / Jasny
+            </div>
+          </div>
+          <button id="theme-toggle-btn" style="
+            display:inline-flex;align-items:center;gap:.375rem;
+            padding:.4rem .875rem;border-radius:9999px;
+            background:var(--bg-card);border:1px solid var(--border-mid);
+            font-family:var(--font-hd);font-size:.75rem;font-weight:700;
+            letter-spacing:.04em;color:var(--text-primary);cursor:pointer;
+            transition:all .2s ease;">🌙 Ciemny</button>
+        </div>
+ 
         <button id="logout-btn-2" class="btn btn-outline btn-sm" style="color:var(--text-muted);">
           Opuść Arenę (wyloguj)
         </button>
@@ -172,10 +203,10 @@
         </button>
       </div>
     </div>
-
+ 
   </div>
 </main>
-
+ 
 <!-- Edit Profile Modal -->
 <div id="edit-modal" class="ch-modal-backdrop hidden">
   <div class="ch-modal" style="max-width:400px;">
@@ -200,18 +231,36 @@
     </div>
   </div>
 </div>
-
+ 
 <script type="module">
   import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
   import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
   import {
     collection, query, where, orderBy, limit, getDocs, doc, updateDoc,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { initTheme, injectLightModeCSS, toggleDarkMode } from './js/weekly-ranking.js';
+ 
+  // ── Tryb wyświetlania — wywołaj PRZED wszystkim, żeby nie mignął ciemny ekran ──
+  injectLightModeCSS();
+  initTheme();
+ 
   document.getElementById('logout-btn').addEventListener('click', logout);
   document.getElementById('logout-btn-2')?.addEventListener('click', logout);
-
+ 
+  // ── Przycisk dark/light mode ───────────────────────────────────────────────────
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) {
+    themeBtn.textContent = document.documentElement.classList.contains('light-mode')
+      ? '☀️ Jasny' : '🌙 Ciemny';
+    themeBtn.addEventListener('click', () => {
+      const isLight = toggleDarkMode();
+      themeBtn.textContent = isLight ? '☀️ Jasny' : '🌙 Ciemny';
+    });
+  }
+ 
   checkAuth(async (user) => {
+    injectMessengerBadge(user.uid);
     // 2s skeleton safety
     const skTimer = setTimeout(() => {
       document.getElementById('profile-skeleton').style.display = 'none';
@@ -227,23 +276,23 @@
     await _loadHistory(user.uid);
     _setupEdit(user, data);
   });
-
+ 
   function _renderProfile(user, data) {
     document.getElementById('profile-skeleton').style.display = 'none';
     document.getElementById('profile-content').classList.remove('hidden');
-
+ 
     const name = data.displayName || user.displayName || 'Wojownik';
     const points = Number(data.points) || 0;
     const level = getLevel(points);
     const rankObj = getRank(points);
     const progress = getRankProgress(points);
-
+ 
     const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
     const nextRankMin = rankIdx >= 0 && Array.isArray(RANKS) && rankIdx < RANKS.length - 1
       ? RANKS[rankIdx + 1]?.min : points + 500;
     const xpIn = Math.max(0, points - rankObj.min);
     const xpNeed = Math.max(1, (nextRankMin ?? points + 500) - rankObj.min);
-
+ 
     const av = document.getElementById('profile-avatar');
     const ini = name.split(' ').map(w => w[0]??'').join('').slice(0,2).toUpperCase();
     if (data.photoURL) {
@@ -252,7 +301,7 @@
       img.onerror = () => { av.textContent = ini; };
       av.appendChild(img);
     } else av.textContent = ini;
-
+ 
     const s = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
     s('profile-level', `Poz. ${level}`);
     s('profile-name', name);
@@ -263,7 +312,7 @@
       const f = document.getElementById('profile-xp-fill');
       if (f) f.style.width = progress + '%';
     }, 400);
-
+ 
     s('ps-wins', String(data.challengesCompleted || 0));
     s('ps-sent', String(data.challengesSent || 0));
     s('ps-xp', (points).toLocaleString('pl-PL'));
@@ -271,7 +320,7 @@
     s('ps-streak', `${data.streak || 0}🔥`);
     s('login-streak-val', `${data.streak || 0} 🔥`);
   }
-
+ 
   // Dokładnie te same IDs co achievements.js ACHIEVEMENTS + check functions
   const ACH_DEFS = [
     { id:'first_post',      icon:'📝', name:'Pierwsze słowo',           check: d => (d.postsCount    ?? 0) >= 1    },
@@ -287,13 +336,13 @@
     { id:'dragon_slayer',   icon:'🐉', name:'Pogromca Dwugłowego Węża',check: d => (d.points        ?? 0) >= 5000 },
     { id:'chaos_serpents',  icon:'🌀', name:'Węże Chaosu',              check: d => (d.postsCount ?? 0) >= 3 && (d.commentsCount ?? 0) >= 5 },
   ];
-
+ 
   function _renderAchievements(data) {
     const grid = document.getElementById('achievements-grid');
     if (!grid) return;
     const earned = new Set(Array.isArray(data.achievements) ? data.achievements : []);
     let earnedCount = 0;
-
+ 
     ACH_DEFS.forEach((ach, i) => {
       // Odblokowane = jest w earned[] LUB warunek spełniony
       const unlocked = earned.has(ach.id) || ach.check(data);
@@ -307,11 +356,11 @@
         <div class="achievement-name">${unlocked ? ach.name : '???'}</div>`;
       grid.appendChild(item);
     });
-
+ 
     const countEl = document.getElementById('ach-count');
     if (countEl) countEl.textContent = `${earnedCount} / ${ACH_DEFS.length}`;
   }
-
+ 
   async function _loadHistory(uid) {
     const list = document.getElementById('ch-history-list');
     const countEl = document.getElementById('history-count');
@@ -349,7 +398,7 @@
       });
     } catch (e) { console.warn('[history]', e); }
   }
-
+ 
   function _renderStreakCalendar(data) {
     const cal = document.getElementById('streak-calendar');
     if (!cal) return;
@@ -371,13 +420,13 @@
       : streak >= 1 ? `${streak} ${streak === 1 ? 'dzień' : 'dni'} z rzędu. Trzymaj rytm, wojowniku!`
       : 'Zaloguj się każdego dnia, by budować swoją legendę.';
   }
-
+ 
   function _setupEdit(user, data) {
     const modal = document.getElementById('edit-modal');
     const nameIn = document.getElementById('edit-name');
     const photoIn = document.getElementById('edit-photo');
     const errEl = document.getElementById('edit-error');
-
+ 
     document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
       nameIn.value = data.displayName || user.displayName || '';
       photoIn.value = data.photoURL || user.photoURL || '';
@@ -386,7 +435,7 @@
     });
     document.getElementById('edit-cancel')?.addEventListener('click', () => modal.classList.add('hidden'));
     modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
-
+ 
     document.getElementById('edit-save')?.addEventListener('click', async () => {
       const name = nameIn.value.trim();
       if (!name) { errEl.textContent = 'Imię jest wymagane.'; errEl.style.display = 'block'; return; }
@@ -401,17 +450,15 @@
         setTimeout(() => window.location.reload(), 600);
       } catch(e) { errEl.textContent = 'Błąd zapisu: ' + e.message; errEl.style.display = 'block'; }
     });
-
+ 
     document.getElementById('delete-btn')?.addEventListener('click', () => {
       if (confirm('Czy na pewno chcesz zniszczyć swoją kartę wojownika? To działanie jest nieodwracalne.')) {
         alert('Aby usunąć konto, skontaktuj się z administratorem Areny.');
       }
     });
   }
-
+ 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
-
-
