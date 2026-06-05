@@ -4,6 +4,40 @@
  * Prywatny czat 1:1 (DM)
  * Firebase SDK 10.12.2 | ES Modules
  * ============================================================
+ *
+ * TECHNOLOGIA REALTIME: Firestore onSnapshot
+ *   Uzasadnienie: projekt używa już Firebase/Firestore, onSnapshot
+ *   daje WebSocket-like push bez dodatkowego backendu. Alternatywa
+ *   (dedykowany WebSocket server) wymagałaby Node.js hostingu — zbędne
+ *   na GitHub Pages. Firestore daje sub-100ms latency na tej skali.
+ *
+ * STRUKTURA FIRESTORE:
+ *   conversations/{convId}          — metadane rozmowy
+ *     participants: [uid1, uid2]
+ *     lastMessage: string
+ *     lastMessageAt: Timestamp
+ *     lastMessageBy: uid
+ *     unread_{uid1}: number         — licznik nieprzeczytanych
+ *     unread_{uid2}: number
+ *
+ *   conversations/{convId}/messages/{msgId}
+ *     senderId: uid
+ *     senderName: string
+ *     senderPhoto: string
+ *     text: string
+ *     imageUrl: string (opcjonalne)
+ *     imagePublicId: string
+ *     type: 'text' | 'image' | 'embed'
+ *     embedUrl: string (YouTube/SoundCloud)
+ *     read: boolean
+ *     createdAt: Timestamp
+ *
+ * EKSPORTY:
+ *   initMessenger()               — inicjalizuje messenger.html
+ *   getOrCreateConversation(uid1, uid2) → convId
+ *   openConversation(targetUid)   — shortcut: pobierz/stwórz + otwórz
+ *   getUnreadCount(myUid)         → Promise<number>
+ *   injectMessengerBadge(uid)     — badge na ikonie w nav
  */
 
 import { auth, db, COL } from './firebase.js';
@@ -21,19 +55,6 @@ import {
 // ── Kolekcje ─────────────────────────────────────────────────
 const COL_CONV = 'conversations';
 const COL_MSG  = 'messages';
-
-// Centralny handler błędów — nie rzuca wyjątków dalej
-function _handleError(TAG, err, userMessage = null) {
-  try {
-    console.error(TAG, err);
-    // opcjonalne: telemetry send
-    if (userMessage) {
-      try { showToast(userMessage, 'error'); } catch {}
-    }
-  } catch (e) {
-    console.error('[handleError]', e);
-  }
-}
 
 // ── Stan modułu ──────────────────────────────────────────────
 let currentUser     = null;
@@ -61,8 +82,7 @@ export function initMessenger() {
 
     try {
       currentUserData = await getCurrentUserData(user.uid, user);
-    } catch (err) {
-      _handleError(TAG, err, 'Nie można pobrać danych użytkownika.');
+    } catch {
       currentUserData = null;
     }
     if (!currentUserData) {
@@ -105,6 +125,10 @@ export function initMessenger() {
 // CONVERSATION ID (deterministyczny — zawsze ten sam dla pary)
 // ════════════════════════════════════════════════════════════
 
+/**
+ * Generuje deterministyczne ID konwersacji dla dwóch userów.
+ * Sortujemy UID aby A_B === B_A.
+ */
 function _convId(uid1, uid2) {
   return [uid1, uid2].sort().join('_');
 }
@@ -119,24 +143,20 @@ export async function getOrCreateConversation(myUid, targetUid) {
   const cid  = _convId(myUid, targetUid);
   const cRef = doc(db, COL_CONV, cid);
 
-  try {
-    const snap = await getDoc(cRef);
-    if (!snap.exists()) {
-      console.log(TAG, '➕ Tworzę nową konwersację:', cid);
-      await setDoc(cRef, {
-        participants:     [myUid, targetUid],
-        lastMessage:      '',
-        lastMessageAt:    serverTimestamp(),
-        lastMessageBy:    myUid,
-        [`unread_${myUid}`]:    0,
-        [`unread_${targetUid}`]: 0,
-        createdAt:        serverTimestamp(),
-      });
-    } else {
-      console.log(TAG, '✅ Konwersacja istnieje:', cid);
-    }
-  } catch (err) {
-    _handleError(TAG, err, 'Błąd przy sprawdzaniu/zakładaniu konwersacji.');
+  const snap = await getDoc(cRef);
+  if (!snap.exists()) {
+    console.log(TAG, '➕ Tworzę nową konwersację:', cid);
+    await setDoc(cRef, {
+      participants:     [myUid, targetUid],
+      lastMessage:      '',
+      lastMessageAt:    serverTimestamp(),
+      lastMessageBy:    myUid,
+      [`unread_${myUid}`]:    0,
+      [`unread_${targetUid}`]: 0,
+      createdAt:        serverTimestamp(),
+    });
+  } else {
+    console.log(TAG, '✅ Konwersacja istnieje:', cid);
   }
 
   return cid;
@@ -160,9 +180,7 @@ export async function openConversation(targetUid) {
 
 function _startConvListStream() {
   const TAG = '[convListStream]';
-  try {
-    if (unsubConvList) { unsubConvList(); }
-  } catch (e) { /* ignore */ }
+  if (unsubConvList) { unsubConvList(); }
 
   const q = query(
     collection(db, COL_CONV),
@@ -199,9 +217,7 @@ function _startConvListStream() {
       try {
         const s = await getDoc(doc(db, COL.USERS, otherId));
         if (s.exists()) other = s.data();
-      } catch (err) {
-        _handleError(TAG, err);
-      }
+      } catch {}
 
       const unread = data[`unread_${currentUser.uid}`] ?? 0;
       const isActive = convId === activeConvId;
@@ -209,8 +225,9 @@ function _startConvListStream() {
       listEl.appendChild(item);
     }
   }, (err) => {
-    _handleError('[convListStream]', err, 'Błąd pobierania listy rozmów. Spróbuję ponownie.');
-    setTimeout(() => _startConvListStream(), 2000);
+    console.error('Messenger error:', err);
+    console.error('Code:', err.code);
+    console.error('Message:', err.message);
   });
 }
 
@@ -256,7 +273,7 @@ async function _openConvById(convId) {
   if (activeConvId === convId) return;
 
   // Cleanup poprzedniego
-  if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
+  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
   _clearTyping();
   activeConvId = convId;
 
@@ -277,10 +294,7 @@ async function _openConvById(convId) {
     const snap = await getDoc(doc(db, COL_CONV, convId));
     if (!snap.exists()) { showToast('Konwersacja nie istnieje.', 'error'); return; }
     convData = snap.data();
-  } catch (err) {
-    _handleError(TAG, err, 'Nie można pobrać danych konwersacji.');
-    return;
-  }
+  } catch { return; }
 
   // Pobierz dane rozmówcy
   const otherId = convData.participants?.find(p => p !== currentUser.uid);
@@ -289,9 +303,7 @@ async function _openConvById(convId) {
     try {
       const s = await getDoc(doc(db, COL.USERS, otherId));
       if (s.exists()) other = s.data();
-    } catch (err) {
-      _handleError(TAG, err);
-    }
+    } catch {}
   }
 
   // Ustaw nagłówek czatu
@@ -351,7 +363,7 @@ function _renderChatHeader(convId, other, otherId) {
   document.getElementById('chat-back')?.addEventListener('click', () => {
     document.getElementById('chat-panel')?.classList.add('hidden');
     document.getElementById('chat-empty')?.classList.remove('hidden');
-    if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
+    if (unsubMessages) { unsubMessages(); unsubMessages = null; }
     activeConvId = null;
     history.replaceState(null, '', 'messenger.html');
   });
@@ -365,8 +377,11 @@ function _renderChatHeader(convId, other, otherId) {
 // PRESENCE — online / typing
 // ════════════════════════════════════════════════════════════
 
+/**
+ * Obserwuje pole presence w dokumencie rozmówcy.
+ * presence: { online: bool, typing: { [convId]: Timestamp } }
+ */
 function _watchPresence(otherId, convId) {
-  const TAG = '[watchPresence]';
   let unsubPresence;
   const ref = doc(db, COL.USERS, otherId);
 
@@ -385,7 +400,7 @@ function _watchPresence(otherId, convId) {
     if (typingEl) typingEl.style.display = isTyping ? 'inline' : 'none';
     if (statusEl) statusEl.style.display = isTyping ? 'none' : 'inline';
     if (statusEl) statusEl.textContent   = isOnline ? 'online' : 'offline';
-  }, (err) => _handleError(TAG, err));
+  }, () => {});
 
   // Cleanup gdy zamknięty conv
   const origUnsub = unsubMessages;
@@ -403,7 +418,7 @@ export async function setOnlinePresence(uid, online = true) {
       'presence.online': online,
       'presence.lastSeen': serverTimestamp(),
     });
-  } catch (err) { _handleError('[setOnlinePresence]', err); }
+  } catch {}
 }
 
 /** Ustaw typing indicator */
@@ -413,7 +428,7 @@ async function _setTyping(convId) {
     await updateDoc(doc(db, COL.USERS, currentUser.uid), {
       [`presence.typing.${convId}`]: serverTimestamp(),
     });
-  } catch (err) { _handleError('[setTyping]', err); }
+  } catch {}
 }
 
 async function _clearTyping() {
@@ -422,7 +437,7 @@ async function _clearTyping() {
     await updateDoc(doc(db, COL.USERS, currentUser.uid), {
       [`presence.typing.${activeConvId}`]: null,
     });
-  } catch (err) { _handleError('[clearTyping]', err); }
+  } catch {}
 }
 
 
@@ -475,9 +490,9 @@ function _startMessageStream(convId) {
 
     if (wasAtBottom) _scrollToBottom(msgList);
   }, (err) => {
-    _handleError(TAG, err, 'Błąd pobierania wiadomości. Spróbuj ponownie.');
-    if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
-    setTimeout(() => { if (activeConvId) _startMessageStream(activeConvId); }, 2000);
+    console.error('Messenger error:', err);
+    console.error('Code:', err.code);
+    console.error('Message:', err.message);
   });
 }
 
@@ -511,6 +526,7 @@ function _buildMsgBubble(msg) {
   let bodyHTML = '';
 
   if (msg.type === 'image' && msg.imageUrl) {
+    // Obraz
     bodyHTML = `
       <div class="msg-bubble img-bubble">
         <img src="${_esc(msg.imageUrl)}" class="msg-img" loading="lazy" alt="Zdjęcie"
@@ -519,6 +535,7 @@ function _buildMsgBubble(msg) {
         <div class="msg-time">${time}</div>
       </div>`;
   } else if (msg.type === 'embed' && msg.embedUrl) {
+    // Embed YouTube / SoundCloud
     bodyHTML = `
       <div class="msg-bubble embed-bubble">
         ${_buildEmbedPreview(msg.embedUrl, msg.embedMeta)}
@@ -526,6 +543,7 @@ function _buildMsgBubble(msg) {
         <div class="msg-time">${time}</div>
       </div>`;
   } else {
+    // Tekst z linkami / @mention / #hashtag
     bodyHTML = `
       <div class="msg-bubble text-bubble">
         <div class="msg-text">${_renderMsgText(msg.text || '')}</div>
@@ -546,16 +564,19 @@ function _renderMsgText(text) {
   if (!text) return '';
   let s = _esc(text);
 
+  // URL → klikalny link
   s = s.replace(
     /(https?:\/\/[^\s<>"]+)/g,
     '<a href="$1" target="_blank" rel="noopener noreferrer" class="msg-link">$1</a>'
   );
 
+  // @mention
   s = s.replace(
     /@([a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9_]{2,30})/g,
     '<span class="mention-link">@$1</span>'
   );
 
+  // #hashtag
   s = s.replace(
     /#([a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9_]{1,40})/g,
     '<span class="hashtag-link">#$1</span>'
@@ -604,6 +625,7 @@ function _buildEmbedPreview(url, meta = {}) {
       </div>`;
   }
 
+  // Generic link preview
   return `
     <a href="${_esc(url)}" target="_blank" rel="noopener noreferrer" class="link-preview">
       <div class="link-preview-icon">🔗</div>
@@ -627,6 +649,10 @@ function _parseSoundCloud(url) {
   return url.includes('soundcloud.com/') ? url : null;
 }
 
+/**
+ * Wykrywa typ linku w wiadomości.
+ * Zwraca 'youtube' | 'soundcloud' | 'link' | null
+ */
 export function detectLinkType(text) {
   if (!text) return null;
   const urls = text.match(/(https?:\/\/[^\s]+)/g);
@@ -652,17 +678,21 @@ function _setupCompose(convId, other, otherId) {
   const previewEl = document.getElementById('msg-img-preview');
   const removeBtn = document.getElementById('msg-img-remove');
 
-  let pendingImage = null;
+  let pendingImage = null;   // { file, url, publicId }
   let isSending    = false;
 
+  // Auto-resize textarea
   inputEl?.addEventListener('input', () => {
     inputEl.style.height = 'auto';
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+
+    // Typing indicator
     _setTyping(convId);
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => _clearTyping(), TYPING_TTL);
   });
 
+  // Enter = wyślij (Shift+Enter = nowa linia)
   inputEl?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -671,6 +701,8 @@ function _setupCompose(convId, other, otherId) {
   });
 
   sendBtn?.addEventListener('click', _sendMsg);
+
+  // Image upload button
   imgBtn?.addEventListener('click', () => imgInput?.click());
 
   imgInput?.addEventListener('change', async (e) => {
@@ -684,6 +716,7 @@ function _setupCompose(convId, other, otherId) {
       showToast('Maks. 5 MB.', 'error'); return;
     }
 
+    // Preview lokalny
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (previewEl) {
@@ -694,13 +727,13 @@ function _setupCompose(convId, other, otherId) {
     };
     reader.readAsDataURL(file);
 
+    // Upload do Cloudinary
     showToast('Przesyłam zdjęcie...', 'info', 2000);
     try {
       const result = await uploadToCloudinary(file, `dm/${currentUser.uid}`);
       pendingImage = { url: result.url, publicId: result.publicId };
       imgBtn?.classList.add('active');
     } catch (err) {
-      _handleError('[compose]', err, 'Błąd uploadu zdjęcia.');
       showToast(err.message || 'Błąd uploadu', 'error');
       pendingImage = null;
       if (previewEl) previewEl.style.display = 'none';
@@ -724,6 +757,7 @@ function _setupCompose(convId, other, otherId) {
     isSending = true;
     if (sendBtn) sendBtn.disabled = true;
 
+    // Wykryj embed
     const linkDetect = detectLinkType(text);
 
     try {
@@ -750,18 +784,24 @@ function _setupCompose(convId, other, otherId) {
         createdAt:   serverTimestamp(),
       };
 
+      // Zapisz wiadomość
       await addDoc(collection(db, COL_CONV, convId, COL_MSG), msgData);
 
+      // Aktualizuj metadane konwersacji
       const convRef = doc(db, COL_CONV, convId);
-      const preview = pendingImage ? '📷 Zdjęcie' : (msgType === 'embed' ? '🎵 Link' : text.slice(0, 80));
+      const preview = pendingImage
+        ? '📷 Zdjęcie'
+        : (msgType === 'embed' ? '🎵 Link' : text.slice(0, 80));
 
       await updateDoc(convRef, {
         lastMessage:    preview,
         lastMessageAt:  serverTimestamp(),
         lastMessageBy:  currentUser.uid,
+        // Inkrementuj licznik nieprzeczytanych dla rozmówcy
         ...(otherId ? { [`unread_${otherId}`]: increment(1) } : {}),
       });
 
+      // Powiadomienie
       if (otherId) {
         createNotification(otherId, {
           type:  'message',
@@ -771,6 +811,7 @@ function _setupCompose(convId, other, otherId) {
         }).catch(() => {});
       }
 
+      // Reset compose
       if (inputEl) { inputEl.value = ''; inputEl.style.height = 'auto'; }
       pendingImage = null;
       if (previewEl) previewEl.style.display = 'none';
@@ -778,13 +819,15 @@ function _setupCompose(convId, other, otherId) {
 
       _clearTyping();
 
+      // Scroll to bottom
       setTimeout(() => {
         const msgList = document.getElementById('msg-list');
         if (msgList) _scrollToBottom(msgList);
       }, 100);
 
     } catch (err) {
-      _handleError('[sendMsg]', err, 'Błąd wysyłania wiadomości.');
+      console.error('[sendMsg]', err.code, err.message);
+      showToast('Błąd wysyłania.', 'error');
     } finally {
       isSending = false;
       if (sendBtn) sendBtn.disabled = false;
@@ -804,7 +847,7 @@ async function _markConvRead(convId) {
     await updateDoc(doc(db, COL_CONV, convId), {
       [`unread_${currentUser.uid}`]: 0,
     });
-  } catch (err) { _handleError('[markConvRead]', err); }
+  } catch {}
 }
 
 
@@ -822,12 +865,19 @@ export async function getUnreadCount(myUid) {
     let total = 0;
     snap.forEach(d => { total += d.data()[`unread_${myUid}`] ?? 0; });
     return total;
-  } catch (err) { _handleError('[getUnreadCount]', err); return 0; }
+  } catch {
+    return 0;
+  }
 }
 
+/**
+ * Wstrzykuje badge z liczbą nieprzeczytanych na ikonę messengera w nav.
+ * Wywołaj raz po zalogowaniu.
+ */
 export function injectMessengerBadge(myUid) {
   if (!myUid) return;
 
+  // Nasłuchuj zmian w konwersacjach
   const q = query(
     collection(db, COL_CONV),
     where('participants', 'array-contains', myUid),
@@ -842,7 +892,7 @@ export function injectMessengerBadge(myUid) {
       badge.textContent  = total > 9 ? '9+' : total;
       badge.style.display = total > 0 ? 'flex' : 'none';
     }
-  }, (err) => _handleError('[injectBadge]', err));
+  }, () => {});
 }
 
 
