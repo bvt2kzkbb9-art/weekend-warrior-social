@@ -2,361 +2,401 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="theme-color" content="#0A0A0B"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="WWS Arena"/>
-  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
-  <link rel="manifest" href="manifest.json"/>
-  <title>Wyzwania — Weekend Warrior Social</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Misje — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/challenges.css"/>
-  <style>
-    /* ── Challenge System Tabs ───────────────────────────────────── */
-    .cs-tabs{display:flex;gap:.375rem;padding:.75rem 1rem;max-width:700px;margin:0 auto;
-      overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-    .cs-tabs::-webkit-scrollbar{display:none;}
-    .cs-tab{padding:.5rem 1rem;white-space:nowrap;background:var(--bg-card);
-      border:1px solid rgba(212,175,55,.12);border-radius:9999px;color:var(--text-muted);
-      font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .2s ease;
-      font-family:var(--font);-webkit-tap-highlight-color:transparent;}
-    .cs-tab:hover{color:var(--gold);border-color:rgba(212,175,55,.3);}
-    .cs-tab.active{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;
-      border-color:transparent;box-shadow:0 2px 14px rgba(212,175,55,.3);}
-
-    /* ── Section ──────────────────────────────────────────────────── */
-    .cs-section{padding:0 1rem;max-width:700px;margin:0 auto;}
-
-    /* ── Invite Cards ─────────────────────────────────────────────── */
-    .cs-invite-card{background:var(--bg-card);border:1px solid rgba(212,175,55,.15);
-      border-radius:16px;padding:1.125rem 1.25rem;margin-bottom:.875rem;
-      animation:fadeInUp .35s ease both;}
-    .cs-invite-header{display:flex;align-items:flex-start;gap:.875rem;margin-bottom:.875rem;}
-    .cs-invite-avatar{width:42px;height:42px;border-radius:50%;flex-shrink:0;
-      background:var(--bg-elevated);border:1px solid rgba(212,175,55,.2);
-      display:flex;align-items:center;justify-content:center;
-      font-family:var(--font-hd);font-weight:700;font-size:1rem;color:var(--gold);overflow:hidden;}
-    .cs-invite-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
-    .cs-invite-info{flex:1;min-width:0;}
-    .cs-invite-from{font-size:.875rem;font-weight:600;color:var(--text-primary);
-      line-height:1.3;margin-bottom:.25rem;}
-    .cs-invite-challenge{font-size:.8125rem;color:var(--text-secondary);}
-
-    /* ── Sent Rows ────────────────────────────────────────────────── */
-    .cs-sent-row{display:flex;align-items:center;gap:.875rem;padding:.875rem;
-      background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
-      margin-bottom:.625rem;animation:fadeInUp .35s ease both;}
-
-    /* ── Buttons ──────────────────────────────────────────────────── */
-    .cs-btn-accept,.cs-btn-quiz,.cs-btn-complete{
-      padding:.75rem 1rem;border:none;border-radius:10px;cursor:pointer;
-      font-family:'Rajdhani',sans-serif;font-size:.9375rem;font-weight:800;
-      letter-spacing:.04em;text-transform:uppercase;transition:all .2s ease;
-      -webkit-tap-highlight-color:transparent;width:100%;}
-    .cs-btn-accept{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;}
-    .cs-btn-accept:hover{filter:brightness(1.08);}
-    .cs-btn-accept:disabled{opacity:.5;cursor:not-allowed;filter:none;}
-    .cs-btn-reject{flex:1;padding:.75rem;background:transparent;
-      border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text-muted);
-      font-family:var(--font);font-size:.875rem;cursor:pointer;transition:all .2s ease;
-      -webkit-tap-highlight-color:transparent;}
-    .cs-btn-reject:hover{border-color:rgba(239,68,68,.3);color:#EF4444;}
-    .cs-btn-quiz{background:rgba(79,140,255,.12);border:1px solid rgba(79,140,255,.25);color:#4F8CFF;}
-    .cs-btn-quiz:hover{background:rgba(79,140,255,.2);}
-    .cs-btn-complete{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;}
-    .cs-btn-complete:hover{filter:brightness(1.08);}
-    .cs-btn-complete:disabled{opacity:.5;cursor:not-allowed;filter:none;}
-
-    /* ── Send Modal ───────────────────────────────────────────────── */
-    .cs-modal-bg{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);
-      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-      display:flex;align-items:flex-end;justify-content:center;
-      padding-bottom:env(safe-area-inset-bottom);animation:chFadeIn .2s ease both;}
-    @media(min-width:600px){.cs-modal-bg{align-items:center;}}
-    .cs-modal{background:#0E0F12;border:1px solid rgba(212,175,55,.25);
-      border-radius:22px 22px 0 0;
-      padding:1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
-      width:100%;max-width:440px;max-height:92vh;overflow-y:auto;
-      animation:chSlideUp .3s ease both;}
-    @media(min-width:600px){.cs-modal{border-radius:22px;padding-bottom:1.5rem;}}
-    .cs-modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.125rem;}
-    .cs-modal-title{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:800;
-      color:#D4AF37;text-transform:uppercase;letter-spacing:.05em;}
-    .cs-modal-sub{font-size:.8125rem;color:#8A7E6A;margin-top:.125rem;}
-    .cs-modal-close{background:none;border:none;color:#4E5464;font-size:1.375rem;
-      cursor:pointer;padding:.25rem;line-height:1;-webkit-tap-highlight-color:transparent;}
-    .cs-modal-label{font-size:.6875rem;font-weight:700;color:#8A7E6A;
-      letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;}
-    .cs-challenge-preview{display:flex;align-items:center;gap:.875rem;
-      background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);
-      border-radius:12px;padding:.875rem 1rem;margin-bottom:1rem;}
-    .cs-preview-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-      color:#D4AF37;text-transform:uppercase;}
-    .cs-preview-sub{font-size:.8125rem;color:#8A7E6A;margin-top:.125rem;}
-    .cs-users-list{max-height:220px;overflow-y:auto;border:1px solid rgba(212,175,55,.12);
-      border-radius:12px;margin-bottom:.875rem;}
-    .cs-user-row{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;cursor:pointer;
-      border-bottom:1px solid rgba(255,255,255,.04);border-left:3px solid transparent;
-      transition:background .15s ease;-webkit-tap-highlight-color:transparent;}
-    .cs-user-row:last-child{border-bottom:none;}
-    .cs-user-row.selected{background:rgba(212,175,55,.1);border-left-color:#D4AF37;}
-    .cs-user-row:active{background:rgba(212,175,55,.08);}
-    .cs-user-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:#1A1C22;
-      border:1px solid rgba(212,175,55,.15);display:flex;align-items:center;justify-content:center;
-      font-weight:700;font-size:.875rem;color:#D4AF37;overflow:hidden;}
-    .cs-user-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
-    .cs-user-info{flex:1;min-width:0;}
-    .cs-user-name{font-size:.875rem;font-weight:600;color:#E8E0D0;}
-    .cs-user-row.selected .cs-user-name{color:#D4AF37;}
-    .cs-user-sub{font-size:.6875rem;color:#8A7E6A;margin-top:.1rem;}
-    .cs-user-check{color:#D4AF37;font-size:1rem;}
-    .cs-target-info{font-size:.8125rem;color:#B8A87A;background:rgba(212,175,55,.05);
-      border:1px solid rgba(212,175,55,.1);border-radius:10px;padding:.625rem .875rem;margin-bottom:1rem;}
-    .cs-send-btn{width:100%;padding:.9375rem;background:linear-gradient(135deg,#D4AF37,#A88B28);
-      border:none;border-radius:14px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1rem;
-      font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;
-      transition:all .2s ease;-webkit-tap-highlight-color:transparent;}
-    .cs-send-btn:hover{filter:brightness(1.08);box-shadow:0 4px 20px rgba(212,175,55,.3);}
-    .cs-send-btn:active{transform:scale(.98);}
-    .cs-send-btn:disabled{opacity:.5;cursor:not-allowed;}
-
-    /* ── Quiz Modal ───────────────────────────────────────────────── */
-    .cs-quiz-modal{background:#0E0F12;border:2px solid rgba(212,175,55,.3);
-      border-radius:22px 22px 0 0;
-      padding:1.75rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom));
-      width:100%;max-width:460px;max-height:95vh;overflow-y:auto;
-      animation:chSlideUp .35s ease both;}
-    @media(min-width:600px){.cs-quiz-modal{border-radius:22px;padding-bottom:1.75rem;}}
-    .cs-quiz-header{display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;}
-    .cs-quiz-badge{font-size:2rem;flex-shrink:0;}
-    .cs-quiz-ch-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-      color:#D4AF37;text-transform:uppercase;}
-    .cs-quiz-sub{font-size:.75rem;color:#8A7E6A;}
-    .cs-quiz-timer{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:1.375rem;
-      font-weight:800;color:#D4AF37;min-width:32px;text-align:center;}
-    .cs-quiz-question{font-size:.9375rem;font-weight:600;color:#E8E0D0;line-height:1.65;
-      margin-bottom:1.125rem;font-style:italic;}
-    .cs-quiz-answers{display:flex;flex-direction:column;gap:.625rem;margin-bottom:1rem;}
-    .cs-quiz-answer{display:flex;align-items:flex-start;gap:.75rem;padding:.875rem 1rem;
-      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;
-      cursor:pointer;transition:all .2s ease;text-align:left;width:100%;
-      -webkit-tap-highlight-color:transparent;font-family:var(--font);}
-    .cs-quiz-answer:hover:not(:disabled){background:rgba(212,175,55,.08);border-color:rgba(212,175,55,.3);}
-    .cs-quiz-answer:disabled{cursor:default;}
-    .cs-quiz-answer.correct{background:rgba(22,199,132,.1);border-color:rgba(22,199,132,.4);}
-    .cs-quiz-answer.wrong{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);}
-    .cs-answer-letter{width:28px;height:28px;border-radius:50%;flex-shrink:0;
-      background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Rajdhani',sans-serif;font-size:.875rem;font-weight:700;color:#D4AF37;line-height:1;}
-    .cs-quiz-answer.correct .cs-answer-letter{background:rgba(22,199,132,.2);border-color:#16C784;color:#16C784;}
-    .cs-quiz-answer.wrong .cs-answer-letter{background:rgba(239,68,68,.15);border-color:#EF4444;color:#EF4444;}
-    .cs-answer-text{font-size:.875rem;color:#E8E0D0;line-height:1.55;padding-top:3px;}
-    .cs-quiz-feedback{border-radius:12px;padding:1.125rem;text-align:center;margin-bottom:1rem;
-      font-size:.9375rem;font-weight:600;color:#fff;}
-    .cs-quiz-feedback.hidden{display:none;}
-    .cs-feedback-correct{background:rgba(22,199,132,.1);border:1px solid rgba(22,199,132,.3);}
-    .cs-feedback-wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);}
-    .cs-quiz-reward{display:flex;align-items:center;gap:.625rem;font-size:.8125rem;color:#8A7E6A;
-      padding:.75rem;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;}
-  </style>
+  <link rel="stylesheet" href="css/arena.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
 </head>
-<body class="ch-page">
+<body>
 <div class="bg-orbs" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
 
-<!-- ── Navigation ── -->
+<!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">
   <span class="nav-brand">⚔ WWS</span>
   <a href="index.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span>Start</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
+    <span>Arena</span>
   </a>
   <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    <span>Feed</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Kroniki</span>
   </a>
-  <a href="challenges.html" class="nav-item active" aria-current="page">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-    <span>Wyzwania</span>
+  <a href="challenges.html" class="nav-item-hero nav-item active" aria-current="page">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
   </a>
   <a href="ranking.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-    <span>Ranking</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+    <span>Chwała</span>
   </a>
   <a href="profile.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>Profil</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Bohater</span>
   </a>
   <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);" title="Wyloguj">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Wyloguj
     </button>
   </div>
 </nav>
 
-<!-- ── Content ── -->
-<div style="padding-top:calc(56px + env(safe-area-inset-top,0px) + .5rem);
-            padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));">
+<!-- Content -->
+<main class="content-area" style="position:relative;z-index:1;">
+  <div class="challenges-page">
 
-  <!-- Page header -->
-  <div class="ch-page-header">
-    <div class="ch-page-title-row">
-      <div class="ch-page-title">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M17 4.7l-2.5 5.8M9 5L3 19l9-4 9 4-6-14"/></svg>
-        Wyzwania
+    <div class="challenges-header">
+      <div style="font-family:var(--font-display);font-size:clamp(1.125rem,4vw,1.75rem);font-weight:900;
+           letter-spacing:.1em;color:var(--gold-400);text-shadow:0 0 30px var(--gold-glow-lg);margin-bottom:.2rem;">
+        🐍 Misje Areny
       </div>
+      <div class="label-caps" style="margin-bottom:.875rem;">Wybierz swoją próbę, Wojowniku</div>
     </div>
-    <div class="ch-page-subtitle">Rzuć wyzwanie → Quiz Areny → Realizacja → XP</div>
-  </div>
 
-  <!-- Stats -->
-  <div class="ch-stats-row">
-    <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-received" style="color:var(--gold);">0</div>
-      <div class="ch-stat-label">Odebrane</div>
+    <!-- Challenges grid -->
+    <div id="challenges-grid" class="challenges-grid">
+      <!-- filled by JS -->
     </div>
-    <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-active" style="color:#16C784;">0</div>
-      <div class="ch-stat-label">Aktywne</div>
-    </div>
-    <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-done" style="color:var(--blue);">0</div>
-      <div class="ch-stat-label">Ukończone</div>
-    </div>
-  </div>
 
-  <!-- Tabs -->
-  <div class="cs-tabs" role="tablist">
-    <button class="cs-tab active" data-cs-tab="challenges" role="tab">⚔️ Wyzwania</button>
-    <button class="cs-tab"        data-cs-tab="received"   role="tab">📥 Odebrane</button>
-    <button class="cs-tab"        data-cs-tab="sent"       role="tab">📤 Wysłane</button>
-    <button class="cs-tab"        data-cs-tab="active"     role="tab">🔥 Aktywne</button>
-    <button class="cs-tab"        data-cs-tab="history"    role="tab">🏁 Historia</button>
+    <div style="height:1rem;"></div>
   </div>
+</main>
 
-  <!-- TAB: Wyzwania -->
-  <div id="cs-section-challenges" class="cs-section">
-    <div class="ch-grid-wrap" style="padding:0;">
-      <div id="cs-cards-grid" class="ch-grid"></div>
-    </div>
-    <div class="ch-how-section">
-      <div class="ch-how-title">◆ Jak działa system ◆</div>
-      <div class="ch-how-grid">
-        <div class="ch-how-item">
-          <div class="ch-how-icon">⚔️</div>
-          <div class="ch-how-step">1. Rzuć</div>
-          <div class="ch-how-desc">Wybierz kartę i wyzwij wojownika z areny.</div>
+<!-- ══════════════════════════════════════════
+     CHALLENGE MODAL
+══════════════════════════════════════════ -->
+<div id="ch-modal-backdrop" class="ch-modal-backdrop hidden">
+  <div class="ch-modal" id="ch-modal">
+    <img id="modal-img" src="" alt="" class="ch-modal-img" style="display:none;"/>
+    <div class="ch-modal-body">
+      <div id="modal-badge" class="ch-modal-badge"></div>
+      <div id="modal-title" class="ch-modal-title"></div>
+      <div id="modal-desc" class="ch-modal-desc"></div>
+      <div class="ch-modal-stats">
+        <div class="ch-modal-stat">
+          <span id="modal-xp" class="ch-modal-stat-val">+0 XP</span>
+          <span class="ch-modal-stat-label">Nagroda</span>
         </div>
-        <div class="ch-how-item">
-          <div class="ch-how-icon">📥</div>
-          <div class="ch-how-step">2. Akceptuj</div>
-          <div class="ch-how-desc">Odbiorca przyjmuje lub odrzuca wyzwanie.</div>
+        <div class="ch-modal-stat">
+          <span id="modal-diff" class="ch-modal-stat-val">—</span>
+          <span class="ch-modal-stat-label">Poziom</span>
         </div>
-        <div class="ch-how-item">
-          <div class="ch-how-icon">🧠</div>
-          <div class="ch-how-step">3. Quiz</div>
-          <div class="ch-how-desc">Quiz Areny odblokowuje właściwe zadanie.</div>
-        </div>
-        <div class="ch-how-item">
-          <div class="ch-how-icon">🏆</div>
-          <div class="ch-how-step">4. XP</div>
-          <div class="ch-how-desc">Oboje gracze zdobywają XP po ukończeniu!</div>
+        <div class="ch-modal-stat">
+          <span id="modal-cat" class="ch-modal-stat-val">—</span>
+          <span class="ch-modal-stat-label">Kategoria</span>
         </div>
       </div>
+      <div class="ch-modal-actions">
+        <button id="modal-quiz-btn" class="rpg-btn rpg-btn-gold" style="flex:1;">🧠 Przystąp do Quizu</button>
+        <button id="modal-close-btn" class="rpg-btn rpg-btn-outline" style="flex:1;">✖ Zamknij</button>
+      </div>
     </div>
-    <div style="height:.5rem;"></div>
   </div>
+</div>
 
-  <!-- TAB: Odebrane -->
-  <div id="cs-section-received" class="cs-section" style="display:none;">
-    <div id="cs-received-list" style="padding-top:.5rem;"></div>
+<!-- ══════════════════════════════════════════
+     QUIZ OVERLAY — PRÓBA WOJOWNIKA
+══════════════════════════════════════════ -->
+<div id="quiz-overlay" class="quiz-overlay hidden">
+  <div class="quiz-container">
+
+    <!-- Quiz header -->
+    <div class="quiz-header">
+      <span class="quiz-eyebrow">⚔ Próba Wojownika</span>
+      <div id="quiz-ch-title" class="quiz-title">—</div>
+      <div class="quiz-progress-row">
+        <div class="quiz-progress-track">
+          <div id="quiz-progress-fill" class="quiz-progress-fill" style="width:0%;"></div>
+        </div>
+        <span id="quiz-progress-label" class="quiz-progress-label">0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Question parchment -->
+    <div class="quiz-parchment" id="quiz-parchment-wrap">
+      <div id="quiz-q-num" class="quiz-q-num">Pytanie 1</div>
+      <div id="quiz-question" class="quiz-question">—</div>
+    </div>
+
+    <!-- Answers -->
+    <div id="quiz-answers" class="quiz-answers"></div>
+
+    <!-- Feedback -->
+    <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+
+    <!-- Result -->
+    <div id="quiz-result" class="quiz-result hidden">
+      <div id="quiz-result-icon" class="quiz-result-icon">🏆</div>
+      <div id="quiz-result-title" class="quiz-result-title">—</div>
+      <div id="quiz-result-msg" class="quiz-result-message">—</div>
+      <div id="quiz-xp-earned" class="quiz-xp-earned">⭐ +0 XP</div>
+      <div style="display:flex;gap:.625rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem;">
+        <button id="quiz-back-btn" class="rpg-btn rpg-btn-gold">⚔ Wróć do Misji</button>
+        <button id="quiz-retry-btn" class="rpg-btn rpg-btn-outline" style="display:none;">🔄 Spróbuj ponownie</button>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- TAB: Wysłane -->
-  <div id="cs-section-sent" class="cs-section" style="display:none;">
-    <div id="cs-sent-list" style="padding-top:.5rem;"></div>
-  </div>
-
-  <!-- TAB: Aktywne -->
-  <div id="cs-section-active" class="cs-section" style="display:none;">
-    <div id="cs-active-list" style="padding-top:.5rem;"></div>
-  </div>
-
-  <!-- TAB: Historia -->
-  <div id="cs-section-history" class="cs-section" style="display:none;">
-    <div id="cs-history-list" style="padding-top:.5rem;"></div>
-  </div>
-
+<!-- Level-up overlay -->
+<div id="level-up-overlay" class="level-up-overlay hidden">
+  <div class="level-up-burst">🎉 AWANS!</div>
+  <div id="level-up-text" class="level-up-burst" style="font-size:clamp(1.25rem,4vw,2rem);"></div>
+  <div class="level-up-sub">Nowy poziom osiągnięty, Wojowniku!</div>
 </div>
 
 <script type="module">
-  import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { injectNotifBell } from './js/notifications.js';
-  import { initChallengeSystem } from './js/challenge-system.js';
-  import { db } from './js/firebase.js';
+  import { checkAuth, logout, showToast } from './js/auth.js';
+  import { db, COL, getLevel, getRank, RANKS } from './js/firebase.js';
+  import { CHALLENGES_DATA, QUIZ_DATA } from './js/challenge-system.js';
   import {
-    collection, query, where, onSnapshot,
+    collection, addDoc, doc, updateDoc, getDoc, increment, serverTimestamp,
+    query, where, getDocs, orderBy, limit,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  document.getElementById('logout-btn')?.addEventListener('click', logout);
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  let currentUser = null;
+  let currentUserData = null;
+  let currentChallenge = null;
 
   checkAuth(async (user) => {
-    injectNotifBell(user.uid);
-
-    let userData = null;
-    try { userData = await getCurrentUserData(user.uid, user); } catch {}
-    userData ??= {
-      uid: user.uid, displayName: user.displayName || 'Wojownik',
-      photoURL: user.photoURL || '', points: 0,
-    };
-
-    initChallengeSystem(user, userData);
-    _loadStats(user.uid);
+    currentUser = user;
+    try {
+      const snap = await getDoc(doc(db, COL.USERS, user.uid));
+      currentUserData = snap.exists() ? snap.data() : { points: 0, displayName: user.displayName };
+    } catch {}
+    _renderGrid();
   });
 
-  function _loadStats(uid) {
-    // Odebrane (pending + quiz_pending + active)
-    onSnapshot(
-      query(collection(db,'challenge_invites'),
-        where('targetId','==',uid),
-        where('status','in',['pending','quiz_pending','active'])),
-      snap => {
-        const el = document.getElementById('cs-stat-received');
-        if (el) el.textContent = snap.size;
-      }
-    );
-    // Aktywne
-    onSnapshot(
-      query(collection(db,'challenge_invites'),
-        where('targetId','==',uid),
-        where('status','==','active')),
-      snap => {
-        const el = document.getElementById('cs-stat-active');
-        if (el) el.textContent = snap.size;
-      }
-    );
-    // Ukończone
-    onSnapshot(
-      query(collection(db,'challenge_completions'),
-        where('userId','==',uid)),
-      snap => {
-        const el = document.getElementById('cs-stat-done');
-        if (el) el.textContent = snap.size;
-      }
-    );
-  }
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+  // ── Challenge Grid ──────────────────────────────────────────────
+  function _renderGrid() {
+    const grid = document.getElementById('challenges-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    CHALLENGES_DATA.forEach((ch, idx) => {
+      const card = document.createElement('div');
+      card.className = 'ch-full-card';
+      card.style.animationDelay = (idx * 0.06) + 's';
+      card.innerHTML = `
+        <div class="rpg-ch-num">${ch.order}</div>
+        <div class="ch-full-img-wrap">
+          <img src="${ch.image}" alt="${_esc(ch.title)}" class="ch-full-img" loading="lazy"
+            onerror="this.style.display='none';this.parentElement.style.background='#1A150E'"/>
+        </div>
+        <div class="ch-full-body">
+          <div class="ch-full-badge">${ch.badge}</div>
+          <div class="ch-full-title">${_esc(ch.title)}</div>
+          <div class="ch-full-xp">+${ch.xp} XP</div>
+          <div class="ch-full-actions">
+            <div class="ch-full-action primary">🧠 Quiz</div>
+            <div class="ch-full-action">⚔️ Rzuć</div>
+          </div>
+        </div>`;
+      card.querySelectorAll('.ch-full-action')[0].addEventListener('click', e => {
+        e.stopPropagation(); _openQuiz(ch);
+      });
+      card.querySelectorAll('.ch-full-action')[1].addEventListener('click', e => {
+        e.stopPropagation(); _openModal(ch);
+      });
+      card.addEventListener('click', () => _openModal(ch));
+      grid.appendChild(card);
     });
   }
+
+  // ── Challenge Modal ─────────────────────────────────────────────
+  function _openModal(ch) {
+    currentChallenge = ch;
+    document.getElementById('modal-badge').textContent = ch.badge;
+    document.getElementById('modal-title').textContent = ch.title;
+    document.getElementById('modal-desc').textContent = ch.description || `Podejmij wyzwanie ${ch.title} i zdobądź XP!`;
+    document.getElementById('modal-xp').textContent = `+${ch.xp} XP`;
+    document.getElementById('modal-diff').textContent = ch.difficulty || 'Średni';
+    document.getElementById('modal-cat').textContent = ch.category || 'Ogólne';
+    const img = document.getElementById('modal-img');
+    if (ch.image) { img.src = ch.image; img.style.display = 'block'; } else img.style.display = 'none';
+    document.getElementById('ch-modal-backdrop').classList.remove('hidden');
+  }
+
+  document.getElementById('modal-close-btn').addEventListener('click', () => {
+    document.getElementById('ch-modal-backdrop').classList.add('hidden');
+  });
+  document.getElementById('ch-modal-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('ch-modal-backdrop'))
+      document.getElementById('ch-modal-backdrop').classList.add('hidden');
+  });
+  document.getElementById('modal-quiz-btn').addEventListener('click', () => {
+    document.getElementById('ch-modal-backdrop').classList.add('hidden');
+    if (currentChallenge) _openQuiz(currentChallenge);
+  });
+
+  // ── Quiz System ─────────────────────────────────────────────────
+  let quizState = {
+    questions: [], current: 0, correct: 0,
+    answered: false, challenge: null
+  };
+
+  function _openQuiz(ch) {
+    const questions = (QUIZ_DATA && QUIZ_DATA[ch.id]) ? QUIZ_DATA[ch.id] : _defaultQuestions(ch);
+    quizState = { questions, current: 0, correct: 0, answered: false, challenge: ch };
+
+    document.getElementById('quiz-ch-title').textContent = ch.title;
+    document.getElementById('quiz-overlay').classList.remove('hidden');
+    document.getElementById('quiz-result').classList.add('hidden');
+    document.getElementById('quiz-parchment-wrap').classList.remove('hidden');
+    document.getElementById('quiz-answers').classList.remove('hidden');
+    _renderQuestion();
+  }
+
+  function _renderQuestion() {
+    const { questions, current } = quizState;
+    const q = questions[current];
+    if (!q) return;
+
+    document.getElementById('quiz-q-num').textContent = `Pytanie ${current + 1}`;
+    document.getElementById('quiz-question').textContent = q.question;
+    document.getElementById('quiz-progress-label').textContent = `${current + 1} / ${questions.length}`;
+    const pct = ((current + 1) / questions.length) * 100;
+    document.getElementById('quiz-progress-fill').style.width = pct + '%';
+    document.getElementById('quiz-feedback').classList.add('hidden');
+
+    const answersEl = document.getElementById('quiz-answers');
+    answersEl.innerHTML = '';
+    const runes = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('div');
+      btn.className = 'quiz-answer';
+      btn.style.animationDelay = (i * 0.07) + 's';
+      btn.innerHTML = `
+        <div class="quiz-answer-rune">${runes[i]}</div>
+        <div class="quiz-answer-text">${_esc(opt)}</div>`;
+      btn.addEventListener('click', () => _selectAnswer(i, btn));
+      answersEl.appendChild(btn);
+    });
+    quizState.answered = false;
+  }
+
+  function _selectAnswer(idx, btn) {
+    if (quizState.answered) return;
+    quizState.answered = true;
+
+    const q = quizState.questions[quizState.current];
+    const correct = idx === q.correctIndex;
+    const feedback = document.getElementById('quiz-feedback');
+    const allBtns = document.querySelectorAll('.quiz-answer');
+
+    // Mark correct
+    allBtns[q.correctIndex].classList.add('correct');
+    if (!correct) btn.classList.add('wrong');
+
+    // Feedback message
+    feedback.classList.remove('hidden', 'correct', 'wrong');
+    if (correct) {
+      feedback.classList.add('correct');
+      feedback.innerHTML = `<span class="quiz-feedback-icon">⚔️</span>Arena uznała Cię za godnego!`;
+      quizState.correct++;
+    } else {
+      feedback.classList.add('wrong');
+      feedback.innerHTML = `<span class="quiz-feedback-icon">🐍</span>Hydra śmieje się z Twojej odpowiedzi…`;
+    }
+
+    // Advance after delay
+    setTimeout(() => {
+      quizState.current++;
+      if (quizState.current < quizState.questions.length) {
+        _renderQuestion();
+      } else {
+        _showResult();
+      }
+    }, 1600);
+  }
+
+  async function _showResult() {
+    const { questions, correct, challenge } = quizState;
+    const total = questions.length;
+    const passed = correct >= Math.ceil(total * 0.6);
+    const xpEarned = passed ? Math.round(challenge.xp * (correct / total)) : 0;
+
+    document.getElementById('quiz-parchment-wrap').classList.add('hidden');
+    document.getElementById('quiz-answers').classList.add('hidden');
+    document.getElementById('quiz-feedback').classList.add('hidden');
+
+    const result = document.getElementById('quiz-result');
+    result.classList.remove('hidden');
+    document.getElementById('quiz-result-icon').textContent = passed ? '🏆' : '💀';
+    document.getElementById('quiz-result-title').textContent = passed
+      ? '⚔️ Przetestowany w Boju!'
+      : '🐍 Hydra Zatriumfowała...';
+    document.getElementById('quiz-result-msg').textContent = passed
+      ? `Odpowiedziałeś poprawnie na ${correct} z ${total} pytań. Arena cię honoruje!`
+      : `Tylko ${correct} z ${total} odpowiedzi było poprawnych. Trenuj mocniej, wojowniku!`;
+    document.getElementById('quiz-xp-earned').textContent = xpEarned > 0 ? `⭐ +${xpEarned} XP` : '❌ 0 XP';
+    document.getElementById('quiz-retry-btn').style.display = passed ? 'none' : 'inline-flex';
+
+    if (xpEarned > 0 && currentUser) {
+      try {
+        const userRef = doc(db, COL.USERS, currentUser.uid);
+        const beforeSnap = await getDoc(userRef);
+        const oldPts = beforeSnap.data()?.points || 0;
+        await updateDoc(userRef, {
+          points: increment(xpEarned),
+          quizzesCompleted: increment(1),
+        });
+        // Check level-up
+        const newPts = oldPts + xpEarned;
+        if (getLevel(newPts) > getLevel(oldPts)) {
+          _showLevelUp(getLevel(newPts), getRank(newPts));
+        }
+        showToast(`+${xpEarned} XP zdobyte! 🌟`, 'success');
+      } catch (e) { console.warn('[xp update]', e); }
+    }
+  }
+
+  function _showLevelUp(level, rankObj) {
+    const overlay = document.getElementById('level-up-overlay');
+    const text = document.getElementById('level-up-text');
+    text.textContent = `Poziom ${level} · ${rankObj.emoji} ${rankObj.label}`;
+    overlay.classList.remove('hidden');
+    setTimeout(() => overlay.classList.add('hidden'), 3500);
+  }
+
+  document.getElementById('quiz-back-btn').addEventListener('click', () => {
+    document.getElementById('quiz-overlay').classList.add('hidden');
+  });
+  document.getElementById('quiz-retry-btn').addEventListener('click', () => {
+    if (quizState.challenge) _openQuiz(quizState.challenge);
+  });
+
+  function _defaultQuestions(ch) {
+    return [
+      {
+        question: `Jakiej dyscypliny sportowej dotyczy wyzwanie "${ch.title}"?`,
+        options: ['Bieganie', 'Pływanie', 'Siłownia', 'Ogólna sprawność'],
+        correctIndex: 3,
+      },
+      {
+        question: 'Jak często należy trenować, aby zauważyć postępy?',
+        options: ['Raz w miesiącu', 'Raz w tygodniu', '3–4 razy w tygodniu', '10 razy dziennie'],
+        correctIndex: 2,
+      },
+      {
+        question: 'Co jest kluczem do sukcesu w długoterminowym treningu?',
+        options: ['Intensywność', 'Regularność i konsekwencja', 'Drogi sprzęt', 'Dieta białkowa'],
+        correctIndex: 1,
+      },
+    ];
+  }
+
+  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
