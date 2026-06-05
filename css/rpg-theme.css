@@ -1375,3 +1375,49 @@ body {
 .rpg-rank-legend   { background:rgba(74,191,255,0.08); color:#4ABFFF; border:1px solid rgba(74,191,255,0.2); }
 ENDOFFILE
 echo "✅ rpg-theme.css — $(wc -l < /mnt/user-data/outputs/weekend-warrior-social/css/rpg-theme.css) lines"
+/* GLOBAL DARK FANTASY OVERRIDE */
+
+html,
+body {
+    background: #060608 !important;
+    background-color: #060608 !important;
+    color: #E8D5A0 !important;
+    min-height: 100vh;
+}
+
+body * {
+    box-sizing: border-box;
+}
+
+/* Główne kontenery */
+main,
+.rpg-layout,
+.rpg-main,
+.page,
+.page-content,
+.container,
+.content,
+.content-wrapper {
+    background: transparent !important;
+}
+
+/* Usuń jasne warstwy */
+.bg-orbs,
+.bg-gradient,
+.page-background {
+    background:
+        radial-gradient(circle at 20% 20%, rgba(212,175,55,0.08), transparent 35%),
+        radial-gradient(circle at 80% 70%, rgba(200,100,32,0.05), transparent 40%),
+        #060608 !important;
+}
+
+/* Wszystkie białe karty */
+.card,
+.panel,
+.section,
+.widget,
+.feed-card,
+.challenge-card {
+    background: #0D0C0A !important;
+    color: #E8D5A0 !important;
+}
