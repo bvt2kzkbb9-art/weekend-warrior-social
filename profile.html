@@ -272,19 +272,35 @@
     s('login-streak-val', `${data.streak || 0} 🔥`);
   }
 
+  // Dokładnie te same IDs co achievements.js ACHIEVEMENTS + check functions
+  const ACH_DEFS = [
+    { id:'first_post',      icon:'📝', name:'Pierwsze słowo',           check: d => (d.postsCount    ?? 0) >= 1    },
+    { id:'five_posts',      icon:'✍️', name:'Narrator areny',           check: d => (d.postsCount    ?? 0) >= 5    },
+    { id:'ten_posts',       icon:'📖', name:'Kronikarz bitew',          check: d => (d.postsCount    ?? 0) >= 10   },
+    { id:'first_comment',   icon:'💬', name:'Pierwszy głos',           check: d => (d.commentsCount ?? 0) >= 1    },
+    { id:'first_like',      icon:'❤️', name:'Pierwsze uznanie',        check: d => (d.likesReceived ?? 0) >= 1    },
+    { id:'ten_likes',       icon:'🔥', name:'Wojownik popularny',      check: d => (d.likesReceived ?? 0) >= 10   },
+    { id:'rank_warrior',    icon:'🥈', name:'Warrior',                  check: d => (d.points        ?? 0) >= 500  },
+    { id:'rank_champion',   icon:'🥇', name:'Champion',                 check: d => (d.points        ?? 0) >= 2000 },
+    { id:'rank_legend',     icon:'💎', name:'Legend',                   check: d => (d.points        ?? 0) >= 10000},
+    { id:'golden_circle',   icon:'🌕', name:'Władca Złotego Kręgu',    check: d => (d.points        ?? 0) >= 1000 },
+    { id:'dragon_slayer',   icon:'🐉', name:'Pogromca Dwugłowego Węża',check: d => (d.points        ?? 0) >= 5000 },
+    { id:'chaos_serpents',  icon:'🌀', name:'Węże Chaosu',              check: d => (d.postsCount ?? 0) >= 3 && (d.commentsCount ?? 0) >= 5 },
+  ];
+
   function _renderAchievements(data) {
     const grid = document.getElementById('achievements-grid');
     if (!grid) return;
-    const allAch = _defaultAchievements();
-    const earned = new Set(data.achievements || []);
+    const earned = new Set(Array.isArray(data.achievements) ? data.achievements : []);
     let earnedCount = 0;
 
-    allAch.forEach((ach, i) => {
-      const unlocked = earned.has(ach.id);
+    ACH_DEFS.forEach((ach, i) => {
+      // Odblokowane = jest w earned[] LUB warunek spełniony
+      const unlocked = earned.has(ach.id) || ach.check(data);
       if (unlocked) earnedCount++;
       const item = document.createElement('div');
       item.className = 'achievement-item' + (unlocked ? '' : ' locked');
-      item.title = unlocked ? ach.desc : '???';
+      item.title = unlocked ? ach.name : '???';
       item.style.animationDelay = (i * 0.06) + 's';
       item.innerHTML = `
         <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
@@ -293,7 +309,7 @@
     });
 
     const countEl = document.getElementById('ach-count');
-    if (countEl) countEl.textContent = `${earnedCount} / ${allAch.length}`;
+    if (countEl) countEl.textContent = `${earnedCount} / ${ACH_DEFS.length}`;
   }
 
   async function _loadHistory(uid) {
@@ -391,20 +407,6 @@
         alert('Aby usunąć konto, skontaktuj się z administratorem Areny.');
       }
     });
-  }
-
-  function _defaultAchievements() {
-    return [
-      {id:'first_post',icon:'📜',name:'Kronikarz',desc:'Napisz swój pierwszy post'},
-      {id:'first_win',icon:'⚔️',name:'Pierwsza Krew',desc:'Wygraj pierwsze wyzwanie'},
-      {id:'streak_7',icon:'🔥',name:'Ogień Tygodnia',desc:'7-dniowa seria'},
-      {id:'streak_30',icon:'💎',name:'Wieczny Płomień',desc:'30-dniowa seria'},
-      {id:'level_5',icon:'🛡',name:'Giermek',desc:'Osiągnij poziom 5'},
-      {id:'level_10',icon:'⚔',name:'Rycerz',desc:'Osiągnij poziom 10'},
-      {id:'quizzes_10',icon:'🧠',name:'Uczony',desc:'Ukończ 10 quizów'},
-      {id:'wins_10',icon:'🏆',name:'Champion',desc:'Wygraj 10 wyzwań'},
-      {id:'wins_50',icon:'👑',name:'Legenda',desc:'Wygraj 50 wyzwań'},
-    ];
   }
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
