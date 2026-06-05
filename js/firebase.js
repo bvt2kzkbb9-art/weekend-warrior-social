@@ -47,10 +47,19 @@ console.log('[Firebase] ✅ Auth + Firestore ready');
 
 // ── Kolekcje ─────────────────────────────────────────────────
 export const COL = {
-  USERS:        'users',
-  POSTS:        'posts',
-  CHALLENGES:   'challenges',
-  ACHIEVEMENTS: 'achievements',
+  USERS:         'users',
+  POSTS:         'posts',
+  CHALLENGES:    'challenges',
+  ACHIEVEMENTS:  'achievements',
+  // Social Layer 1.0
+  FOLLOWERS:     'followers',
+  NOTIFICATIONS: 'notifications',
+  // Feed 2.0
+  POKES:         'pokes',
+  // Messenger
+  CONVERSATIONS: 'conversations',
+  // Weekly
+  WEEKLY:        'weeklyScores',
 };
 
 // ── System rang RPG ──────────────────────────────────────────

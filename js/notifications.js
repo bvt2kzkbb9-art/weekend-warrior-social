@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * WEEKEND WARRIOR SOCIAL — notifications.js v2
+ * WEEKEND WARRIOR SOCIAL — notifications.js
  * In-app notification system — 100% Firestore, zero cost
  * ============================================================
  *
@@ -8,47 +8,38 @@
  *   notifications/{uid}/items/{notifId}
  *     type, title, body, icon, url, read, createdAt
  *
- * Typy powiadomień:
- *   like              — polubienie posta
- *   comment           — komentarz pod postem
- *   duel / challenge  — wyzwanie
- *   challenge_invite  — zaproszenie do wyzwania (nowe)
- *   follow            — ktoś zaczął obserwować (nowe)
- *   achievement       — odblokowane osiągnięcie (nowe)
- *   xp                — zdobyte XP
- *   system            — systemowe
- *
  * Eksporty:
- *   initNotifications(uid)
- *   markAllRead(uid)
- *   createNotification(uid, data)
- *   destroyNotifications()
- *   injectNotifBell(uid)
+ *   initNotifications(uid)        — start real-time listener
+ *   markAllRead(uid)              — mark all as read
+ *   createNotification(uid, data) — create notification for user
+ *   destroyNotifications()        — cleanup
  */
 
 import { db } from './firebase.js';
 import {
   collection, doc, addDoc, writeBatch,
-  onSnapshot, query, orderBy,
+  onSnapshot, query, where, orderBy,
   limit, serverTimestamp, updateDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// Ikony dla wszystkich typów powiadomień
 const NOTIF_ICONS = {
   like:             '❤️',
   comment:          '💬',
   duel:             '⚔️',
   challenge:        '🐍',
-  challenge_invite: '⚔️',   // nowe
-  follow:           '👁️',   // nowe
+  challenge_invite: '⚔️',
+  follow:           '👁️',
   achievement:      '🏆',
   xp:               '⭐',
   system:           '📣',
+  // Messenger
+  message:          '💬',
+  // Poke
+  poke:             '👈',
 };
 
 let unsubNotifications = null;
-let notifCache         = [];
-
+let notifCache = [];
 
 // ════════════════════════════════════════════════════════════
 // INIT — real-time listener
@@ -66,7 +57,7 @@ export function initNotifications(uid) {
 
   unsubNotifications = onSnapshot(q, (snap) => {
     notifCache = [];
-    let unread = 0;
+    let unread  = 0;
     snap.forEach(d => {
       const n = { ...d.data(), id: d.id };
       notifCache.push(n);
@@ -75,6 +66,7 @@ export function initNotifications(uid) {
     updateBadge(unread);
     renderNotifDropdown(uid);
   }, err => {
+    // Fail silently — notifications are non-critical
     console.warn('[notifications]', err.code);
   });
 }
@@ -83,22 +75,20 @@ export function destroyNotifications() {
   if (unsubNotifications) { unsubNotifications(); unsubNotifications = null; }
 }
 
-
 // ════════════════════════════════════════════════════════════
-// BADGE
+// BADGE — red dot on nav
 // ════════════════════════════════════════════════════════════
 
 function updateBadge(count) {
   document.querySelectorAll('.notif-badge').forEach(el => {
     if (count > 0) {
-      el.textContent   = count > 9 ? '9+' : count;
-      el.style.display = 'flex';
+      el.textContent    = count > 9 ? '9+' : count;
+      el.style.display  = 'flex';
     } else {
-      el.style.display = 'none';
+      el.style.display  = 'none';
     }
   });
 }
-
 
 // ════════════════════════════════════════════════════════════
 // DROPDOWN
@@ -117,7 +107,9 @@ function renderNotifDropdown(uid) {
     list.innerHTML = `
       <div style="text-align:center;padding:2rem 1rem;">
         <div style="font-size:1.75rem;margin-bottom:0.5rem;">🔔</div>
-        <div style="font-size:0.875rem;color:var(--text-muted);">Brak powiadomień</div>
+        <div style="font-size:0.875rem;color:var(--text-muted);">
+          Brak powiadomień
+        </div>
       </div>`;
     return;
   }
@@ -125,12 +117,8 @@ function renderNotifDropdown(uid) {
   notifCache.forEach(n => {
     const item = document.createElement('div');
     item.className = `notif-item${n.read ? '' : ' unread'}`;
-
-    // Wybierz ikonę — użyj zapisanej lub z mapy
-    const icon = n.icon || NOTIF_ICONS[n.type] || '📣';
-
     item.innerHTML = `
-      <div class="notif-item-icon">${icon}</div>
+      <div class="notif-item-icon">${NOTIF_ICONS[n.type] ?? '📣'}</div>
       <div class="notif-item-body">
         <div class="notif-item-title">${escHtml(n.title)}</div>
         <div class="notif-item-text">${escHtml(n.body)}</div>
@@ -171,37 +159,32 @@ export async function markAllRead(uid) {
       { read: true }
     );
   });
-  try { await batch.commit(); }
-  catch (err) { console.warn('[markAllRead]', err.message); }
-}
 
+  try {
+    await batch.commit();
+  } catch (err) {
+    console.warn('[markAllRead]', err.message);
+  }
+}
 
 // ════════════════════════════════════════════════════════════
 // CREATE NOTIFICATION
 // ════════════════════════════════════════════════════════════
 
 /**
- * Tworzy powiadomienie dla użytkownika.
- *
- * @param {string} uid    — odbiorca
- * @param {object} data   — { type, title, body, url? }
- *
- * Obsługiwane typy:
- *   like, comment, duel, challenge, challenge_invite,
- *   follow, achievement, xp, system
+ * Vytvořit notifikaci pro uživatele.
+ * @param {string} uid     — příjemce
+ * @param {object} data    — { type, title, body, url? }
  */
 export async function createNotification(uid, data) {
   if (!uid || !data) return;
-
-  const icon = data.icon || NOTIF_ICONS[data.type] || '📣';
-
   try {
     await addDoc(collection(db, 'notifications', uid, 'items'), {
-      type:      data.type  || 'system',
-      title:     data.title || 'Powiadomienie',
-      body:      data.body  || '',
-      url:       data.url   || '',
-      icon,
+      type:      data.type      || 'system',
+      title:     data.title     || 'Powiadomienie',
+      body:      data.body      || '',
+      url:       data.url       || '',
+      icon:      NOTIF_ICONS[data.type] ?? '📣',
       read:      false,
       createdAt: serverTimestamp(),
     });
@@ -210,20 +193,26 @@ export async function createNotification(uid, data) {
   }
 }
 
-
 // ════════════════════════════════════════════════════════════
 // INJECT BELL + DROPDOWN INTO NAV
 // ════════════════════════════════════════════════════════════
 
+/**
+ * Wstrzykuje dzwonek powiadomień do nawigacji.
+ * Wywołaj raz po załadowaniu każdej strony z navem.
+ */
 export function injectNotifBell(uid) {
   if (!uid) return;
-  if (document.getElementById('notif-bell')) return;
+  if (document.getElementById('notif-bell')) return; // already injected
 
+  // Inject CSS
   injectNotifStyles();
 
+  // Find nav-actions or nav
   const navActions = document.querySelector('.nav-actions') || document.querySelector('.nav');
   if (!navActions) return;
 
+  // Bell button
   const bell = document.createElement('div');
   bell.id    = 'notif-bell';
   bell.style.cssText = 'position:relative;display:flex;align-items:center;';
@@ -238,6 +227,7 @@ export function injectNotifBell(uid) {
       <span class="notif-badge" style="display:none;">0</span>
     </button>
 
+    <!-- Dropdown -->
     <div id="notif-dropdown" class="notif-dropdown hidden">
       <div class="notif-dropdown-header">
         <span class="notif-dropdown-title">Powiadomienia</span>
@@ -249,31 +239,41 @@ export function injectNotifBell(uid) {
     </div>
   `;
 
+  // Insert before logout button if exists, else append
   const logoutBtn = navActions.querySelector('#logout-btn');
-  if (logoutBtn) navActions.insertBefore(bell, logoutBtn);
-  else navActions.appendChild(bell);
+  if (logoutBtn) {
+    navActions.insertBefore(bell, logoutBtn);
+  } else {
+    navActions.appendChild(bell);
+  }
 
+  // Toggle dropdown
   document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
     const dd = document.getElementById('notif-dropdown');
     dd?.classList.toggle('hidden');
-    if (!dd?.classList.contains('hidden')) markAllRead(uid);
+    if (!dd?.classList.contains('hidden')) {
+      markAllRead(uid);
+    }
   });
 
+  // Close on outside click
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#notif-bell')) {
       document.getElementById('notif-dropdown')?.classList.add('hidden');
     }
   });
 
-  document.getElementById('notif-mark-all')?.addEventListener('click', () => markAllRead(uid));
+  document.getElementById('notif-mark-all')?.addEventListener('click', () => {
+    markAllRead(uid);
+  });
 
+  // Start listener
   initNotifications(uid);
 }
 
-
 // ════════════════════════════════════════════════════════════
-// STYLES
+// INJECT STYLES
 // ════════════════════════════════════════════════════════════
 
 function injectNotifStyles() {
@@ -288,8 +288,8 @@ function injectNotifStyles() {
       display:flex;align-items:center;justify-content:center;
       -webkit-tap-highlight-color:transparent;
     }
-    .notif-bell-btn:hover { color:var(--gold-500); }
-    .notif-bell-btn svg   { width:20px;height:20px;display:block; }
+    .notif-bell-btn:hover { color:var(--text-primary); }
+    .notif-bell-btn svg { width:20px;height:20px;display:block; }
 
     .notif-badge {
       position:absolute;top:-4px;right:-4px;
@@ -297,100 +297,96 @@ function injectNotifStyles() {
       background:#EF4444;color:#fff;
       font-size:0.5625rem;font-weight:800;
       display:flex;align-items:center;justify-content:center;
-      border:2px solid var(--bg-void, #06050A);
+      border:2px solid var(--bg-base);
       line-height:1;
       animation:notifPop .3s cubic-bezier(.34,1.56,.64,1) both;
     }
-    @keyframes notifPop { from{transform:scale(0);} to{transform:scale(1);} }
+
+    @keyframes notifPop {
+      from { transform:scale(0); }
+      to   { transform:scale(1); }
+    }
 
     .notif-dropdown {
       position:fixed;
-      bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
+      bottom:calc(56px + env(safe-area-inset-bottom) + 8px);
       right:.75rem;
-      width:min(340px, calc(100vw - 1.5rem));
-      max-height:min(440px, calc(100vh - 120px));
-      background:var(--bg-panel, #0D0B10);
-      border:1px solid var(--border-panel, rgba(212,175,55,.18));
-      border-radius:var(--r-xl, 16px);
-      box-shadow:0 -8px 40px rgba(0,0,0,.75), 0 0 0 1px rgba(212,175,55,.06);
-      z-index:800;
+      width:min(320px, calc(100vw - 1.5rem));
+      max-height:min(420px, calc(100vh - 120px));
+      background:var(--bg-card);
+      border:1px solid var(--border-mid);
+      border-radius:var(--r-xl);
+      box-shadow:0 -4px 40px rgba(0,0,0,.75);
+      z-index:200;
       overflow:hidden;
-      animation:dropdown-in .25s ease both;
+      animation:slideUp .25s ease both;
     }
+
     .notif-dropdown.hidden { display:none; }
 
     .notif-dropdown-header {
       display:flex;align-items:center;justify-content:space-between;
-      padding:.875rem 1rem;
-      border-bottom:1px solid var(--border-dim, rgba(212,175,55,.12));
+      padding:.875rem 1rem;border-bottom:1px solid var(--border);
     }
-    .notif-dropdown-title {
-      font-family:var(--font-heading,'Cinzel',serif);
-      font-size:.7rem;font-weight:700;letter-spacing:.08em;
-      color:var(--gold-500,#D4AF37);text-transform:uppercase;
-    }
-    .notif-mark-all-btn {
-      font-size:.55rem;color:var(--text-muted);font-weight:600;
-      background:none;border:none;cursor:pointer;padding:0;
-      font-family:var(--font-heading,'Cinzel',serif);
-      letter-spacing:.06em;text-transform:uppercase;
-      transition:color .2s ease;
-    }
-    .notif-mark-all-btn:hover { color:var(--gold-500,#D4AF37); }
 
-    .notif-list { overflow-y:auto;max-height:380px; }
+    .notif-dropdown-title {
+      font-family:var(--font-hd);font-size:.9375rem;font-weight:700;
+      color:var(--text-primary);letter-spacing:.02em;
+    }
+
+    .notif-mark-all-btn {
+      font-size:.75rem;color:var(--gold);font-weight:500;
+      background:none;border:none;cursor:pointer;padding:0;
+      font-family:var(--font);transition:opacity .2s ease;
+    }
+
+    .notif-mark-all-btn:hover { opacity:.75; }
+
+    .notif-list {
+      overflow-y:auto;max-height:360px;
+    }
 
     .notif-item {
       display:flex;align-items:flex-start;gap:.75rem;
-      padding:.875rem 1rem;
-      border-bottom:1px solid var(--border-dim,rgba(212,175,55,.08));
+      padding:.875rem 1rem;border-bottom:1px solid var(--border);
       transition:background .15s ease;position:relative;
     }
+
     .notif-item:last-child { border-bottom:none; }
-    .notif-item:hover      { background:rgba(212,175,55,.04); }
-    .notif-item.unread     { background:rgba(212,175,55,.05); }
+    .notif-item:hover { background:var(--bg-elevated); }
+    .notif-item.unread { background:rgba(212,175,55,.04); }
 
     .notif-item-icon {
-      font-size:1.125rem;flex-shrink:0;
-      width:34px;height:34px;border-radius:50%;
-      background:rgba(212,175,55,.08);
+      font-size:1.25rem;flex-shrink:0;
+      width:36px;height:36px;border-radius:50%;
+      background:var(--bg-elevated);
       display:flex;align-items:center;justify-content:center;
     }
+
     .notif-item-body { flex:1;min-width:0; }
+
     .notif-item-title {
-      font-family:var(--font-heading,'Cinzel',serif);
-      font-size:.65rem;font-weight:700;
-      color:var(--text-bright,#F2E5C0);line-height:1.3;
-      margin-bottom:.15rem;letter-spacing:.04em;
-    }
-    .notif-item-text {
-      font-size:.8125rem;color:var(--text-muted);
-      line-height:1.45;display:-webkit-box;
-      -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-      font-style:italic;
-    }
-    .notif-item-time {
-      font-family:var(--font-heading,'Cinzel',serif);
-      font-size:.5rem;color:var(--text-faint);margin-top:.25rem;
-      letter-spacing:.06em;
-    }
-    .notif-unread-dot {
-      width:8px;height:8px;border-radius:50%;
-      background:var(--gold-500,#D4AF37);flex-shrink:0;margin-top:.3rem;
-      box-shadow:0 0 8px rgba(212,175,55,.4);
+      font-size:.875rem;font-weight:600;
+      color:var(--text-primary);line-height:1.3;margin-bottom:.125rem;
     }
 
-    @media (min-width:900px) {
-      .notif-dropdown {
-        bottom:auto;
-        top:calc(60px + 8px);
-        right:.75rem;
-      }
+    .notif-item-text {
+      font-size:.8125rem;color:var(--text-secondary);
+      line-height:1.45;display:-webkit-box;
+      -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    }
+
+    .notif-item-time {
+      font-size:.6875rem;color:var(--text-muted);margin-top:.25rem;
+    }
+
+    .notif-unread-dot {
+      width:8px;height:8px;border-radius:50%;
+      background:var(--gold);flex-shrink:0;margin-top:.25rem;
     }
   `;
   document.head.appendChild(style);
 }
-
 
 // ════════════════════════════════════════════════════════════
 // HELPERS
@@ -403,13 +399,13 @@ function escHtml(s) {
 
 function formatTime(ts) {
   if (!ts) return '';
-  const date = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts));
+  const date = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds*1000) : new Date(ts));
   if (isNaN(date)) return '';
   const diff = Date.now() - date;
-  const m    = Math.floor(diff / 60000);
-  const h    = Math.floor(m / 60);
-  const d    = Math.floor(h / 24);
-  if (m <  1) return 'przed chwilą';
+  const m = Math.floor(diff/60000);
+  const h = Math.floor(m/60);
+  const d = Math.floor(h/24);
+  if (m < 1)  return 'przed chwilą';
   if (m < 60) return `${m} min. temu`;
   if (h < 24) return `${h} godz. temu`;
   return `${d} dni temu`;
