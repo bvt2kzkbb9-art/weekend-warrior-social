@@ -157,7 +157,7 @@
 <script type="module">
   import { checkAuth, logout, showToast } from './js/auth.js';
   import { db, COL, getLevel, getRank, RANKS } from './js/firebase.js';
-  import { CHALLENGES_DATA, QUIZ_DATA } from './js/challenge-system.js';
+  import { CHALLENGES_DATA } from './js/challenge-system.js';
   import {
     collection, addDoc, doc, updateDoc, getDoc, increment, serverTimestamp,
     query, where, getDocs, orderBy, limit,
@@ -256,7 +256,7 @@
   };
 
   function _openQuiz(ch) {
-    const questions = (QUIZ_DATA && QUIZ_DATA[ch.id]) ? QUIZ_DATA[ch.id] : _defaultQuestions(ch);
+    const questions = (ch.quiz && ch.quiz.length) ? ch.quiz : _defaultQuestions(ch);
     quizState = { questions, current: 0, correct: 0, answered: false, challenge: ch };
 
     document.getElementById('quiz-ch-title').textContent = ch.title;
