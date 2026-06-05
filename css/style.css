@@ -54,6 +54,28 @@
   --podium-2:       #C0C0C0;
   --podium-3:       #CD7F32;
 
+  /* Status colors — used by auth.js, feed.js, ranking.js inline styles */
+  --success:        #16C784;
+  --error:          #EF4444;
+  --warning:        #F59E0B;
+
+  /* Border aliases — used by notifications.js, ranking.js inline styles */
+  --border:         rgba(255,255,255,.07);
+  --border-mid:     rgba(255,255,255,.11);
+  --border-strong:  rgba(255,255,255,.16);
+
+  /* Text aliases — used by profile.js, dashboard */
+  --text-primary:   #F2E5C0;
+  --text-secondary: rgba(200,175,110,.7);
+
+  /* Background aliases */
+  --bg-base:      #06050A;
+  --bg-elevated:  #161319;
+
+  /* Gold alias — used by notifications.js, social.js */
+  --gold:         #D4AF37;
+  --gold-dim:     #B8860B;
+
   /* Typography */
   --font-display:   'Cinzel Decorative', 'Cinzel', serif;
   --font-heading:   'Cinzel', serif;
@@ -1160,4 +1182,298 @@ h1, h2, h3 { font-family: var(--font-heading); color: var(--text-bright); }
   .content-area {
     padding-top: .75rem;
   }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   ARENA.JS — elementy tworzone dynamicznie przez arena.js
+   ════════════════════════════════════════════════════════════ */
+
+/* Canvas cząsteczek */
+#arena-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .7;
+}
+
+/* Vignette — torch atmosphere */
+.arena-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 0% 50%,   rgba(255,107,0,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 100% 50%,  rgba(255,107,0,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 30% at 50% 100%, rgba(0,0,0,.4)      0%, transparent 70%);
+}
+
+/* XP float particle (spawnXPFloat) */
+.xp-float-particle {
+  position: fixed;
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 900;
+  color: var(--gold-400);
+  text-shadow: 0 0 12px var(--gold-glow-md);
+  pointer-events: none;
+  z-index: 9997;
+  animation: xp-float 1.5s var(--ease-out) forwards;
+  white-space: nowrap;
+}
+
+/* XP gain toast fallback */
+.xp-gain-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-b) + 1.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(212,175,55,.15);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-xl);
+  padding: .5rem 1.25rem;
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 900;
+  color: var(--gold-400);
+  text-shadow: 0 0 12px var(--gold-glow);
+  z-index: 9997;
+  animation: toast-in .3s var(--ease-out) both, toast-out .3s var(--ease-out) 2.3s both;
+  pointer-events: none;
+}
+
+/* Rank-up overlay (showRankUp) */
+.arena-rankup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.85);
+  backdrop-filter: blur(8px);
+  animation: fade-in .25s ease-out;
+  cursor: pointer;
+}
+.arena-rankup-card {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  max-width: 320px;
+  animation: modal-in .4s var(--ease-out) both;
+}
+.arena-rankup-ring {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid rgba(212,175,55,.4);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+  background: radial-gradient(ellipse, rgba(212,175,55,.08) 0%, transparent 70%);
+}
+.arena-rankup-title {
+  font-family: var(--font-heading);
+  font-size: .65rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: .5rem;
+}
+.arena-rankup-name {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  margin-bottom: .375rem;
+  text-shadow: 0 0 40px currentColor;
+}
+.arena-rankup-announce {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-parchment);
+  font-style: italic;
+  margin-bottom: .875rem;
+}
+.arena-rankup-dismiss {
+  font-family: var(--font-heading);
+  font-size: .5rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ACHIEVEMENTS.JS — unlock popup overlay
+   ════════════════════════════════════════════════════════════ */
+
+.unlock-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(6px);
+  z-index: 9990;
+  cursor: pointer;
+  animation: fade-in .2s ease-out;
+}
+
+.unlock-popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-active);
+  border-radius: var(--r-xl);
+  padding: 2rem 1.75rem;
+  text-align: center;
+  max-width: 320px;
+  width: calc(100vw - 2rem);
+  z-index: 9991;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 60px var(--gold-glow);
+  animation: modal-in .4s var(--ease-out) both;
+}
+.unlock-popup-icon {
+  font-size: 3rem;
+  margin-bottom: .625rem;
+  animation: badge-unlock .5s var(--ease-out) both;
+  display: block;
+}
+.unlock-popup-label {
+  font-family: var(--font-heading);
+  font-size: .55rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+  margin-bottom: .375rem;
+}
+.unlock-popup-name {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: var(--gold-400);
+  text-shadow: 0 0 20px var(--gold-glow-lg);
+  margin-bottom: .375rem;
+}
+.unlock-popup-desc {
+  font-family: var(--font-body);
+  font-size: .875rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* ════════════════════════════════════════════════════════════
+   FEED.JS — lightbox, modal delete, loading state
+   ════════════════════════════════════════════════════════════ */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: fade-in .2s ease-out;
+}
+.lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--r-lg);
+  cursor: default;
+  box-shadow: 0 24px 80px rgba(0,0,0,.8);
+}
+.lightbox-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.2); }
+.lightbox-close svg { width: 18px; height: 18px; }
+
+/* Modal delete confirmation */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  z-index: 8000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: calc(var(--safe-b));
+  animation: fade-in .2s ease-out;
+}
+@media (min-width: 480px) {
+  .modal-backdrop { align-items: center; padding-bottom: 0; }
+}
+.modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-panel);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  animation: modal-in .3s var(--ease-out);
+}
+@media (min-width: 480px) {
+  .modal { border-radius: var(--r-xl); }
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border-dim);
+  border-radius: 2px;
+  margin: 0 auto .875rem;
+}
+@media (min-width: 480px) { .modal-handle { display: none; } }
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--text-bright);
+  margin-bottom: .5rem;
+}
+.modal-text {
+  font-family: var(--font-body);
+  font-size: .9375rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+  font-style: italic;
+}
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+/* Button loading state (used by auth.js) */
+.btn.loading {
+  pointer-events: none;
+  opacity: .7;
+  position: relative;
+}
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  right: .875rem; top: 50%;
+  transform: translateY(-50%);
+}
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
 }
