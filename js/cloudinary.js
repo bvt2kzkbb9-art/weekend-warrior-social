@@ -13,8 +13,8 @@
  * ============================================================
  */
 
-export const CLOUDINARY_CLOUD_NAME   = 'weekendwarrior';      // ← zmień na swój cloud name
-export const CLOUDINARY_UPLOAD_PRESET = 'weekend-warrior';    // ← musi być "unsigned"
+export const CLOUDINARY_CLOUD_NAME   = 'dxanfwb3l';      // ← zmień na swój cloud name
+export const CLOUDINARY_UPLOAD_PRESET = 'wws_upload';    // ← musi być "unsigned"
 
 const BASE_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}`;
 
