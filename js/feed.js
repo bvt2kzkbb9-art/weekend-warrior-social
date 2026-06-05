@@ -46,31 +46,7 @@ import {
   Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
-
-// ── Constants ────────────────────────────────────────────────
-const POSTS_PER_PAGE  = 10;
-const MAX_POST_LENGTH = 500;
-const MAX_IMAGE_SIZE  = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-// ── State ────────────────────────────────────────────────────
-let currentUser     = null;
-let currentUserData = null;
-let lastPostDoc     = null;
-let hasMorePosts    = false;
-let unsubFeed       = null;
-let selectedImage   = null;  // File object
-let isPosting       = false;
-
-const storage = getStorage();
+import { uploadToCloudinary } from './cloudinary.js';
 
 
 // ════════════════════════════════════════════════════════════
