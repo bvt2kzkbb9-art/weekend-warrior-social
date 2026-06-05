@@ -1,0 +1,1046 @@
+/* ============================================================
+   WEEKEND WARRIOR SOCIAL — arena.css
+   Arena Wojowników 2.0 | Living Fantasy RPG UI
+   Animacje, cząsteczki, efekty, karty postaci
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&display=swap');
+
+/* ── Extended design tokens ─────────────────────────────── */
+:root {
+  /* Arena colors */
+  --arena-deep:      #06070A;
+  --arena-navy:      #080B14;
+  --arena-charcoal:  #0D0F14;
+  --arena-ember:     #C8621A;
+  --arena-flame:     #E8871A;
+  --arena-crystal:   #4ABFFF;
+  --arena-myst:      #8B6FD4;
+  --arena-blood:     #8B1A1A;
+
+  /* Gold spectrum */
+  --gold-bright:     #FFD700;
+  --gold-mid:        #D4AF37;
+  --gold-old:        #B8953B;
+  --gold-dark:       #8B6914;
+  --gold-glow:       rgba(212,175,55,0.4);
+  --gold-glow-sm:    rgba(212,175,55,0.15);
+
+  /* Rank colors */
+  --rank-rookie-c:   #CD7F32;
+  --rank-warrior-c:  #C0C0C0;
+  --rank-champion-c: #D4AF37;
+  --rank-legend-c:   #4ABFFF;
+  --rank-immortal-c: #8B6FD4;
+
+  /* Font */
+  --font-cinzel:     'Cinzel', 'Rajdhani', serif;
+  --font-cinzel-dec: 'Cinzel Decorative', serif;
+}
+
+/* ════════════════════════════════════════════════════════════
+   GLOBAL PARTICLE CANVAS
+   ════════════════════════════════════════════════════════════ */
+
+#arena-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ENHANCED BACKGROUND
+   ════════════════════════════════════════════════════════════ */
+
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-orbs::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: -20%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(ellipse,
+    rgba(212,175,55,0.06) 0%,
+    rgba(139,107,20,0.04) 40%,
+    transparent 70%
+  );
+  animation: orbDrift1 18s ease-in-out infinite alternate;
+}
+
+.bg-orbs::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  right: -20%;
+  width: 65%;
+  height: 65%;
+  background: radial-gradient(ellipse,
+    rgba(74,191,255,0.04) 0%,
+    rgba(139,111,212,0.03) 40%,
+    transparent 70%
+  );
+  animation: orbDrift2 22s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift1 {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(8%,6%) scale(1.15); }
+}
+
+@keyframes orbDrift2 {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(-6%,-8%) scale(1.12); }
+}
+
+/* Torch flicker vignette */
+.arena-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 0% 100%, rgba(200,98,26,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(200,98,26,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.04) 0%, transparent 60%);
+  animation: torchFlicker 6s ease-in-out infinite;
+}
+
+@keyframes torchFlicker {
+  0%,100% { opacity: 1; }
+  25%      { opacity: 0.85; }
+  50%      { opacity: 0.95; }
+  75%      { opacity: 0.88; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   NAVIGATION — ARENA ARTIFACT
+   ════════════════════════════════════════════════════════════ */
+
+.nav {
+  background: linear-gradient(
+    180deg,
+    rgba(6,7,10,0.98) 0%,
+    rgba(10,8,5,0.99) 100%
+  ) !important;
+  border-top: 1px solid rgba(212,175,55,0.2) !important;
+  box-shadow:
+    0 -1px 0 rgba(212,175,55,0.08),
+    0 -8px 32px rgba(0,0,0,0.8) !important;
+}
+
+/* Torch glow above nav */
+.nav::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212,175,55,0.4) 20%,
+    rgba(212,175,55,0.6) 50%,
+    rgba(212,175,55,0.4) 80%,
+    transparent 100%
+  );
+  animation: navGlow 4s ease-in-out infinite;
+}
+
+@keyframes navGlow {
+  0%,100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+.nav-brand {
+  font-family: var(--font-cinzel) !important;
+  font-size: .875rem !important;
+  letter-spacing: 0.12em !important;
+  color: var(--gold-mid) !important;
+  text-shadow: 0 0 12px rgba(212,175,55,0.5);
+  animation: brandPulse 4s ease-in-out infinite;
+}
+
+@keyframes brandPulse {
+  0%,100% { text-shadow: 0 0 12px rgba(212,175,55,0.5); }
+  50%      { text-shadow: 0 0 24px rgba(212,175,55,0.8), 0 0 48px rgba(212,175,55,0.3); }
+}
+
+/* Active nav item */
+.nav-item.active {
+  color: var(--gold-mid) !important;
+  position: relative;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold-mid);
+  box-shadow: 0 0 8px rgba(212,175,55,0.8);
+  animation: activeDot 2s ease-in-out infinite;
+}
+
+@keyframes activeDot {
+  0%,100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  50%      { transform: translateX(-50%) scale(1.5); opacity: 0.7; }
+}
+
+/* Nav item hover */
+.nav-item {
+  position: relative;
+  transition: color 0.2s ease, transform 0.2s ease !important;
+}
+
+.nav-item:active { transform: scale(0.9); }
+
+/* ════════════════════════════════════════════════════════════
+   CARDS — LIVING BATTLE CARDS
+   ════════════════════════════════════════════════════════════ */
+
+.card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    border-color 0.3s var(--ease) !important;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), var(--shadow-gold) !important;
+}
+
+/* Gold shimmer on card hover */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(212,175,55,0) 0%,
+    rgba(212,175,55,0.04) 50%,
+    rgba(212,175,55,0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.card:hover::after { opacity: 1; }
+
+/* ════════════════════════════════════════════════════════════
+   STAT CARDS — ARENA TROPHIES
+   ════════════════════════════════════════════════════════════ */
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(18,19,23,0.9) 0%,
+    rgba(22,24,30,0.95) 100%
+  ) !important;
+  border: 1px solid rgba(212,175,55,0.12) !important;
+  transition: all 0.3s ease !important;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(
+    90deg, transparent, rgba(212,175,55,0.06), transparent
+  );
+  animation: statShimmer 4s ease-in-out infinite;
+}
+
+@keyframes statShimmer {
+  0%   { left: -100%; }
+  50%,100% { left: 200%; }
+}
+
+.stat-card:hover {
+  border-color: rgba(212,175,55,0.25) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 16px rgba(212,175,55,0.08) !important;
+}
+
+.stat-value {
+  font-family: var(--font-cinzel) !important;
+  text-shadow: 0 0 20px currentColor;
+}
+
+/* ════════════════════════════════════════════════════════════
+   XP BAR — ENCHANTED PROGRESS
+   ════════════════════════════════════════════════════════════ */
+
+.progress-track {
+  position: relative;
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(212,175,55,0.1) !important;
+  overflow: hidden;
+}
+
+.progress-fill {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    #8B6914 0%,
+    #D4AF37 40%,
+    #FFD700 60%,
+    #D4AF37 80%,
+    #8B6914 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: xpFillShimmer 3s linear infinite !important;
+  box-shadow: 0 0 12px rgba(212,175,55,0.4) !important;
+}
+
+@keyframes xpFillShimmer {
+  from { background-position: 0% 0%; }
+  to   { background-position: 200% 0%; }
+}
+
+/* XP Float animation */
+.xp-float-particle {
+  position: fixed;
+  font-family: var(--font-cinzel);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow:
+    0 0 10px rgba(255,215,0,0.8),
+    0 0 30px rgba(212,175,55,0.6);
+  pointer-events: none;
+  z-index: 9999;
+  animation: xpFloatUp 1.8s cubic-bezier(0.2,0.8,0.4,1) forwards;
+  white-space: nowrap;
+}
+
+@keyframes xpFloatUp {
+  0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+  15%  { transform: translateY(-10px) scale(1.2); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translateY(-110px) scale(0.9); opacity: 0; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   RANK BADGES — HERBY RANG
+   ════════════════════════════════════════════════════════════ */
+
+.badge-gold {
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.05em !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-gold::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: badgeShine 3s ease-in-out infinite;
+}
+
+@keyframes badgeShine {
+  0%,40% { left: -100%; }
+  60%,100% { left: 200%; }
+}
+
+/* Rank glow by rank level */
+.rank-rookie .badge-gold,
+[class*="Rookie"] {
+  text-shadow: 0 0 8px rgba(205,127,50,0.4);
+}
+.rank-warrior .badge-gold,
+[class*="Warrior"] {
+  text-shadow: 0 0 8px rgba(192,192,192,0.4);
+}
+.rank-champion .badge-gold,
+[class*="Champion"] {
+  text-shadow: 0 0 12px rgba(212,175,55,0.6);
+  animation: championGlow 2.5s ease-in-out infinite !important;
+}
+.rank-legend .badge-gold,
+[class*="Legend"] {
+  text-shadow: 0 0 16px rgba(74,191,255,0.7);
+  animation: legendGlow 2s ease-in-out infinite !important;
+}
+
+@keyframes championGlow {
+  0%,100% { text-shadow: 0 0 12px rgba(212,175,55,0.5); }
+  50%      { text-shadow: 0 0 24px rgba(212,175,55,0.9), 0 0 48px rgba(212,175,55,0.4); }
+}
+
+@keyframes legendGlow {
+  0%,100% { text-shadow: 0 0 12px rgba(74,191,255,0.6), 0 0 0 rgba(139,111,212,0); }
+  50%      { text-shadow: 0 0 24px rgba(74,191,255,0.9), 0 0 48px rgba(139,111,212,0.4); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   AVATAR RING — ENCHANTED AURA
+   ════════════════════════════════════════════════════════════ */
+
+.avatar-ring {
+  position: relative;
+}
+
+.avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(212,175,55,0.6) 25%,
+    rgba(255,215,0,0.9) 50%,
+    rgba(212,175,55,0.6) 75%,
+    transparent 100%
+  );
+  animation: auraRotate 4s linear infinite;
+  z-index: -1;
+}
+
+.avatar-ring::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  z-index: -1;
+}
+
+@keyframes auraRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PROFILE HERO — RPG CHARACTER CARD
+   ════════════════════════════════════════════════════════════ */
+
+.profile-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(212,175,55,0.08) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.profile-hero-name {
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Profile page - RPG card style */
+.profile-page-hero {
+  position: relative;
+}
+
+.profile-page-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(212,175,55,0.4), transparent
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   BUTTONS — ARENA ARTIFACTS
+   ════════════════════════════════════════════════════════════ */
+
+.btn-primary {
+  background: linear-gradient(135deg, #C8A020 0%, #D4AF37 40%, #FFD700 60%, #D4AF37 80%, #A88B28 100%) !important;
+  background-size: 200% 100% !important;
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 2px 16px rgba(212,175,55,0.25) !important;
+  border: 1px solid rgba(255,215,0,0.3) !important;
+  transition: all 0.25s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.4s ease;
+}
+
+.btn-primary:hover::before { left: 150%; }
+
+.btn-primary:hover {
+  background-position: 100% 0% !important;
+  box-shadow: 0 4px 24px rgba(212,175,55,0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-primary:active { transform: scale(0.97) !important; }
+
+/* ════════════════════════════════════════════════════════════
+   TOASTS — ARENA ANNOUNCEMENTS
+   ════════════════════════════════════════════════════════════ */
+
+.toast {
+  font-family: var(--font) !important;
+  border-left-width: 3px !important;
+  backdrop-filter: blur(20px) !important;
+  background: rgba(13,15,20,0.97) !important;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.7) !important;
+}
+
+.toast-success {
+  border-left-color: #D4AF37 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RANKING — HALL OF LEGENDS
+   ════════════════════════════════════════════════════════════ */
+
+.ranking-title {
+  font-family: var(--font-cinzel) !important;
+  font-size: 1.25rem !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--gold-mid) !important;
+  text-shadow: 0 0 20px rgba(212,175,55,0.4) !important;
+}
+
+/* Podium */
+.podium-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease !important;
+}
+
+.podium-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent, rgba(212,175,55,0.6), transparent
+  );
+}
+
+.podium-card.rank-1::after {
+  background: linear-gradient(90deg,
+    transparent, #FFD700, transparent
+  );
+  animation: podiumGlow1 2s ease-in-out infinite;
+}
+
+@keyframes podiumGlow1 {
+  0%,100% { opacity: 0.8; }
+  50%      { opacity: 1; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+}
+
+/* Ranking rows */
+.ranking-row {
+  position: relative;
+  transition: all 0.2s ease !important;
+}
+
+.ranking-row:hover {
+  background: rgba(212,175,55,0.04) !important;
+  border-color: rgba(212,175,55,0.15) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   FEED — CHRONICLES OF WARRIORS
+   ════════════════════════════════════════════════════════════ */
+
+.post-card {
+  position: relative;
+  transition: all 0.25s ease !important;
+}
+
+.post-card:hover {
+  border-color: rgba(212,175,55,0.12) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important;
+}
+
+/* Achievement posts glow */
+.post-card[data-achievement="true"] {
+  border-color: rgba(212,175,55,0.2) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(18,19,23,1) 0%,
+    rgba(22,20,14,0.98) 100%
+  ) !important;
+  box-shadow: 0 0 20px rgba(212,175,55,0.08) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RANK UP OVERLAY — ARENA CEREMONY
+   ════════════════════════════════════════════════════════════ */
+
+.arena-rankup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: rankupFadeIn 0.4s ease both;
+  cursor: pointer;
+}
+
+.arena-rankup-card {
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  animation: rankupPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.arena-rankup-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  position: relative;
+  background: radial-gradient(circle,
+    rgba(212,175,55,0.15) 0%, transparent 70%
+  );
+}
+
+.arena-rankup-ring::before,
+.arena-rankup-ring::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: rankRingPulse 2s ease-in-out infinite;
+}
+
+.arena-rankup-ring::before {
+  inset: -8px;
+  border: 2px solid rgba(212,175,55,0.4);
+}
+
+.arena-rankup-ring::after {
+  inset: -18px;
+  border: 1px solid rgba(212,175,55,0.2);
+  animation-delay: 0.5s;
+}
+
+@keyframes rankRingPulse {
+  0%,100% { transform: scale(1); opacity: 0.7; }
+  50%      { transform: scale(1.05); opacity: 1; }
+}
+
+.arena-rankup-title {
+  font-family: var(--font-cinzel);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(212,175,55,0.7);
+  margin-bottom: 0.5rem;
+}
+
+.arena-rankup-name {
+  font-family: var(--font-cinzel);
+  font-size: clamp(1.75rem,6vw,2.5rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #FFD700;
+  text-shadow:
+    0 0 30px rgba(255,215,0,0.7),
+    0 0 60px rgba(212,175,55,0.4);
+  animation: rankNameGlow 2s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes rankNameGlow {
+  0%,100% { text-shadow: 0 0 30px rgba(255,215,0,0.7), 0 0 60px rgba(212,175,55,0.4); }
+  50%      { text-shadow: 0 0 50px rgba(255,215,0,1), 0 0 100px rgba(212,175,55,0.6); }
+}
+
+.arena-rankup-announce {
+  font-family: var(--font-cinzel);
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 1.5rem;
+}
+
+.arena-rankup-dismiss {
+  font-size: 0.75rem;
+  color: rgba(212,175,55,0.4);
+  letter-spacing: 0.08em;
+}
+
+@keyframes rankupFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes rankupPop {
+  0%   { opacity: 0; transform: scale(0.5); }
+  60%  { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHALLENGE CARDS — 3D TILT (Desktop)
+   ════════════════════════════════════════════════════════════ */
+
+.ch-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease !important;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ch-card:hover {
+  border-color: rgba(212,175,55,0.45) !important;
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.65),
+    0 0 30px rgba(212,175,55,0.12) !important;
+}
+
+/* Ken Burns on challenge images */
+.ch-card-img {
+  animation: kenBurns 12s ease-in-out infinite alternate !important;
+  transform-origin: center center;
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1) translate(0,0); }
+  to   { transform: scale(1.08) translate(-1%,1%); }
+}
+
+/* Gold corner ornaments animated */
+.ch-card::before,
+.ch-card::after {
+  transition: border-color 0.3s ease, width 0.3s ease, height 0.3s ease !important;
+}
+
+.ch-card:hover::before,
+.ch-card:hover::after {
+  border-color: rgba(212,175,55,0.6) !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   QUIZ MODAL — ANCIENT RITUAL
+   ════════════════════════════════════════════════════════════ */
+
+.cs-quiz-modal {
+  background: linear-gradient(
+    160deg,
+    #080B14 0%,
+    #0D0F14 50%,
+    #080B14 100%
+  ) !important;
+  border-color: rgba(212,175,55,0.35) !important;
+  box-shadow:
+    0 0 60px rgba(0,0,0,0.9),
+    inset 0 0 80px rgba(212,175,55,0.02) !important;
+}
+
+/* Quiz modal glow lines */
+.cs-quiz-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(212,175,55,0.5), transparent
+  );
+}
+
+.cs-quiz-modal::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(212,175,55,0.3), transparent
+  );
+}
+
+/* Quiz question — scroll reveal */
+.cs-quiz-question {
+  font-family: var(--font-cinzel) !important;
+  color: #E8D8B0 !important;
+  font-style: normal !important;
+  font-size: .9375rem !important;
+  line-height: 1.7 !important;
+  animation: scrollReveal 0.8s ease both !important;
+  position: relative;
+}
+
+@keyframes scrollReveal {
+  from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Quiz answers — staggered */
+.cs-quiz-answer {
+  animation: answerSlide 0.4s ease both !important;
+  border-color: rgba(212,175,55,0.1) !important;
+  background: rgba(212,175,55,0.02) !important;
+  transition: all 0.2s ease !important;
+}
+
+.cs-quiz-answer:nth-child(1) { animation-delay: 0.1s !important; }
+.cs-quiz-answer:nth-child(2) { animation-delay: 0.2s !important; }
+.cs-quiz-answer:nth-child(3) { animation-delay: 0.3s !important; }
+
+@keyframes answerSlide {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.cs-quiz-answer:hover:not(:disabled) {
+  background: rgba(212,175,55,0.07) !important;
+  border-color: rgba(212,175,55,0.3) !important;
+  transform: translateX(4px) !important;
+}
+
+.cs-quiz-answer.correct {
+  animation: correctAnswer 0.5s ease both !important;
+}
+
+.cs-quiz-answer.wrong {
+  animation: wrongAnswer 0.5s ease both !important;
+}
+
+@keyframes correctAnswer {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wrongAnswer {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODALS — DARK CEREMONY
+   ════════════════════════════════════════════════════════════ */
+
+.cs-modal,
+.ch-detail-modal {
+  background: linear-gradient(
+    160deg, #0A0B10 0%, #0D0F16 50%, #0A0B10 100%
+  ) !important;
+}
+
+/* Modal handle */
+.create-modal-handle {
+  background: rgba(212,175,55,0.2) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TAB BARS — RUNE TABLETS
+   ════════════════════════════════════════════════════════════ */
+
+.tab-btn.active,
+.ch-tab.active,
+.cs-tab.active {
+  background: linear-gradient(135deg, #C8A020, #D4AF37, #C8A020) !important;
+  background-size: 200% !important;
+  animation: tabGold 3s ease-in-out infinite !important;
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.04em !important;
+}
+
+@keyframes tabGold {
+  0%   { background-position: 0%; }
+  50%  { background-position: 100%; }
+  100% { background-position: 0%; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION HEADERS
+   ════════════════════════════════════════════════════════════ */
+
+.welcome-header h3,
+.ch-page-title,
+.cs-modal-title,
+.ch-detail-title,
+.ch-how-title {
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHALLENGE TITLE GLOW
+   ════════════════════════════════════════════════════════════ */
+
+.ch-card-title,
+.ch-gold-pulse {
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 0.04em !important;
+  animation: titleGlow 3s ease-in-out infinite !important;
+}
+
+@keyframes titleGlow {
+  0%,100% { text-shadow: 0 0 8px rgba(212,175,55,0.3); }
+  50%      { text-shadow: 0 0 16px rgba(212,175,55,0.6), 0 0 32px rgba(212,175,55,0.2); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   ACHIEVEMENT UNLOCK — EPIC MOMENT
+   ════════════════════════════════════════════════════════════ */
+
+.ch-unlock-card,
+#cs-complete-root > div > div {
+  background: linear-gradient(
+    160deg, #0A0B10 0%, #12100A 50%, #0A0B10 100%
+  ) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCROLLBAR — ARENA STYLE
+   ════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.2);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.4); }
+
+/* ════════════════════════════════════════════════════════════
+   SECTION DIVIDERS — RUNE LINES
+   ════════════════════════════════════════════════════════════ */
+
+.arena-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  color: rgba(212,175,55,0.4);
+  font-size: 0.625rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--font-cinzel);
+}
+
+.arena-divider::before,
+.arena-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent);
+}
+
+/* ════════════════════════════════════════════════════════════
+   INPUT FIELDS — ARENA FORM
+   ════════════════════════════════════════════════════════════ */
+
+.form-input:focus {
+  border-color: rgba(212,175,55,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.08), 0 0 16px rgba(212,175,55,0.1) !important;
+}
+
+.bio-textarea:focus {
+  border-color: rgba(212,175,55,0.4) !important;
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.06) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   LOADING SKELETON — ARENA SHIMMER
+   ════════════════════════════════════════════════════════════ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(212,175,55,0.04) 0%,
+    rgba(212,175,55,0.08) 50%,
+    rgba(212,175,55,0.04) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: arenaSkeletonWave 1.8s linear infinite !important;
+}
+
+@keyframes arenaSkeletonWave {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE PERFORMANCE
+   ════════════════════════════════════════════════════════════ */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* On mobile — disable 3D effects for performance */
+@media (max-width: 768px) {
+  .ch-card { transform-style: flat !important; }
+  .ch-card-img { animation-duration: 20s !important; }
+  .stat-card::before { display: none; }
+}
+
+/* GPU hints */
+.ch-card,
+.stat-card,
+.post-card,
+.podium-card,
+.ranking-row,
+.arena-rankup-overlay,
+.xp-float-particle,
+.ch-card-img {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
