@@ -255,8 +255,31 @@
     answered: false, challenge: null
   };
 
+  /**
+   * Konwertuje format z challenge-system.js:
+   *   ch.quiz = { question, answers: [...], correct: N, wrongMessages: [...] }
+   * na wewnętrzny format:
+   *   [{ question, options: [...], correctIndex: N }]
+   */
+  function _buildQuestions(ch) {
+    // Nowy format: ch.quiz to obiekt z jednym pytaniem (challenge-system.js)
+    if (ch.quiz && ch.quiz.question && Array.isArray(ch.quiz.answers)) {
+      return [{
+        question:     ch.quiz.question,
+        options:      ch.quiz.answers,
+        correctIndex: typeof ch.quiz.correct === 'number' ? ch.quiz.correct : 0,
+      }];
+    }
+    // Stary format tablicowy: ch.quiz = [{ question, options, correctIndex }]
+    if (Array.isArray(ch.quiz) && ch.quiz.length > 0) {
+      return ch.quiz;
+    }
+    // Fallback
+    return _defaultQuestions(ch);
+  }
+
   function _openQuiz(ch) {
-    const questions = (ch.quiz && ch.quiz.length) ? ch.quiz : _defaultQuestions(ch);
+    const questions = _buildQuestions(ch);
     quizState = { questions, current: 0, correct: 0, answered: false, challenge: ch };
 
     document.getElementById('quiz-ch-title').textContent = ch.title;
@@ -282,12 +305,14 @@
     const answersEl = document.getElementById('quiz-answers');
     answersEl.innerHTML = '';
     const runes = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ'];
-    q.options.forEach((opt, i) => {
+    // Obsługuje zarówno `options` jak i `answers` (aliasy)
+    const opts = q.options || q.answers || [];
+    opts.forEach((opt, i) => {
       const btn = document.createElement('div');
       btn.className = 'quiz-answer';
       btn.style.animationDelay = (i * 0.07) + 's';
       btn.innerHTML = `
-        <div class="quiz-answer-rune">${runes[i]}</div>
+        <div class="quiz-answer-rune">${runes[i] || (i + 1)}</div>
         <div class="quiz-answer-text">${_esc(opt)}</div>`;
       btn.addEventListener('click', () => _selectAnswer(i, btn));
       answersEl.appendChild(btn);
@@ -300,23 +325,32 @@
     quizState.answered = true;
 
     const q = quizState.questions[quizState.current];
-    const correct = idx === q.correctIndex;
+    // Obsługuje zarówno `correctIndex` jak i `correct` (aliasy)
+    const correctIdx = typeof q.correctIndex === 'number' ? q.correctIndex
+                     : typeof q.correct      === 'number' ? q.correct
+                     : 0;
+    const isCorrect = idx === correctIdx;
     const feedback = document.getElementById('quiz-feedback');
     const allBtns = document.querySelectorAll('.quiz-answer');
 
-    // Mark correct
-    allBtns[q.correctIndex].classList.add('correct');
-    if (!correct) btn.classList.add('wrong');
+    // Zaznacz poprawną odpowiedź
+    if (allBtns[correctIdx]) allBtns[correctIdx].classList.add('correct');
+    if (!isCorrect) btn.classList.add('wrong');
 
     // Feedback message
     feedback.classList.remove('hidden', 'correct', 'wrong');
-    if (correct) {
+    if (isCorrect) {
       feedback.classList.add('correct');
       feedback.innerHTML = `<span class="quiz-feedback-icon">⚔️</span>Arena uznała Cię za godnego!`;
       quizState.correct++;
     } else {
+      // Losowy komunikat z wrongMessages lub domyślny
+      const msgs = q.wrongMessages;
+      const msg = (Array.isArray(msgs) && msgs.length)
+        ? msgs[Math.floor(Math.random() * msgs.length)]
+        : 'Hydra śmieje się z Twojej odpowiedzi…';
       feedback.classList.add('wrong');
-      feedback.innerHTML = `<span class="quiz-feedback-icon">🐍</span>Hydra śmieje się z Twojej odpowiedzi…`;
+      feedback.innerHTML = `<span class="quiz-feedback-icon">🐍</span>${_esc(msg)}`;
     }
 
     // Advance after delay
