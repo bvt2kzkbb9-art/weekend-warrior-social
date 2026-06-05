@@ -319,6 +319,7 @@ import { injectMessengerBadge } from './js/messenger.js';
     }, 2000);
 
     injectNotifBell(user.uid);
+injectMessengerBadge(user.uid);
 
     let userData = null;
     try { userData = await getCurrentUserData(user.uid, user); } catch {}
