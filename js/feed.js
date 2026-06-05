@@ -18,26 +18,7 @@
 // STATE
 // ─────────────────────────────────────
 
-let currentUser = null;
-let currentUserData = null;
 
-let selectedImage = null;
-let isPosting = false;
-
-let unsubFeed = null;
-let lastPostDoc = null;
-let hasMorePosts = true;
-
-const POSTS_PER_PAGE = 10;
-const MAX_POST_LENGTH = 500;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif'
-];
 import {
   auth, db, COL, getRank,
 } from './firebase.js';
