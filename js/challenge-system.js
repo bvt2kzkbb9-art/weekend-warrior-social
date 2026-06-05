@@ -1,20 +1,18 @@
 /**
  * ============================================================
- * WEEKEND WARRIOR SOCIAL — challenge-system.js
- * Nowy system: Wyzwanie → Quiz → Realizacja → XP
+ * WEEKEND WARRIOR SOCIAL — challenge-system.js v2
+ * System: Rzucenie → Quiz Areny → Akceptacja → Realizacja → XP
  * Firebase SDK 10.12.2 | ES Modules
  * ============================================================
  *
  * Kolekcje Firestore:
- *   challenge_invites/{id}
- *   challenge_quizzes/{id}       (wyniki quizów)
- *   challenge_progress/{id}      (aktywne wyzwania)
- *   challenge_completions/{id}   (ukończone)
- *   challenge_notifications/{uid}/items/{id}
+ *   challenge_invites/{id}     — zaproszenia + stan
+ *   challenge_quizzes/{id}     — wyniki quizów
+ *   challenge_completions/{id} — ukończone wyzwania
  *
  * Eksporty:
+ *   CHALLENGES_DATA
  *   initChallengeSystem(user, userData)
- *   openSendInviteModal()
  */
 
 import { db, COL } from './firebase.js';
@@ -23,14 +21,14 @@ import { awardXP }   from './xp.js';
 import { createNotification } from './notifications.js';
 
 import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs,
-  updateDoc, onSnapshot, query, where, orderBy,
+  collection, doc, addDoc, getDoc, getDocs,
+  updateDoc, onSnapshot, query, where,
   serverTimestamp, Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 
 // ════════════════════════════════════════════════════════════
-// DANE — WYZWANIA + QUIZY
+// WYZWANIA + QUIZY ARENY
 // ════════════════════════════════════════════════════════════
 
 export const CHALLENGES_DATA = [
@@ -40,15 +38,21 @@ export const CHALLENGES_DATA = [
     difficulty: 'easy', category: 'Odkrycie',
     image: 'assets/challenges/lowca-wezy.png',
     desc: 'Uświadom sobie swoją główną przeszkodę.',
-    task: 'Nazwij jedną rzecz, która najbardziej przeszkadza Ci w osiągnięciu celu.',
+    task: 'Nazwij jedną rzecz, która najbardziej przeszkadza Ci w osiągnięciu celu. Zapisz ją i podziel się z wojownikami na feedzie.',
     quiz: {
-      question: 'No to dawaj, który wąż ci dziś najbardziej syczy w bani?',
+      question: 'Który skurwiały wąż dziś pierwszy zaczął ci robić w bani taki cyrk, jakbyś wstał po nocy, której wolałbyś nie pamiętać?',
       answers: [
-        'Ten, co mi od rana pierdoli, że będzie fajnie, a potem robi dramat.',
-        'Ten, co siedzi w głowie i udaje, że jest moim kumplem.',
-        'Ten największy, co mnie ciągnie w stronę głupich decyzji.',
+        'Ten, co mi od rana pierdoli, że „chodź, będzie zabawnie", a kończy się płaczem.',
+        'Ten, co siedzi w głowie jak lokator bez umowy i robi syf.',
+        'Ten największy, co ciągnie mnie w stronę decyzji, po których mam ochotę jebnąć się w czoło.',
       ],
       correct: 2,
+      wrongMessages: [
+        'Hydra śmieje się z twojej odpowiedzi.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+        'Pochodnia przygasa. Myśl jeszcze raz.',
+      ],
     },
   },
   {
@@ -57,15 +61,21 @@ export const CHALLENGES_DATA = [
     difficulty: 'easy', category: 'Planowanie',
     image: 'assets/challenges/tropiciel-hydry.png',
     desc: 'Stwórz plan walki z przeszkodą.',
-    task: 'Zapisz plan rozwiązania jednego problemu w 3 krokach.',
+    task: 'Zapisz plan rozwiązania jednego problemu w 3 krokach. Opublikuj go na arenie.',
     quiz: {
-      question: 'Jak ogarniesz ten burdel w trzech krokach, zanim hydra cię oplącze?',
+      question: 'Kiedy ostatnio jedna myśl rozjebała ci się na dziesięć i każda darła mordę jak halun po złej nocy?',
       answers: [
-        'Najpierw ogarnę głowę, potem chaos, a na końcu siebie.',
-        'Krok pierwszy: nie pierdolić. Krok drugi: zrobić. Krok trzeci: nie zjebać.',
-        'Zrobię plan, a potem będę udawał, że go trzymam.',
+        'Wczoraj — mózg mi się rozlał jak tanie piwo po chodniku.',
+        'Dziś — jedna myśl i nagle cały jebany cyrk.',
+        'Codziennie — hydra mnie śledzi jak stary cieć spod klatki.',
       ],
       correct: 1,
+      wrongMessages: [
+        'Kwiatowy Zakon nie jest zachwycony.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+        'Pochodnia przygasa. Myśl jeszcze raz.',
+      ],
     },
   },
   {
@@ -76,13 +86,18 @@ export const CHALLENGES_DATA = [
     desc: 'Rozwiąż jedną zaległą sprawę.',
     task: 'Rozwiąż jedną sprawę, którą odkładasz od tygodnia.',
     quiz: {
-      question: 'Co dziś zgniatasz jako pierwsze?',
+      question: 'Co próbujesz zgniatać jako pierwsze, kiedy czujesz, że mózg ci się robi jak po tripie, którego nikt nie zamawiał?',
       answers: [
-        'Problem.',
-        'Własne wymówki.',
-        'Wszystko po kolei.',
+        'Temat, zanim on zgniata mnie.',
+        'Swoje pierdolenie, bo ono najgłośniej drze ryja.',
+        'Wszystko naraz, jakbym miał młot bojowy i ADHD.',
       ],
       correct: 0,
+      wrongMessages: [
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+      ],
     },
   },
   {
@@ -91,15 +106,20 @@ export const CHALLENGES_DATA = [
     difficulty: 'medium', category: 'Działanie',
     image: 'assets/challenges/maly-na-rozruch.png',
     desc: 'Zacznij odkładane zadanie w 10 minut.',
-    task: 'W ciągu 10 minut rozpocznij zadanie, które odkładasz.',
+    task: 'W ciągu 10 minut od otwarcia aplikacji — rozpocznij jedno odkładane zadanie.',
     quiz: {
-      question: 'Jaki ruch wykonasz w ciągu 10 minut?',
+      question: 'Jaki ruch robisz, zanim odklejka pokaże ci, że za dużo zajebałeś?',
       answers: [
-        'Odpalę zadanie zanim zacznę kombinować.',
-        'Zrobię cokolwiek.',
-        'Poczekam na lepszy moment.',
+        'Odpalam zadanie, zanim mózg zacznie kombinować jak typek pod Żabką.',
+        'Robię cokolwiek, żeby nie wyglądać jak życiowy zjazd.',
+        'Włączam tryb „działam", zanim tryb „uciekam" mnie odklei.',
       ],
-      correct: 0,
+      correct: 2,
+      wrongMessages: [
+        'Pochodnia przygasa. Myśl jeszcze raz.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+      ],
     },
   },
   {
@@ -110,13 +130,18 @@ export const CHALLENGES_DATA = [
     desc: 'Usuń iluzję blokującą Twój wzrost.',
     task: 'Usuń jedną rzecz, która pozornie pomaga, ale blokuje Twój rozwój.',
     quiz: {
-      question: 'Co usuwasz ze swojego życia?',
+      question: 'Co robisz, zanim hydra zacznie wyglądać jakby miała 20 głów i każda cię wyzywała od idiotów?',
       answers: [
-        'To co mnie blokuje.',
-        'Losową rzecz.',
-        'Nic.',
+        'Wychodzę, bo już mnie wkurwia.',
+        'Macham szabelką, zanim mnie odklei.',
+        'Jedną rzecz, ale z takim pierdolnięciem, że aż echo idzie.',
       ],
-      correct: 0,
+      correct: 1,
+      wrongMessages: [
+        'Kwiatowy Zakon nie jest zachwycony.',
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+      ],
     },
   },
   {
@@ -127,13 +152,18 @@ export const CHALLENGES_DATA = [
     desc: 'Loguj się 7 dni z rzędu.',
     task: 'Zaloguj się do aplikacji przez 7 kolejnych dni.',
     quiz: {
-      question: 'Jak pokonasz hydrę lenistwa?',
+      question: 'Jak wygląda twój tydzień, kiedy próbujesz dojść do siebie po odklejkach? Odpoczynek czy udawanie, że żyjesz?',
       answers: [
-        'Nie pokonam.',
-        'Będę logował się codziennie.',
-        'Może jutro.',
+        'Trzepię się codziennie, żeby nie paść jak cienias.',
+        'Oglądam seriale, bo hydra mnie wpierdoli.',
+        'Udaję, że mam ogar, ale to kłamstwo.',
       ],
       correct: 1,
+      wrongMessages: [
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+        'Pochodnia przygasa. Myśl jeszcze raz.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+      ],
     },
   },
   {
@@ -144,13 +174,18 @@ export const CHALLENGES_DATA = [
     desc: 'Zdobądź 200 XP w ciągu tygodnia.',
     task: 'Zdobądź 200 XP w ciągu jednego tygodnia.',
     quiz: {
-      question: '200 XP w tydzień?',
+      question: 'Kiedy ostatnio obudziłeś się po epickiej wyprawie i pomyślałeś: no pięknie, znowu odjebałem?',
       answers: [
-        'Robię.',
-        'Może.',
-        'Nie wiem.',
+        'Wczoraj — klasyk.',
+        'Dziś — jeszcze mnie trzyma.',
+        'Nie pamiętam, ale to chyba nie jest dobry znak.',
       ],
-      correct: 0,
+      correct: 1,
+      wrongMessages: [
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+        'Kwiatowy Zakon nie jest zachwycony.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+      ],
     },
   },
   {
@@ -161,13 +196,42 @@ export const CHALLENGES_DATA = [
     desc: 'Opublikuj post o swoim największym celu.',
     task: 'Opublikuj post o swoim największym celu lub inspiracji.',
     quiz: {
-      question: 'W czym chcesz być najlepszy?',
+      question: 'Jakie odpały przychodzą ci do głowy, kiedy masz wrażenie, że jesteś nieśmiertelny jak po złej fantazji?',
       answers: [
-        'W niczym.',
-        'W kończeniu rzeczy.',
-        'W odkładaniu.',
+        'Że mogę wszystko — nawet to, czego nie powinienem.',
+        'Że jestem królem osiedla, dopóki nie wstanę z łóżka.',
+        'Że jutro będę lepszy, ale jutro nigdy nie przychodzi.',
       ],
-      correct: 1,
+      correct: 0,
+      wrongMessages: [
+        'Hydra śmieje się z twojej odpowiedzi.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+        'Pochodnia przygasa. Myśl jeszcze raz.',
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+      ],
+    },
+  },
+  {
+    id: 'legenda_wojownikow', order: 9,
+    title: 'Legenda Wojowników', badge: '🏆', xp: 300,
+    difficulty: 'legend', category: 'Specjalne',
+    image: 'assets/challenges/duch-areny.png', // fallback
+    desc: 'Zostań Legendą Areny.',
+    task: 'Ukończ wszystkie poprzednie wyzwania i potwierdź swoje miejsce w legendach areny.',
+    quiz: {
+      question: 'Kiedy ostatnio czułeś się jak legenda… a potem rzeczywistość przypomniała ci, że jesteś z osiedla i masz rachunki?',
+      answers: [
+        'Wczoraj — odlot, a potem szybki powrót na ziemię.',
+        'Dziś — pięć minut chwały, reszta wstyd.',
+        'Codziennie — to mój cykl życia.',
+      ],
+      correct: 0,
+      wrongMessages: [
+        'Kwiatowy Zakon nie jest zachwycony.',
+        'Hydra śmieje się z twojej odpowiedzi.',
+        'Arena uznaje tę odpowiedź za podejrzanie miękką.',
+        'Wąż uciekł. Spróbuj jeszcze raz.',
+      ],
     },
   },
 ];
@@ -184,10 +248,10 @@ const DIFF_MAP = {
 // STATE
 // ════════════════════════════════════════════════════════════
 
-let _user        = null;
-let _userData    = null;
-let _unsubs      = [];
-let _activeTab   = 'challenges'; // challenges | received | sent | active | history
+let _user       = null;
+let _userData   = null;
+let _unsubs     = [];
+let _activeTab  = 'challenges';
 
 
 // ════════════════════════════════════════════════════════════
@@ -197,9 +261,7 @@ let _activeTab   = 'challenges'; // challenges | received | sent | active | hist
 export function initChallengeSystem(user, userData) {
   _user     = user;
   _userData = userData;
-
   if (!user?.uid) return;
-
   _setupTabs();
   _loadTab(_activeTab);
 }
@@ -219,17 +281,13 @@ function _setupTabs() {
 }
 
 function _loadTab(tab) {
-  const sections = ['challenges','received','sent','active','history'];
-  sections.forEach(s => {
+  ['challenges','received','sent','active','history'].forEach(s => {
     const el = document.getElementById(`cs-section-${s}`);
     if (el) el.style.display = s === tab ? '' : 'none';
   });
-
-  // Cleanup old listeners
-  _unsubs.forEach(u => u());
+  _unsubs.forEach(u => { try { u(); } catch {} });
   _unsubs = [];
-
-  if (tab === 'challenges') _renderChallengeCards();
+  if (tab === 'challenges') _renderCards();
   if (tab === 'received')   _listenReceived();
   if (tab === 'sent')       _listenSent();
   if (tab === 'active')     _listenActive();
@@ -241,50 +299,46 @@ function _loadTab(tab) {
 // TAB 1 — KARTY WYZWAŃ
 // ════════════════════════════════════════════════════════════
 
-function _renderChallengeCards() {
+function _renderCards() {
   const grid = document.getElementById('cs-cards-grid');
   if (!grid) return;
   grid.innerHTML = '';
-
   CHALLENGES_DATA.forEach((ch, idx) => {
-    const diff = DIFF_MAP[ch.difficulty] ?? DIFF_MAP.medium;
-    const card = document.createElement('div');
-    card.className = 'ch-card';
-    card.style.animationDelay = (idx * 0.07) + 's';
-
-    card.innerHTML = `
-      <div class="ch-card-num">${ch.order}</div>
-      <div class="ch-xp-badge">+${ch.xp}<span>XP</span></div>
-      <div class="ch-card-img-wrap">
-        <img src="${ch.image}" alt="${_esc(ch.title)}" class="ch-card-img" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-        <div class="ch-card-img-placeholder" style="display:none;">${ch.badge}</div>
-      </div>
-      <div class="ch-card-body">
-        <div class="ch-card-divider"><span>◆</span></div>
-        <div class="ch-card-title">${_esc(ch.title)}</div>
-        <div class="ch-card-desc">${_esc(ch.desc)}</div>
-      </div>
-      <div class="ch-card-footer">
-        <button class="ch-card-btn cs-challenge-btn" data-id="${ch.id}">
-          ⚔️ Rzuć wyzwanie
-        </button>
-      </div>
-    `;
-
-    // Kliknięcie karty → detail
-    card.addEventListener('click', e => {
-      if (!e.target.closest('.cs-challenge-btn')) _openChallengeDetail(ch);
-    });
-
-    // Kliknięcie przycisku
-    card.querySelector('.cs-challenge-btn')?.addEventListener('click', e => {
-      e.stopPropagation();
-      _openSendModal(ch);
-    });
-
+    const card = _makeCard(ch, idx);
     grid.appendChild(card);
   });
+}
+
+function _makeCard(ch, idx) {
+  const diff = DIFF_MAP[ch.difficulty] ?? DIFF_MAP.medium;
+  const card = document.createElement('div');
+  card.className = 'ch-card';
+  card.style.animationDelay = (idx * 0.07) + 's';
+  card.innerHTML = `
+    <div class="ch-card-num">${ch.order}</div>
+    <div class="ch-xp-badge">+${ch.xp}<span>XP</span></div>
+    <div class="ch-card-img-wrap">
+      <img src="${ch.image}" alt="${_esc(ch.title)}" class="ch-card-img" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+      <div class="ch-card-img-placeholder" style="display:none;">${ch.badge}</div>
+    </div>
+    <div class="ch-card-body">
+      <div class="ch-card-divider"><span>◆</span></div>
+      <div class="ch-card-title ch-gold-pulse">${_esc(ch.title)}</div>
+      <div class="ch-card-desc">${_esc(ch.desc)}</div>
+    </div>
+    <div class="ch-card-footer">
+      <button class="ch-card-btn cs-throw-btn" data-id="${ch.id}">⚔️ Rzuć wyzwanie</button>
+    </div>
+  `;
+  card.addEventListener('click', e => {
+    if (!e.target.closest('.cs-throw-btn')) _openDetailModal(ch);
+  });
+  card.querySelector('.cs-throw-btn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    _openSendModal(ch);
+  });
+  return card;
 }
 
 
@@ -292,12 +346,11 @@ function _renderChallengeCards() {
 // DETAIL MODAL
 // ════════════════════════════════════════════════════════════
 
-function _openChallengeDetail(ch) {
-  _removeModal('cs-detail-root');
+function _openDetailModal(ch) {
+  _rm('cs-detail-root');
   const diff = DIFF_MAP[ch.difficulty] ?? DIFF_MAP.medium;
   const root = document.createElement('div');
   root.id    = 'cs-detail-root';
-
   root.innerHTML = `
     <div class="ch-detail-backdrop" id="cs-detail-bg">
       <div class="ch-detail-modal">
@@ -307,10 +360,8 @@ function _openChallengeDetail(ch) {
           <div class="ch-detail-img-placeholder" style="display:none;">${ch.badge}</div>
           <div class="ch-detail-img-overlay"></div>
           <button class="ch-detail-close" id="cs-detail-close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
           <div class="ch-detail-num-badge">${ch.order}</div>
@@ -323,36 +374,26 @@ function _openChallengeDetail(ch) {
             <span style="font-size:.75rem;color:#8A7E6A;font-style:italic;">${ch.category}</span>
           </div>
           <div class="ch-detail-task-wrap">
-            <div class="ch-detail-task-label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              Zadanie
-            </div>
+            <div class="ch-detail-task-label">Zadanie</div>
             <div class="ch-detail-task">${_esc(ch.task)}</div>
           </div>
           <div class="ch-detail-reward">
             <div class="ch-detail-reward-icon">🏆</div>
             <div>
               <div class="ch-detail-reward-xp">+${ch.xp} XP</div>
-              <div class="ch-detail-reward-badge">Po ukończeniu quizu i wyzwania</div>
+              <div class="ch-detail-reward-badge">Po quizie i ukończeniu wyzwania</div>
             </div>
           </div>
-          <button class="ch-detail-action-btn" id="cs-detail-send-btn">
-            ⚔️ Rzuć wyzwanie wojownikowi
-          </button>
+          <button class="ch-detail-action-btn" id="cs-detail-btn">⚔️ Rzuć wyzwanie wojownikowi</button>
         </div>
       </div>
-    </div>
-  `;
-
+    </div>`;
   document.body.appendChild(root);
   root.querySelector('#cs-detail-close')?.addEventListener('click', () => root.remove());
   document.getElementById('cs-detail-bg')?.addEventListener('click', e => {
     if (e.target.id === 'cs-detail-bg') root.remove();
   });
-  root.querySelector('#cs-detail-send-btn')?.addEventListener('click', () => {
+  root.querySelector('#cs-detail-btn')?.addEventListener('click', () => {
     root.remove();
     _openSendModal(ch);
   });
@@ -360,60 +401,40 @@ function _openChallengeDetail(ch) {
 
 
 // ════════════════════════════════════════════════════════════
-// SEND INVITE MODAL
+// SEND MODAL — ARENA WOJOWNIKÓW
 // ════════════════════════════════════════════════════════════
 
 async function _openSendModal(ch) {
   if (!_user) { showToast('Musisz być zalogowany.', 'error'); return; }
+  _rm('cs-send-root');
 
-  _removeModal('cs-send-root');
-
-  // Pobierz użytkowników
   let users = [];
   try {
     const snap = await getDocs(collection(db, COL.USERS));
     snap.forEach(d => { if (d.id !== _user.uid) users.push({ uid: d.id, ...d.data() }); });
-  } catch (e) {
-    showToast('Błąd pobierania wojowników: ' + (e.code || e.message), 'error');
+    users.sort((a,b) => (b.points||0) - (a.points||0));
+  } catch(e) {
+    showToast('Błąd pobierania wojowników: ' + (e.code||e.message), 'error');
     return;
   }
-
   if (!users.length) {
     showToast('Brak innych wojowników. Zaproś znajomych! 🛡️', 'info', 5000);
     return;
   }
 
   let selUser = users[0];
+  let searchTerm = '';
 
   const root = document.createElement('div');
   root.id    = 'cs-send-root';
-
-  const usersHTML = () => users.map(u => {
-    const sel = u.uid === selUser?.uid;
-    const ini = (u.displayName || '?')[0].toUpperCase();
-    return `
-      <div class="cs-user-row ${sel ? 'selected' : ''}" data-uid="${u.uid}">
-        <div class="cs-user-avatar">
-          ${u.photoURL
-            ? `<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            : ini}
-        </div>
-        <div class="cs-user-info">
-          <div class="cs-user-name">${_esc(u.displayName || 'Wojownik')}</div>
-          <div class="cs-user-sub">${u.rank || 'Rookie'} · ${u.points || 0} XP</div>
-        </div>
-        ${sel ? '<div class="cs-user-check">✓</div>' : ''}
-      </div>
-    `;
-  }).join('');
 
   root.innerHTML = `
     <div class="cs-modal-bg" id="cs-send-bg">
       <div class="cs-modal">
         <div class="cs-modal-header">
           <div>
-            <div class="cs-modal-title">⚔️ Rzuć Wyzwanie</div>
-            <div class="cs-modal-sub">Wybierz wojownika do walki</div>
+            <div class="cs-modal-title">⚔️ Arena Wojowników</div>
+            <div class="cs-modal-sub">Wybierz wojownika i rzuć wyzwanie</div>
           </div>
           <button class="cs-modal-close" id="cs-send-close">✕</button>
         </div>
@@ -427,65 +448,102 @@ async function _openSendModal(ch) {
           </div>
         </div>
 
-        <!-- Lista użytkowników -->
-        <div class="cs-modal-label">Wojownicy (${users.length})</div>
-        <div class="cs-users-list" id="cs-users-list">${usersHTML()}</div>
+        <!-- Wyszukiwarka -->
+        <div style="position:relative;margin-bottom:.625rem;">
+          <input id="cs-search-input" type="text" placeholder="🔍 Szukaj wojownika..."
+            style="width:100%;background:#121317;border:1px solid rgba(212,175,55,.2);
+            border-radius:10px;padding:.625rem 1rem;color:#E8E0D0;font-size:.875rem;
+            font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" />
+        </div>
 
-        <!-- Info -->
-        <div class="cs-target-info" id="cs-target-info">
-          🎯 <span id="cs-target-name">${_esc(selUser.displayName || 'Wojownik')}</span>
-          zostanie wyzwany
+        <!-- Lista wojowników -->
+        <div class="cs-modal-label">Wojownicy (<span id="cs-users-count">${users.length}</span>)</div>
+        <div class="cs-users-list" id="cs-users-list"></div>
+
+        <!-- Wybrany cel -->
+        <div class="cs-target-info">
+          🎯 Wyzywie:
+          <strong style="color:#D4AF37;" id="cs-target-name">${_esc(selUser.displayName||'Wojownik')}</strong>
         </div>
 
         <button class="cs-send-btn" id="cs-send-btn">⚔️ Rzuć Wyzwanie!</button>
       </div>
-    </div>
-  `;
-
+    </div>`;
   document.body.appendChild(root);
 
-  // Delegacja kliknięć na użytkowników
-  document.getElementById('cs-users-list')?.addEventListener('click', e => {
-    const row = e.target.closest('.cs-user-row');
-    if (!row) return;
-    const uid = row.dataset.uid;
-    selUser = users.find(u => u.uid === uid);
-    document.getElementById('cs-users-list').innerHTML = usersHTML();
-    const nameEl = document.getElementById('cs-target-name');
-    if (nameEl) nameEl.textContent = selUser?.displayName || 'Wojownik';
-    // Re-bind click (innerHTML reset)
-    _bindUserListClick();
+  // Render users
+  const renderUsers = () => {
+    const list = document.getElementById('cs-users-list');
+    const countEl = document.getElementById('cs-users-count');
+    if (!list) return;
+    const filtered = users.filter(u =>
+      !searchTerm || (u.displayName||'').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    if (countEl) countEl.textContent = filtered.length;
+    list.innerHTML = '';
+    filtered.forEach(u => {
+      const sel = u.uid === selUser?.uid;
+      const ini = (u.displayName||'?')[0].toUpperCase();
+      const { emoji } = _rankFromPoints(u.points||0);
+      const row = document.createElement('div');
+      row.className = `cs-user-row${sel ? ' selected' : ''}`;
+      row.dataset.uid = u.uid;
+      row.innerHTML = `
+        <div class="cs-user-avatar">
+          ${u.photoURL
+            ? `<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
+            : ini}
+        </div>
+        <div class="cs-user-info">
+          <div class="cs-user-name">${_esc(u.displayName||'Wojownik')}</div>
+          <div class="cs-user-sub">${emoji} ${u.rank||'Rookie'} · ${(u.points||0).toLocaleString('pl-PL')} XP</div>
+        </div>
+        ${sel ? '<div class="cs-user-check">✓</div>' : ''}
+      `;
+      row.addEventListener('click', () => {
+        selUser = u;
+        const nameEl = document.getElementById('cs-target-name');
+        if (nameEl) nameEl.textContent = u.displayName || 'Wojownik';
+        renderUsers();
+      });
+      list.appendChild(row);
+    });
+  };
+
+  renderUsers();
+
+  // Search
+  document.getElementById('cs-search-input')?.addEventListener('input', e => {
+    searchTerm = e.target.value;
+    renderUsers();
   });
 
-  function _bindUserListClick() {
-    document.getElementById('cs-users-list')?.addEventListener('click', e => {
-      const row = e.target.closest('.cs-user-row');
-      if (!row) return;
-      selUser = users.find(u => u.uid === row.dataset.uid);
-      document.getElementById('cs-users-list').innerHTML = usersHTML();
-      const nameEl = document.getElementById('cs-target-name');
-      if (nameEl) nameEl.textContent = selUser?.displayName || 'Wojownik';
-    });
-  }
-
+  // Close
   const close = () => root.remove();
   document.getElementById('cs-send-close')?.addEventListener('click', close);
   document.getElementById('cs-send-bg')?.addEventListener('click', e => {
     if (e.target.id === 'cs-send-bg') close();
   });
 
+  // Send
   document.getElementById('cs-send-btn')?.addEventListener('click', async () => {
     if (!selUser) { showToast('Wybierz wojownika!', 'error'); return; }
     const btn = document.getElementById('cs-send-btn');
     btn.disabled = true; btn.textContent = 'Wysyłam...';
-
     try {
       await _sendInvite(ch, selUser);
       close();
-    } catch (e) {
+    } catch(e) {
       btn.disabled = false; btn.textContent = '⚔️ Rzuć Wyzwanie!';
     }
   });
+}
+
+function _rankFromPoints(pts) {
+  if (pts >= 10000) return { emoji: '💎' };
+  if (pts >= 2000)  return { emoji: '🥇' };
+  if (pts >= 500)   return { emoji: '🥈' };
+  return { emoji: '🥉' };
 }
 
 
@@ -500,31 +558,28 @@ async function _sendInvite(ch, targetUser) {
     challengerPhoto:_userData?.photoURL    || _user.photoURL    || '',
     targetId:       targetUser.uid,
     targetName:     targetUser.displayName || 'Wojownik',
+    targetPhoto:    targetUser.photoURL    || '',
     challengeId:    ch.id,
     challengeTitle: ch.title,
     challengeBadge: ch.badge,
     challengeXP:    ch.xp,
-    status:         'pending',   // pending | quiz_pending | active | completed | rejected
+    status:         'pending',
     quizPassed:     false,
     expiresAt:      Timestamp.fromDate(new Date(Date.now() + 72 * 3600 * 1000)),
     createdAt:      serverTimestamp(),
   };
-
   const ref = await addDoc(collection(db, 'challenge_invites'), data);
-  console.log('[sendInvite] ✅ id:', ref.id);
 
   // Powiadomienie in-app
   createNotification(targetUser.uid, {
     type:  'duel',
     title: `${data.challengerName} rzuca Ci wyzwanie! ⚔️`,
-    body:  `"${ch.title}" · +${ch.xp} XP · Masz 72h`,
+    body:  `"${ch.title}" · +${ch.xp} XP · 72h na odpowiedź`,
     url:   'challenges.html',
   }).catch(() => {});
 
-  showToast(
-    `⚔️ Wyzwanie rzucone! ${targetUser.displayName || 'Wojownik'} ma 72h na odpowiedź.`,
-    'success', 5000
-  );
+  showToast(`⚔️ Wyzwanie rzucone! ${targetUser.displayName||'Wojownik'} ma 72h na odpowiedź.`, 'success', 5000);
+  return ref;
 }
 
 
@@ -535,32 +590,27 @@ async function _sendInvite(ch, targetUser) {
 function _listenReceived() {
   const el = document.getElementById('cs-received-list');
   if (!el) return;
-  el.innerHTML = _loadingHTML();
-
+  el.innerHTML = _spinnerHTML();
   const q = query(
     collection(db, 'challenge_invites'),
     where('targetId', '==', _user.uid),
-    where('status',   'in', ['pending', 'quiz_pending', 'active']),
+    where('status',   'in', ['pending','quiz_pending','active']),
   );
-
   const unsub = onSnapshot(q, snap => {
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    items.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
     el.innerHTML = '';
-
     if (!items.length) {
       el.innerHTML = _emptyHTML('📭', 'Brak odebranych wyzwań', 'Nikt jeszcze Cię nie wyzwał. Poczekaj na wyzwanie.');
       return;
     }
-
-    items.forEach(inv => {
+    items.forEach((inv, i) => {
       const card = _makeReceivedCard(inv);
+      card.style.animationDelay = (i * 0.06) + 's';
       el.appendChild(card);
     });
-  }, err => {
-    el.innerHTML = _emptyHTML('⚠️', 'Błąd ładowania', err.code);
-  });
-
+  }, err => { el.innerHTML = _emptyHTML('⚠️', 'Błąd', err.code); });
   _unsubs.push(unsub);
 }
 
@@ -568,15 +618,15 @@ function _makeReceivedCard(inv) {
   const card = document.createElement('div');
   card.className = 'cs-invite-card';
 
-  const status = {
-    pending:      { label: '⏳ Oczekuje',     color: '#F59E0B' },
-    quiz_pending: { label: '🧠 Quiz do zrobienia', color: '#4F8CFF' },
-    active:       { label: '⚔️ Aktywne',      color: '#16C784' },
-  }[inv.status] ?? { label: inv.status, color: '#8A7E6A' };
-
-  const expiry    = inv.expiresAt?.toDate?.() ?? new Date(Date.now() + 72 * 3600000);
+  const statusLabels = {
+    pending:      { text: '⏳ Oczekuje na akceptację', color: '#F59E0B' },
+    quiz_pending: { text: '🧠 Quiz do wykonania',       color: '#4F8CFF' },
+    active:       { text: '⚔️ Wyzwanie aktywne',        color: '#16C784' },
+  };
+  const s = statusLabels[inv.status] ?? { text: inv.status, color: '#8A7E6A' };
+  const expiry    = inv.expiresAt?.toDate?.() ?? new Date(Date.now() + 72*3600000);
   const hoursLeft = Math.max(0, Math.floor((expiry - Date.now()) / 3600000));
-  const ini       = (inv.challengerName || '?')[0].toUpperCase();
+  const ini       = (inv.challengerName||'?')[0].toUpperCase();
 
   card.innerHTML = `
     <div class="cs-invite-header">
@@ -587,58 +637,63 @@ function _makeReceivedCard(inv) {
       </div>
       <div class="cs-invite-info">
         <div class="cs-invite-from">
-          <span style="color:#D4AF37;">${_esc(inv.challengerName)}</span> rzuca wyzwanie:
+          <span style="color:#D4AF37;">${_esc(inv.challengerName||'Wojownik')}</span>
+          rzucił Ci wyzwanie:
         </div>
         <div class="cs-invite-challenge">
-          ${inv.challengeBadge ?? '⚔️'} "${_esc(inv.challengeTitle)}" · +${inv.challengeXP} XP
+          ${inv.challengeBadge??'⚔️'} „${_esc(inv.challengeTitle)}" · +${inv.challengeXP} XP
         </div>
-        <div style="display:flex;align-items:center;gap:.75rem;margin-top:.25rem;flex-wrap:wrap;">
-          <span style="font-size:.75rem;font-weight:700;color:${status.color};">${status.label}</span>
-          <span style="font-size:.6875rem;color:${hoursLeft < 6 ? '#EF4444' : '#8A7E6A'};">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-top:.3rem;flex-wrap:wrap;">
+          <span style="font-size:.75rem;font-weight:700;color:${s.color};">${s.text}</span>
+          <span style="font-size:.6875rem;color:${hoursLeft<6?'#EF4444':'#8A7E6A'};">
             ⏳ ${hoursLeft}h pozostało
           </span>
         </div>
       </div>
     </div>
-    <div class="cs-invite-actions" id="cs-actions-${inv.id}">
-      ${_receivedActions(inv)}
+    <div id="cs-actions-${inv.id}">
+      ${_receivedActionsHTML(inv)}
     </div>
   `;
-
   _bindReceivedActions(card, inv);
   return card;
 }
 
-function _receivedActions(inv) {
+function _receivedActionsHTML(inv) {
   if (inv.status === 'pending') {
     return `
-      <button class="cs-btn-accept" data-id="${inv.id}">⚔️ Podejmuję walkę!</button>
-      <button class="cs-btn-reject" data-id="${inv.id}">Odrzuć</button>
-    `;
+      <div style="display:flex;gap:.625rem;flex-wrap:wrap;">
+        <button class="cs-btn-accept" data-id="${inv.id}" style="flex:2;">
+          ⚔️ Przyjmuję wyzwanie!
+        </button>
+        <button class="cs-btn-reject" data-id="${inv.id}" style="flex:1;">
+          Odrzucam
+        </button>
+      </div>`;
   }
   if (inv.status === 'quiz_pending') {
-    return `<button class="cs-btn-quiz" data-id="${inv.id}" data-ch-id="${inv.challengeId}">
-      🧠 Rozwiąż Quiz
-    </button>`;
+    return `<button class="cs-btn-quiz" data-id="${inv.id}" data-ch-id="${inv.challengeId}"
+      style="width:100%;">🧠 Rozwiąż Quiz Areny</button>`;
   }
   if (inv.status === 'active') {
+    const task = _getTask(inv.challengeId);
     return `
-      <div style="font-size:.8125rem;color:#16C784;font-weight:600;margin-bottom:.625rem;">
-        ✅ Quiz zaliczony! Czas na wyzwanie:
+      <div style="font-size:.8125rem;color:#16C784;font-weight:600;margin-bottom:.5rem;">
+        ✅ Quiz zaliczony! Czas na realizację:
       </div>
-      <div style="font-size:.875rem;color:#E8E0D0;line-height:1.6;margin-bottom:.75rem;
-                  font-style:italic;background:rgba(212,175,55,.05);
-                  padding:.75rem;border-radius:8px;border-left:3px solid rgba(212,175,55,.3);">
-        ${_esc(_getChallengeTask(inv.challengeId))}
+      <div style="font-size:.875rem;color:#E8E0D0;line-height:1.65;
+        padding:.875rem;background:rgba(212,175,55,.05);border-radius:10px;
+        border-left:3px solid rgba(212,175,55,.3);margin-bottom:.75rem;font-style:italic;">
+        ${_esc(task)}
       </div>
-      <button class="cs-btn-complete" data-id="${inv.id}">🏆 Ukończyłem wyzwanie</button>
-    `;
+      <button class="cs-btn-complete" data-id="${inv.id}" style="width:100%;">
+        🏆 Ukończyłem wyzwanie!
+      </button>`;
   }
   return '';
 }
 
 function _bindReceivedActions(card, inv) {
-  // Accept
   card.querySelector('.cs-btn-accept')?.addEventListener('click', async () => {
     const btn = card.querySelector('.cs-btn-accept');
     btn.disabled = true; btn.textContent = 'Akceptuję...';
@@ -646,14 +701,13 @@ function _bindReceivedActions(card, inv) {
       await updateDoc(doc(db, 'challenge_invites', inv.id), {
         status: 'quiz_pending', acceptedAt: serverTimestamp(),
       });
-      showToast('Wyzwanie zaakceptowane! Rozwiąż teraz quiz. 🧠', 'success', 4000);
+      showToast('Wyzwanie zaakceptowane! Rozwiąż teraz Quiz Areny. 🧠', 'success', 4000);
     } catch(e) {
       showToast('Błąd: ' + e.code, 'error');
-      btn.disabled = false; btn.textContent = '⚔️ Podejmuję walkę!';
+      btn.disabled = false; btn.textContent = '⚔️ Przyjmuję wyzwanie!';
     }
   });
 
-  // Reject
   card.querySelector('.cs-btn-reject')?.addEventListener('click', async () => {
     if (!confirm('Odrzucić wyzwanie?')) return;
     try {
@@ -662,13 +716,12 @@ function _bindReceivedActions(card, inv) {
     } catch(e) { showToast('Błąd: ' + e.code, 'error'); }
   });
 
-  // Quiz
   card.querySelector('.cs-btn-quiz')?.addEventListener('click', () => {
     const ch = CHALLENGES_DATA.find(c => c.id === inv.challengeId);
     if (ch) _openQuizModal(ch, inv);
+    else showToast('Nie znaleziono wyzwania.', 'error');
   });
 
-  // Complete
   card.querySelector('.cs-btn-complete')?.addEventListener('click', async () => {
     const btn = card.querySelector('.cs-btn-complete');
     btn.disabled = true; btn.textContent = 'Zapisuję...';
@@ -676,70 +729,64 @@ function _bindReceivedActions(card, inv) {
       await _completeChallenge(inv);
     } catch(e) {
       showToast('Błąd: ' + e.code, 'error');
-      btn.disabled = false; btn.textContent = '🏆 Ukończyłem wyzwanie';
+      btn.disabled = false; btn.textContent = '🏆 Ukończyłem wyzwanie!';
     }
   });
 }
 
 
 // ════════════════════════════════════════════════════════════
-// QUIZ MODAL
+// QUIZ ARENY
 // ════════════════════════════════════════════════════════════
 
 function _openQuizModal(ch, inv) {
-  _removeModal('cs-quiz-root');
-
-  const quiz    = ch.quiz;
-  let   answered = false;
-  let   timer    = 30;
-  let   interval = null;
+  _rm('cs-quiz-root');
+  const quiz = ch.quiz;
+  let answered = false;
+  let timer    = 30;
+  let interval = null;
+  const letters = ['A','B','C'];
 
   const root = document.createElement('div');
   root.id    = 'cs-quiz-root';
-
   root.innerHTML = `
     <div class="cs-modal-bg" id="cs-quiz-bg">
       <div class="cs-quiz-modal">
-
         <!-- Header -->
         <div class="cs-quiz-header">
           <div class="cs-quiz-badge">${ch.badge}</div>
-          <div>
+          <div style="flex:1;min-width:0;">
             <div class="cs-quiz-ch-title">${_esc(ch.title)}</div>
-            <div class="cs-quiz-sub">Quiz odblokowujący wyzwanie</div>
+            <div class="cs-quiz-sub">⚔️ Quiz Areny — odblokuj wyzwanie</div>
           </div>
           <div class="cs-quiz-timer" id="cs-quiz-timer">30</div>
         </div>
 
-        <!-- Divider -->
         <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.3),transparent);margin:.875rem 0;"></div>
 
         <!-- Pytanie -->
-        <div class="cs-quiz-question">${_esc(quiz.question)}</div>
+        <div class="cs-quiz-question" style="font-size:.9375rem;">${_esc(quiz.question)}</div>
 
         <!-- Odpowiedzi -->
         <div class="cs-quiz-answers" id="cs-quiz-answers">
           ${quiz.answers.map((ans, i) => `
             <button class="cs-quiz-answer" data-idx="${i}">
-              <span class="cs-answer-letter">${['A','B','C'][i]}</span>
+              <span class="cs-answer-letter">${letters[i]}</span>
               <span class="cs-answer-text">${_esc(ans)}</span>
             </button>
           `).join('')}
         </div>
 
-        <!-- Feedback (hidden) -->
+        <!-- Feedback -->
         <div class="cs-quiz-feedback hidden" id="cs-quiz-feedback"></div>
 
-        <!-- XP reward -->
+        <!-- Reward -->
         <div class="cs-quiz-reward">
           <span>🏆</span>
-          <span>Poprawna odpowiedź odblokuje wyzwanie i nada <strong style="color:#D4AF37;">+${ch.xp} XP</strong></span>
+          <span>Poprawna odpowiedź odblokuje wyzwanie · <strong style="color:#D4AF37;">+${ch.xp} XP</strong></span>
         </div>
-
       </div>
-    </div>
-  `;
-
+    </div>`;
   document.body.appendChild(root);
 
   // Timer
@@ -749,87 +796,94 @@ function _openQuizModal(ch, inv) {
     if (timerEl) {
       timerEl.textContent = timer;
       if (timer <= 10) timerEl.style.color = '#EF4444';
+      if (timer <= 5)  timerEl.style.animation = 'notifPop .5s ease infinite';
     }
-    if (timer <= 0) {
-      clearInterval(interval);
-      if (!answered) _quizTimeout(quiz, inv);
-    }
+    if (timer <= 0) { clearInterval(interval); if (!answered) _timeoutQuiz(); }
   }, 1000);
 
-  // Answers
+  // Odpowiedzi
   document.getElementById('cs-quiz-answers')?.addEventListener('click', async e => {
     const btn = e.target.closest('.cs-quiz-answer');
     if (!btn || answered) return;
     answered = true;
     clearInterval(interval);
 
-    const chosen = parseInt(btn.dataset.idx);
+    const chosen  = parseInt(btn.dataset.idx);
     const correct = quiz.correct;
+    const isRight = chosen === correct;
 
-    // Visual feedback
+    // Wizualny feedback
     document.querySelectorAll('.cs-quiz-answer').forEach((b, i) => {
       b.disabled = true;
-      if (i === correct) b.classList.add('correct');
-      else if (i === chosen && chosen !== correct) b.classList.add('wrong');
+      if (i === correct)                    b.classList.add('correct');
+      else if (i === chosen && !isRight)    b.classList.add('wrong');
     });
 
-    const feedback = document.getElementById('cs-quiz-feedback');
-    if (feedback) {
-      feedback.classList.remove('hidden');
-      if (chosen === correct) {
-        feedback.className = 'cs-quiz-feedback cs-feedback-correct';
-        feedback.innerHTML = `
-          <div style="font-size:1.5rem;margin-bottom:.375rem;">✅</div>
-          <div style="font-weight:700;margin-bottom:.25rem;">Dobrze! Wyzwanie odblokowane!</div>
-          <div style="font-size:.875rem;opacity:.85;">Teraz czas na realizację zadania.</div>
-        `;
+    const fb = document.getElementById('cs-quiz-feedback');
+    if (fb) {
+      fb.classList.remove('hidden');
+      if (isRight) {
+        fb.className = 'cs-quiz-feedback cs-feedback-correct';
+        fb.innerHTML = `
+          <div style="font-size:1.5rem;margin-bottom:.375rem;">⚔️</div>
+          <div style="font-weight:700;font-family:'Rajdhani',sans-serif;
+                      font-size:1.1rem;margin-bottom:.25rem;text-transform:uppercase;">
+            Arena uznała Cię za godnego walki.
+          </div>
+          <div style="font-size:.875rem;opacity:.85;">Wyzwanie odblokowane! Czas działać.</div>`;
       } else {
-        feedback.className = 'cs-quiz-feedback cs-feedback-wrong';
-        feedback.innerHTML = `
-          <div style="font-size:1.5rem;margin-bottom:.375rem;">❌</div>
-          <div style="font-weight:700;margin-bottom:.25rem;">Błędna odpowiedź!</div>
-          <div style="font-size:.875rem;opacity:.85;">Spróbuj ponownie za 10 minut.</div>
-        `;
+        const msgs = quiz.wrongMessages ?? ['Wąż uciekł. Spróbuj jeszcze raz.'];
+        const msg  = msgs[Math.floor(Math.random() * msgs.length)];
+        fb.className = 'cs-quiz-feedback cs-feedback-wrong';
+        fb.innerHTML = `
+          <div style="font-size:1.5rem;margin-bottom:.375rem;">🐍</div>
+          <div style="font-weight:700;font-family:'Rajdhani',sans-serif;
+                      font-size:1.05rem;margin-bottom:.25rem;">${_esc(msg)}</div>
+          <div style="font-size:.875rem;opacity:.75;">Bez utraty XP. Możesz spróbować ponownie.</div>`;
       }
     }
 
-    // Zapis wyniku quizu
+    // Zapis
     try {
       await addDoc(collection(db, 'challenge_quizzes'), {
-        userId:       _user.uid,
-        inviteId:     inv.id,
-        challengeId:  ch.id,
-        answer:       chosen,
-        correct:      chosen === correct,
-        attemptAt:    serverTimestamp(),
+        userId: _user.uid, inviteId: inv.id, challengeId: ch.id,
+        chosenAnswer: chosen, correct: isRight, attemptAt: serverTimestamp(),
       });
-    } catch (e) { console.warn('[quiz save]', e.code); }
+    } catch(e) { console.warn('[quiz save]', e.code); }
 
-    if (chosen === correct) {
-      // Odblokuj wyzwanie
+    if (isRight) {
       try {
         await updateDoc(doc(db, 'challenge_invites', inv.id), {
           status: 'active', quizPassed: true, quizPassedAt: serverTimestamp(),
         });
-      } catch (e) { console.warn('[quiz unlock]', e.code); }
+      } catch(e) { console.warn('[quiz unlock]', e.code); }
 
-      setTimeout(() => root.remove(), 2500);
+      // Przycisk zamknięcia
+      setTimeout(() => {
+        if (fb) fb.innerHTML += `
+          <button id="cs-quiz-ok" style="
+            margin-top:.875rem;width:100%;padding:.75rem;
+            background:linear-gradient(135deg,#D4AF37,#A88B28);
+            border:none;border-radius:12px;color:#000;
+            font-family:'Rajdhani',sans-serif;font-size:.9375rem;font-weight:800;
+            letter-spacing:.04em;text-transform:uppercase;cursor:pointer;">
+            ROZPOCZNIJ WYZWANIE →
+          </button>`;
+        document.getElementById('cs-quiz-ok')?.addEventListener('click', () => root.remove());
+      }, 800);
 
     } else {
-      // Zła odpowiedź — przycisk "Spróbuj ponownie"
       setTimeout(() => {
-        if (feedback) {
-          feedback.innerHTML += `
-            <button id="cs-quiz-retry" style="
-              margin-top:.875rem;padding:.625rem 1.25rem;
-              background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);
-              border-radius:10px;color:#D4AF37;font-weight:600;font-size:.875rem;
-              cursor:pointer;font-family:'Inter',sans-serif;
-            ">Zamknij</button>
-          `;
-          document.getElementById('cs-quiz-retry')?.addEventListener('click', () => root.remove());
-        }
-      }, 1000);
+        if (fb) fb.innerHTML += `
+          <button id="cs-quiz-retry" style="
+            margin-top:.875rem;padding:.625rem 1.25rem;
+            background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);
+            border-radius:10px;color:#D4AF37;font-weight:600;font-size:.875rem;
+            cursor:pointer;font-family:'Inter',sans-serif;">
+            Zamknij i spróbuj ponownie
+          </button>`;
+        document.getElementById('cs-quiz-retry')?.addEventListener('click', () => root.remove());
+      }, 800);
     }
   });
 
@@ -838,28 +892,23 @@ function _openQuizModal(ch, inv) {
   });
 }
 
-function _quizTimeout(quiz, inv) {
-  const feedback = document.getElementById('cs-quiz-feedback');
-  if (feedback) {
-    feedback.classList.remove('hidden');
-    feedback.className = 'cs-quiz-feedback cs-feedback-wrong';
-    feedback.innerHTML = `
-      <div style="font-size:1.5rem;margin-bottom:.375rem;">⏰</div>
-      <div style="font-weight:700;margin-bottom:.25rem;">Czas minął!</div>
-      <div style="font-size:.875rem;opacity:.85;">Zamknij i spróbuj ponownie.</div>
-      <button id="cs-quiz-timeout-close" style="
-        margin-top:.875rem;padding:.625rem 1.25rem;
-        background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);
-        border-radius:10px;color:#D4AF37;font-weight:600;font-size:.875rem;
-        cursor:pointer;font-family:'Inter',sans-serif;">
-        Zamknij
-      </button>
-    `;
-    document.getElementById('cs-quiz-timeout-close')?.addEventListener('click', () => {
-      document.getElementById('cs-quiz-root')?.remove();
-    });
-  }
+function _timeoutQuiz() {
+  const fb = document.getElementById('cs-quiz-feedback');
+  if (!fb) return;
+  fb.classList.remove('hidden');
+  fb.className = 'cs-quiz-feedback cs-feedback-wrong';
+  fb.innerHTML = `
+    <div style="font-size:1.5rem;margin-bottom:.375rem;">⏰</div>
+    <div style="font-weight:700;margin-bottom:.25rem;">Pochodnia przygasła!</div>
+    <div style="font-size:.875rem;opacity:.8;">Czas minął. Zamknij i spróbuj ponownie.</div>
+    <button id="cs-timeout-close" style="margin-top:.875rem;padding:.625rem 1.25rem;
+      background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);
+      border-radius:10px;color:#D4AF37;font-weight:600;font-size:.875rem;
+      cursor:pointer;font-family:'Inter',sans-serif;">Zamknij</button>`;
   document.querySelectorAll('.cs-quiz-answer').forEach(b => { b.disabled = true; });
+  document.getElementById('cs-timeout-close')?.addEventListener('click', () => {
+    document.getElementById('cs-quiz-root')?.remove();
+  });
 }
 
 
@@ -882,114 +931,112 @@ async function _completeChallenge(inv) {
     status: 'completed', completedAt: serverTimestamp(),
   });
 
-  // XP dla odbiorcy
+  // XP dla odbiorcy (wykonującego)
   await awardXP(_user.uid, {
-    key:   'challenge_complete_' + inv.challengeId,
+    key:   'challenge_complete_' + inv.id,
     xp:    inv.challengeXP,
     label: `Ukończono: ${inv.challengeTitle}`,
   });
 
-  // Bonus XP dla nadawcy
-  const senderBonus = Math.max(10, Math.round(inv.challengeXP * 0.2));
+  // Bonus XP dla nadawcy (~20%)
+  const bonus = Math.max(10, Math.round(inv.challengeXP * 0.2));
   if (inv.challengerId && inv.challengerId !== _user.uid) {
-    await awardXP(inv.challengerId, {
+    awardXP(inv.challengerId, {
       key:   'challenge_sent_bonus_' + inv.id,
-      xp:    senderBonus,
-      label: `Bonus: ${_user.displayName || 'Wojownik'} ukończył Twoje wyzwanie!`,
+      xp:    bonus,
+      label: `Bonus za aktywność: ${_user.displayName||'Wojownik'} ukończył wyzwanie!`,
     }).catch(() => {});
 
     createNotification(inv.challengerId, {
       type:  'achievement',
-      title: `${_user.displayName || 'Wojownik'} ukończył wyzwanie! 🏆`,
-      body:  `"${inv.challengeTitle}" · +${senderBonus} XP bonus dla Ciebie`,
+      title: `${_user.displayName||'Wojownik'} ukończył Twoje wyzwanie! 🏆`,
+      body:  `"${inv.challengeTitle}" · Dostajesz +${bonus} XP bonus!`,
       url:   'challenges.html',
     }).catch(() => {});
   }
 
-  showToast(`🏆 Wyzwanie ukończone! +${inv.challengeXP} XP`, 'success', 5000);
-  _showCompletionCelebration(inv);
+  showToast(`🏆 +${inv.challengeXP} XP! Wyzwanie ukończone!`, 'success', 5000);
+  _showCelebration(inv);
 }
 
-function _showCompletionCelebration(inv) {
-  _removeModal('cs-complete-root');
+function _showCelebration(inv) {
+  _rm('cs-complete-root');
   const root = document.createElement('div');
   root.id    = 'cs-complete-root';
   root.style.cssText = `position:fixed;inset:0;z-index:9999;
-    background:rgba(0,0,0,.9);backdrop-filter:blur(10px);
-    display:flex;align-items:center;justify-content:center;padding:1.5rem;
-    animation:fadeIn .25s ease both;cursor:pointer;`;
-
+    background:rgba(0,0,0,.92);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;
+    padding:1.5rem;animation:chFadeIn .25s ease both;cursor:pointer;`;
   root.innerHTML = `
     <div style="background:linear-gradient(160deg,#0E0F12,#141208,#0E0F12);
-      border:2px solid #D4AF37;border-radius:20px;padding:2.5rem 2rem;
-      max-width:340px;width:100%;text-align:center;
+      border:2px solid #D4AF37;border-radius:20px;
+      padding:2.5rem 2rem;max-width:340px;width:100%;text-align:center;
       box-shadow:0 0 80px rgba(212,175,55,.4);
-      animation:unlockPop .6s cubic-bezier(.34,1.56,.64,1) both;">
-      <div style="font-size:3.5rem;margin-bottom:.75rem;">${inv.challengeBadge ?? '⚔️'}</div>
+      animation:chUnlockPop .6s cubic-bezier(.34,1.56,.64,1) both;
+      position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;
+        background:linear-gradient(90deg,transparent,#D4AF37,transparent);"></div>
+      <div style="font-size:3.5rem;margin-bottom:.75rem;">${inv.challengeBadge??'⚔️'}</div>
       <div style="font-size:.625rem;font-weight:700;letter-spacing:.18em;
                   text-transform:uppercase;color:#D4AF37;margin-bottom:.5rem;">
         Wyzwanie ukończone!
       </div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:800;
-                  color:#fff;text-transform:uppercase;margin-bottom:.375rem;">
+                  color:#fff;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.375rem;">
         ${_esc(inv.challengeTitle)}
       </div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:2.5rem;font-weight:800;
-                  color:#D4AF37;text-shadow:0 0 30px rgba(212,175,55,.7);margin:.5rem 0;">
+                  color:#D4AF37;line-height:1;margin:.5rem 0;
+                  text-shadow:0 0 30px rgba(212,175,55,.7);">
         +${inv.challengeXP} XP
       </div>
       <div style="font-size:.75rem;color:#4E5464;margin-top:1.25rem;">
         Dotknij aby zamknąć
       </div>
-    </div>
-  `;
-
+    </div>`;
   document.body.appendChild(root);
   root.addEventListener('click', () => root.remove());
-  setTimeout(() => root?.remove(), 6000);
+  setTimeout(() => root?.remove(), 7000);
 }
 
 
 // ════════════════════════════════════════════════════════════
-// TAB 3 — WYSŁANE WYZWANIA
+// TAB 3 — WYSŁANE
 // ════════════════════════════════════════════════════════════
 
 function _listenSent() {
   const el = document.getElementById('cs-sent-list');
   if (!el) return;
-  el.innerHTML = _loadingHTML();
+  el.innerHTML = _spinnerHTML();
 
   const q = query(
     collection(db, 'challenge_invites'),
     where('challengerId', '==', _user.uid),
   );
-
   const unsub = onSnapshot(q, snap => {
-    const items = [];
+    let items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
     items.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-
     el.innerHTML = '';
     if (!items.length) {
-      el.innerHTML = _emptyHTML('📤', 'Brak wysłanych wyzwań', 'Rzuć pierwsze wyzwanie wojownikowi!');
+      el.innerHTML = _emptyHTML('📤', 'Brak wysłanych', 'Rzuć pierwsze wyzwanie wojownikowi!');
       return;
     }
-
-    items.forEach(inv => {
+    items.forEach((inv, i) => {
       const statusMap = {
-        pending:    { label: '⏳ Oczekuje na akceptację', color: '#F59E0B' },
-        quiz_pending:{ label: '🧠 Quiz w toku',           color: '#4F8CFF' },
-        active:     { label: '⚔️ Wyzwanie aktywne',       color: '#16C784' },
-        completed:  { label: '✅ Ukończone',               color: '#16C784' },
-        rejected:   { label: '❌ Odrzucone',               color: '#EF4444' },
+        pending:      { text: '⏳ Oczekuje',    color: '#F59E0B' },
+        quiz_pending: { text: '🧠 Quiz w toku', color: '#4F8CFF' },
+        active:       { text: '⚔️ Aktywne',     color: '#16C784' },
+        completed:    { text: '✅ Ukończone',    color: '#16C784' },
+        rejected:     { text: '❌ Odrzucone',    color: '#EF4444' },
       };
-      const s   = statusMap[inv.status] ?? { label: inv.status, color: '#8A7E6A' };
-      const ini = (inv.targetName || '?')[0].toUpperCase();
+      const s   = statusMap[inv.status] ?? { text: inv.status, color: '#8A7E6A' };
+      const ini = (inv.targetName||'?')[0].toUpperCase();
       const dt  = inv.createdAt?.toDate?.();
-      const dateStr = dt ? dt.toLocaleDateString('pl-PL', {day:'numeric',month:'short'}) : '';
-
+      const ds  = dt ? dt.toLocaleDateString('pl-PL',{day:'numeric',month:'short'}) : '';
       const row = document.createElement('div');
       row.className = 'cs-sent-row';
+      row.style.animationDelay = (i * 0.06) + 's';
       row.innerHTML = `
         <div class="cs-invite-avatar" style="width:38px;height:38px;font-size:.875rem;">
           ${inv.targetPhoto
@@ -998,58 +1045,53 @@ function _listenSent() {
         </div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:.875rem;font-weight:600;color:#E8E0D0;">
-            ${_esc(inv.targetName || 'Wojownik')}
+            ${_esc(inv.targetName||'Wojownik')}
           </div>
           <div style="font-size:.8125rem;color:#8A7E6A;">
             ${inv.challengeBadge??'⚔️'} ${_esc(inv.challengeTitle)} · +${inv.challengeXP} XP
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:.75rem;font-weight:700;color:${s.color};">${s.label}</div>
-          <div style="font-size:.6875rem;color:#4E5464;margin-top:.1rem;">${dateStr}</div>
-        </div>
-      `;
+          <div style="font-size:.75rem;font-weight:700;color:${s.color};">${s.text}</div>
+          <div style="font-size:.6875rem;color:#4E5464;margin-top:.1rem;">${ds}</div>
+        </div>`;
       el.appendChild(row);
     });
-  }, err => {
-    el.innerHTML = _emptyHTML('⚠️', 'Błąd', err.code);
-  });
-
+  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',err.code); });
   _unsubs.push(unsub);
 }
 
 
 // ════════════════════════════════════════════════════════════
-// TAB 4 — AKTYWNE WYZWANIA
+// TAB 4 — AKTYWNE
 // ════════════════════════════════════════════════════════════
 
 function _listenActive() {
   const el = document.getElementById('cs-active-list');
   if (!el) return;
-  el.innerHTML = _loadingHTML();
+  el.innerHTML = _spinnerHTML();
 
   const q = query(
     collection(db, 'challenge_invites'),
     where('targetId', '==', _user.uid),
     where('status',   '==', 'active'),
   );
-
   const unsub = onSnapshot(q, snap => {
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
     el.innerHTML = '';
-
     if (!items.length) {
       el.innerHTML = _emptyHTML('⚔️', 'Brak aktywnych wyzwań',
-        'Zaakceptuj odebrane wyzwanie i zalicz quiz, aby aktywować.');
+        'Zaakceptuj odebrane wyzwanie i przejdź quiz, aby je aktywować.');
       return;
     }
-
-    items.forEach(inv => {
-      const ini = (inv.challengerName || '?')[0].toUpperCase();
+    items.forEach((inv, i) => {
+      const ini  = (inv.challengerName||'?')[0].toUpperCase();
+      const task = _getTask(inv.challengeId);
       const card = document.createElement('div');
       card.className = 'cs-invite-card';
       card.style.borderColor = 'rgba(22,199,132,.3)';
+      card.style.animationDelay = (i * 0.06) + 's';
       card.innerHTML = `
         <div class="cs-invite-header">
           <div class="cs-invite-avatar">
@@ -1065,42 +1107,30 @@ function _listenActive() {
               ✅ Quiz zaliczony — czas na realizację!
             </div>
             <div style="font-size:.8125rem;color:#8A7E6A;">
-              Od: ${_esc(inv.challengerName || 'Wojownik')} · +${inv.challengeXP} XP
+              Od: ${_esc(inv.challengerName||'?')} · +${inv.challengeXP} XP
             </div>
           </div>
         </div>
         <div style="font-size:.875rem;color:#E8E0D0;line-height:1.65;
-          padding:.875rem;background:rgba(212,175,55,.05);
-          border-radius:10px;border-left:3px solid rgba(212,175,55,.3);
-          margin:.875rem 0;font-style:italic;">
-          ${_esc(_getChallengeTask(inv.challengeId))}
+          padding:.875rem;background:rgba(212,175,55,.05);border-radius:10px;
+          border-left:3px solid rgba(212,175,55,.3);margin:.875rem 0;font-style:italic;">
+          ${_esc(task)}
         </div>
-        <button class="cs-btn-complete" data-id="${inv.id}" style="
-          width:100%;padding:.875rem;
-          background:linear-gradient(135deg,#16C784,#0ea568);
-          border:none;border-radius:12px;color:#fff;font-weight:700;
-          font-family:'Rajdhani',sans-serif;font-size:1rem;
-          text-transform:uppercase;letter-spacing:.04em;cursor:pointer;">
+        <button class="cs-btn-complete" data-id="${inv.id}" style="width:100%;">
           🏆 Ukończyłem wyzwanie!
-        </button>
-      `;
-
+        </button>`;
       card.querySelector('.cs-btn-complete')?.addEventListener('click', async () => {
         const btn = card.querySelector('.cs-btn-complete');
         btn.disabled = true; btn.textContent = 'Zapisuję...';
         try { await _completeChallenge(inv); }
         catch(e) {
-          showToast('Błąd: ' + e.code, 'error');
+          showToast('Błąd: '+e.code,'error');
           btn.disabled = false; btn.textContent = '🏆 Ukończyłem wyzwanie!';
         }
       });
-
       el.appendChild(card);
     });
-  }, err => {
-    el.innerHTML = _emptyHTML('⚠️', 'Błąd', err.code);
-  });
-
+  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',err.code); });
   _unsubs.push(unsub);
 }
 
@@ -1112,69 +1142,70 @@ function _listenActive() {
 function _listenHistory() {
   const el = document.getElementById('cs-history-list');
   if (!el) return;
-  el.innerHTML = _loadingHTML();
+  el.innerHTML = _spinnerHTML();
 
-  const q = query(
-    collection(db, 'challenge_invites'),
-    where('status', 'in', ['completed', 'rejected']),
-  );
+  // Pobierz jako nadawca lub odbiorca
+  const q1 = query(collection(db,'challenge_invites'), where('targetId','==',_user.uid), where('status','in',['completed','rejected']));
+  const q2 = query(collection(db,'challenge_invites'), where('challengerId','==',_user.uid), where('status','in',['completed','rejected']));
 
-  const unsub = onSnapshot(q, snap => {
-    let items = [];
-    snap.forEach(d => {
-      const data = d.data();
-      // Pokazuj tylko gdzie user jest uczestnikiem
-      if (data.targetId === _user.uid || data.challengerId === _user.uid) {
-        items.push({ id: d.id, ...data });
-      }
+  let items1 = [], items2 = [], ready = 0;
+
+  const render = () => {
+    if (ready < 2) return;
+    const seen = new Set();
+    const all  = [...items1, ...items2].filter(i => {
+      if (seen.has(i.id)) return false;
+      seen.add(i.id); return true;
     });
-    items.sort((a,b) => (b.completedAt?.seconds||b.createdAt?.seconds||0)
-                      - (a.completedAt?.seconds||a.createdAt?.seconds||0));
-
+    all.sort((a,b) => (b.completedAt?.seconds||b.createdAt?.seconds||0)
+                    - (a.completedAt?.seconds||a.createdAt?.seconds||0));
     el.innerHTML = '';
-    if (!items.length) {
-      el.innerHTML = _emptyHTML('🏁', 'Brak historii', 'Ukończone i odrzucone wyzwania pojawią się tutaj.');
+    if (!all.length) {
+      el.innerHTML = _emptyHTML('🏁','Brak historii','Ukończone i odrzucone wyzwania pojawią się tutaj.');
       return;
     }
-
-    items.forEach(inv => {
-      const isMe      = inv.targetId === _user.uid;
-      const completed = inv.status === 'completed';
-      const ini       = ((isMe ? inv.challengerName : inv.targetName) || '?')[0].toUpperCase();
-      const dt        = (inv.completedAt || inv.createdAt)?.toDate?.();
-      const dateStr   = dt ? dt.toLocaleDateString('pl-PL', {day:'numeric',month:'short',year:'numeric'}) : '';
-
-      const row = document.createElement('div');
-      row.className = 'cs-sent-row';
-      row.style.opacity = completed ? '1' : '0.6';
+    all.forEach((inv, i) => {
+      const isTarget  = inv.targetId === _user.uid;
+      const completed = inv.status   === 'completed';
+      const other     = isTarget ? inv.challengerName : inv.targetName;
+      const otherPhoto= isTarget ? inv.challengerPhoto : inv.targetPhoto;
+      const ini       = (other||'?')[0].toUpperCase();
+      const dt        = (inv.completedAt||inv.createdAt)?.toDate?.();
+      const ds        = dt ? dt.toLocaleDateString('pl-PL',{day:'numeric',month:'short',year:'numeric'}) : '';
+      const row       = document.createElement('div');
+      row.className   = 'cs-sent-row';
+      row.style.opacity = completed ? '1' : '0.55';
+      row.style.animationDelay = (i * 0.06) + 's';
       row.innerHTML = `
-        <div style="font-size:1.5rem;flex-shrink:0;">
-          ${completed ? inv.challengeBadge??'⚔️' : '❌'}
-        </div>
+        <div style="font-size:1.5rem;flex-shrink:0;">${completed ? inv.challengeBadge??'⚔️' : '❌'}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:.875rem;font-weight:600;color:${completed?'#E8E0D0':'#666'};">
             ${_esc(inv.challengeTitle)}
           </div>
           <div style="font-size:.75rem;color:#666;">
-            ${isMe ? `Od: ${_esc(inv.challengerName||'?')}` : `Do: ${_esc(inv.targetName||'?')}`}
-            ${completed && isMe ? ` · +${inv.challengeXP} XP zdobyte` : ''}
+            ${isTarget ? 'Od:' : 'Do:'} ${_esc(other||'?')}
+            ${completed && isTarget ? ` · +${inv.challengeXP} XP zdobyte` : ''}
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:.75rem;font-weight:700;
-            color:${completed?'#16C784':'#EF4444'};">
+          <div style="font-size:.75rem;font-weight:700;color:${completed?'#16C784':'#EF4444'};">
             ${completed ? '✅ Ukończone' : '❌ Odrzucone'}
           </div>
-          <div style="font-size:.6875rem;color:#4E5464;margin-top:.1rem;">${dateStr}</div>
-        </div>
-      `;
+          <div style="font-size:.6875rem;color:#4E5464;margin-top:.1rem;">${ds}</div>
+        </div>`;
       el.appendChild(row);
     });
-  }, err => {
-    el.innerHTML = _emptyHTML('⚠️', 'Błąd', err.code);
-  });
+  };
 
-  _unsubs.push(unsub);
+  const u1 = onSnapshot(q1, snap => {
+    items1 = []; snap.forEach(d => items1.push({id:d.id,...d.data()}));
+    ready = Math.max(ready, 1); if(ready===1) ready=1; render();
+  }, ()=>{ready++;render();});
+  const u2 = onSnapshot(q2, snap => {
+    items2 = []; snap.forEach(d => items2.push({id:d.id,...d.data()}));
+    ready++; render();
+  }, ()=>{ready++;render();});
+  _unsubs.push(u1, u2);
 }
 
 
@@ -1182,37 +1213,31 @@ function _listenHistory() {
 // HELPERS
 // ════════════════════════════════════════════════════════════
 
-function _getChallengeTask(id) {
+function _getTask(id) {
   return CHALLENGES_DATA.find(c => c.id === id)?.task ?? 'Wykonaj zadanie wyzwania.';
 }
 
 function _emptyHTML(icon, title, text) {
-  return `
-    <div style="text-align:center;padding:3rem 1rem;">
-      <div style="font-size:2.5rem;margin-bottom:.75rem;">${icon}</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-                  color:#D4AF37;text-transform:uppercase;margin-bottom:.375rem;">${title}</div>
-      <p style="font-size:.875rem;color:#4E5464;line-height:1.6;font-style:italic;">${text}</p>
-    </div>`;
+  return `<div style="text-align:center;padding:3rem 1rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">${icon}</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+                color:#D4AF37;text-transform:uppercase;margin-bottom:.375rem;">${title}</div>
+    <p style="font-size:.875rem;color:#4E5464;line-height:1.6;font-style:italic;">${text}</p>
+  </div>`;
 }
 
-function _loadingHTML() {
-  return `
-    <div style="text-align:center;padding:2rem;">
-      <div style="display:inline-block;width:24px;height:24px;border-radius:50%;
-        border:2px solid rgba(212,175,55,.2);border-top-color:#D4AF37;
-        animation:chSpin .65s linear infinite;"></div>
-    </div>`;
+function _spinnerHTML() {
+  return `<div style="text-align:center;padding:2.5rem;">
+    <div style="display:inline-block;width:24px;height:24px;border-radius:50%;
+      border:2px solid rgba(212,175,55,.2);border-top-color:#D4AF37;
+      animation:chSpin .65s linear infinite;"></div>
+  </div>`;
 }
 
-function _removeModal(id) {
-  document.getElementById(id)?.remove();
-}
+function _rm(id) { document.getElementById(id)?.remove(); }
 
 function _esc(s) {
   if (typeof s !== 'string') return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
           .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-export { _openSendModal as openSendInviteModal };
