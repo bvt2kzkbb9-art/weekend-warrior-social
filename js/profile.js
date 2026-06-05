@@ -1,16 +1,9 @@
 /**
  * ============================================================
- * WEEKEND WARRIOR SOCIAL — profile.js v2
+ * WEEKEND WARRIOR SOCIAL — profile.js v3
  * Firebase SDK 10.12.2 | ES Modules | GitHub Pages Ready
+ * Cloudinary avatar upload (Firebase Storage usunięty)
  * ============================================================
- *
- * Eksporty publiczne:
- *   initDashboard()    — index.html
- *   initProfilePage()  — profile.html
- *   renderAvatar()     — helper
- *   renderRankBadge()  — helper
- *   renderLevelBadge() — helper
- *   renderXpBar()      — helper
  */
 
 import {
@@ -34,16 +27,7 @@ import {
   reauthenticateWithCredential,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
-
-const storage = getStorage();
+import { uploadToCloudinary } from './cloudinary.js';
 
 
 // ════════════════════════════════════════════════════════════
@@ -62,7 +46,7 @@ function setVal(id, value) {
 
 export function renderAvatar(el, user, data) {
   if (!el) return;
-  const photoURL = user?.photoURL || data?.photoURL || '';
+  const photoURL = data?.photoURL || user?.photoURL || '';
   const name     = data?.displayName || user?.displayName || 'W';
   const initials = name
     .split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?';
@@ -220,13 +204,12 @@ export function initProfilePage() {
     }
 
     renderProfilePage(user, data);
-    initAvatarUpload(user, data);
+    initAvatarUpload(user);
     initEditProfileSection(user, data);
     initPasswordSection(user);
     initDangerSection(user);
     initSectionToggles();
 
-    // Update lastActive — not critical
     updateDoc(doc(db, COL.USERS, user.uid), { lastActive: serverTimestamp() })
       .catch(() => {});
   });
@@ -248,17 +231,13 @@ function renderProfilePage(user, data) {
 
   console.log(TAG, { displayName: data.displayName, points, rank: rankObj.id });
 
-  // Avatar
-  const avatarEl = document.getElementById('profile-avatar-el');
-  renderAvatar(avatarEl, user, data);
+  renderAvatar(document.getElementById('profile-avatar-el'), user, data);
 
-  // Dane
   setText('profile-display-name', data.displayName || 'Wojownik');
-  setText('profile-username',     '@' + (data.username || data.displayName?.toLowerCase().replace(/\s+/g,'_') || 'wojownik'));
+  setText('profile-username',     '@' + (data.username || (data.displayName || 'wojownik').toLowerCase().replace(/\s+/g,'_')));
   setText('profile-bio',          data.bio || 'Brak opisu profilu. Kliknij "Edytuj profil" aby dodać.');
   setText('profile-email-display', data.email || user.email || '');
 
-  // Badges
   const rankBadge = document.getElementById('profile-rank-badge');
   if (rankBadge) {
     rankBadge.textContent = `${rankObj.emoji} ${rankObj.label}`;
@@ -267,15 +246,15 @@ function renderProfilePage(user, data) {
   const levelBadge = document.getElementById('profile-level-badge');
   if (levelBadge) levelBadge.textContent = `Poziom ${level}`;
 
-  // Stats
   setText('profile-stat-points', points.toLocaleString('pl-PL'));
   setText('profile-stat-level',  String(level));
-  setText('profile-stat-rank',   rankObj.emoji);
 
   const statRankEl = document.getElementById('profile-stat-rank');
-  if (statRankEl) statRankEl.className = `stat-value ${rankObj.cssClass}`;
+  if (statRankEl) {
+    statRankEl.textContent = rankObj.emoji;
+    statRankEl.className   = `stat-value ${rankObj.cssClass}`;
+  }
 
-  // XP bar
   renderXpBar(
     document.getElementById('profile-xp-bar'),
     document.getElementById('profile-xp-percent'),
@@ -289,19 +268,15 @@ function renderProfilePage(user, data) {
       ? `${nextRank.emoji} ${nextRank.label} (${nextRank.min.toLocaleString('pl-PL')} pkt)`
       : '🏅 Maks. ranga!');
 
-  // Formularz edycji — wypełnij
   setVal('edit-display-name', data.displayName || '');
   setVal('edit-bio',          data.bio          || '');
 
-  // Member since
   if (data.createdAt) {
     setText('member-since', `Członek od ${formatDate(data.createdAt)}`);
   }
 
-  // Osiągnięcia (preview)
   renderAchievementsPreview(data);
 
-  // Pokaż stronę
   document.getElementById('profile-skeleton')?.classList.add('hidden');
   document.getElementById('profile-content')?.classList.remove('hidden');
 
@@ -310,15 +285,17 @@ function renderProfilePage(user, data) {
 
 
 // ── Achievements preview ─────────────────────────────────────
+// Używamy dokładnie tych samych IDs co achievements.js ACHIEVEMENTS
 const ACHIEVEMENT_DEFS = [
-  { id: 'first_post',    emoji: '📝', name: 'Pierwszy post',     condition: d => (d.postsCount ?? 0) >= 1 },
-  { id: 'ten_posts',     emoji: '✍️', name: '10 postów',         condition: d => (d.postsCount ?? 0) >= 10 },
-  { id: 'first_like',    emoji: '❤️', name: 'Pierwsze lajki',    condition: d => (d.likesReceived ?? 0) >= 1 },
-  { id: 'warrior_rank',  emoji: '🥈', name: 'Ranga Warrior',     condition: d => (d.points ?? 0) >= 500 },
-  { id: 'champion_rank', emoji: '🥇', name: 'Ranga Champion',    condition: d => (d.points ?? 0) >= 2000 },
-  { id: 'legend_rank',   emoji: '💎', name: 'Ranga Legend',      condition: d => (d.points ?? 0) >= 10000 },
-  { id: 'golden_circle', emoji: '🌕', name: 'Złoty Krąg',        condition: d => (d.points ?? 0) >= 1000 },
-  { id: 'dragon',        emoji: '🐉', name: 'Pogromca Smoków',   condition: d => (d.points ?? 0) >= 5000 },
+  { id: 'first_post',       emoji: '📝', name: 'Pierwsze słowo',           check: d => (d.postsCount    ?? 0) >= 1   },
+  { id: 'ten_posts',        emoji: '📖', name: 'Kronikarz bitew',          check: d => (d.postsCount    ?? 0) >= 10  },
+  { id: 'first_like',       emoji: '❤️', name: 'Pierwsze uznanie',         check: d => (d.likesReceived ?? 0) >= 1   },
+  { id: 'ten_likes',        emoji: '🔥', name: 'Wojownik popularny',       check: d => (d.likesReceived ?? 0) >= 10  },
+  { id: 'rank_warrior',     emoji: '🥈', name: 'Warrior',                  check: d => (d.points        ?? 0) >= 500 },
+  { id: 'rank_champion',    emoji: '🥇', name: 'Champion',                 check: d => (d.points        ?? 0) >= 2000},
+  { id: 'rank_legend',      emoji: '💎', name: 'Legend',                   check: d => (d.points        ?? 0) >= 10000},
+  { id: 'golden_circle',    emoji: '🌕', name: 'Władca Złotego Kręgu',     check: d => (d.points        ?? 0) >= 1000},
+  { id: 'dragon_slayer',    emoji: '🐉', name: 'Pogromca Dwugłowego Węża', check: d => (d.points        ?? 0) >= 5000},
 ];
 
 function renderAchievementsPreview(data) {
@@ -326,15 +303,17 @@ function renderAchievementsPreview(data) {
   if (!grid) return;
 
   grid.innerHTML = '';
+  const earnedSet = new Set(Array.isArray(data.achievements) ? data.achievements : []);
 
   ACHIEVEMENT_DEFS.forEach(ach => {
-    const unlocked = ach.condition(data);
+    // Odznaka odblokowana jeśli: jest w tablicy achievements LUB warunek jest spełniony
+    const unlocked = earnedSet.has(ach.id) || ach.check(data);
     const chip     = document.createElement('div');
-    chip.className = `achievement-chip${unlocked ? '' : ' locked'}`;
+    chip.className = `achievement-item${unlocked ? '' : ' locked'}`;
     chip.title     = unlocked ? ach.name : `${ach.name} (zablokowane)`;
     chip.innerHTML = `
-      <div class="achievement-emoji">${ach.emoji}</div>
-      <div class="achievement-chip-name">${ach.name}</div>
+      <div class="achievement-icon">${unlocked ? ach.emoji : '🔒'}</div>
+      <div class="achievement-name">${unlocked ? ach.name : '???'}</div>
     `;
     grid.appendChild(chip);
   });
@@ -342,91 +321,77 @@ function renderAchievementsPreview(data) {
 
 
 // ════════════════════════════════════════════════════════════
-// AVATAR UPLOAD
+// AVATAR UPLOAD — Cloudinary (Firebase Storage usunięty)
 // ════════════════════════════════════════════════════════════
 
-function initAvatarUpload(user, data) {
+function initAvatarUpload(user) {
   const TAG        = '[initAvatarUpload]';
   const wrap       = document.getElementById('profile-avatar-wrap');
   const fileInput  = document.getElementById('avatar-file-input');
   const progressEl = document.getElementById('avatar-upload-progress');
 
-  if (!wrap || !fileInput) return;
+  if (!fileInput) return;
 
-  wrap.addEventListener('click', () => fileInput.click());
+  // Kliknięcie w avatar otwiera file picker
+  wrap?.addEventListener('click', () => fileInput.click());
 
   fileInput.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate
     if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
       showToast('Dozwolone formaty: JPG, PNG, WebP', 'error');
+      fileInput.value = '';
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
       showToast('Avatar może mieć max. 3 MB.', 'error');
+      fileInput.value = '';
       return;
     }
 
-    console.log(TAG, '⬆️ Upload avatara:', file.name);
-
-    if (progressEl) progressEl.classList.add('visible');
+    console.log(TAG, '⬆️ Upload avatara przez Cloudinary:', file.name);
+    if (progressEl) { progressEl.textContent = '0%'; progressEl.classList.add('visible'); }
 
     try {
-      // Upload do Storage
-      const ext  = file.name.split('.').pop() || 'jpg';
-      const path = `avatars/${user.uid}/avatar.${ext}`;
-      const sRef = ref(storage, path);
-      const task = uploadBytesResumable(sRef, file);
+      const result = await uploadToCloudinary(
+        file,
+        `avatars/${user.uid}`,
+        (pct) => {
+          if (progressEl) progressEl.textContent = pct + '%';
+        }
+      );
 
-      await new Promise((resolve, reject) => {
-        task.on('state_changed',
-          (snap) => {
-            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-            if (progressEl) progressEl.textContent = pct + '%';
-            console.log(TAG, 'Progress:', pct + '%');
-          },
-          reject,
-          async () => {
-            const url = await getDownloadURL(task.snapshot.ref);
-            console.log(TAG, '✅ Upload OK:', url);
+      const url = result.url;
+      console.log(TAG, '✅ Cloudinary URL:', url);
 
-            // Aktualizuj Auth profile
-            await updateProfile(user, { photoURL: url });
+      // Aktualizuj Auth
+      await updateProfile(user, { photoURL: url });
 
-            // Aktualizuj Firestore
-            await updateDoc(doc(db, COL.USERS, user.uid), {
-              photoURL:   url,
-              lastActive: serverTimestamp(),
-            });
-
-            // Aktualizuj avatar w UI
-            const avatarEl = document.getElementById('profile-avatar-el');
-            if (avatarEl) {
-              avatarEl.innerHTML = '';
-              const img     = document.createElement('img');
-              img.src       = url;
-              img.alt       = 'Avatar';
-              img.className = 'avatar av-xl';
-              img.onerror   = () => { avatarEl.innerHTML = ''; };
-              avatarEl.appendChild(img);
-            }
-
-            showToast('Avatar zaktualizowany! 🎉', 'success');
-            resolve();
-          }
-        );
+      // Aktualizuj Firestore
+      await updateDoc(doc(db, COL.USERS, user.uid), {
+        photoURL:          url,
+        photoPublicId:     result.publicId,
+        lastActive:        serverTimestamp(),
       });
 
+      // Aktualizuj avatar w UI natychmiast
+      const avatarEl = document.getElementById('profile-avatar-el');
+      if (avatarEl) {
+        avatarEl.innerHTML = '';
+        const img     = document.createElement('img');
+        img.src       = url;
+        img.alt       = 'Avatar';
+        img.className = 'avatar av-xl';
+        img.onerror   = () => { avatarEl.innerHTML = ''; };
+        avatarEl.appendChild(img);
+      }
+
+      showToast('Avatar zaktualizowany! 🎉', 'success');
+
     } catch (err) {
-      console.error(TAG, '❌', err.code, err.message);
-      showToast(
-        err.code === 'permission-denied'
-          ? 'Brak uprawnień do Storage. Sprawdź reguły Firebase.'
-          : 'Błąd uploadu avatara. Spróbuj ponownie.',
-        'error',
-      );
+      console.error(TAG, '❌', err.message);
+      showToast(err.message || 'Błąd uploadu avatara. Spróbuj ponownie.', 'error');
     } finally {
       if (progressEl) progressEl.classList.remove('visible');
       fileInput.value = '';
@@ -459,7 +424,6 @@ function initEditProfileSection(user, data) {
       nameInput?.focus();
       return;
     }
-
     if (newBio.length > 200) {
       showToast('Opis może mieć max. 200 znaków.', 'error');
       return;
@@ -469,28 +433,21 @@ function initEditProfileSection(user, data) {
     console.log(TAG, 'Zapisuję:', { newName, newBio });
 
     try {
-      // Aktualizuj Auth
       await updateProfile(user, { displayName: newName });
-
-      // Aktualizuj Firestore
       await updateDoc(doc(db, COL.USERS, user.uid), {
         displayName: newName,
         bio:         newBio,
         lastActive:  serverTimestamp(),
       });
 
-      // Aktualizuj UI natychmiast
       setText('profile-display-name', newName);
-      setText('profile-bio', newBio || 'Brak opisu profilu. Kliknij "Edytuj profil" aby dodać.');
+      setText('profile-bio', newBio || 'Brak opisu profilu.');
 
       showToast('Profil zaktualizowany! ✅', 'success');
       console.log(TAG, '✅ Profil zapisany');
 
-      // Zwiń sekcję
-      const body = document.getElementById('edit-profile-body');
-      const chevron = document.getElementById('edit-profile-chevron');
-      body?.classList.remove('open');
-      chevron?.classList.remove('open');
+      document.getElementById('edit-profile-body')?.classList.remove('open');
+      document.getElementById('edit-profile-chevron')?.classList.remove('open');
 
     } catch (err) {
       console.error(TAG, '❌', err.code, err.message);
@@ -519,39 +476,36 @@ function initPasswordSection(user) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const currentPass = document.getElementById('current-password')?.value ?? '';
-    const newPass     = document.getElementById('new-password')?.value      ?? '';
+    const currentPass = document.getElementById('current-password')?.value   ?? '';
+    const newPass     = document.getElementById('new-password')?.value        ?? '';
     const confirmPass = document.getElementById('confirm-new-password')?.value ?? '';
     const saveBtn     = document.getElementById('save-password-btn');
 
-    if (!currentPass) { showToast('Podaj aktualne hasło.', 'error'); return; }
+    if (!currentPass)               { showToast('Podaj aktualne hasło.',         'error'); return; }
     if (!newPass || newPass.length < 6) { showToast('Nowe hasło min. 6 znaków.', 'error'); return; }
-    if (newPass !== confirmPass) { showToast('Nowe hasła nie są identyczne.', 'error'); return; }
+    if (newPass !== confirmPass)    { showToast('Nowe hasła nie są identyczne.',  'error'); return; }
 
     if (saveBtn) { saveBtn.disabled = true; saveBtn.classList.add('loading'); }
     console.log(TAG, 'Zmiana hasła...');
 
     try {
-      // Re-autentykacja wymagana przez Firebase
       const credential = EmailAuthProvider.credential(user.email, currentPass);
       await reauthenticateWithCredential(user, credential);
-
       await updatePassword(user, newPass);
 
       showToast('Hasło zmienione! 🔐', 'success');
       console.log(TAG, '✅ Hasło zmienione');
       form.reset();
 
-      // Zwiń sekcję
       document.getElementById('password-body')?.classList.remove('open');
       document.getElementById('password-chevron')?.classList.remove('open');
 
     } catch (err) {
       console.error(TAG, '❌', err.code, err.message);
       const msgs = {
-        'auth/wrong-password':       'Aktualne hasło jest nieprawidłowe.',
-        'auth/weak-password':        'Nowe hasło jest za słabe.',
-        'auth/requires-recent-login':'Zaloguj się ponownie aby zmienić hasło.',
+        'auth/wrong-password':        'Aktualne hasło jest nieprawidłowe.',
+        'auth/weak-password':         'Nowe hasło jest za słabe.',
+        'auth/requires-recent-login': 'Zaloguj się ponownie aby zmienić hasło.',
       };
       showToast(msgs[err.code] ?? 'Błąd zmiany hasła.', 'error');
     } finally {
@@ -566,7 +520,6 @@ function initPasswordSection(user) {
 // ════════════════════════════════════════════════════════════
 
 function initDangerSection(user) {
-  // Logout button
   document.getElementById('danger-logout-btn')?.addEventListener('click', logout);
 }
 
@@ -586,9 +539,7 @@ function initSectionToggles() {
     const header  = document.getElementById(headerId);
     const body    = document.getElementById(bodyId);
     const chevron = document.getElementById(chevronId);
-
     if (!header || !body) return;
-
     header.addEventListener('click', () => {
       const isOpen = body.classList.toggle('open');
       chevron?.classList.toggle('open', isOpen);
