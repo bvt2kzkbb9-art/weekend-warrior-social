@@ -1,150 +1,383 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0A0B" />
-  <meta name="description" content="Weekend Warrior Social — Osiągnięcia" />
-  <title>Osiągnięcia — Weekend Warrior Social</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Komnata Chwały — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    .ach-page { max-width: 680px; margin: 0 auto; padding: 0 .875rem; }
+
+    .ach-section-title {
+      font-family: var(--font-heading);
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gold-700);
+      padding: .875rem 0 .5rem;
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+    }
+    .ach-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-dim), transparent);
+    }
+
+    .ach-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: .625rem;
+      margin-bottom: .25rem;
+    }
+
+    .ach-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-lg);
+      padding: 1rem .75rem .875rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .375rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--dur-base) var(--ease-out);
+      cursor: default;
+      animation: card-entrance .4s var(--ease-out) both;
+    }
+    .ach-card.unlocked {
+      border-color: var(--border-gold);
+      background: linear-gradient(135deg, rgba(212,175,55,.07) 0%, var(--bg-card) 60%);
+    }
+    .ach-card.unlocked:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(212,175,55,.18);
+      border-color: var(--border-active);
+    }
+    .ach-card.locked { opacity: .38; filter: grayscale(1); }
+    .ach-card.unlocked::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-700), transparent);
+    }
+
+    .ach-icon {
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,.3));
+    }
+    .ach-card.locked .ach-icon { filter: none; }
+
+    .ach-name {
+      font-family: var(--font-heading);
+      font-size: .525rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold-500);
+      line-height: 1.3;
+    }
+    .ach-card.locked .ach-name { color: var(--text-faint); }
+
+    .ach-desc {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    .ach-xp-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      background: rgba(212,175,55,.1);
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-family: var(--font-heading);
+      font-size: .45rem;
+      font-weight: 700;
+      color: var(--gold-500);
+      margin-top: .1rem;
+    }
+    .ach-card.locked .ach-xp-tag { opacity: 0; }
+
+    .ach-check {
+      position: absolute;
+      top: .5rem; right: .5rem;
+      font-size: .75rem;
+      line-height: 1;
+      opacity: .8;
+    }
+
+    /* Progress summary bar */
+    .ach-summary {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.125rem;
+      margin-bottom: .875rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ach-summary-icon { font-size: 1.75rem; flex-shrink: 0; }
+    .ach-summary-info { flex: 1; min-width: 0; }
+    .ach-summary-title {
+      font-family: var(--font-heading);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--text-bright);
+      margin-bottom: .25rem;
+    }
+    .ach-summary-track {
+      height: 8px;
+      background: rgba(212,175,55,.08);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(212,175,55,.1);
+      margin-bottom: .25rem;
+    }
+    .ach-summary-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-700), var(--gold-400), var(--gold-300));
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(212,175,55,.4);
+      transition: width 1.2s var(--ease-out);
+    }
+    .ach-summary-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--text-muted);
+      letter-spacing: .08em;
+    }
+    .ach-summary-count {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--gold-400);
+      text-shadow: 0 0 20px var(--gold-glow);
+      line-height: 1;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ach-summary-count small {
+      display: block;
+      font-size: .45rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: .1rem;
+    }
+  </style>
 </head>
 <body>
-
 <div class="bg-orbs" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
 
-<!-- ── Navigation ── -->
+<!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">
   <span class="nav-brand">⚔ WWS</span>
-
   <a href="index.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-    <span>Start</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
+    <span>Arena</span>
   </a>
-
   <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span>Feed</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Kroniki</span>
   </a>
-  <a href="challenges.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-    <span>Wyzwania</span>
+  <a href="challenges.html" class="nav-item-hero nav-item">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
   </a>
-
-
   <a href="ranking.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-      <polyline points="17 6 23 6 23 12"/>
-    </svg>
-    <span>Ranking</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+    <span>Chwała</span>
   </a>
-
-  <a href="profile.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Profil</span>
+  <a href="profile.html" class="nav-item active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Bohater</span>
   </a>
-
   <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Wyloguj
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </nav>
 
-<!-- ── Content ── -->
-<main class="content-area page">
+<main class="content-area" style="position:relative;z-index:1;">
+  <div class="ach-page">
 
-  <!-- Header -->
-  <div class="achievements-header">
-    <div class="achievements-title">🏆 Osiągnięcia</div>
-    <div class="achievements-subtitle" id="ach-summary-sub">Ładowanie...</div>
-  </div>
-
-  <!-- ── SKELETON ── -->
-  <div id="ach-skeleton">
-    <div class="ach-summary-card">
-      <div class="skeleton" style="width:48px;height:48px;border-radius:8px;flex-shrink:0;"></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
-        <div class="skeleton" style="height:28px;width:80px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:12px;width:150px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:6px;width:100%;border-radius:3px;margin-top:0.25rem;"></div>
-      </div>
+    <!-- Header -->
+    <div style="text-align:center;padding:1.25rem 0 .875rem;">
+      <div style="font-family:var(--font-display);font-size:clamp(1.125rem,4vw,1.75rem);
+           font-weight:900;letter-spacing:.1em;color:var(--gold-400);
+           text-shadow:0 0 30px var(--gold-glow-lg);margin-bottom:.2rem;">🏅 Komnata Chwały</div>
+      <div class="label-caps">Odznaki i osiągnięcia Twojego wojownika</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:1rem;">
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
-    </div>
-  </div>
 
-  <!-- ── CONTENT ── -->
-  <div id="achievements-content" class="hidden">
-
-    <!-- Summary card -->
-    <div class="ach-summary-card">
-      <div class="ach-summary-icon">🏆</div>
+    <!-- Progress summary -->
+    <div id="ach-summary" class="ach-summary">
+      <div class="ach-summary-icon">🛡</div>
       <div class="ach-summary-info">
-        <div class="ach-summary-count">
-          <span id="ach-count">0</span>
-          <span style="font-size:1rem;color:var(--text-muted);font-weight:500;">
-            / <span id="ach-total">0</span>
-          </span>
+        <div class="ach-summary-title">Twój postęp w Arenie</div>
+        <div class="ach-summary-track">
+          <div id="ach-progress-fill" class="ach-summary-fill" style="width:0%;"></div>
         </div>
-        <div class="ach-summary-label">Odblokowanych osiągnięć</div>
-        <div class="ach-summary-bar-wrap">
-          <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
-            <div class="progress-track" style="flex:1;">
-              <div id="ach-summary-bar" class="progress-fill" style="width:0%;"></div>
-            </div>
-            <span id="ach-summary-pct"
-                  style="font-size:0.75rem;font-weight:700;color:var(--gold);min-width:30px;text-align:right;">
-              0%
-            </span>
-          </div>
-        </div>
+        <div id="ach-progress-label" class="ach-summary-label">Ładowanie...</div>
+      </div>
+      <div class="ach-summary-count">
+        <span id="ach-earned-num">0</span>
+        <small>odblok.</small>
       </div>
     </div>
 
-    <!-- Achievements by category -->
-    <div id="achievements-container"></div>
+    <!-- Skeleton -->
+    <div id="ach-skeleton">
+      <div class="ach-section-title">Ładowanie...</div>
+      <div class="ach-grid">
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:70%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:90%;border-radius:3px;"></div></div>
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:65%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:85%;border-radius:3px;"></div></div>
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:75%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:80%;border-radius:3px;"></div></div>
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:60%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:88%;border-radius:3px;"></div></div>
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:72%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:82%;border-radius:3px;"></div></div>
+        <div class="ach-card locked"><div class="skeleton" style="width:48px;height:48px;border-radius:50%;margin-bottom:.25rem;"></div><div class="skeleton" style="height:10px;width:68%;border-radius:3px;margin-bottom:.25rem;"></div><div class="skeleton" style="height:9px;width:90%;border-radius:3px;"></div></div>
+      </div>
+    </div>
 
-    <!-- Bottom padding -->
+    <!-- Achievement sections (filled by JS) -->
+    <div id="ach-sections"></div>
+
     <div style="height:1rem;"></div>
-
   </div>
-
 </main>
 
-<script type="module">
-  import { initAchievementsPage } from './js/achievements.js';
-  initAchievementsPage();
-</script>
+<!-- Unlock toast (custom overlay for achievement unlock) -->
+<div id="unlock-overlay" class="level-up-overlay hidden">
+  <div id="unlock-icon" style="font-size:4rem;animation:badge-unlock .6s var(--ease-out) both;"></div>
+  <div id="unlock-name" class="level-up-burst" style="font-size:clamp(1rem,3vw,1.5rem);margin-top:.5rem;"></div>
+  <div class="level-up-sub">Nowa odznaka odblokowana!</div>
+</div>
 
+<script type="module">
+  import { checkAuth, logout } from './js/auth.js';
+  import { db, COL } from './js/firebase.js';
+  import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  const ALL_ACHIEVEMENTS = [
+    // Kroniki
+    { id:'first_post',    cat:'Kroniki',   icon:'📜', name:'Kronikarz',       desc:'Napisz swój pierwszy post w Kronikach',       xp: 50  },
+    { id:'posts_10',      cat:'Kroniki',   icon:'✍️', name:'Bard Areny',      desc:'Opublikuj 10 postów',                          xp: 100 },
+    { id:'posts_50',      cat:'Kroniki',   icon:'📚', name:'Wielki Kronikarz', desc:'Opublikuj 50 postów',                         xp: 300 },
+    { id:'first_like',    cat:'Kroniki',   icon:'❤️', name:'Iskra Sławy',     desc:'Zbierz pierwsze polubienie',                   xp: 30  },
+    { id:'likes_100',     cat:'Kroniki',   icon:'🌟', name:'Sławny Wojownik', desc:'Zbierz łącznie 100 polubień',                  xp: 250 },
+    // Wyzwania
+    { id:'first_win',     cat:'Misje',     icon:'⚔️', name:'Pierwsza Krew',   desc:'Wygraj swoje pierwsze wyzwanie',               xp: 100 },
+    { id:'wins_5',        cat:'Misje',     icon:'🗡', name:'Łowca Wyzwań',   desc:'Wygraj 5 wyzwań',                              xp: 200 },
+    { id:'wins_10',       cat:'Misje',     icon:'🏆', name:'Champion',        desc:'Wygraj 10 wyzwań',                             xp: 350 },
+    { id:'wins_50',       cat:'Misje',     icon:'👑', name:'Legenda Areny',   desc:'Wygraj 50 wyzwań',                             xp: 1000},
+    { id:'first_sent',    cat:'Misje',     icon:'🎯', name:'Wyzywacz',        desc:'Rzuć pierwsze wyzwanie innemu wojownikowi',     xp: 50  },
+    { id:'sent_10',       cat:'Misje',     icon:'🐍', name:'Pogromca Węży',   desc:'Rzuć 10 wyzwań',                               xp: 200 },
+    // Quiz
+    { id:'first_quiz',    cat:'Quizy',     icon:'🧠', name:'Inicjacja',       desc:'Ukończ swój pierwszy quiz',                    xp: 50  },
+    { id:'quizzes_10',    cat:'Quizy',     icon:'📖', name:'Uczony',          desc:'Ukończ 10 quizów',                             xp: 150 },
+    { id:'quizzes_50',    cat:'Quizy',     icon:'🔮', name:'Mag Wiedzy',      desc:'Ukończ 50 quizów',                             xp: 400 },
+    { id:'perfect_quiz',  cat:'Quizy',     icon:'💡', name:'Jasność Umysłu', desc:'Odpowiedz bezbłędnie na wszystkie pytania',     xp: 200 },
+    // Seria
+    { id:'streak_3',      cat:'Seria',     icon:'🔥', name:'Rozgrzany',       desc:'Zaloguj się 3 dni z rzędu',                    xp: 75  },
+    { id:'streak_7',      cat:'Seria',     icon:'🌋', name:'Ogień Tygodnia',  desc:'Zaloguj się 7 dni z rzędu',                    xp: 150 },
+    { id:'streak_30',     cat:'Seria',     icon:'💎', name:'Wieczny Płomień', desc:'Zaloguj się 30 dni z rzędu',                   xp: 500 },
+    { id:'streak_100',    cat:'Seria',     icon:'🏅', name:'Nieśmiertelny',   desc:'Zaloguj się 100 dni z rzędu',                  xp: 2000},
+    // Poziomy
+    { id:'level_5',       cat:'Poziomy',   icon:'🛡', name:'Giermek',         desc:'Osiągnij poziom 5',                            xp: 100 },
+    { id:'level_10',      cat:'Poziomy',   icon:'⚔', name:'Rycerz',           desc:'Osiągnij poziom 10',                           xp: 250 },
+    { id:'level_20',      cat:'Poziomy',   icon:'🦅', name:'Kapitan',         desc:'Osiągnij poziom 20',                           xp: 500 },
+    { id:'level_50',      cat:'Poziomy',   icon:'🌑', name:'Mroczny Lord',    desc:'Osiągnij poziom 50',                           xp: 2000},
+    // Społeczność
+    { id:'first_follow',  cat:'Społeczność',icon:'🤝',name:'Bratni Duch',     desc:'Obserwuj pierwszego wojownika',                xp: 30  },
+    { id:'followers_10',  cat:'Społeczność',icon:'⚜️',name:'Wpływowy',        desc:'Zdobądź 10 obserwujących',                     xp: 200 },
+    { id:'invite_friend', cat:'Społeczność',icon:'📯',name:'Herold Areny',    desc:'Zaproś do Areny swojego sprzymierzeńca',        xp: 100 },
+  ];
+
+  checkAuth(async (user) => {
+    let earned = new Set();
+    // 2s skeleton safety timeout
+    const skTimer = setTimeout(() => {
+      const sk = document.getElementById('ach-skeleton');
+      if (sk) { sk.remove(); _renderSummary(new Set()); _renderSections(new Set()); }
+    }, 2000);
+    try {
+      const snap = await getDoc(doc(db, COL.USERS, user.uid));
+      const data = snap.data() || {};
+      earned = new Set(data.achievements || []);
+    } catch(e) { console.warn('[ach]', e); }
+    clearTimeout(skTimer);
+    const sk = document.getElementById('ach-skeleton');
+    if (sk) sk.remove();
+    _renderSummary(earned);
+    _renderSections(earned);
+  });
+
+  function _renderSummary(earned) {
+    const total = ALL_ACHIEVEMENTS.length;
+    const count = ALL_ACHIEVEMENTS.filter(a => earned.has(a.id)).length;
+    const pct = Math.round((count / total) * 100);
+    setTimeout(() => {
+      document.getElementById('ach-progress-fill').style.width = pct + '%';
+    }, 300);
+    document.getElementById('ach-progress-label').textContent =
+      `${count} z ${total} odblokowanych · ${pct}% ukończono`;
+    document.getElementById('ach-earned-num').textContent = count;
+  }
+
+  function _renderSections(earned) {
+    const container = document.getElementById('ach-sections');
+    const categories = [...new Set(ALL_ACHIEVEMENTS.map(a => a.cat))];
+    categories.forEach(cat => {
+      const items = ALL_ACHIEVEMENTS.filter(a => a.cat === cat);
+      const section = document.createElement('div');
+      const catIcons = { 'Kroniki':'📜', 'Misje':'⚔️', 'Quizy':'🧠', 'Seria':'🔥', 'Poziomy':'🛡', 'Społeczność':'🤝' };
+      section.innerHTML = `<div class="ach-section-title">${catIcons[cat]??'◆'} ${cat}</div>`;
+      const grid = document.createElement('div');
+      grid.className = 'ach-grid';
+      items.forEach((ach, i) => {
+        const unlocked = earned.has(ach.id);
+        const card = document.createElement('div');
+        card.className = 'ach-card ' + (unlocked ? 'unlocked' : 'locked');
+        card.style.animationDelay = (i * .05) + 's';
+        card.title = unlocked ? ach.desc : 'Zablokowane — ' + ach.desc;
+        card.innerHTML = `
+          ${unlocked ? '<div class="ach-check">✅</div>' : ''}
+          <div class="ach-icon">${unlocked ? ach.icon : '🔒'}</div>
+          <div class="ach-name">${unlocked ? ach.name : '???'}</div>
+          <div class="ach-desc">${unlocked ? ach.desc : 'Odblokuj, by zobaczyć'}</div>
+          <div class="ach-xp-tag">+${ach.xp} XP</div>`;
+        grid.appendChild(card);
+      });
+      section.appendChild(grid);
+      container.appendChild(section);
+    });
+  }
+</script>
 </body>
 </html>

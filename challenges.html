@@ -171,10 +171,20 @@
 
   checkAuth(async (user) => {
     currentUser = user;
+    // 2s skeleton safety (grid is rendered by JS anyway — just ensure it shows empty if CHALLENGES_DATA fails)
+    const skTimer = setTimeout(() => {
+      const grid = document.getElementById('challenges-grid');
+      if (grid && grid.children.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;
+          font-family:var(--font-heading);font-size:.7rem;color:var(--text-faint);font-style:italic;">
+          Brak dostępnych misji.</div>`;
+      }
+    }, 2000);
     try {
       const snap = await getDoc(doc(db, COL.USERS, user.uid));
       currentUserData = snap.exists() ? snap.data() : { points: 0, displayName: user.displayName };
     } catch {}
+    clearTimeout(skTimer);
     _renderGrid();
   });
 

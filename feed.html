@@ -163,6 +163,27 @@
 
 <script type="module">
   import { initFeed } from './js/feed.js';
+  import { logout } from './js/auth.js';
+
+  // Logout button
+  document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+  // 2s skeleton timeout
+  const skTimer = setTimeout(() => {
+    const loading = document.getElementById('feed-loading');
+    if (loading) loading.style.display = 'none';
+    const empty = document.getElementById('feed-empty');
+    const list = document.getElementById('feed-list');
+    if (list && list.children.length === 0 && empty) empty.style.display = 'block';
+  }, 2000);
+
+  // Feed init clears skeleton internally — clear timer if feed starts loading
+  window._clearFeedSkeleton = () => {
+    clearTimeout(skTimer);
+    const loading = document.getElementById('feed-loading');
+    if (loading) loading.style.display = 'none';
+  };
+
   initFeed();
 </script>
 </body>

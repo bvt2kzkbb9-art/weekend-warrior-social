@@ -96,17 +96,12 @@
       </div>
 
       <div id="ranking-list" class="ranking-list">
-        <!-- Skeleton rows -->
-        ${Array(5).fill(0).map((_,i) => `
-        <div class="ranking-row" style="animation-delay:${i*.06}s;">
-          <div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div>
-          <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:.3rem;">
-            <div class="skeleton" style="height:12px;width:55%;border-radius:3px;"></div>
-            <div class="skeleton" style="height:9px;width:35%;border-radius:3px;"></div>
-          </div>
-          <div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div>
-        </div>`).join('')}
+        <!-- Skeleton rows (static) -->
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:55%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:35%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:48%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:30%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:60%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:38%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:42%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:28%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:52%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:33%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
       </div>
 
       <div id="load-more-ranking" style="padding:.625rem;text-align:center;display:none;">
@@ -121,7 +116,7 @@
 <script type="module">
   import { checkAuth, logout } from './js/auth.js';
   import { db, COL, getRank, getLevel } from './js/firebase.js';
-  import { collection, query, orderBy, limit, getDocs, startAfter, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { collection, query, orderBy, limit, getDocs, startAfter } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
   document.getElementById('logout-btn').addEventListener('click', logout);
 
@@ -132,7 +127,16 @@
 
   checkAuth(async (user) => {
     myUid = user.uid;
+    // 2s skeleton timeout safety
+    const skeletonTimeout = setTimeout(() => {
+      const sk = document.getElementById('podium-skeleton');
+      if (sk && sk.style.display !== 'none') {
+        sk.style.display = 'none';
+        document.getElementById('ranking-podium').classList.remove('hidden');
+      }
+    }, 2000);
     await _loadPodium();
+    clearTimeout(skeletonTimeout);
     await _loadRankingPage(true);
     _setupFilters();
   });

@@ -303,12 +303,20 @@
       anchor.appendChild(logoutBtn);
       logoutBtn.addEventListener('click', logout);
     }
+
+    // 2s skeleton safety timeout
+    const skTimer = setTimeout(() => {
+      document.getElementById('char-skeleton')?.classList.add('hidden');
+      document.getElementById('char-card')?.classList.remove('hidden');
+    }, 2000);
+
     injectNotifBell(user.uid);
 
     let userData = null;
     try { userData = await getCurrentUserData(user.uid, user); } catch {}
     userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0 };
 
+    clearTimeout(skTimer);
     _renderCharCard(user, userData);
     _renderMobileHero(user, userData);
     _renderChallengeCards();
@@ -331,8 +339,8 @@
     const level = getLevel(points);
     const rankObj = getRank(points);
     const progress = getRankProgress(points);
-    const rankIdx = RANKS.findIndex(r => r.id === rankObj.id);
-    const nextRank = RANKS[rankIdx + 1];
+    const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
+    const nextRank = Array.isArray(RANKS) ? RANKS[rankIdx + 1] : null;
     const nextMin = nextRank?.min ?? rankObj.min;
     const xpInLevel = Math.max(0, points - rankObj.min);
     const xpNeeded = Math.max(1, nextMin - rankObj.min);
@@ -632,10 +640,6 @@
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 
-<script type="module">
-  import { initArena } from './js/arena.js';
-  initArena();
-</script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); });

@@ -203,7 +203,7 @@
 
 <script type="module">
   import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { db, COL, getRank, getLevel, getRankProgress, ACHIEVEMENTS_DATA } from './js/firebase.js';
+  import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
   import {
     collection, query, where, orderBy, limit, getDocs, doc, updateDoc,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -212,10 +212,15 @@
   document.getElementById('logout-btn-2')?.addEventListener('click', logout);
 
   checkAuth(async (user) => {
+    // 2s skeleton safety
+    const skTimer = setTimeout(() => {
+      document.getElementById('profile-skeleton').style.display = 'none';
+      document.getElementById('profile-content').classList.remove('hidden');
+    }, 2000);
     let data = null;
     try { data = await getCurrentUserData(user.uid, user); } catch {}
     data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
-
+    clearTimeout(skTimer);
     _renderProfile(user, data);
     _renderAchievements(data);
     _renderStreakCalendar(data);
@@ -233,9 +238,9 @@
     const rankObj = getRank(points);
     const progress = getRankProgress(points);
 
-    const rankIdx = (typeof RANKS !== 'undefined' ? RANKS : []).findIndex(r => r.id === rankObj.id);
-    const nextRankMin = rankIdx >= 0 && rankIdx < (typeof RANKS !== 'undefined' ? RANKS : []).length - 1
-      ? (typeof RANKS !== 'undefined' ? RANKS : [])[rankIdx + 1]?.min : points;
+    const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
+    const nextRankMin = rankIdx >= 0 && Array.isArray(RANKS) && rankIdx < RANKS.length - 1
+      ? RANKS[rankIdx + 1]?.min : points + 500;
     const xpIn = Math.max(0, points - rankObj.min);
     const xpNeed = Math.max(1, (nextRankMin ?? points + 500) - rankObj.min);
 
@@ -270,17 +275,17 @@
   function _renderAchievements(data) {
     const grid = document.getElementById('achievements-grid');
     if (!grid) return;
-    const allAch = typeof ACHIEVEMENTS_DATA !== 'undefined' ? ACHIEVEMENTS_DATA : _defaultAchievements();
+    const allAch = _defaultAchievements();
     const earned = new Set(data.achievements || []);
     let earnedCount = 0;
 
-    allAch.forEach(ach => {
+    allAch.forEach((ach, i) => {
       const unlocked = earned.has(ach.id);
       if (unlocked) earnedCount++;
       const item = document.createElement('div');
       item.className = 'achievement-item' + (unlocked ? '' : ' locked');
       item.title = unlocked ? ach.desc : '???';
-      item.style.animationDelay = (allAch.indexOf(ach) * 0.06) + 's';
+      item.style.animationDelay = (i * 0.06) + 's';
       item.innerHTML = `
         <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
         <div class="achievement-name">${unlocked ? ach.name : '???'}</div>`;
