@@ -34,14 +34,66 @@ import { uploadToCloudinary } from './cloudinary.js';
 // HELPERS
 // ════════════════════════════════════════════════════════════
 
+// Map expected (JS) IDs → actual IDs / selectors present in HTML.
+// This provides backward-compatibility when HTML and JS IDs diverged.
+const ID_MAP = {
+  // profile view
+  'profile-avatar-el': 'profile-avatar',
+  'profile-display-name': 'profile-name',
+  'profile-username': 'profile-name', // no dedicated username element — reuse name
+  'profile-rank-badge': 'profile-rank-label',
+  'profile-level-badge': 'profile-level',
+  'profile-stat-points': 'ps-xp',
+  'profile-stat-level': 'profile-level',
+  'profile-stat-rank': 'profile-rank-emoji',
+  'profile-xp-bar': 'profile-xp-fill',
+  'profile-xp-percent': 'profile-xp-val',
+  'profile-bio': null, // optional — not present in current HTML
+  'profile-email-display': null,
+  'profile-rank-current': null,
+  'profile-rank-next': null,
+  // edit form
+  'edit-display-name': 'edit-name',
+  'edit-bio': null,
+  // avatar upload wrapper / inputs (some HTML uses classes instead of IDs)
+  'profile-avatar-wrap': '.profile-avatar-wrap',
+  'avatar-file-input': 'avatar-file-input', // may be missing — handled gracefully
+  'avatar-upload-progress': 'avatar-upload-progress',
+};
+
+// Helper: resolve logical id → actual selector (id or class)
+function resolveSelector(id) {
+  const mapped = ID_MAP[id];
+  if (mapped === undefined) return `#${id}`; // try original id
+  if (mapped === null) return null; // intentionally missing
+  if (mapped.startsWith('.')) return mapped; // class selector
+  // assume id string
+  return `#${mapped}`;
+}
+
+// Helper: get element by logical id, with fallback to mapped selector or original id
+function getEl(id) {
+  if (!id) return null;
+  const sel = resolveSelector(id);
+  if (!sel) return null;
+  // if selector starts with '#' use getElementById for performance/consistency
+  if (sel.startsWith('#')) {
+    return document.getElementById(sel.slice(1));
+  }
+  // otherwise querySelector (class or other)
+  return document.querySelector(sel);
+}
+
 function setText(id, value) {
-  const el = document.getElementById(id);
+  const el = getEl(id);
   if (el) el.textContent = value;
 }
 
 function setVal(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.value = value ?? '';
+  const el = getEl(id);
+  if (!el) return;
+  if ('value' in el) el.value = value ?? '';
+  else el.textContent = value ?? '';
 }
 
 export function renderAvatar(el, user, data) {
@@ -79,10 +131,14 @@ export function renderLevelBadge(el, points) {
 export function renderXpBar(barEl, pctEl, points) {
   const pct = getRankProgress(points);
   if (barEl) {
-    barEl.style.width = pct + '%';
-    barEl.setAttribute('aria-valuenow', pct);
+    // barEl may be a fill element (width style) or a container with inner fill.
+    if ('style' in barEl) barEl.style.width = pct + '%';
+    barEl.setAttribute?.('aria-valuenow', pct);
   }
-  if (pctEl) pctEl.textContent = pct + '%';
+  if (pctEl) {
+    // pctEl in current HTML shows "0 / 500 XP" — keep behavior but also accept percent display
+    pctEl.textContent = pct + '%';
+  }
 }
 
 function formatDate(ts) {
@@ -231,33 +287,44 @@ function renderProfilePage(user, data) {
 
   console.log(TAG, { displayName: data.displayName, points, rank: rankObj.id });
 
-  renderAvatar(document.getElementById('profile-avatar-el'), user, data);
+  // Use getEl to be resilient to ID differences between HTML and JS
+  renderAvatar(getEl('profile-avatar-el'), user, data);
 
   setText('profile-display-name', data.displayName || 'Wojownik');
+  // profile.html doesn't have a dedicated username element — fallback to name
   setText('profile-username',     '@' + (data.username || (data.displayName || 'wojownik').toLowerCase().replace(/\s+/g,'_')));
   setText('profile-bio',          data.bio || 'Brak opisu profilu. Kliknij "Edytuj profil" aby dodać.');
   setText('profile-email-display', data.email || user.email || '');
 
-  const rankBadge = document.getElementById('profile-rank-badge');
+  const rankBadge = getEl('profile-rank-badge');
   if (rankBadge) {
     rankBadge.textContent = `${rankObj.emoji} ${rankObj.label}`;
     rankBadge.className   = `badge badge-gold`;
+  } else {
+    // fallback: set rank label + emoji if separated in HTML
+    setText('profile-rank-emoji', rankObj.emoji);
+    setText('profile-rank-label', rankObj.label);
   }
-  const levelBadge = document.getElementById('profile-level-badge');
+
+  const levelBadge = getEl('profile-level-badge');
   if (levelBadge) levelBadge.textContent = `Poziom ${level}`;
+  else setText('profile-level', `Poz. ${level}`);
 
   setText('profile-stat-points', points.toLocaleString('pl-PL'));
   setText('profile-stat-level',  String(level));
 
-  const statRankEl = document.getElementById('profile-stat-rank');
+  const statRankEl = getEl('profile-stat-rank');
   if (statRankEl) {
     statRankEl.textContent = rankObj.emoji;
     statRankEl.className   = `stat-value ${rankObj.cssClass}`;
+  } else {
+    // fallback to visible rank emoji element
+    setText('profile-rank-emoji', rankObj.emoji);
   }
 
   renderXpBar(
-    document.getElementById('profile-xp-bar'),
-    document.getElementById('profile-xp-percent'),
+    getEl('profile-xp-bar'),
+    getEl('profile-xp-percent'),
     points,
   );
 
@@ -326,9 +393,9 @@ function renderAchievementsPreview(data) {
 
 function initAvatarUpload(user) {
   const TAG        = '[initAvatarUpload]';
-  const wrap       = document.getElementById('profile-avatar-wrap');
-  const fileInput  = document.getElementById('avatar-file-input');
-  const progressEl = document.getElementById('avatar-upload-progress');
+  const wrap       = getEl('profile-avatar-wrap') || getEl('profile-avatar') || document.querySelector('.profile-avatar-wrap');
+  const fileInput  = getEl('avatar-file-input');
+  const progressEl = getEl('avatar-upload-progress');
 
   if (!fileInput) return;
 
@@ -376,7 +443,7 @@ function initAvatarUpload(user) {
       });
 
       // Aktualizuj avatar w UI natychmiast
-      const avatarEl = document.getElementById('profile-avatar-el');
+      const avatarEl = getEl('profile-avatar-el') || getEl('profile-avatar');
       if (avatarEl) {
         avatarEl.innerHTML = '';
         const img     = document.createElement('img');
@@ -412,8 +479,8 @@ function initEditProfileSection(user, data) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const nameInput = document.getElementById('edit-display-name');
-    const bioInput  = document.getElementById('edit-bio');
+    const nameInput = getEl('edit-display-name');
+    const bioInput  = getEl('edit-bio');
     const saveBtn   = document.getElementById('save-profile-btn');
 
     const newName = nameInput?.value.trim() ?? '';
@@ -446,8 +513,8 @@ function initEditProfileSection(user, data) {
       showToast('Profil zaktualizowany! ✅', 'success');
       console.log(TAG, '✅ Profil zapisany');
 
-      document.getElementById('edit-profile-body')?.classList.remove('open');
-      document.getElementById('edit-profile-chevron')?.classList.remove('open');
+      getEl('edit-profile-body')?.classList.remove('open');
+      getEl('edit-profile-chevron')?.classList.remove('open');
 
     } catch (err) {
       console.error(TAG, '❌', err.code, err.message);
@@ -497,8 +564,8 @@ function initPasswordSection(user) {
       console.log(TAG, '✅ Hasło zmienione');
       form.reset();
 
-      document.getElementById('password-body')?.classList.remove('open');
-      document.getElementById('password-chevron')?.classList.remove('open');
+      getEl('password-body')?.classList.remove('open');
+      getEl('password-chevron')?.classList.remove('open');
 
     } catch (err) {
       console.error(TAG, '❌', err.code, err.message);
