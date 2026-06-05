@@ -126,7 +126,7 @@
 </div>
 
 <script type="module">
-  import { register, loginWithGoogle, checkAuth } from './js/auth.js';
+  import { initRegisterForm, redirectIfLogged } from './js/auth.js';
   checkAuth(() => { window.location.href = 'index.html'; }, false);
 
   // Password strength
@@ -190,6 +190,8 @@
     };
     return map[code] || 'Coś poszło nie tak. Spróbuj ponownie.';
   }
+
+initRegisterForm();
 </script>
 </body>
 </html>

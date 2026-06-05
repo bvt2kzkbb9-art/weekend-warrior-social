@@ -124,7 +124,7 @@
 </div>
 
 <script type="module">
-  import { login, loginWithGoogle, resetPassword, checkAuth } from './js/auth.js';
+  import { initLoginForm, redirectIfLogged } from './js/auth.js';
   checkAuth(() => { window.location.href = 'index.html'; }, false);
 
   document.getElementById('login-btn').addEventListener('click', async () => {
@@ -165,6 +165,8 @@
     };
     return map[code] || 'Coś poszło nie tak. Spróbuj ponownie.';
   }
+
+initLoginForm();
 </script>
 </body>
 </html>
