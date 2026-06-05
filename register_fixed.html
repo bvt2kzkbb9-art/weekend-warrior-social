@@ -126,70 +126,9 @@
 </div>
 
 <script type="module">
-  import { register, loginWithGoogle, checkAuth } from './js/auth.js';
-  checkAuth(() => { window.location.href = 'index.html'; }, false);
-
-  // Password strength
-  document.getElementById('reg-password').addEventListener('input', function() {
-    const val = this.value;
-    const bar = document.getElementById('pw-strength-bar');
-    const lbl = document.getElementById('pw-strength-label');
-    let score = 0;
-    if (val.length >= 6) score++;
-    if (val.length >= 10) score++;
-    if (/[A-Z]/.test(val)) score++;
-    if (/[0-9]/.test(val)) score++;
-    if (/[^a-zA-Z0-9]/.test(val)) score++;
-    const levels = [
-      { pct: '0%',  color: 'transparent', label: '' },
-      { pct: '25%', color: 'var(--blood)', label: '🔴 Słabe słowo mocy' },
-      { pct: '50%', color: 'var(--fire)',  label: '🟠 Przeciętne' },
-      { pct: '75%', color: '#DAA520',      label: '🟡 Dobre' },
-      { pct: '90%', color: '#5DBB63',      label: '🟢 Silne' },
-      { pct: '100%',color: 'var(--gold-400)', label: '⭐ Legendarne słowo mocy!' },
-    ];
-    const l = levels[score] || levels[0];
-    bar.style.width = l.pct;
-    bar.style.background = l.color;
-    lbl.textContent = l.label;
-    lbl.style.color = l.color;
-  });
-
-  document.getElementById('reg-btn').addEventListener('click', async () => {
-    const name = document.getElementById('display-name').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const pass = document.getElementById('reg-password').value;
-    const confirm = document.getElementById('reg-confirm').value;
-    const err = document.getElementById('reg-error');
-    err.style.display = 'none';
-
-    if (!name) { err.textContent = 'Musisz nadać sobie imię wojownika.'; err.style.display = 'block'; return; }
-    if (pass !== confirm) { err.textContent = 'Słowa mocy nie są zgodne!'; err.style.display = 'block'; return; }
-    if (pass.length < 6) { err.textContent = 'Słowo mocy musi mieć min. 6 znaków.'; err.style.display = 'block'; return; }
-    try { await register(email, pass, name); }
-    catch(e) { err.textContent = _translateError(e.code); err.style.display = 'block'; }
-  });
-
-  document.getElementById('google-reg-btn').addEventListener('click', async () => {
-    const err = document.getElementById('reg-error');
-    err.style.display = 'none';
-    try { await loginWithGoogle(); }
-    catch(e) { err.textContent = _translateError(e.code); err.style.display = 'block'; }
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('reg-btn').click();
-  });
-
-  function _translateError(code) {
-    const map = {
-      'auth/email-already-in-use': 'Ten adres krwi jest już zajęty przez innego wojownika.',
-      'auth/invalid-email': 'Nieprawidłowy adres e-mail.',
-      'auth/weak-password': 'Słowo mocy jest zbyt słabe.',
-      'auth/network-request-failed': 'Brak połączenia z Areną.',
-    };
-    return map[code] || 'Coś poszło nie tak. Spróbuj ponownie.';
-  }
+import { initRegisterForm, redirectIfLogged } from './js/auth.js';
+redirectIfLogged('index.html');
+initRegisterForm();
 </script>
 </body>
 </html>
