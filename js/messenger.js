@@ -224,12 +224,10 @@ function _startConvListStream() {
       const item     = _buildConvItem(convId, data, other, unread, isActive);
       listEl.appendChild(item);
     }
-  }, (err) => {
-    console.error('Messenger error:', err);
-    console.error('Code:', err.code);
-    console.error('Message:', err.message);
-  });
-}
+}, (err) => {
+  _handleError(TAG, err, 'Błąd pobierania listy rozmów. Sprawdź połączenie.');
+  // prosty retry (opcjonalnie)
+  setTimeout(() => _startConvListStream(), 2000);
 
 function _buildConvItem(convId, data, other, unread, isActive) {
   const item = document.createElement('div');
