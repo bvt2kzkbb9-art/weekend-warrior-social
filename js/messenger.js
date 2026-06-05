@@ -56,6 +56,55 @@ import {
 const COL_CONV = 'conversations';
 const COL_MSG  = 'messages';
 
+// Centralny, bezpieczny handler błędów
+function _handleError(TAG, err, userMessage = null) {
+  try {
+    console.error(TAG ?? '[!ERROR!]', err);
+
+    // Domyślna wiadomość
+    let msg = 'Wystąpił błąd. Spróbuj ponownie później.';
+    let title = 'Błąd';
+
+    // Mapowanie typowych kodów Firebase / sieciowych
+    if (err && err.code) {
+      switch (err.code) {
+        case 'unavailable':
+        case 'deadline-exceeded':
+          msg = 'Serwis chwilowo niedostępny. Spróbuj ponownie za chwilę.';
+          break;
+        case 'permission-denied':
+          msg = 'Brak dostępu do tej akcji.';
+          title = 'Brak dostępu';
+          break;
+        case 'not-found':
+          msg = 'Nie znaleziono wymaganych danych.';
+          title = 'Nie znaleziono';
+          break;
+        case 'aborted':
+          msg = 'Akcja została przerwana. Spróbuj ponownie.';
+          break;
+        case 'already-exists':
+          msg = 'Taki obiekt już istnieje.';
+          title = 'Już istnieje';
+          break;
+        default:
+          msg = err.message || msg;
+      }
+    } else if (err && err.message) {
+      msg = err.message;
+    }
+
+    if (typeof userMessage === 'string' && userMessage.length) {
+      msg = userMessage;
+    }
+
+    try { showToast(msg, 'error'); } catch (e) { /* ignore */ }
+  } catch (e) {
+    // Handler błędów nie powinien wyrzucać wyjątków
+    console.error('[handleError]', e);
+  }
+}
+
 // ── Stan modułu ──────────────────────────────────────────────
 let currentUser     = null;
 let currentUserData = null;
@@ -82,7 +131,8 @@ export function initMessenger() {
 
     try {
       currentUserData = await getCurrentUserData(user.uid, user);
-    } catch {
+    } catch (err) {
+      _handleError(TAG, err, 'Nie można pobrać danych użytkownika.');
       currentUserData = null;
     }
     if (!currentUserData) {
@@ -143,20 +193,24 @@ export async function getOrCreateConversation(myUid, targetUid) {
   const cid  = _convId(myUid, targetUid);
   const cRef = doc(db, COL_CONV, cid);
 
-  const snap = await getDoc(cRef);
-  if (!snap.exists()) {
-    console.log(TAG, '➕ Tworzę nową konwersację:', cid);
-    await setDoc(cRef, {
-      participants:     [myUid, targetUid],
-      lastMessage:      '',
-      lastMessageAt:    serverTimestamp(),
-      lastMessageBy:    myUid,
-      [`unread_${myUid}`]:    0,
-      [`unread_${targetUid}`]: 0,
-      createdAt:        serverTimestamp(),
-    });
-  } else {
-    console.log(TAG, '✅ Konwersacja istnieje:', cid);
+  try {
+    const snap = await getDoc(cRef);
+    if (!snap.exists()) {
+      console.log(TAG, '➕ Tworzę nową konwersację:', cid);
+      await setDoc(cRef, {
+        participants:     [myUid, targetUid],
+        lastMessage:      '',
+        lastMessageAt:    serverTimestamp(),
+        lastMessageBy:    myUid,
+        [`unread_${myUid}`]:    0,
+        [`unread_${targetUid}`]: 0,
+        createdAt:        serverTimestamp(),
+      });
+    } else {
+      console.log(TAG, '✅ Konwersacja istnieje:', cid);
+    }
+  } catch (err) {
+    _handleError(TAG, err, 'Błąd przy sprawdzaniu/zakładaniu konwersacji.');
   }
 
   return cid;
@@ -180,19 +234,21 @@ export async function openConversation(targetUid) {
 
 function _startConvListStream() {
   const TAG = '[convListStream]';
-  if (unsubConvList) { unsubConvList(); }
+  if (unsubConvList) { try { unsubConvList(); } catch {} }
 
+  // WERSJA BEZ orderBy - eliminuje błąd failed-precondition
   const q = query(
     collection(db, COL_CONV),
     where('participants', 'array-contains', currentUser.uid),
-    orderBy('lastMessageAt', 'desc'),
     limit(50),
   );
 
   unsubConvList = onSnapshot(q, async (snap) => {
     console.log(TAG, `✅ ${snap.size} konwersacji`);
+
     const listEl = document.getElementById('conv-list');
     if (!listEl) return;
+
     listEl.innerHTML = '';
 
     if (snap.empty) {
@@ -206,28 +262,54 @@ function _startConvListStream() {
       return;
     }
 
-    for (const docSnap of snap.docs) {
+    const docs = [...snap.docs];
+
+    // sortowanie po stronie klienta
+    docs.sort((a, b) => {
+      const ta = a.data()?.lastMessageAt?.seconds || 0;
+      const tb = b.data()?.lastMessageAt?.seconds || 0;
+      return tb - ta;
+    });
+
+    for (const docSnap of docs) {
       const data    = docSnap.data();
       const convId  = docSnap.id;
-      const otherId = data.participants.find(p => p !== currentUser.uid);
+      const otherId = data.participants?.find(
+        p => p !== currentUser.uid
+      );
+
       if (!otherId) continue;
 
-      // Pobierz dane rozmówcy
-      let other = { displayName: 'Wojownik', photoURL: '' };
+      let other = {
+        displayName: 'Wojownik',
+        photoURL: ''
+      };
+
       try {
         const s = await getDoc(doc(db, COL.USERS, otherId));
         if (s.exists()) other = s.data();
-      } catch {}
+      } catch (e) {
+        console.error('User load error:', e);
+      }
 
       const unread = data[`unread_${currentUser.uid}`] ?? 0;
       const isActive = convId === activeConvId;
-      const item     = _buildConvItem(convId, data, other, unread, isActive);
+
+      const item = _buildConvItem(
+        convId,
+        data,
+        other,
+        unread,
+        isActive
+      );
+
       listEl.appendChild(item);
     }
   }, (err) => {
-    console.error('Messenger error:', err);
-    console.error('Code:', err.code);
-    console.error('Message:', err.message);
+    console.error('CONVERSATIONS ERROR');
+    console.error('Code:', err?.code);
+    console.error('Message:', err?.message);
+    console.error(err);
   });
 }
 
@@ -273,7 +355,7 @@ async function _openConvById(convId) {
   if (activeConvId === convId) return;
 
   // Cleanup poprzedniego
-  if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+  if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
   _clearTyping();
   activeConvId = convId;
 
@@ -294,7 +376,10 @@ async function _openConvById(convId) {
     const snap = await getDoc(doc(db, COL_CONV, convId));
     if (!snap.exists()) { showToast('Konwersacja nie istnieje.', 'error'); return; }
     convData = snap.data();
-  } catch { return; }
+  } catch (err) {
+    _handleError(TAG, err, 'Nie można pobrać danych konwersacji.');
+    return;
+  }
 
   // Pobierz dane rozmówcy
   const otherId = convData.participants?.find(p => p !== currentUser.uid);
@@ -303,7 +388,9 @@ async function _openConvById(convId) {
     try {
       const s = await getDoc(doc(db, COL.USERS, otherId));
       if (s.exists()) other = s.data();
-    } catch {}
+    } catch (err) {
+      _handleError(TAG, err);
+    }
   }
 
   // Ustaw nagłówek czatu
@@ -363,7 +450,7 @@ function _renderChatHeader(convId, other, otherId) {
   document.getElementById('chat-back')?.addEventListener('click', () => {
     document.getElementById('chat-panel')?.classList.add('hidden');
     document.getElementById('chat-empty')?.classList.remove('hidden');
-    if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+    if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
     activeConvId = null;
     history.replaceState(null, '', 'messenger.html');
   });
@@ -377,11 +464,8 @@ function _renderChatHeader(convId, other, otherId) {
 // PRESENCE — online / typing
 // ════════════════════════════════════════════════════════════
 
-/**
- * Obserwuje pole presence w dokumencie rozmówcy.
- * presence: { online: bool, typing: { [convId]: Timestamp } }
- */
 function _watchPresence(otherId, convId) {
+  const TAG = '[watchPresence]';
   let unsubPresence;
   const ref = doc(db, COL.USERS, otherId);
 
@@ -400,7 +484,7 @@ function _watchPresence(otherId, convId) {
     if (typingEl) typingEl.style.display = isTyping ? 'inline' : 'none';
     if (statusEl) statusEl.style.display = isTyping ? 'none' : 'inline';
     if (statusEl) statusEl.textContent   = isOnline ? 'online' : 'offline';
-  }, () => {});
+  }, (err) => _handleError(TAG, err));
 
   // Cleanup gdy zamknięty conv
   const origUnsub = unsubMessages;
@@ -418,7 +502,7 @@ export async function setOnlinePresence(uid, online = true) {
       'presence.online': online,
       'presence.lastSeen': serverTimestamp(),
     });
-  } catch {}
+  } catch (err) { _handleError('[setOnlinePresence]', err); }
 }
 
 /** Ustaw typing indicator */
@@ -428,7 +512,7 @@ async function _setTyping(convId) {
     await updateDoc(doc(db, COL.USERS, currentUser.uid), {
       [`presence.typing.${convId}`]: serverTimestamp(),
     });
-  } catch {}
+  } catch (err) { _handleError('[setTyping]', err); }
 }
 
 async function _clearTyping() {
@@ -437,7 +521,7 @@ async function _clearTyping() {
     await updateDoc(doc(db, COL.USERS, currentUser.uid), {
       [`presence.typing.${activeConvId}`]: null,
     });
-  } catch {}
+  } catch (err) { _handleError('[clearTyping]', err); }
 }
 
 
@@ -490,9 +574,9 @@ function _startMessageStream(convId) {
 
     if (wasAtBottom) _scrollToBottom(msgList);
   }, (err) => {
-    console.error('Messenger error:', err);
-    console.error('Code:', err.code);
-    console.error('Message:', err.message);
+    _handleError(TAG, err, 'Błąd pobierania wiadomości. Spróbuj ponownie.');
+    if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
+    setTimeout(() => { if (activeConvId) _startMessageStream(activeConvId); }, 2000);
   });
 }
 
@@ -734,6 +818,7 @@ function _setupCompose(convId, other, otherId) {
       pendingImage = { url: result.url, publicId: result.publicId };
       imgBtn?.classList.add('active');
     } catch (err) {
+      _handleError('[compose]', err, 'Błąd uploadu zdjęcia.');
       showToast(err.message || 'Błąd uploadu', 'error');
       pendingImage = null;
       if (previewEl) previewEl.style.display = 'none';
@@ -826,8 +911,7 @@ function _setupCompose(convId, other, otherId) {
       }, 100);
 
     } catch (err) {
-      console.error('[sendMsg]', err.code, err.message);
-      showToast('Błąd wysyłania.', 'error');
+      _handleError('[sendMsg]', err, 'Błąd wysyłania wiadomości.');
     } finally {
       isSending = false;
       if (sendBtn) sendBtn.disabled = false;
@@ -847,7 +931,7 @@ async function _markConvRead(convId) {
     await updateDoc(doc(db, COL_CONV, convId), {
       [`unread_${currentUser.uid}`]: 0,
     });
-  } catch {}
+  } catch (err) { _handleError('[markConvRead]', err); }
 }
 
 
@@ -865,9 +949,7 @@ export async function getUnreadCount(myUid) {
     let total = 0;
     snap.forEach(d => { total += d.data()[`unread_${myUid}`] ?? 0; });
     return total;
-  } catch {
-    return 0;
-  }
+  } catch (err) { _handleError('[getUnreadCount]', err); return 0; }
 }
 
 /**
@@ -892,44 +974,29 @@ export function injectMessengerBadge(myUid) {
       badge.textContent  = total > 9 ? '9+' : total;
       badge.style.display = total > 0 ? 'flex' : 'none';
     }
-  }, () => {});
-}
-function _handleError(err) {
-  const TAG = '[!ERROR!]';
-  console.error(TAG, err);
-
-  // Domyślna wiadomość
-  let msg = 'Wystąpił błąd. Spróbuj ponownie później.';
-  let title = 'Błąd';
-
-  // Wyjątki Firebase
-  if (err?.code) {
-    switch (err.code) {
-      case 'unavailable':
-      case 'deadline-exceeded':
-        msg = 'Serwis chwilowo niedostępny. Spróbuj ponownie za chwilę.';
-        break;
-      case 'permission-denied':
-        msg = 'Brak dostępu do tej akcji.';
-        title = 'Brak dostępu';
-        break;
-      case 'not-found':
-        msg = 'Nie znaleziono wymaganych danych.';
-        title = 'Nie znaleziono';
-        break;
-      case 'aborted':
-        msg = 'Akcja została przerwana. Spróbuj ponownie.';
-        break;
-      case 'already-exists':
-        msg = 'Taki obiekt już istnieje.';
-        title = 'Już istnieje';
-        break;
-      default:
-        msg = err.message || msg;
-    }
-  }
-
-  // Pokaż powiadomienie
-  showToast(msg, 'error');
+  }, (err) => _handleError('[injectBadge]', err));
 }
 
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+
+function _fmtTime(ts) {
+  if (!ts) return '';
+  const d = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts));
+  if (isNaN(d)) return '';
+  const now  = new Date();
+  const diff = now - d;
+  const m    = Math.floor(diff / 60000);
+  if (m < 1)  return 'teraz';
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' });
+}
+
+function _esc(s) {
+  if (typeof s !== 'string') return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
