@@ -192,14 +192,22 @@ export async function checkDailyLogin(uid) {
 // ════════════════════════════════════════════════════════════
 
 function showXpGainToast(xp, label) {
-  // Usuń poprzedni jeśli istnieje
-  document.querySelector('.xp-gain-toast')?.remove();
-
-  const el = document.createElement('div');
-  el.className   = 'xp-gain-toast';
-  el.textContent = `+${xp} XP`;
-  el.title       = label;
-  document.body.appendChild(el);
+  // Arena version — dynamic import to avoid circular deps
+  import('./arena.js').then(({ spawnXPFloat, arenaVibrate }) => {
+    // Float above the XP bar if visible, otherwise center screen
+    const xpEl = document.getElementById('user-xp') ||
+                 document.getElementById('xp-bar')   ||
+                 document.querySelector('.progress-fill') ||
+                 document.querySelector('.xp-section');
+    spawnXPFloat(xpEl, xp);
+  }).catch(() => {
+    // Fallback: old toast
+    document.querySelector('.xp-gain-toast')?.remove();
+    const el = document.createElement('div');
+    el.className   = 'xp-gain-toast';
+    el.textContent = `+${xp} XP`;
+    el.title       = label;
+    document.body.appendChild(el);
 
   setTimeout(() => el.remove(), 2600);
 }
@@ -210,7 +218,12 @@ function showXpGainToast(xp, label) {
 // ════════════════════════════════════════════════════════════
 
 function showRankUpNotification(rankObj) {
-  // Usuń poprzedni backdrop jeśli istnieje
+  // Arena ceremony
+  import('./arena.js').then(({ showRankUp }) => {
+    showRankUp(rankObj.id);
+  }).catch(() => {});
+
+  // Fallback legacy
   document.querySelector('.unlock-backdrop')?.remove();
   document.querySelector('.unlock-popup')?.remove();
 
