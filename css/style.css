@@ -1,0 +1,213 @@
+/* ============================================
+   WEEKEND WARRIOR — CLEAN LAYOUT STYLE.CSS
+   (NO COLORS — ONLY LAYOUT)
+   ============================================ */
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* TYPOGRAPHY */
+body {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+}
+
+/* LAYOUT CONTAINERS */
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+/* FLEX UTILS */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* GRID UTILS */
+.grid {
+  display: grid;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* CARDS */
+.card,
+.panel,
+.box,
+.profile-card,
+.feed-item,
+.comment-box,
+.notification-item {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid transparent; /* kolor nada rpg-theme.css */
+}
+
+/* BUTTONS */
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent; /* kolor nada rpg-theme.css */
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* INPUTS */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid transparent; /* kolor nada rpg-theme.css */
+  font-size: 16px;
+}
+
+/* AVATARS */
+.avatar,
+.profile-img,
+.round-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid transparent; /* kolor nada rpg-theme.css */
+}
+
+/* BADGES / XP / RANK */
+.xp,
+.rank,
+.badge,
+.achievement {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent; /* kolor nada rpg-theme.css */
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* FEED */
+.feed-reaction,
+.reaction-btn {
+  font-size: 18px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* TABS */
+.tab,
+.feed-tab {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent; /* kolor nada rpg-theme.css */
+  transition: 0.2s ease;
+}
+
+/* NAVIGATION BAR */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid transparent; /* kolor nada rpg-theme.css */
+}
+
+.nav-item {
+  text-align: center;
+  font-size: 14px;
+}
+
+/* PROFILE */
+.profile-header {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.profile-achievements {
+  margin-top: 20px;
+}
+
+/* LISTS */
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .container {
+    padding: 12px;
+  }
+
+  button,
+  .btn {
+    width: 100%;
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
