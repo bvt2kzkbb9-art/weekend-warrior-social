@@ -48,60 +48,34 @@ import { createNotification } from './notifications.js';
 import {
   collection, doc, addDoc, getDoc, getDocs, setDoc,
   updateDoc, onSnapshot, query, where, orderBy, limit,
-  serverTimestamp, Timestamp, increment, writeBatch,
-  arrayUnion,
+  serverTimestamp, Timestamp, increment,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ── Kolekcje ─────────────────────────────────────────────────
 const COL_CONV = 'conversations';
 const COL_MSG  = 'messages';
-// fallback dla kolekcji users (jeśli export COL nie zawiera USERS)
+// fallback dla kolekcji users — jeśli export COL nie ma USERS
 const USERS_COL = (COL && COL.USERS) ? COL.USERS : 'users';
+
 // Centralny, bezpieczny handler błędów
 function _handleError(TAG, err, userMessage = null) {
   try {
     console.error(TAG ?? '[!ERROR!]', err);
-
-    // Domyślna wiadomość
-    let msg = 'Wystąpił błąd. Spróbuj ponownie później.';
-    let title = 'Błąd';
-
-    // Mapowanie typowych kodów Firebase / sieciowych
-    if (err && err.code) {
-      switch (err.code) {
-        case 'unavailable':
-        case 'deadline-exceeded':
-          msg = 'Serwis chwilowo niedostępny. Spróbuj ponownie za chwilę.';
-          break;
-        case 'permission-denied':
-          msg = 'Brak dostępu do tej akcji.';
-          title = 'Brak dostępu';
-          break;
-        case 'not-found':
-          msg = 'Nie znaleziono wymaganych danych.';
-          title = 'Nie znaleziono';
-          break;
-        case 'aborted':
-          msg = 'Akcja została przerwana. Spróbuj ponownie.';
-          break;
-        case 'already-exists':
-          msg = 'Taki obiekt już istnieje.';
-          title = 'Już istnieje';
-          break;
-        default:
-          msg = err.message || msg;
-      }
-    } else if (err && err.message) {
-      msg = err.message;
-    }
-
+    // Przyjazny komunikat dla użytkownika (jeżeli podano)
     if (typeof userMessage === 'string' && userMessage.length) {
-      msg = userMessage;
+      try { showToast(userMessage, 'error'); } catch {}
+    } else {
+      // Mapowanie podstawowych kodów
+      const code = err?.code;
+      if (code === 'permission-denied') {
+        try { showToast('Brak dostępu do tej akcji.', 'error'); } catch {}
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        try { showToast('Serwis chwilowo niedostępny. Spróbuj ponownie za chwilę.', 'error'); } catch {}
+      } else if (err?.message) {
+        try { showToast(err.message, 'error'); } catch {}
+      }
     }
-
-    try { showToast(msg, 'error'); } catch (e) { /* ignore */ }
   } catch (e) {
-    // Handler błędów nie powinien wyrzucać wyjątków
     console.error('[handleError]', e);
   }
 }
@@ -128,7 +102,7 @@ export function initMessenger() {
 
   checkAuth(async (user) => {
     currentUser = user;
-    console.log(TAG, '✅ User:', user.uid);
+    console.log(TAG, '✅ User:', user?.uid);
 
     try {
       currentUserData = await getCurrentUserData(user.uid, user);
@@ -145,18 +119,13 @@ export function initMessenger() {
       };
     }
 
-    // Logout
     document.getElementById('logout-btn')?.addEventListener('click', logout);
-
-    // Wyczyść status typing przy zamknięciu
     window.addEventListener('beforeunload', () => _clearTyping());
 
-    // Sprawdź czy jest ?conv= lub ?uid= w URL
     const params   = new URLSearchParams(window.location.search);
     const convParam = params.get('conv');
     const uidParam  = params.get('uid');
 
-    // Inicjalizuj listę konwersacji
     _startConvListStream();
 
     if (convParam) {
@@ -165,7 +134,6 @@ export function initMessenger() {
       openConversation(uidParam);
     }
 
-    // Skeleton hide
     document.getElementById('msg-skeleton')?.classList.add('hidden');
     document.getElementById('msg-content')?.classList.remove('hidden');
   });
@@ -176,10 +144,6 @@ export function initMessenger() {
 // CONVERSATION ID (deterministyczny — zawsze ten sam dla pary)
 // ════════════════════════════════════════════════════════════
 
-/**
- * Generuje deterministyczne ID konwersacji dla dwóch userów.
- * Sortujemy UID aby A_B === B_A.
- */
 function _convId(uid1, uid2) {
   return [uid1, uid2].sort().join('_');
 }
@@ -230,14 +194,13 @@ export async function openConversation(targetUid) {
 
 
 // ════════════════════════════════════════════════════════════
-// CONVERSATION LIST STREAM
+// CONVERSATION LIST STREAM (bez orderBy — sort klient)
 // ════════════════════════════════════════════════════════════
 
 function _startConvListStream() {
   const TAG = '[convListStream]';
-  if (unsubConvList) { try { unsubConvList(); } catch {} }
+  try { if (unsubConvList) unsubConvList(); } catch {}
 
-  // WERSJA BEZ orderBy - eliminuje błąd failed-precondition
   const q = query(
     collection(db, COL_CONV),
     where('participants', 'array-contains', currentUser.uid),
@@ -245,74 +208,60 @@ function _startConvListStream() {
   );
 
   unsubConvList = onSnapshot(q, async (snap) => {
-    console.log(TAG, `✅ ${snap.size} konwersacji`);
+    try {
+      console.log(TAG, `✅ ${snap.size} konwersacji`);
+      const listEl = document.getElementById('conv-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
 
-    const listEl = document.getElementById('conv-list');
-    if (!listEl) return;
-
-    listEl.innerHTML = '';
-
-    if (snap.empty) {
-      listEl.innerHTML = `
-        <div class="conv-empty">
-          <div style="font-size:2rem;margin-bottom:.5rem;">💬</div>
-          <div style="font-family:var(--font-hd);font-size:.875rem;color:var(--text-muted);">
-            Brak rozmów.<br>Zacznij od profilu wojownika.
-          </div>
-        </div>`;
-      return;
-    }
-
-    const docs = [...snap.docs];
-
-    // sortowanie po stronie klienta
-    docs.sort((a, b) => {
-      const ta = a.data()?.lastMessageAt?.seconds || 0;
-      const tb = b.data()?.lastMessageAt?.seconds || 0;
-      return tb - ta;
-    });
-
-    for (const docSnap of docs) {
-      const data    = docSnap.data();
-      const convId  = docSnap.id;
-      const otherId = data.participants?.find(
-        p => p !== currentUser.uid
-      );
-
-      if (!otherId) continue;
-
-      let other = {
-        displayName: 'Wojownik',
-        photoURL: ''
-      };
-
-      try {
-        const s = await getDoc(doc(db, COL.USERS, otherId));
-        if (s.exists()) other = s.data();
-      } catch (e) {
-        console.error('User load error:', e);
+      if (snap.empty) {
+        listEl.innerHTML = `
+          <div class="conv-empty">
+            <div style="font-size:2rem;margin-bottom:.5rem;">💬</div>
+            <div style="font-family:var(--font-hd);font-size:.875rem;color:var(--text-muted);">
+              Brak rozmów.<br>Zacznij od profilu wojownika.
+            </div>
+          </div>`;
+        return;
       }
 
-      const unread = data[`unread_${currentUser.uid}`] ?? 0;
-      const isActive = convId === activeConvId;
+      const docs = [...snap.docs];
+      // sortowanie po lastMessageAt (client-side)
+      docs.sort((a, b) => {
+        const ta = a.data()?.lastMessageAt?.seconds || 0;
+        const tb = b.data()?.lastMessageAt?.seconds || 0;
+        return tb - ta;
+      });
 
-      const item = _buildConvItem(
-        convId,
-        data,
-        other,
-        unread,
-        isActive
-      );
+      for (const docSnap of docs) {
+        const data    = docSnap.data();
+        const convId  = docSnap.id;
+        const otherId = data?.participants?.find(p => p !== currentUser.uid);
+        if (!otherId) continue;
 
-      listEl.appendChild(item);
+        let other = { displayName: 'Wojownik', photoURL: '' };
+        try {
+          const s = await getDoc(doc(db, USERS_COL, otherId));
+          if (s.exists()) other = s.data();
+        } catch (err) {
+          console.error('[convList] get user failed:', err);
+        }
+
+        const unread = data[`unread_${currentUser.uid}`] ?? 0;
+        const isActive = convId === activeConvId;
+        const item = _buildConvItem(convId, data, other, unread, isActive);
+        listEl.appendChild(item);
+      }
+    } catch (err) {
+      _handleError(TAG, err, 'Błąd pobierania listy rozmów.');
+      // retry po chwili (ew. transient error)
+      setTimeout(() => _startConvListStream(), 2000);
     }
   }, (err) => {
-    console.error('CONVERSATIONS ERROR');
-    console.error('Code:', err?.code);
-    console.error('Message:', err?.message);
-    console.error(err);
+    _handleError(TAG, err, 'Błąd subskrypcji konwersacji.');
   });
 }
+
 
 function _buildConvItem(convId, data, other, unread, isActive) {
   const item = document.createElement('div');
@@ -355,65 +304,55 @@ async function _openConvById(convId) {
   const TAG = '[openConvById]';
   if (activeConvId === convId) return;
 
-  // Cleanup poprzedniego
-  if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
-  _clearTyping();
-  activeConvId = convId;
-
-  // Highlight w liście
-  document.querySelectorAll('.conv-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.convId === convId);
-  });
-
-  // Pokaż panel czatu
-  const chatPanel = document.getElementById('chat-panel');
-  const emptyPanel = document.getElementById('chat-empty');
-  if (chatPanel)  chatPanel.classList.remove('hidden');
-  if (emptyPanel) emptyPanel.classList.add('hidden');
-
-  // Pobierz dane konwersacji
-  let convData = {};
   try {
-    const snap = await getDoc(doc(db, COL_CONV, convId));
-    if (!snap.exists()) { showToast('Konwersacja nie istnieje.', 'error'); return; }
-    convData = snap.data();
-  } catch (err) {
-    _handleError(TAG, err, 'Nie można pobrać danych konwersacji.');
-    return;
-  }
+    if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
+    _clearTyping();
+    activeConvId = convId;
 
-  // Pobierz dane rozmówcy
-  const otherId = convData.participants?.find(p => p !== currentUser.uid);
-  let other = { displayName: 'Wojownik', photoURL: '' };
-  if (otherId) {
+    document.querySelectorAll('.conv-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.convId === convId);
+    });
+
+    const chatPanel = document.getElementById('chat-panel');
+    const emptyPanel = document.getElementById('chat-empty');
+    if (chatPanel)  chatPanel.classList.remove('hidden');
+    if (emptyPanel) emptyPanel.classList.add('hidden');
+
+    let convData = {};
     try {
-      const s = await getDoc(doc(db, COL.USERS, otherId));
-      if (s.exists()) other = s.data();
+      const snap = await getDoc(doc(db, COL_CONV, convId));
+      if (!snap.exists()) { showToast('Konwersacja nie istnieje.', 'error'); return; }
+      convData = snap.data();
     } catch (err) {
-      _handleError(TAG, err);
+      _handleError(TAG, err, 'Nie można pobrać danych konwersacji.');
+      return;
     }
+
+    const otherId = convData.participants?.find(p => p !== currentUser.uid);
+    let other = { displayName: 'Wojownik', photoURL: '' };
+    if (otherId) {
+      try {
+        const s = await getDoc(doc(db, USERS_COL, otherId));
+        if (s.exists()) other = s.data();
+      } catch (err) {
+        console.error('[openConvById] get user failed:', err);
+      }
+    }
+
+    _renderChatHeader(convId, other, otherId);
+
+    const msgList = document.getElementById('msg-list');
+    if (msgList) msgList.innerHTML = '';
+
+    _markConvRead(convId);
+    _startMessageStream(convId);
+    _setupCompose(convId, other, otherId);
+    history.replaceState(null, '', `?conv=${convId}`);
+
+    console.log(TAG, '✅ Otworzyłem konwersację:', convId);
+  } catch (err) {
+    _handleError('[openConvById]', err);
   }
-
-  // Ustaw nagłówek czatu
-  _renderChatHeader(convId, other, otherId);
-
-  // Wyczyść wiadomości
-  const msgList = document.getElementById('msg-list');
-  if (msgList) msgList.innerHTML = '';
-
-  // Oznacz jako przeczytane
-  _markConvRead(convId);
-
-  // Start message stream
-  _startMessageStream(convId);
-
-  // Podłącz compose
-  _setupCompose(convId, other, otherId);
-
-  // URL update
-  history.replaceState(null, '', `?conv=${convId}`);
-
-  console.log(TAG, '✅ Otworzyłem konwersację:', convId);
 }
 
 function _renderChatHeader(convId, other, otherId) {
@@ -427,9 +366,7 @@ function _renderChatHeader(convId, other, otherId) {
       </svg>
     </button>
     <div class="chat-hd-av" id="chat-hd-av">
-      ${other.photoURL
-        ? `<img src="${_esc(other.photoURL)}" alt="Avatar"/>`
-        : `<span>${ini}</span>`}
+      ${other.photoURL ? `<img src="${_esc(other.photoURL)}" alt="Avatar"/>` : `<span>${ini}</span>`}
       <span class="chat-status-dot" id="chat-status-dot"></span>
     </div>
     <div class="chat-hd-info">
@@ -439,13 +376,11 @@ function _renderChatHeader(convId, other, otherId) {
         <span id="chat-online-status">offline</span>
       </div>
     </div>
-    ${otherId ? `
-      <a href="user.html?uid=${_esc(otherId)}" class="chat-profile-link" title="Profil">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      </a>` : ''}
+    ${otherId ? `<a href="user.html?uid=${_esc(otherId)}" class="chat-profile-link" title="Profil">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg></a>` : ''}
   `;
 
   document.getElementById('chat-back')?.addEventListener('click', () => {
@@ -456,7 +391,6 @@ function _renderChatHeader(convId, other, otherId) {
     history.replaceState(null, '', 'messenger.html');
   });
 
-  // Presence/typing listener dla rozmówcy
   if (otherId) _watchPresence(otherId, convId);
 }
 
@@ -468,7 +402,7 @@ function _renderChatHeader(convId, other, otherId) {
 function _watchPresence(otherId, convId) {
   const TAG = '[watchPresence]';
   let unsubPresence;
-  const ref = doc(db, COL.USERS, otherId);
+  const ref = doc(db, USERS_COL, otherId);
 
   unsubPresence = onSnapshot(ref, (snap) => {
     if (!snap.exists()) return;
@@ -487,7 +421,6 @@ function _watchPresence(otherId, convId) {
     if (statusEl) statusEl.textContent   = isOnline ? 'online' : 'offline';
   }, (err) => _handleError(TAG, err));
 
-  // Cleanup gdy zamknięty conv
   const origUnsub = unsubMessages;
   unsubMessages = () => {
     if (origUnsub) origUnsub();
@@ -499,7 +432,7 @@ function _watchPresence(otherId, convId) {
 export async function setOnlinePresence(uid, online = true) {
   if (!uid) return;
   try {
-    await updateDoc(doc(db, COL.USERS, uid), {
+    await updateDoc(doc(db, USERS_COL, uid), {
       'presence.online': online,
       'presence.lastSeen': serverTimestamp(),
     });
@@ -510,7 +443,7 @@ export async function setOnlinePresence(uid, online = true) {
 async function _setTyping(convId) {
   if (!currentUser || !convId) return;
   try {
-    await updateDoc(doc(db, COL.USERS, currentUser.uid), {
+    await updateDoc(doc(db, USERS_COL, currentUser.uid), {
       [`presence.typing.${convId}`]: serverTimestamp(),
     });
   } catch (err) { _handleError('[setTyping]', err); }
@@ -519,17 +452,13 @@ async function _setTyping(convId) {
 async function _clearTyping() {
   if (!currentUser || !activeConvId) return;
   try {
-    await updateDoc(doc(db, COL.USERS, currentUser.uid), {
+    await updateDoc(doc(db, USERS_COL, currentUser.uid), {
       [`presence.typing.${activeConvId}`]: null,
     });
   } catch (err) { _handleError('[clearTyping]', err); }
 }
 
-// przed
-const s = await getDoc(doc(db, COL.USERS, otherId));
 
-// po
-const s = await getDoc(doc(db, USERS_COL, otherId));
 // ════════════════════════════════════════════════════════════
 // MESSAGE STREAM
 // ════════════════════════════════════════════════════════════
@@ -545,39 +474,43 @@ function _startMessageStream(convId) {
   );
 
   unsubMessages = onSnapshot(q, (snap) => {
-    console.log(TAG, `${snap.size} wiadomości`);
-    if (!msgList) return;
+    try {
+      console.log(TAG, `${snap.size} wiadomości`);
+      if (!msgList) return;
 
-    const wasAtBottom = _isScrolledToBottom(msgList);
-    msgList.innerHTML = '';
+      const wasAtBottom = _isScrolledToBottom(msgList);
+      msgList.innerHTML = '';
 
-    if (snap.empty) {
-      msgList.innerHTML = `
-        <div style="text-align:center;padding:2rem;font-family:var(--font-hd);
-          font-size:.875rem;color:var(--text-muted);">
-          Powiedz cześć! 👋
-        </div>`;
-      return;
-    }
-
-    let prevDate = null;
-    snap.forEach((docSnap) => {
-      const msg  = { id: docSnap.id, ...docSnap.data() };
-      const date = msg.createdAt?.toDate?.() ?? new Date();
-      const dateStr = date.toLocaleDateString('pl-PL', { day:'numeric', month:'long' });
-
-      if (dateStr !== prevDate) {
-        const sep = document.createElement('div');
-        sep.className = 'msg-date-sep';
-        sep.textContent = dateStr;
-        msgList.appendChild(sep);
-        prevDate = dateStr;
+      if (snap.empty) {
+        msgList.innerHTML = `
+          <div style="text-align:center;padding:2rem;font-family:var(--font-hd);
+            font-size:.875rem;color:var(--text-muted);">
+            Powiedz cześć! 👋
+          </div>`;
+        return;
       }
 
-      msgList.appendChild(_buildMsgBubble(msg));
-    });
+      let prevDate = null;
+      snap.forEach((docSnap) => {
+        const msg  = { id: docSnap.id, ...docSnap.data() };
+        const date = msg.createdAt?.toDate?.() ?? new Date();
+        const dateStr = date.toLocaleDateString('pl-PL', { day:'numeric', month:'long' });
 
-    if (wasAtBottom) _scrollToBottom(msgList);
+        if (dateStr !== prevDate) {
+          const sep = document.createElement('div');
+          sep.className = 'msg-date-sep';
+          sep.textContent = dateStr;
+          msgList.appendChild(sep);
+          prevDate = dateStr;
+        }
+
+        msgList.appendChild(_buildMsgBubble(msg));
+      });
+
+      if (wasAtBottom) _scrollToBottom(msgList);
+    } catch (err) {
+      _handleError(TAG, err, 'Błąd przy strumieniu wiadomości.');
+    }
   }, (err) => {
     _handleError(TAG, err, 'Błąd pobierania wiadomości. Spróbuj ponownie.');
     if (unsubMessages) { try { unsubMessages(); } catch {} unsubMessages = null; }
@@ -615,7 +548,6 @@ function _buildMsgBubble(msg) {
   let bodyHTML = '';
 
   if (msg.type === 'image' && msg.imageUrl) {
-    // Obraz
     bodyHTML = `
       <div class="msg-bubble img-bubble">
         <img src="${_esc(msg.imageUrl)}" class="msg-img" loading="lazy" alt="Zdjęcie"
@@ -624,7 +556,6 @@ function _buildMsgBubble(msg) {
         <div class="msg-time">${time}</div>
       </div>`;
   } else if (msg.type === 'embed' && msg.embedUrl) {
-    // Embed YouTube / SoundCloud
     bodyHTML = `
       <div class="msg-bubble embed-bubble">
         ${_buildEmbedPreview(msg.embedUrl, msg.embedMeta)}
@@ -632,7 +563,6 @@ function _buildMsgBubble(msg) {
         <div class="msg-time">${time}</div>
       </div>`;
   } else {
-    // Tekst z linkami / @mention / #hashtag
     bodyHTML = `
       <div class="msg-bubble text-bubble">
         <div class="msg-text">${_renderMsgText(msg.text || '')}</div>
@@ -653,19 +583,16 @@ function _renderMsgText(text) {
   if (!text) return '';
   let s = _esc(text);
 
-  // URL → klikalny link
   s = s.replace(
     /(https?:\/\/[^\s<>"]+)/g,
     '<a href="$1" target="_blank" rel="noopener noreferrer" class="msg-link">$1</a>'
   );
 
-  // @mention
   s = s.replace(
     /@([a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9_]{2,30})/g,
     '<span class="mention-link">@$1</span>'
   );
 
-  // #hashtag
   s = s.replace(
     /#([a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9_]{1,40})/g,
     '<span class="hashtag-link">#$1</span>'
@@ -714,7 +641,6 @@ function _buildEmbedPreview(url, meta = {}) {
       </div>`;
   }
 
-  // Generic link preview
   return `
     <a href="${_esc(url)}" target="_blank" rel="noopener noreferrer" class="link-preview">
       <div class="link-preview-icon">🔗</div>
@@ -738,10 +664,6 @@ function _parseSoundCloud(url) {
   return url.includes('soundcloud.com/') ? url : null;
 }
 
-/**
- * Wykrywa typ linku w wiadomości.
- * Zwraca 'youtube' | 'soundcloud' | 'link' | null
- */
 export function detectLinkType(text) {
   if (!text) return null;
   const urls = text.match(/(https?:\/\/[^\s]+)/g);
@@ -770,18 +692,14 @@ function _setupCompose(convId, other, otherId) {
   let pendingImage = null;   // { file, url, publicId }
   let isSending    = false;
 
-  // Auto-resize textarea
   inputEl?.addEventListener('input', () => {
     inputEl.style.height = 'auto';
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
-
-    // Typing indicator
     _setTyping(convId);
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => _clearTyping(), TYPING_TTL);
   });
 
-  // Enter = wyślij (Shift+Enter = nowa linia)
   inputEl?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -790,14 +708,11 @@ function _setupCompose(convId, other, otherId) {
   });
 
   sendBtn?.addEventListener('click', _sendMsg);
-
-  // Image upload button
   imgBtn?.addEventListener('click', () => imgInput?.click());
 
   imgInput?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) {
       showToast('Dozwolone: JPG, PNG, WebP, GIF', 'error'); return;
     }
@@ -805,7 +720,6 @@ function _setupCompose(convId, other, otherId) {
       showToast('Maks. 5 MB.', 'error'); return;
     }
 
-    // Preview lokalny
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (previewEl) {
@@ -816,7 +730,6 @@ function _setupCompose(convId, other, otherId) {
     };
     reader.readAsDataURL(file);
 
-    // Upload do Cloudinary
     showToast('Przesyłam zdjęcie...', 'info', 2000);
     try {
       const result = await uploadToCloudinary(file, `dm/${currentUser.uid}`);
@@ -824,7 +737,6 @@ function _setupCompose(convId, other, otherId) {
       imgBtn?.classList.add('active');
     } catch (err) {
       _handleError('[compose]', err, 'Błąd uploadu zdjęcia.');
-      showToast(err.message || 'Błąd uploadu', 'error');
       pendingImage = null;
       if (previewEl) previewEl.style.display = 'none';
     }
@@ -837,7 +749,6 @@ function _setupCompose(convId, other, otherId) {
     imgBtn?.classList.remove('active');
   });
 
-
   async function _sendMsg() {
     if (isSending) return;
     const text = inputEl?.value.trim() ?? '';
@@ -847,7 +758,6 @@ function _setupCompose(convId, other, otherId) {
     isSending = true;
     if (sendBtn) sendBtn.disabled = true;
 
-    // Wykryj embed
     const linkDetect = detectLinkType(text);
 
     try {
@@ -874,24 +784,18 @@ function _setupCompose(convId, other, otherId) {
         createdAt:   serverTimestamp(),
       };
 
-      // Zapisz wiadomość
       await addDoc(collection(db, COL_CONV, convId, COL_MSG), msgData);
 
-      // Aktualizuj metadane konwersacji
       const convRef = doc(db, COL_CONV, convId);
-      const preview = pendingImage
-        ? '📷 Zdjęcie'
-        : (msgType === 'embed' ? '🎵 Link' : text.slice(0, 80));
+      const preview = pendingImage ? '📷 Zdjęcie' : (msgType === 'embed' ? '🎵 Link' : text.slice(0, 80));
 
       await updateDoc(convRef, {
         lastMessage:    preview,
         lastMessageAt:  serverTimestamp(),
         lastMessageBy:  currentUser.uid,
-        // Inkrementuj licznik nieprzeczytanych dla rozmówcy
         ...(otherId ? { [`unread_${otherId}`]: increment(1) } : {}),
       });
 
-      // Powiadomienie
       if (otherId) {
         createNotification(otherId, {
           type:  'message',
@@ -901,15 +805,12 @@ function _setupCompose(convId, other, otherId) {
         }).catch(() => {});
       }
 
-      // Reset compose
       if (inputEl) { inputEl.value = ''; inputEl.style.height = 'auto'; }
       pendingImage = null;
       if (previewEl) previewEl.style.display = 'none';
       imgBtn?.classList.remove('active');
-
       _clearTyping();
 
-      // Scroll to bottom
       setTimeout(() => {
         const msgList = document.getElementById('msg-list');
         if (msgList) _scrollToBottom(msgList);
@@ -964,7 +865,6 @@ export async function getUnreadCount(myUid) {
 export function injectMessengerBadge(myUid) {
   if (!myUid) return;
 
-  // Nasłuchuj zmian w konwersacjach
   const q = query(
     collection(db, COL_CONV),
     where('participants', 'array-contains', myUid),
