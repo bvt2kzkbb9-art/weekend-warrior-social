@@ -876,14 +876,10 @@ async function deletePost(postId, data) {
 
   try {
     // Usuń zdjęcie ze Storage jeśli istnieje
-    if (data.imageStoragePath) {
-      try {
-        await deleteObject(ref(storage, data.imageStoragePath));
-        console.log(TAG, '✅ Zdjęcie usunięte ze Storage');
-      } catch (err) {
-        console.warn(TAG, '⚠️ Błąd usuwania zdjęcia:', err.message);
-      }
-    }
+ // Cloudinary - na MVP nie usuwamy fizycznie pliku
+if (data.imageStoragePath) {
+  console.log(TAG, 'ℹ️ Cloudinary asset:', data.imageStoragePath);
+}
 
     // Usuń dokument z Firestore
     await deleteDoc(doc(db, COL.POSTS, postId));
