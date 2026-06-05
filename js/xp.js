@@ -27,7 +27,8 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
-  
+  Timestamp,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 import { checkAndUnlockAchievements } from './achievements.js';
 
@@ -191,31 +192,23 @@ export async function checkDailyLogin(uid) {
 // ════════════════════════════════════════════════════════════
 
 function showXpGainToast(xp, label) {
-  import('./arena.js')
-    .then(({ spawnXPFloat }) => {
-      const xpEl =
-        document.getElementById('user-xp') ||
-        document.getElementById('xp-bar') ||
-        document.querySelector('.progress-fill') ||
-        document.querySelector('.xp-section');
-
-      spawnXPFloat(xpEl, xp);
-    })
-    .catch(() => {
-      document.querySelector('.xp-gain-toast')?.remove();
-
-      const el = document.createElement('div');
-      el.className = 'xp-gain-toast';
-      el.textContent = `+${xp} XP`;
-      el.title = label;
-
-      document.body.appendChild(el);
-
-      setTimeout(() => {
-        el.remove();
-      }, 2600);
-    });
+  import('./arena.js').then(({ spawnXPFloat }) => {
+    const xpEl = document.getElementById('user-xp') ||
+                 document.getElementById('xp-bar') ||
+                 document.querySelector('.progress-fill') ||
+                 document.querySelector('.xp-section');
+    if (spawnXPFloat) spawnXPFloat(xpEl, xp);
+  }).catch(() => {
+    document.querySelector('.xp-gain-toast')?.remove();
+    const el = document.createElement('div');
+    el.className='xp-gain-toast';
+    el.textContent=`+${xp} XP`;
+    el.title=label;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  });
 }
+
 
 // ════════════════════════════════════════════════════════════
 // UI — RANK UP NOTIFICATION
