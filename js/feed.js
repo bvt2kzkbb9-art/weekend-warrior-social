@@ -286,36 +286,32 @@ async function submitPost() {
 // IMAGE UPLOAD
 // ════════════════════════════════════════════════════════════
 
-function uploadImage(file) {
-  return new Promise((resolve, reject) => {
-    const ext      = file.name.split('.').pop() || 'jpg';
-    const path     = `posts/${currentUser.uid}/${Date.now()}.${ext}`;
-    const storageRef = ref(storage, path);
-    const task     = uploadBytesResumable(storageRef, file);
+async function uploadImage(file) {
+  const progressEl = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('upload-progress-bar');
 
-    // Progress bar
-    const progressEl = document.getElementById('upload-progress');
-    const progressBar = document.getElementById('upload-progress-bar');
+  try {
     if (progressEl) progressEl.classList.remove('hidden');
+    if (progressBar) progressBar.style.width = '10%';
 
-    task.on('state_changed',
-      (snap) => {
-        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-        if (progressBar) progressBar.style.width = pct + '%';
-        console.log('[uploadImage] Progress:', pct + '%');
-      },
-      (err) => {
-        console.error('[uploadImage] ❌', err);
-        if (progressEl) progressEl.classList.add('hidden');
-        reject(err);
-      },
-      async () => {
-        const url = await getDownloadURL(task.snapshot.ref);
-        if (progressEl) progressEl.classList.add('hidden');
-        resolve({ url, path });
-      }
+    const result = await uploadToCloudinary(
+      file,
+      `posts/${currentUser.uid}`
     );
-  });
+
+    if (progressBar) progressBar.style.width = '100%';
+
+    return {
+      url: result.url,
+      path: result.publicId
+    };
+
+  } finally {
+    setTimeout(() => {
+      if (progressEl) progressEl.classList.add('hidden');
+      if (progressBar) progressBar.style.width = '0%';
+    }, 300);
+  }
 }
 
 
