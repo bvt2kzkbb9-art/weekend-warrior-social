@@ -1,8 +1,8 @@
 /* ============================================
    WEEKEND WARRIOR — MINIMAL SILVER THEME
+   Globalny motyw minimalistyczny
    ============================================ */
 
-/* Kolory */
 :root {
   --bg-body: #0B0D14;
   --bg-card: #151922;
@@ -22,7 +22,7 @@
   --btn-dark-hover: #2A2E3A;
 }
 
-/* GLOBAL RESET MOTYWU */
+/* RESET ZŁOTA, GLOW, ORNAMENTÓW */
 html body * {
   text-shadow: none !important;
   box-shadow: none !important;
@@ -134,12 +134,6 @@ html body .ch-card::after,
 html body .quiz-parchment::before,
 html body .quiz-parchment::after {
   display: none !important;
-}
-
-/* USUNIĘCIE GLOW */
-html body [class*="glow"],
-html body [style*="glow"] {
-  box-shadow: none !important;
 }
 
 /* USUNIĘCIE GRADIENTÓW */
