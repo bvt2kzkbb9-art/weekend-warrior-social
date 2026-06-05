@@ -1,0 +1,141 @@
+/* ============================================
+   WEEKEND WARRIOR — SILVER/WHITE THEME
+   ONLY COLORS — NO LAYOUT CHANGES
+   ============================================ */
+
+:root {
+  --bg-body: #0B0D14;
+  --bg-card: #151922;
+
+  --text-main: #F5F7FA;
+  --text-muted: #CBD5E1;
+
+  --accent-silver: #C0C7D1;
+  --accent-white: #FFFFFF;
+}
+
+/* GLOBAL COLORS */
+body {
+  background-color: var(--bg-body) !important;
+  color: var(--text-main) !important;
+}
+
+/* TEXT */
+h1, h2, h3, h4, h5 {
+  color: var(--accent-white) !important;
+}
+
+p, span, li, div {
+  color: var(--text-main) !important;
+}
+
+.text-muted,
+.meta,
+.subtitle,
+.small,
+.timestamp {
+  color: var(--text-muted) !important;
+}
+
+/* LINKS */
+a {
+  color: var(--accent-silver) !important;
+}
+
+a:hover {
+  color: var(--accent-white) !important;
+}
+
+/* CARDS / PANELS / BOXES — ONLY COLORS */
+.card,
+.panel,
+.box,
+.container,
+.section,
+.profile-card,
+.feed-item,
+.comment-box,
+.notification-item {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--accent-silver) !important;
+}
+
+/* BUTTONS */
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+  background: var(--accent-silver) !important;
+  color: var(--bg-body) !important;
+  border-color: var(--accent-silver) !important;
+}
+
+button:hover,
+.btn:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background: var(--accent-white) !important;
+  border-color: var(--accent-white) !important;
+  color: var(--bg-body) !important;
+}
+
+/* INPUTS */
+input,
+textarea,
+select {
+  background: #0F1118 !important;
+  color: var(--text-main) !important;
+  border-color: var(--accent-silver) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-white) !important;
+}
+
+/* AVATARS */
+.avatar,
+.profile-img,
+.round-img {
+  border-color: var(--accent-silver) !important;
+}
+
+/* XP / RANK / BADGES */
+.xp,
+.rank,
+.badge,
+.achievement {
+  color: var(--accent-white) !important;
+  border-color: var(--accent-white) !important;
+}
+
+/* REACTIONS */
+.feed-reaction,
+.reaction-btn {
+  color: var(--accent-silver) !important;
+}
+
+.feed-reaction:hover,
+.reaction-btn:hover {
+  color: var(--accent-white) !important;
+}
+
+/* NOTIFICATIONS */
+.notification-item.unread {
+  border-left-color: var(--accent-white) !important;
+}
+
+/* TABS */
+.tab,
+.feed-tab {
+  color: var(--accent-silver) !important;
+  border-bottom-color: transparent !important;
+}
+
+.tab.active,
+.feed-tab.active {
+  color: var(--accent-white) !important;
+  border-bottom-color: var(--accent-white) !important;
+}
