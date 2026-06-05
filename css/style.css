@@ -1,0 +1,251 @@
+/* ============================================
+   WEEKEND WARRIOR SOCIAL — SILVER/WHITE THEME
+   Full CSS Theme Override
+   ============================================ */
+
+:root {
+  --bg-body: #0B0D14;
+  --bg-card: #151922;
+
+  --text-main: #F5F7FA;
+  --text-muted: #CBD5E1;
+
+  --accent-silver: #C0C7D1;
+  --accent-white: #FFFFFF;
+
+  --border-radius: 10px;
+  --transition: 0.2s ease;
+}
+
+/* GLOBAL */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* HEADERS */
+h1, h2, h3, h4, h5 {
+  color: var(--accent-white);
+  margin: 0 0 10px 0;
+}
+
+/* TEXT */
+p, span, li, div {
+  color: var(--text-main);
+}
+
+.text-muted,
+.meta,
+.subtitle,
+.small,
+.timestamp {
+  color: var(--text-muted);
+}
+
+/* LINKS */
+a {
+  color: var(--accent-silver);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--accent-white);
+}
+
+/* CARDS / PANELS / BOXES */
+.card,
+.panel,
+.box,
+.container,
+.section,
+.profile-card,
+.feed-item,
+.comment-box,
+.notification-item {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--accent-silver);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+/* DIVIDERS */
+hr,
+.divider {
+  border-color: var(--accent-silver);
+  opacity: 0.4;
+}
+
+/* BUTTONS */
+button,
+.btn,
+input[type="submit"],
+input[type="button"] {
+  background: var(--accent-silver);
+  color: var(--bg-body);
+  border: 1px solid var(--accent-silver);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+}
+
+button:hover,
+.btn:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background: var(--accent-white);
+  border-color: var(--accent-white);
+  color: var(--bg-body);
+}
+
+/* SECONDARY / OUTLINE BUTTONS */
+.btn-secondary,
+.btn-ghost {
+  background: transparent;
+  color: var(--accent-silver);
+  border: 1px solid var(--accent-silver);
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover {
+  background: var(--accent-silver);
+  color: var(--bg-body);
+}
+
+/* INPUTS */
+input,
+textarea,
+select {
+  background: #0F1118;
+  color: var(--text-main);
+  border: 1px solid var(--accent-silver);
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  transition: var(--transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent-white);
+}
+
+/* AVATARS */
+.avatar,
+.profile-img,
+.round-img {
+  border: 2px solid var(--accent-silver);
+  border-radius: 50%;
+}
+
+/* XP / RANK / BADGES */
+.xp,
+.rank,
+.badge,
+.achievement {
+  color: var(--accent-white);
+  border-color: var(--accent-white);
+  font-weight: 700;
+}
+
+/* FEED */
+.feed-item {
+  border-left: 3px solid var(--accent-silver);
+}
+
+.feed-item:hover {
+  border-left-color: var(--accent-white);
+}
+
+/* REACTIONS */
+.feed-reaction,
+.reaction-btn {
+  color: var(--accent-silver);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.feed-reaction:hover,
+.reaction-btn:hover {
+  color: var(--accent-white);
+}
+
+/* COMMENTS */
+.comment-box {
+  border-left: 2px solid var(--accent-silver);
+}
+
+/* NOTIFICATIONS */
+.notification-item {
+  border-left: 3px solid var(--accent-silver);
+}
+
+.notification-item.unread {
+  border-left-color: var(--accent-white);
+}
+
+/* TABS */
+.tab,
+.feed-tab {
+  background: transparent;
+  color: var(--accent-silver);
+  border-bottom: 2px solid transparent;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tab.active,
+.feed-tab.active {
+  color: var(--accent-white);
+  border-bottom: 2px solid var(--accent-white);
+}
+
+/* PROFILE */
+.profile-header,
+.profile-stats,
+.profile-achievements {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-silver);
+  border-radius: var(--border-radius);
+  padding: 15px;
+}
+
+/* LISTS */
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .card,
+  .panel,
+  .box,
+  .container {
+    padding: 12px;
+  }
+
+  button,
+  .btn {
+    width: 100%;
+  }
+}
