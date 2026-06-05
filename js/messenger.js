@@ -1,28 +1,28 @@
 *** Begin Patch
 *** Update File: js/messenger.js
 @@
- import {
-   collection, doc, addDoc, getDoc, getDocs, setDoc,
-   updateDoc, onSnapshot, query, where, orderBy, limit,
-   serverTimestamp, Timestamp, increment, writeBatch,
-   arrayUnion,
- } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
- 
- // ── Kolekcje ─────────────────────────────────────────────────
- const COL_CONV = 'conversations';
- const COL_MSG  = 'messages';
- 
- // ── Stan modułu ──────────────────────────────────────────────
- let currentUser     = null;
- let currentUserData = null;
- let activeConvId    = null;
- let unsubMessages   = null;    // cleanup onSnapshot wiadomości
- let unsubConvList   = null;    // cleanup onSnapshot listy conv
- let typingTimer     = null;
- const MAX_MSG_LEN   = 1000;
- const MAX_IMG_SIZE  = 5 * 1024 * 1024; // 5 MB
- const TYPING_TTL    = 3000;   // 3s bez pisania → wyczyść typing
-+/**
+-    } catch {
+-      _handleError(TAG, arguments?.[0] ?? new Error('getCurrentUserData failed'));
+-      currentUserData = null;
+-    }
++    } catch (err) {
++      _handleError(TAG, err, 'Nie można pobrać danych użytkownika.');
++      currentUserData = null;
++    }
+@@
+-      try {
+-        const s = await getDoc(doc(db, COL.USERS, otherId));
+-        if (s.exists()) other = s.data();
+-      } catch {
+-        _handleError(TAG, arguments?.[0] ?? new Error('getDoc users failed'));
+-      }
++      try {
++        const s = await getDoc(doc(db, COL.USERS, otherId));
++        if (s.exists()) other = s.data();
++      } catch (err) {
++        _handleError(TAG, err);
++      }
+*** End Patch
 + * Centralny handler błędów.
 + * Loguje szczegóły do konsoli i (opcjonalnie) pokazuje przyjazny komunikat użytkownikowi.
 + * Nie rzuca wyjątków dalej.
