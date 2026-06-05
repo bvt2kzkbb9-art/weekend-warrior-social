@@ -1,357 +1,167 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0A0B" />
-  <meta name="description" content="Weekend Warrior Social — Wyzwania" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="WWS Arena" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg" />
-  <link rel="manifest" href="manifest.json" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0A0A0B"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="WWS Arena"/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
+  <link rel="manifest" href="manifest.json"/>
   <title>Wyzwania — Weekend Warrior Social</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/challenges.css" />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/challenges.css"/>
   <style>
-    /* ── Challenge System UI ─────────────────────────────── */
+    /* ── Challenge System Tabs ───────────────────────────────────── */
+    .cs-tabs{display:flex;gap:.375rem;padding:.75rem 1rem;max-width:700px;margin:0 auto;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .cs-tabs::-webkit-scrollbar{display:none;}
+    .cs-tab{padding:.5rem 1rem;white-space:nowrap;background:var(--bg-card);
+      border:1px solid rgba(212,175,55,.12);border-radius:9999px;color:var(--text-muted);
+      font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .2s ease;
+      font-family:var(--font);-webkit-tap-highlight-color:transparent;}
+    .cs-tab:hover{color:var(--gold);border-color:rgba(212,175,55,.3);}
+    .cs-tab.active{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;
+      border-color:transparent;box-shadow:0 2px 14px rgba(212,175,55,.3);}
 
-    /* Tabs */
-    .cs-tabs {
-      display:flex;gap:.375rem;
-      padding:.75rem 1rem;
-      max-width:700px;margin:0 auto;
-      overflow-x:auto;-webkit-overflow-scrolling:touch;
-      scrollbar-width:none;
-    }
-    .cs-tabs::-webkit-scrollbar { display:none; }
+    /* ── Section ──────────────────────────────────────────────────── */
+    .cs-section{padding:0 1rem;max-width:700px;margin:0 auto;}
 
-    .cs-tab {
-      padding:.5rem 1rem;white-space:nowrap;
-      background:var(--bg-card);
-      border:1px solid rgba(212,175,55,.12);
-      border-radius:9999px;
-      color:var(--text-muted);
-      font-size:.8125rem;font-weight:600;
-      cursor:pointer;transition:all .2s ease;
-      font-family:var(--font);
-      -webkit-tap-highlight-color:transparent;
-    }
-    .cs-tab:hover  { color:var(--gold);border-color:rgba(212,175,55,.3); }
-    .cs-tab.active {
-      background:linear-gradient(135deg,#D4AF37,#A88B28);
-      color:#000;border-color:transparent;
-      box-shadow:0 2px 14px rgba(212,175,55,.3);
-    }
-
-    /* Section wrappers */
-    .cs-section {
-      padding:0 1rem;max-width:700px;margin:0 auto;
-    }
-
-    /* Cards grid — już zdefiniowany w challenges.css */
-
-    /* Invite cards */
-    .cs-invite-card {
-      background:var(--bg-card);
-      border:1px solid rgba(212,175,55,.15);
-      border-radius:16px;
-      padding:1.125rem 1.25rem;
-      margin-bottom:.875rem;
-      animation:chFadeUp .35s ease both;
-    }
-
-    .cs-invite-header {
-      display:flex;align-items:flex-start;gap:.875rem;
-      margin-bottom:.875rem;
-    }
-
-    .cs-invite-avatar {
-      width:42px;height:42px;border-radius:50%;flex-shrink:0;
-      background:var(--bg-elevated);
-      border:1px solid rgba(212,175,55,.2);
+    /* ── Invite Cards ─────────────────────────────────────────────── */
+    .cs-invite-card{background:var(--bg-card);border:1px solid rgba(212,175,55,.15);
+      border-radius:16px;padding:1.125rem 1.25rem;margin-bottom:.875rem;
+      animation:fadeInUp .35s ease both;}
+    .cs-invite-header{display:flex;align-items:flex-start;gap:.875rem;margin-bottom:.875rem;}
+    .cs-invite-avatar{width:42px;height:42px;border-radius:50%;flex-shrink:0;
+      background:var(--bg-elevated);border:1px solid rgba(212,175,55,.2);
       display:flex;align-items:center;justify-content:center;
-      font-family:var(--font-hd);font-weight:700;font-size:1rem;
-      color:var(--gold);overflow:hidden;
-    }
-    .cs-invite-avatar img {
-      width:100%;height:100%;object-fit:cover;display:block;
-    }
+      font-family:var(--font-hd);font-weight:700;font-size:1rem;color:var(--gold);overflow:hidden;}
+    .cs-invite-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+    .cs-invite-info{flex:1;min-width:0;}
+    .cs-invite-from{font-size:.875rem;font-weight:600;color:var(--text-primary);
+      line-height:1.3;margin-bottom:.25rem;}
+    .cs-invite-challenge{font-size:.8125rem;color:var(--text-secondary);}
 
-    .cs-invite-info { flex:1;min-width:0; }
-    .cs-invite-from {
-      font-size:.875rem;font-weight:600;color:var(--text-primary);
-      line-height:1.3;margin-bottom:.25rem;
-    }
-    .cs-invite-challenge {
-      font-size:.8125rem;color:var(--text-secondary);
-    }
+    /* ── Sent Rows ────────────────────────────────────────────────── */
+    .cs-sent-row{display:flex;align-items:center;gap:.875rem;padding:.875rem;
+      background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+      margin-bottom:.625rem;animation:fadeInUp .35s ease both;}
 
-    .cs-invite-actions {
-      display:flex;gap:.625rem;flex-wrap:wrap;
-    }
-
-    /* Sent rows */
-    .cs-sent-row {
-      display:flex;align-items:center;gap:.875rem;
-      padding:.875rem;background:var(--bg-card);
-      border:1px solid var(--border);border-radius:12px;
-      margin-bottom:.625rem;
-    }
-
-    /* Action buttons */
-    .cs-btn-accept {
-      flex:2;padding:.75rem 1rem;
-      background:linear-gradient(135deg,#D4AF37,#A88B28);
-      border:none;border-radius:10px;color:#000;
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    .cs-btn-accept,.cs-btn-quiz,.cs-btn-complete{
+      padding:.75rem 1rem;border:none;border-radius:10px;cursor:pointer;
       font-family:'Rajdhani',sans-serif;font-size:.9375rem;font-weight:800;
-      letter-spacing:.04em;text-transform:uppercase;
-      cursor:pointer;transition:all .2s ease;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .cs-btn-accept:hover  { filter:brightness(1.08); }
-    .cs-btn-accept:active { transform:scale(.97); }
-    .cs-btn-accept:disabled { opacity:.5;cursor:not-allowed;filter:none; }
+      letter-spacing:.04em;text-transform:uppercase;transition:all .2s ease;
+      -webkit-tap-highlight-color:transparent;width:100%;}
+    .cs-btn-accept{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;}
+    .cs-btn-accept:hover{filter:brightness(1.08);}
+    .cs-btn-accept:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+    .cs-btn-reject{flex:1;padding:.75rem;background:transparent;
+      border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text-muted);
+      font-family:var(--font);font-size:.875rem;cursor:pointer;transition:all .2s ease;
+      -webkit-tap-highlight-color:transparent;}
+    .cs-btn-reject:hover{border-color:rgba(239,68,68,.3);color:#EF4444;}
+    .cs-btn-quiz{background:rgba(79,140,255,.12);border:1px solid rgba(79,140,255,.25);color:#4F8CFF;}
+    .cs-btn-quiz:hover{background:rgba(79,140,255,.2);}
+    .cs-btn-complete{background:linear-gradient(135deg,#D4AF37,#A88B28);color:#000;}
+    .cs-btn-complete:hover{filter:brightness(1.08);}
+    .cs-btn-complete:disabled{opacity:.5;cursor:not-allowed;filter:none;}
 
-    .cs-btn-reject {
-      flex:1;padding:.75rem;
-      background:transparent;
-      border:1px solid rgba(255,255,255,.1);border-radius:10px;
-      color:var(--text-muted);font-family:var(--font);font-size:.875rem;
-      cursor:pointer;transition:all .2s ease;
-    }
-    .cs-btn-reject:hover { border-color:rgba(239,68,68,.3);color:#EF4444; }
-
-    .cs-btn-quiz {
-      width:100%;padding:.75rem;
-      background:rgba(79,140,255,.12);
-      border:1px solid rgba(79,140,255,.25);border-radius:10px;
-      color:#4F8CFF;font-family:'Rajdhani',sans-serif;font-size:.9375rem;
-      font-weight:700;letter-spacing:.04em;text-transform:uppercase;
-      cursor:pointer;transition:all .2s ease;
-    }
-    .cs-btn-quiz:hover { background:rgba(79,140,255,.2); }
-
-    .cs-btn-complete {
-      width:100%;padding:.875rem;
-      background:linear-gradient(135deg,#D4AF37,#A88B28);
-      border:none;border-radius:12px;color:#000;
-      font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:800;
-      letter-spacing:.04em;text-transform:uppercase;
-      cursor:pointer;transition:all .2s ease;
-    }
-    .cs-btn-complete:hover  { filter:brightness(1.08); }
-    .cs-btn-complete:disabled { opacity:.5;cursor:not-allowed;filter:none; }
-
-    /* Send modal */
-    .cs-modal-bg {
-      position:fixed;inset:0;z-index:400;
-      background:rgba(0,0,0,.88);
+    /* ── Send Modal ───────────────────────────────────────────────── */
+    .cs-modal-bg{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);
       backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
       display:flex;align-items:flex-end;justify-content:center;
-      padding-bottom:env(safe-area-inset-bottom);
-      animation:chFadeIn .2s ease both;
-    }
-    @media(min-width:600px){ .cs-modal-bg { align-items:center; } }
-
-    .cs-modal {
-      background:#0E0F12;
-      border:1px solid rgba(212,175,55,.25);
+      padding-bottom:env(safe-area-inset-bottom);animation:chFadeIn .2s ease both;}
+    @media(min-width:600px){.cs-modal-bg{align-items:center;}}
+    .cs-modal{background:#0E0F12;border:1px solid rgba(212,175,55,.25);
       border-radius:22px 22px 0 0;
       padding:1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
-      width:100%;max-width:420px;max-height:92vh;overflow-y:auto;
-      animation:chSlideUp .3s ease both;
-    }
-    @media(min-width:600px){ .cs-modal { border-radius:22px;padding-bottom:1.5rem; } }
+      width:100%;max-width:440px;max-height:92vh;overflow-y:auto;
+      animation:chSlideUp .3s ease both;}
+    @media(min-width:600px){.cs-modal{border-radius:22px;padding-bottom:1.5rem;}}
+    .cs-modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.125rem;}
+    .cs-modal-title{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:800;
+      color:#D4AF37;text-transform:uppercase;letter-spacing:.05em;}
+    .cs-modal-sub{font-size:.8125rem;color:#8A7E6A;margin-top:.125rem;}
+    .cs-modal-close{background:none;border:none;color:#4E5464;font-size:1.375rem;
+      cursor:pointer;padding:.25rem;line-height:1;-webkit-tap-highlight-color:transparent;}
+    .cs-modal-label{font-size:.6875rem;font-weight:700;color:#8A7E6A;
+      letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;}
+    .cs-challenge-preview{display:flex;align-items:center;gap:.875rem;
+      background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);
+      border-radius:12px;padding:.875rem 1rem;margin-bottom:1rem;}
+    .cs-preview-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+      color:#D4AF37;text-transform:uppercase;}
+    .cs-preview-sub{font-size:.8125rem;color:#8A7E6A;margin-top:.125rem;}
+    .cs-users-list{max-height:220px;overflow-y:auto;border:1px solid rgba(212,175,55,.12);
+      border-radius:12px;margin-bottom:.875rem;}
+    .cs-user-row{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,.04);border-left:3px solid transparent;
+      transition:background .15s ease;-webkit-tap-highlight-color:transparent;}
+    .cs-user-row:last-child{border-bottom:none;}
+    .cs-user-row.selected{background:rgba(212,175,55,.1);border-left-color:#D4AF37;}
+    .cs-user-row:active{background:rgba(212,175,55,.08);}
+    .cs-user-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:#1A1C22;
+      border:1px solid rgba(212,175,55,.15);display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:.875rem;color:#D4AF37;overflow:hidden;}
+    .cs-user-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+    .cs-user-info{flex:1;min-width:0;}
+    .cs-user-name{font-size:.875rem;font-weight:600;color:#E8E0D0;}
+    .cs-user-row.selected .cs-user-name{color:#D4AF37;}
+    .cs-user-sub{font-size:.6875rem;color:#8A7E6A;margin-top:.1rem;}
+    .cs-user-check{color:#D4AF37;font-size:1rem;}
+    .cs-target-info{font-size:.8125rem;color:#B8A87A;background:rgba(212,175,55,.05);
+      border:1px solid rgba(212,175,55,.1);border-radius:10px;padding:.625rem .875rem;margin-bottom:1rem;}
+    .cs-send-btn{width:100%;padding:.9375rem;background:linear-gradient(135deg,#D4AF37,#A88B28);
+      border:none;border-radius:14px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1rem;
+      font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;
+      transition:all .2s ease;-webkit-tap-highlight-color:transparent;}
+    .cs-send-btn:hover{filter:brightness(1.08);box-shadow:0 4px 20px rgba(212,175,55,.3);}
+    .cs-send-btn:active{transform:scale(.98);}
+    .cs-send-btn:disabled{opacity:.5;cursor:not-allowed;}
 
-    .cs-modal-header {
-      display:flex;align-items:flex-start;justify-content:space-between;
-      margin-bottom:1.125rem;
-    }
-    .cs-modal-title {
-      font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:800;
-      color:#D4AF37;text-transform:uppercase;letter-spacing:.05em;
-    }
-    .cs-modal-sub { font-size:.8125rem;color:#8A7E6A;margin-top:.125rem; }
-    .cs-modal-close {
-      background:none;border:none;color:#4E5464;
-      font-size:1.375rem;cursor:pointer;padding:.25rem;line-height:1;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .cs-modal-label {
-      font-size:.6875rem;font-weight:700;color:#8A7E6A;
-      letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;
-    }
-
-    .cs-challenge-preview {
-      display:flex;align-items:center;gap:.875rem;
-      background:rgba(212,175,55,.06);
-      border:1px solid rgba(212,175,55,.15);
-      border-radius:12px;padding:.875rem 1rem;margin-bottom:1rem;
-    }
-    .cs-preview-title {
-      font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-      color:#D4AF37;text-transform:uppercase;
-    }
-    .cs-preview-sub { font-size:.8125rem;color:#8A7E6A;margin-top:.125rem; }
-
-    .cs-users-list {
-      max-height:220px;overflow-y:auto;
-      border:1px solid rgba(212,175,55,.12);border-radius:12px;
-      margin-bottom:.875rem;
-    }
-
-    .cs-user-row {
-      display:flex;align-items:center;gap:.75rem;
-      padding:.75rem 1rem;cursor:pointer;
-      border-bottom:1px solid rgba(255,255,255,.04);
-      border-left:3px solid transparent;
-      transition:background .15s ease;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .cs-user-row:last-child { border-bottom:none; }
-    .cs-user-row.selected {
-      background:rgba(212,175,55,.1);
-      border-left-color:#D4AF37;
-    }
-    .cs-user-row:active { background:rgba(212,175,55,.08); }
-
-    .cs-user-avatar {
-      width:36px;height:36px;border-radius:50%;flex-shrink:0;
-      background:#1A1C22;border:1px solid rgba(212,175,55,.15);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:700;font-size:.875rem;color:#D4AF37;overflow:hidden;
-    }
-    .cs-user-avatar img { width:100%;height:100%;object-fit:cover;display:block; }
-    .cs-user-info { flex:1;min-width:0; }
-    .cs-user-name { font-size:.875rem;font-weight:600;color:#E8E0D0; }
-    .cs-user-sub  { font-size:.6875rem;color:#8A7E6A;margin-top:.1rem; }
-    .cs-user-check { color:#D4AF37;font-size:1rem; }
-    .cs-user-row.selected .cs-user-name { color:#D4AF37; }
-
-    .cs-target-info {
-      font-size:.8125rem;color:#B8A87A;
-      background:rgba(212,175,55,.05);
-      border:1px solid rgba(212,175,55,.1);
-      border-radius:10px;padding:.625rem .875rem;
-      margin-bottom:1rem;
-    }
-
-    .cs-send-btn {
-      width:100%;padding:.9375rem;
-      background:linear-gradient(135deg,#D4AF37,#A88B28);
-      border:none;border-radius:14px;color:#000;
-      font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:800;
-      letter-spacing:.05em;text-transform:uppercase;
-      cursor:pointer;transition:all .2s ease;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .cs-send-btn:hover  { filter:brightness(1.08);box-shadow:0 4px 20px rgba(212,175,55,.3); }
-    .cs-send-btn:active { transform:scale(.98); }
-    .cs-send-btn:disabled { opacity:.5;cursor:not-allowed; }
-
-    /* Quiz modal */
-    .cs-quiz-modal {
-      background:#0E0F12;
-      border:2px solid rgba(212,175,55,.3);
+    /* ── Quiz Modal ───────────────────────────────────────────────── */
+    .cs-quiz-modal{background:#0E0F12;border:2px solid rgba(212,175,55,.3);
       border-radius:22px 22px 0 0;
       padding:1.75rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom));
       width:100%;max-width:460px;max-height:95vh;overflow-y:auto;
-      animation:chSlideUp .35s ease both;
-    }
-    @media(min-width:600px){ .cs-quiz-modal { border-radius:22px;padding-bottom:1.75rem; } }
-
-    .cs-quiz-header {
-      display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;
-    }
-    .cs-quiz-badge { font-size:2rem;flex-shrink:0; }
-    .cs-quiz-ch-title {
-      font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-      color:#D4AF37;text-transform:uppercase;
-    }
-    .cs-quiz-sub { font-size:.75rem;color:#8A7E6A; }
-    .cs-quiz-timer {
-      margin-left:auto;font-family:'Rajdhani',sans-serif;
-      font-size:1.375rem;font-weight:800;color:#D4AF37;
-      min-width:32px;text-align:center;
-    }
-
-    .cs-quiz-question {
-      font-size:1rem;font-weight:600;color:#E8E0D0;
-      line-height:1.65;margin-bottom:1.125rem;
-      font-style:italic;
-    }
-
-    .cs-quiz-answers {
-      display:flex;flex-direction:column;gap:.625rem;
-      margin-bottom:1rem;
-    }
-
-    .cs-quiz-answer {
-      display:flex;align-items:flex-start;gap:.75rem;
-      padding:.875rem 1rem;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;
-      cursor:pointer;transition:all .2s ease;
-      text-align:left;width:100%;
-      -webkit-tap-highlight-color:transparent;
-      font-family:var(--font);
-    }
-    .cs-quiz-answer:hover:not(:disabled) {
-      background:rgba(212,175,55,.08);
-      border-color:rgba(212,175,55,.3);
-    }
-    .cs-quiz-answer:disabled { cursor:default; }
-    .cs-quiz-answer.correct {
-      background:rgba(22,199,132,.1);
-      border-color:rgba(22,199,132,.4);
-    }
-    .cs-quiz-answer.wrong {
-      background:rgba(239,68,68,.08);
-      border-color:rgba(239,68,68,.3);
-    }
-
-    .cs-answer-letter {
-      width:28px;height:28px;border-radius:50%;flex-shrink:0;
-      background:rgba(212,175,55,.1);
-      border:1px solid rgba(212,175,55,.2);
+      animation:chSlideUp .35s ease both;}
+    @media(min-width:600px){.cs-quiz-modal{border-radius:22px;padding-bottom:1.75rem;}}
+    .cs-quiz-header{display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;}
+    .cs-quiz-badge{font-size:2rem;flex-shrink:0;}
+    .cs-quiz-ch-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+      color:#D4AF37;text-transform:uppercase;}
+    .cs-quiz-sub{font-size:.75rem;color:#8A7E6A;}
+    .cs-quiz-timer{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:1.375rem;
+      font-weight:800;color:#D4AF37;min-width:32px;text-align:center;}
+    .cs-quiz-question{font-size:.9375rem;font-weight:600;color:#E8E0D0;line-height:1.65;
+      margin-bottom:1.125rem;font-style:italic;}
+    .cs-quiz-answers{display:flex;flex-direction:column;gap:.625rem;margin-bottom:1rem;}
+    .cs-quiz-answer{display:flex;align-items:flex-start;gap:.75rem;padding:.875rem 1rem;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;
+      cursor:pointer;transition:all .2s ease;text-align:left;width:100%;
+      -webkit-tap-highlight-color:transparent;font-family:var(--font);}
+    .cs-quiz-answer:hover:not(:disabled){background:rgba(212,175,55,.08);border-color:rgba(212,175,55,.3);}
+    .cs-quiz-answer:disabled{cursor:default;}
+    .cs-quiz-answer.correct{background:rgba(22,199,132,.1);border-color:rgba(22,199,132,.4);}
+    .cs-quiz-answer.wrong{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);}
+    .cs-answer-letter{width:28px;height:28px;border-radius:50%;flex-shrink:0;
+      background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);
       display:flex;align-items:center;justify-content:center;
-      font-family:'Rajdhani',sans-serif;font-size:.875rem;
-      font-weight:700;color:#D4AF37;line-height:1;
-    }
-    .cs-quiz-answer.correct .cs-answer-letter {
-      background:rgba(22,199,132,.2);border-color:#16C784;color:#16C784;
-    }
-    .cs-quiz-answer.wrong .cs-answer-letter {
-      background:rgba(239,68,68,.15);border-color:#EF4444;color:#EF4444;
-    }
-    .cs-answer-text { font-size:.875rem;color:#E8E0D0;line-height:1.55;padding-top:3px; }
-
-    .cs-quiz-feedback {
-      border-radius:12px;padding:1.125rem;
-      text-align:center;margin-bottom:1rem;
-      font-size:.9375rem;font-weight:600;color:#fff;
-    }
-    .cs-quiz-feedback.hidden { display:none; }
-    .cs-feedback-correct {
-      background:rgba(22,199,132,.1);
-      border:1px solid rgba(22,199,132,.3);
-    }
-    .cs-feedback-wrong {
-      background:rgba(239,68,68,.08);
-      border:1px solid rgba(239,68,68,.25);
-    }
-
-    .cs-quiz-reward {
-      display:flex;align-items:center;gap:.625rem;
-      font-size:.8125rem;color:#8A7E6A;
-      padding:.75rem;background:rgba(212,175,55,.04);
-      border:1px solid rgba(212,175,55,.1);border-radius:10px;
-    }
+      font-family:'Rajdhani',sans-serif;font-size:.875rem;font-weight:700;color:#D4AF37;line-height:1;}
+    .cs-quiz-answer.correct .cs-answer-letter{background:rgba(22,199,132,.2);border-color:#16C784;color:#16C784;}
+    .cs-quiz-answer.wrong .cs-answer-letter{background:rgba(239,68,68,.15);border-color:#EF4444;color:#EF4444;}
+    .cs-answer-text{font-size:.875rem;color:#E8E0D0;line-height:1.55;padding-top:3px;}
+    .cs-quiz-feedback{border-radius:12px;padding:1.125rem;text-align:center;margin-bottom:1rem;
+      font-size:.9375rem;font-weight:600;color:#fff;}
+    .cs-quiz-feedback.hidden{display:none;}
+    .cs-feedback-correct{background:rgba(22,199,132,.1);border:1px solid rgba(22,199,132,.3);}
+    .cs-feedback-wrong{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);}
+    .cs-quiz-reward{display:flex;align-items:center;gap:.625rem;font-size:.8125rem;color:#8A7E6A;
+      padding:.75rem;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;}
   </style>
 </head>
 <body class="ch-page">
@@ -360,11 +170,26 @@
 <!-- ── Navigation ── -->
 <nav class="nav" aria-label="Główna nawigacja">
   <span class="nav-brand">⚔ WWS</span>
-  <a href="index.html"      class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Start</span></a>
-  <a href="feed.html"       class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Feed</span></a>
-  <a href="challenges.html" class="nav-item active" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Wyzwania</span></a>
-  <a href="ranking.html"    class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Ranking</span></a>
-  <a href="profile.html"    class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profil</span></a>
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Start</span>
+  </a>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span>Feed</span>
+  </a>
+  <a href="challenges.html" class="nav-item active" aria-current="page">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span>Wyzwania</span>
+  </a>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Ranking</span>
+  </a>
+  <a href="profile.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profil</span>
+  </a>
   <div class="nav-actions">
     <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -374,31 +199,32 @@
 </nav>
 
 <!-- ── Content ── -->
-<div style="padding-top:calc(62px + .5rem);">
+<div style="padding-top:calc(56px + env(safe-area-inset-top,0px) + .5rem);
+            padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));">
 
   <!-- Page header -->
   <div class="ch-page-header">
     <div class="ch-page-title-row">
       <div class="ch-page-title">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M17 4.7l-2.5 5.8M9 5L3 19l9-4 9 4-6-14"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M17 4.7l-2.5 5.8M9 5L3 19l9-4 9 4-6-14"/></svg>
         Wyzwania
       </div>
     </div>
-    <div class="ch-page-subtitle">Droga Wojownika · Wyzwanie → Quiz → Realizacja → XP</div>
+    <div class="ch-page-subtitle">Rzuć wyzwanie → Quiz Areny → Realizacja → XP</div>
   </div>
 
   <!-- Stats -->
   <div class="ch-stats-row">
     <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-received">0</div>
+      <div class="ch-stat-num" id="cs-stat-received" style="color:var(--gold);">0</div>
       <div class="ch-stat-label">Odebrane</div>
     </div>
     <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-active">0</div>
+      <div class="ch-stat-num" id="cs-stat-active" style="color:#16C784;">0</div>
       <div class="ch-stat-label">Aktywne</div>
     </div>
     <div class="ch-stat">
-      <div class="ch-stat-num" id="cs-stat-done">0</div>
+      <div class="ch-stat-num" id="cs-stat-done" style="color:var(--blue);">0</div>
       <div class="ch-stat-label">Ukończone</div>
     </div>
   </div>
@@ -412,71 +238,68 @@
     <button class="cs-tab"        data-cs-tab="history"    role="tab">🏁 Historia</button>
   </div>
 
-  <!-- ── TAB: Karty wyzwań ── -->
+  <!-- TAB: Wyzwania -->
   <div id="cs-section-challenges" class="cs-section">
     <div class="ch-grid-wrap" style="padding:0;">
       <div id="cs-cards-grid" class="ch-grid"></div>
     </div>
-    <!-- How it works -->
     <div class="ch-how-section">
-      <div class="ch-how-title">◆ Jak działa nowy system ◆</div>
+      <div class="ch-how-title">◆ Jak działa system ◆</div>
       <div class="ch-how-grid">
         <div class="ch-how-item">
           <div class="ch-how-icon">⚔️</div>
           <div class="ch-how-step">1. Rzuć</div>
-          <div class="ch-how-desc">Wybierz wyzwanie i wyzwij wojownika.</div>
+          <div class="ch-how-desc">Wybierz kartę i wyzwij wojownika z areny.</div>
         </div>
         <div class="ch-how-item">
           <div class="ch-how-icon">📥</div>
           <div class="ch-how-step">2. Akceptuj</div>
-          <div class="ch-how-desc">Odbiorca akceptuje i rozwiązuje quiz.</div>
+          <div class="ch-how-desc">Odbiorca przyjmuje lub odrzuca wyzwanie.</div>
         </div>
         <div class="ch-how-item">
           <div class="ch-how-icon">🧠</div>
           <div class="ch-how-step">3. Quiz</div>
-          <div class="ch-how-desc">Quiz odblokowuje właściwe zadanie.</div>
+          <div class="ch-how-desc">Quiz Areny odblokowuje właściwe zadanie.</div>
         </div>
         <div class="ch-how-item">
           <div class="ch-how-icon">🏆</div>
           <div class="ch-how-step">4. XP</div>
-          <div class="ch-how-desc">Po realizacji oboje zyskują XP!</div>
+          <div class="ch-how-desc">Oboje gracze zdobywają XP po ukończeniu!</div>
         </div>
       </div>
     </div>
-    <div style="height:1rem;"></div>
+    <div style="height:.5rem;"></div>
   </div>
 
-  <!-- ── TAB: Odebrane ── -->
+  <!-- TAB: Odebrane -->
   <div id="cs-section-received" class="cs-section" style="display:none;">
     <div id="cs-received-list" style="padding-top:.5rem;"></div>
   </div>
 
-  <!-- ── TAB: Wysłane ── -->
+  <!-- TAB: Wysłane -->
   <div id="cs-section-sent" class="cs-section" style="display:none;">
     <div id="cs-sent-list" style="padding-top:.5rem;"></div>
   </div>
 
-  <!-- ── TAB: Aktywne ── -->
+  <!-- TAB: Aktywne -->
   <div id="cs-section-active" class="cs-section" style="display:none;">
     <div id="cs-active-list" style="padding-top:.5rem;"></div>
   </div>
 
-  <!-- ── TAB: Historia ── -->
+  <!-- TAB: Historia -->
   <div id="cs-section-history" class="cs-section" style="display:none;">
     <div id="cs-history-list" style="padding-top:.5rem;"></div>
   </div>
 
-  <div style="height:5rem;"></div>
 </div>
 
 <script type="module">
   import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
   import { injectNotifBell } from './js/notifications.js';
-  import { initChallengeSystem, CHALLENGES_DATA } from './js/challenge-system.js';
-  import { db, COL } from './js/firebase.js';
+  import { initChallengeSystem } from './js/challenge-system.js';
+  import { db } from './js/firebase.js';
   import {
-    collection, getDocs, addDoc, updateDoc, onSnapshot,
-    query, where, doc, serverTimestamp, Timestamp,
+    collection, query, where, onSnapshot,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
   document.getElementById('logout-btn')?.addEventListener('click', logout);
@@ -487,39 +310,43 @@
     let userData = null;
     try { userData = await getCurrentUserData(user.uid, user); } catch {}
     userData ??= {
-      uid: user.uid,
-      displayName: user.displayName || 'Wojownik',
-      photoURL: user.photoURL || '',
-      points: 0,
+      uid: user.uid, displayName: user.displayName || 'Wojownik',
+      photoURL: user.photoURL || '', points: 0,
     };
 
-    // Uruchom system
     initChallengeSystem(user, userData);
-
-    // Statystyki dynamiczne
     _loadStats(user.uid);
   });
 
   function _loadStats(uid) {
-    // Odebrane pending/quiz_pending/active
+    // Odebrane (pending + quiz_pending + active)
     onSnapshot(
       query(collection(db,'challenge_invites'),
         where('targetId','==',uid),
         where('status','in',['pending','quiz_pending','active'])),
-      snap => { const el=document.getElementById('cs-stat-received'); if(el)el.textContent=snap.size; }
+      snap => {
+        const el = document.getElementById('cs-stat-received');
+        if (el) el.textContent = snap.size;
+      }
     );
     // Aktywne
     onSnapshot(
       query(collection(db,'challenge_invites'),
         where('targetId','==',uid),
         where('status','==','active')),
-      snap => { const el=document.getElementById('cs-stat-active'); if(el)el.textContent=snap.size; }
+      snap => {
+        const el = document.getElementById('cs-stat-active');
+        if (el) el.textContent = snap.size;
+      }
     );
     // Ukończone
     onSnapshot(
       query(collection(db,'challenge_completions'),
         where('userId','==',uid)),
-      snap => { const el=document.getElementById('cs-stat-done'); if(el)el.textContent=snap.size; }
+      snap => {
+        const el = document.getElementById('cs-stat-done');
+        if (el) el.textContent = snap.size;
+      }
     );
   }
 </script>
