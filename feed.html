@@ -11,14 +11,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
   <style>
-<a href="messenger.html" class="nav-item" style="position:relative;">
-  <svg><!-- ikona czatu --></svg>
-  <span id="msg-nav-badge" style="display:none;position:absolute;top:-4px;right:-4px;
-    background:var(--gold);color:#000;font-size:.5625rem;font-weight:800;
-    min-width:17px;height:17px;border-radius:9999px;display:none;
-    align-items:center;justify-content:center;border:2px solid var(--bg-nav);">0</span>
-  <span>Wiadomości</span>
-</a>
+
     /* ── FEED TABS ─────────────────────────────────────────── */
     .feed-tabs {
       display: flex;
@@ -218,6 +211,13 @@
     </svg>
     <span>Bohater</span>
   </a>
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
   <div class="nav-actions">
     <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -342,6 +342,10 @@
 
 <script type="module">
   import { initFeed } from './js/feed.js';
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
+  import { auth } from './js/firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
   // 2s skeleton fallback
   const skTimer = setTimeout(() => {
@@ -351,6 +355,10 @@
     const list  = document.getElementById('feed-list');
     if (list && list.children.length === 0 && empty) empty.style.display = 'block';
   }, 2000);
+
+  injectLightModeCSS();
+  initTheme();
+  onAuthStateChanged(auth, u => { if(u) injectMessengerBadge(u.uid); });
 
   window._clearFeedSkeleton = () => {
     clearTimeout(skTimer);

@@ -41,6 +41,13 @@
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Bohater</span>
   </a>
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
   <div class="nav-actions">
     <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -114,6 +121,8 @@
 </main>
 
 <script type="module">
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { checkAuth, logout } from './js/auth.js';
   import { db, COL, getRank, getLevel } from './js/firebase.js';
   import { collection, query, orderBy, limit, getDocs, startAfter } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -124,6 +133,9 @@
   let lastDoc = null;
   let currentFilter = 'points';
   const PAGE_SIZE = 20;
+
+  injectLightModeCSS();
+  initTheme();
 
   checkAuth(async (user) => {
     myUid = user.uid;

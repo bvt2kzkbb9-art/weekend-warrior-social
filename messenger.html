@@ -158,11 +158,15 @@
 </main>
 
 <script type="module">
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { initMessenger, setOnlinePresence, injectMessengerBadge } from './js/messenger.js';
   import { auth } from './js/firebase.js';
   import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
   // Ustaw presence online gdy załadujemy stronę
+  injectLightModeCSS();
+  initTheme();
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       setOnlinePresence(user.uid, true);

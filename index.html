@@ -77,16 +77,16 @@
     <span>Bohater</span>
   </a>
 
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
   <div class="nav-actions" id="nav-notif-anchor"></div>
 </nav>
-<a href="messenger.html" class="nav-item" style="position:relative;">
-  <svg><!-- ikona czatu --></svg>
-  <span id="msg-nav-badge" style="display:none;position:absolute;top:-4px;right:-4px;
-    background:var(--gold);color:#000;font-size:.5625rem;font-weight:800;
-    min-width:17px;height:17px;border-radius:9999px;display:none;
-    align-items:center;justify-content:center;border:2px solid var(--bg-nav);">0</span>
-  <span>Wiadomości</span>
-</a>
+
 <!-- ══════════════════════════════════════════
      MAIN CONTENT
 ══════════════════════════════════════════ -->
@@ -290,15 +290,18 @@
 <script type="module">
   import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
   import { injectNotifBell } from './js/notifications.js';
-import { injectMessengerBadge } from './js/messenger.js';
   import { auth, db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
   import { initArena } from './js/arena.js';
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { CHALLENGES_DATA } from './js/challenge-system.js';
   import {
     collection, query, where, orderBy, limit,
     onSnapshot, getDocs, doc, getDoc,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
+  injectLightModeCSS();
+  initTheme();
   initArena();
 
   checkAuth(async (user) => {
@@ -319,7 +322,7 @@ import { injectMessengerBadge } from './js/messenger.js';
     }, 2000);
 
     injectNotifBell(user.uid);
-injectMessengerBadge(user.uid);
+    injectMessengerBadge(user.uid);
 
     let userData = null;
     try { userData = await getCurrentUserData(user.uid, user); } catch {}
