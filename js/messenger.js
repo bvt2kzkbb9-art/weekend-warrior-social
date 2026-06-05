@@ -224,7 +224,11 @@ function _startConvListStream() {
       const item     = _buildConvItem(convId, data, other, unread, isActive);
       listEl.appendChild(item);
     }
-  }, err => console.warn(TAG, err.code));
+  }, (err) => {
+    console.error('Messenger error:', err);
+    console.error('Code:', err.code);
+    console.error('Message:', err.message);
+  });
 }
 
 function _buildConvItem(convId, data, other, unread, isActive) {
@@ -485,7 +489,11 @@ function _startMessageStream(convId) {
     });
 
     if (wasAtBottom) _scrollToBottom(msgList);
-  }, err => console.warn(TAG, err.code));
+  }, (err) => {
+    console.error('Messenger error:', err);
+    console.error('Code:', err.code);
+    console.error('Message:', err.message);
+  });
 }
 
 function _isScrolledToBottom(el) {
