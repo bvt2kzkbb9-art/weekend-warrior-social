@@ -895,7 +895,21 @@ export function injectMessengerBadge(myUid) {
   }, () => {});
 }
 
+// centralized error handler
+function _handleError(TAG, err, userMessage = null) {
+  try {
+    // log pełne info do konsoli (dla dev)
+    console.error(TAG, err);
+    // opcjonalnie: wysyłka do serwisu telemetrycznego, np. fetch('/log', ...)
+    // telemetry?.capture?.({ tag: TAG, message: err.message, code: err.code, stack: err.stack });
 
+    // pokaż przyjazny komunikat użytkownikowi, jeśli podano
+    if (userMessage) showToast(userMessage, 'error');
+  } catch (e) {
+    // nic nie rób, by nie wywołać nowego błędu w handlerze błędów
+    console.error('[handleError]', e);
+  }
+}
 // ════════════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════════════
