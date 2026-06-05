@@ -894,27 +894,42 @@ export function injectMessengerBadge(myUid) {
     }
   }, () => {});
 }
+function _handleError(err) {
+  const TAG = '[!ERROR!]';
+  console.error(TAG, err);
 
+  // Domyślna wiadomość
+  let msg = 'Wystąpił błąd. Spróbuj ponownie później.';
+  let title = 'Błąd';
 
-// ════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════
+  // Wyjątki Firebase
+  if (err?.code) {
+    switch (err.code) {
+      case 'unavailable':
+      case 'deadline-exceeded':
+        msg = 'Serwis chwilowo niedostępny. Spróbuj ponownie za chwilę.';
+        break;
+      case 'permission-denied':
+        msg = 'Brak dostępu do tej akcji.';
+        title = 'Brak dostępu';
+        break;
+      case 'not-found':
+        msg = 'Nie znaleziono wymaganych danych.';
+        title = 'Nie znaleziono';
+        break;
+      case 'aborted':
+        msg = 'Akcja została przerwana. Spróbuj ponownie.';
+        break;
+      case 'already-exists':
+        msg = 'Taki obiekt już istnieje.';
+        title = 'Już istnieje';
+        break;
+      default:
+        msg = err.message || msg;
+    }
+  }
 
-function _fmtTime(ts) {
-  if (!ts) return '';
-  const d = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts));
-  if (isNaN(d)) return '';
-  const now  = new Date();
-  const diff = now - d;
-  const m    = Math.floor(diff / 60000);
-  if (m < 1)  return 'teraz';
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' });
+  // Pokaż powiadomienie
+  showToast(msg, 'error');
 }
 
-function _esc(s) {
-  if (typeof s !== 'string') return '';
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
