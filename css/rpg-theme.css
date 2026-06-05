@@ -1,142 +1,158 @@
-/* ============================================
-   WEEKEND WARRIOR — MINIMAL SILVER THEME
-   Globalny motyw minimalistyczny
-   ============================================ */
+/* ============================================================
+   WEEKEND WARRIOR — KRONIKI ARENY (Minimal Silver Theme)
+   Czysty, stalowy, nowoczesny feed wojowników
+   ============================================================ */
 
-:root {
-  --bg-body: #0B0D14;
-  --bg-card: #151922;
-  --bg-panel: #1A1D26;
-
-  --text-main: #F5F7FA;
-  --text-muted: #A9B0BD;
-  --text-bright: #FFFFFF;
-
-  --accent-silver: #C0C7D1;
-  --accent-white: #FFFFFF;
-
-  --border: #2A2E39;
-  --border-strong: #3A3F4B;
-
-  --btn-dark: #1A1D26;
-  --btn-dark-hover: #2A2E3A;
+/* Header */
+.kroniki-header {
+  text-align: center;
+  padding: 1.5rem 1rem 1rem;
 }
 
-/* RESET ZŁOTA, GLOW, ORNAMENTÓW */
-html body * {
-  text-shadow: none !important;
-  box-shadow: none !important;
-  background-image: none !important;
+.kroniki-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent-white);
 }
 
-/* TŁA */
-html body {
-  background: var(--bg-body) !important;
-  color: var(--text-main) !important;
+.kroniki-sub {
+  font-family: var(--font-heading);
+  font-size: .75rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: .25rem;
 }
 
-/* KARTY */
-html body .card,
-html body .panel,
-html body .box,
-html body .section,
-html body .feed-item,
-html body .profile-card,
-html body .notification-item {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 10px !important;
+/* Tabs */
+.kroniki-tabs {
+  display: flex;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-/* TEKST */
-html body h1,
-html body h2,
-html body h3,
-html body h4,
-html body h5 {
-  color: var(--accent-white) !important;
+.kroniki-tabs::-webkit-scrollbar {
+  display: none;
 }
 
-html body p,
-html body span,
-html body div,
-html body li {
-  color: var(--text-main) !important;
+.kroniki-tab {
+  padding: .5rem 1rem;
+  border-radius: 9999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: .2s ease;
+  white-space: nowrap;
 }
 
-/* PRZYCISKI */
-html body button,
-html body .btn,
-html body input[type="submit"],
-html body input[type="button"] {
-  background: var(--btn-dark) !important;
-  color: var(--accent-silver) !important;
-  border: 1px solid var(--border-strong) !important;
-  border-radius: 8px !important;
-  transition: 0.2s ease !important;
+.kroniki-tab.active {
+  background: var(--accent-silver);
+  color: var(--bg-body);
+  border-color: var(--accent-silver);
 }
 
-html body button:hover,
-html body .btn:hover {
-  background: var(--btn-dark-hover) !important;
-  color: var(--accent-white) !important;
+/* Input box */
+.kroniki-input-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem;
 }
 
-/* AVATARY */
-html body .avatar,
-html body .profile-img,
-html body .round-img {
-  border: 2px solid var(--accent-silver) !important;
+.kroniki-input {
+  width: 100%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .75rem;
+  color: var(--text-main);
+  font-size: .9rem;
 }
 
-/* XP / RANGI */
-html body .xp,
-html body .rank,
-html body .badge,
-html body .achievement {
-  color: var(--accent-white) !important;
-  border-color: var(--accent-silver) !important;
+.kroniki-submit {
+  margin-top: .75rem;
+  width: 100%;
+  padding: .75rem;
+  background: var(--btn-dark);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--accent-silver);
+  font-family: var(--font-heading);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: .2s ease;
 }
 
-/* TABS */
-html body .tab,
-html body .feed-tab {
-  color: var(--text-muted) !important;
-  border-bottom: 2px solid transparent !important;
+.kroniki-submit:hover {
+  background: var(--btn-dark-hover);
+  color: var(--accent-white);
 }
 
-html body .tab.active,
-html body .feed-tab.active {
-  color: var(--accent-white) !important;
-  border-bottom-color: var(--accent-white) !important;
+/* Feed item */
+.kroniki-post {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: .75rem 1rem;
+  display: flex;
+  gap: .75rem;
 }
 
-/* USUNIĘCIE ZŁOTA */
-html body [class*="gold"],
-html body [style*="gold"],
-html body .rpg-btn-gold,
-html body .ch-card-num,
-html body .ch-xp-badge,
-html body .rpg-ch-xp,
-html body .rpg-char-rank,
-html body .rank-sub,
-html body .profile-rank-tag {
-  color: var(--accent-silver) !important;
-  border-color: var(--accent-silver) !important;
-  background: transparent !important;
+.kroniki-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-silver);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-white);
+  font-family: var(--font-heading);
+  font-weight: 700;
 }
 
-/* USUNIĘCIE ORNAMENTÓW */
-html body .rpg-ch-card::before,
-html body .rpg-ch-card::after,
-html body .ch-card::before,
-html body .ch-card::after,
-html body .quiz-parchment::before,
-html body .quiz-parchment::after {
-  display: none !important;
+.kroniki-body {
+  flex: 1;
 }
 
-/* USUNIĘCIE GRADIENTÓW */
-html body * {
-  background-image: none !important;
+.kroniki-name {
+  font-family: var(--font-heading);
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--accent-white);
+}
+
+.kroniki-rank {
+  font-size: .6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.kroniki-text {
+  margin-top: .25rem;
+  font-size: .9rem;
+  color: var(--text-main);
+}
+
+.kroniki-time {
+  margin-top: .25rem;
+  font-size: .7rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
