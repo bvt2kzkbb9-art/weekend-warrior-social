@@ -525,7 +525,11 @@ async function _clearTyping() {
   } catch (err) { _handleError('[clearTyping]', err); }
 }
 
+// przed
+const s = await getDoc(doc(db, COL.USERS, otherId));
 
+// po
+const s = await getDoc(doc(db, USERS_COL, otherId));
 // ════════════════════════════════════════════════════════════
 // MESSAGE STREAM
 // ════════════════════════════════════════════════════════════
