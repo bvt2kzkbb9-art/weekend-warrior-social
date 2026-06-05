@@ -284,96 +284,134 @@
 
   document.getElementById('logout-btn').addEventListener('click', logout);
 
+  /**
+   * Źródło prawdy: dokładnie te same IDs co achievements.js ACHIEVEMENTS
+   * Pole `check` pozwala wykryć osiągnięcia lokalnie (bez czekania na backend)
+   * nawet jeśli nie zostały jeszcze zapisane w Firestore.
+   */
   const ALL_ACHIEVEMENTS = [
-    // Kroniki
-    { id:'first_post',    cat:'Kroniki',   icon:'📜', name:'Kronikarz',       desc:'Napisz swój pierwszy post w Kronikach',       xp: 50  },
-    { id:'posts_10',      cat:'Kroniki',   icon:'✍️', name:'Bard Areny',      desc:'Opublikuj 10 postów',                          xp: 100 },
-    { id:'posts_50',      cat:'Kroniki',   icon:'📚', name:'Wielki Kronikarz', desc:'Opublikuj 50 postów',                         xp: 300 },
-    { id:'first_like',    cat:'Kroniki',   icon:'❤️', name:'Iskra Sławy',     desc:'Zbierz pierwsze polubienie',                   xp: 30  },
-    { id:'likes_100',     cat:'Kroniki',   icon:'🌟', name:'Sławny Wojownik', desc:'Zbierz łącznie 100 polubień',                  xp: 250 },
-    // Wyzwania
-    { id:'first_win',     cat:'Misje',     icon:'⚔️', name:'Pierwsza Krew',   desc:'Wygraj swoje pierwsze wyzwanie',               xp: 100 },
-    { id:'wins_5',        cat:'Misje',     icon:'🗡', name:'Łowca Wyzwań',   desc:'Wygraj 5 wyzwań',                              xp: 200 },
-    { id:'wins_10',       cat:'Misje',     icon:'🏆', name:'Champion',        desc:'Wygraj 10 wyzwań',                             xp: 350 },
-    { id:'wins_50',       cat:'Misje',     icon:'👑', name:'Legenda Areny',   desc:'Wygraj 50 wyzwań',                             xp: 1000},
-    { id:'first_sent',    cat:'Misje',     icon:'🎯', name:'Wyzywacz',        desc:'Rzuć pierwsze wyzwanie innemu wojownikowi',     xp: 50  },
-    { id:'sent_10',       cat:'Misje',     icon:'🐍', name:'Pogromca Węży',   desc:'Rzuć 10 wyzwań',                               xp: 200 },
-    // Quiz
-    { id:'first_quiz',    cat:'Quizy',     icon:'🧠', name:'Inicjacja',       desc:'Ukończ swój pierwszy quiz',                    xp: 50  },
-    { id:'quizzes_10',    cat:'Quizy',     icon:'📖', name:'Uczony',          desc:'Ukończ 10 quizów',                             xp: 150 },
-    { id:'quizzes_50',    cat:'Quizy',     icon:'🔮', name:'Mag Wiedzy',      desc:'Ukończ 50 quizów',                             xp: 400 },
-    { id:'perfect_quiz',  cat:'Quizy',     icon:'💡', name:'Jasność Umysłu', desc:'Odpowiedz bezbłędnie na wszystkie pytania',     xp: 200 },
-    // Seria
-    { id:'streak_3',      cat:'Seria',     icon:'🔥', name:'Rozgrzany',       desc:'Zaloguj się 3 dni z rzędu',                    xp: 75  },
-    { id:'streak_7',      cat:'Seria',     icon:'🌋', name:'Ogień Tygodnia',  desc:'Zaloguj się 7 dni z rzędu',                    xp: 150 },
-    { id:'streak_30',     cat:'Seria',     icon:'💎', name:'Wieczny Płomień', desc:'Zaloguj się 30 dni z rzędu',                   xp: 500 },
-    { id:'streak_100',    cat:'Seria',     icon:'🏅', name:'Nieśmiertelny',   desc:'Zaloguj się 100 dni z rzędu',                  xp: 2000},
-    // Poziomy
-    { id:'level_5',       cat:'Poziomy',   icon:'🛡', name:'Giermek',         desc:'Osiągnij poziom 5',                            xp: 100 },
-    { id:'level_10',      cat:'Poziomy',   icon:'⚔', name:'Rycerz',           desc:'Osiągnij poziom 10',                           xp: 250 },
-    { id:'level_20',      cat:'Poziomy',   icon:'🦅', name:'Kapitan',         desc:'Osiągnij poziom 20',                           xp: 500 },
-    { id:'level_50',      cat:'Poziomy',   icon:'🌑', name:'Mroczny Lord',    desc:'Osiągnij poziom 50',                           xp: 2000},
-    // Społeczność
-    { id:'first_follow',  cat:'Społeczność',icon:'🤝',name:'Bratni Duch',     desc:'Obserwuj pierwszego wojownika',                xp: 30  },
-    { id:'followers_10',  cat:'Społeczność',icon:'⚜️',name:'Wpływowy',        desc:'Zdobądź 10 obserwujących',                     xp: 200 },
-    { id:'invite_friend', cat:'Społeczność',icon:'📯',name:'Herold Areny',    desc:'Zaproś do Areny swojego sprzymierzeńca',        xp: 100 },
+    // ── Aktywność ──────────────────────────────────────────
+    { id:'first_post',      cat:'Aktywność',  icon:'📝', name:'Pierwsze słowo',           desc:'Opublikuj swój pierwszy post na arenie.',        xp:  50, check: d => (d.postsCount    ?? 0) >= 1  },
+    { id:'five_posts',      cat:'Aktywność',  icon:'✍️', name:'Narrator areny',           desc:'Opublikuj 5 postów.',                             xp: 100, check: d => (d.postsCount    ?? 0) >= 5  },
+    { id:'ten_posts',       cat:'Aktywność',  icon:'📖', name:'Kronikarz bitew',          desc:'Opublikuj 10 postów.',                            xp: 150, check: d => (d.postsCount    ?? 0) >= 10 },
+    { id:'fifty_posts',     cat:'Aktywność',  icon:'🗡️', name:'Głos Areny',              desc:'Opublikuj 50 postów.',                            xp: 400, check: d => (d.postsCount    ?? 0) >= 50 },
+    { id:'first_comment',   cat:'Aktywność',  icon:'💬', name:'Pierwszy głos',           desc:'Dodaj swój pierwszy komentarz.',                  xp:  30, check: d => (d.commentsCount ?? 0) >= 1  },
+    { id:'twenty_comments', cat:'Aktywność',  icon:'🗣️', name:'Mówca areny',            desc:'Dodaj 20 komentarzy.',                            xp: 150, check: d => (d.commentsCount ?? 0) >= 20 },
+    // ── Społeczność ─────────────────────────────────────────
+    { id:'first_like',      cat:'Społeczność', icon:'❤️', name:'Pierwsze uznanie',        desc:'Otrzymaj pierwszego lajka.',                      xp:  20, check: d => (d.likesReceived ?? 0) >= 1  },
+    { id:'ten_likes',       cat:'Społeczność', icon:'🔥', name:'Wojownik popularny',      desc:'Otrzymaj 10 lajków.',                             xp:  80, check: d => (d.likesReceived ?? 0) >= 10 },
+    { id:'fifty_likes',     cat:'Społeczność', icon:'⭐', name:'Gwiazda areny',           desc:'Otrzymaj 50 lajków.',                             xp: 200, check: d => (d.likesReceived ?? 0) >= 50 },
+    // ── Rangi ───────────────────────────────────────────────
+    { id:'rank_warrior',    cat:'Rangi',      icon:'🥈', name:'Warrior',                  desc:'Osiągnij rangę Warrior (500 pkt).',               xp: 100, check: d => (d.points        ?? 0) >= 500   },
+    { id:'rank_champion',   cat:'Rangi',      icon:'🥇', name:'Champion',                 desc:'Osiągnij rangę Champion (2000 pkt).',             xp: 300, check: d => (d.points        ?? 0) >= 2000  },
+    { id:'rank_legend',     cat:'Rangi',      icon:'💎', name:'Legend',                   desc:'Osiągnij rangę Legend (10000 pkt).',              xp:1000, check: d => (d.points        ?? 0) >= 10000 },
+    // ── Specjalne ───────────────────────────────────────────
+    { id:'golden_circle',   cat:'Specjalne',  icon:'🌕', name:'Władca Złotego Kręgu',    desc:'Zdobądź 1000 punktów XP.',                        xp: 150, check: d => (d.points        ?? 0) >= 1000  },
+    { id:'light_guardian',  cat:'Specjalne',  icon:'🌟', name:'Strażnik Światła',        desc:'Zdobądź 3000 punktów XP.',                        xp: 300, check: d => (d.points        ?? 0) >= 3000  },
+    { id:'dragon_slayer',   cat:'Specjalne',  icon:'🐉', name:'Pogromca Dwugłowego Węża',desc:'Zdobądź 5000 punktów XP.',                        xp: 500, check: d => (d.points        ?? 0) >= 5000  },
+    { id:'two_worlds',      cat:'Specjalne',  icon:'⚔️', name:'Rycerz Dwóch Światów',   desc:'Zdobądź 7500 punktów XP.',                        xp: 750, check: d => (d.points        ?? 0) >= 7500  },
+    // ── Tajemnicze (secret — pokazane jako ??? jeśli niezablokowane) ──
+    { id:'golden_disc',     cat:'Tajemnicze', icon:'🏅', name:'Wezwanie na Arenę Złotego Dysku', desc:'Tajemnicze osiągnięcie. Odkryj je sam!', xp:  50, secret:true, check: d => (d.points ?? 0) >= 250 },
+    { id:'chaos_serpents',  cat:'Tajemnicze', icon:'🌀', name:'Pojedynek z Wężami Chaosu',       desc:'Tajemnicze osiągnięcie. Odkryj je sam!', xp:  80, secret:true, check: d => (d.postsCount ?? 0) >= 3 && (d.commentsCount ?? 0) >= 5 },
+    { id:'flower_order',    cat:'Tajemnicze', icon:'🌸', name:'Wyzwanie Kwiatowego Zakonu',      desc:'Tajemnicze osiągnięcie. Odkryj je sam!', xp: 120, secret:true, check: d => (d.likesReceived ?? 0) >= 25 },
+    { id:'sun_circle',      cat:'Tajemnicze', icon:'☀️', name:'Bitwa o Krąg Słońca',            desc:'Tajemnicze osiągnięcie. Odkryj je sam!', xp: 200, secret:true, check: d => (d.points ?? 0) >= 4000 },
   ];
+
+  const CAT_ICONS = {
+    'Aktywność':'📝', 'Społeczność':'❤️', 'Rangi':'👑',
+    'Specjalne':'⭐', 'Tajemnicze':'🔮',
+  };
 
   checkAuth(async (user) => {
     let earned = new Set();
-    // 2s skeleton safety timeout
+    let userData = {};
+
     const skTimer = setTimeout(() => {
       const sk = document.getElementById('ach-skeleton');
-      if (sk) { sk.remove(); _renderSummary(new Set()); _renderSections(new Set()); }
+      if (sk) { sk.remove(); _renderSummary(earned, userData); _renderSections(earned, userData); }
     }, 2000);
+
     try {
       const snap = await getDoc(doc(db, COL.USERS, user.uid));
-      const data = snap.data() || {};
-      earned = new Set(data.achievements || []);
+      userData   = snap.data() || {};
+      earned     = new Set(userData.achievements || []);
     } catch(e) { console.warn('[ach]', e); }
+
     clearTimeout(skTimer);
     const sk = document.getElementById('ach-skeleton');
     if (sk) sk.remove();
-    _renderSummary(earned);
-    _renderSections(earned);
+    _renderSummary(earned, userData);
+    _renderSections(earned, userData);
   });
 
-  function _renderSummary(earned) {
-    const total = ALL_ACHIEVEMENTS.length;
-    const count = ALL_ACHIEVEMENTS.filter(a => earned.has(a.id)).length;
-    const pct = Math.round((count / total) * 100);
-    setTimeout(() => {
-      document.getElementById('ach-progress-fill').style.width = pct + '%';
-    }, 300);
-    document.getElementById('ach-progress-label').textContent =
-      `${count} z ${total} odblokowanych · ${pct}% ukończono`;
-    document.getElementById('ach-earned-num').textContent = count;
+  /**
+   * Zlicza jako odblokowane: obecne w earned[] LUB check() == true
+   * To pozwala pokazać osiągnięcia które zostały spełnione ale
+   * nie zostały jeszcze zapisane przez achievements.js (race condition).
+   */
+  function _isUnlocked(ach, earned, data) {
+    return earned.has(ach.id) || (ach.check && ach.check(data));
   }
 
-  function _renderSections(earned) {
+  function _renderSummary(earned, data) {
+    const total = ALL_ACHIEVEMENTS.length;
+    const count = ALL_ACHIEVEMENTS.filter(a => _isUnlocked(a, earned, data)).length;
+    const pct   = Math.round((count / total) * 100);
+    setTimeout(() => {
+      const fill = document.getElementById('ach-progress-fill');
+      if (fill) fill.style.width = pct + '%';
+    }, 300);
+    const label = document.getElementById('ach-progress-label');
+    if (label) label.textContent = `${count} z ${total} odblokowanych · ${pct}% ukończono`;
+    const num = document.getElementById('ach-earned-num');
+    if (num) num.textContent = count;
+  }
+
+  function _renderSections(earned, data) {
     const container = document.getElementById('ach-sections');
+    if (!container) return;
+    container.innerHTML = '';
+
     const categories = [...new Set(ALL_ACHIEVEMENTS.map(a => a.cat))];
     categories.forEach(cat => {
       const items = ALL_ACHIEVEMENTS.filter(a => a.cat === cat);
       const section = document.createElement('div');
-      const catIcons = { 'Kroniki':'📜', 'Misje':'⚔️', 'Quizy':'🧠', 'Seria':'🔥', 'Poziomy':'🛡', 'Społeczność':'🤝' };
-      section.innerHTML = `<div class="ach-section-title">${catIcons[cat]??'◆'} ${cat}</div>`;
+
+      const unlockedInCat = items.filter(a => _isUnlocked(a, earned, data)).length;
+      section.innerHTML = `
+        <div class="ach-section-title">
+          ${CAT_ICONS[cat] ?? '◆'} ${cat}
+          <span style="font-size:.5rem;font-weight:500;color:var(--text-muted);
+                text-transform:none;letter-spacing:0;margin-left:auto;margin-right:0;">
+            ${unlockedInCat}/${items.length}
+          </span>
+        </div>`;
+
       const grid = document.createElement('div');
       grid.className = 'ach-grid';
+
       items.forEach((ach, i) => {
-        const unlocked = earned.has(ach.id);
+        const unlocked = _isUnlocked(ach, earned, data);
+        const isSecret = ach.secret && !unlocked;
+
         const card = document.createElement('div');
         card.className = 'ach-card ' + (unlocked ? 'unlocked' : 'locked');
         card.style.animationDelay = (i * .05) + 's';
-        card.title = unlocked ? ach.desc : 'Zablokowane — ' + ach.desc;
+        card.title = unlocked
+          ? ach.desc
+          : isSecret ? 'Tajemnicze osiągnięcie — odkryj je sam!'
+          : `Zablokowane — ${ach.desc}`;
+
         card.innerHTML = `
           ${unlocked ? '<div class="ach-check">✅</div>' : ''}
-          <div class="ach-icon">${unlocked ? ach.icon : '🔒'}</div>
-          <div class="ach-name">${unlocked ? ach.name : '???'}</div>
-          <div class="ach-desc">${unlocked ? ach.desc : 'Odblokuj, by zobaczyć'}</div>
+          <div class="ach-icon">${isSecret ? '🔒' : (unlocked ? ach.icon : '🔒')}</div>
+          <div class="ach-name">${isSecret ? '???' : (unlocked ? ach.name : ach.name)}</div>
+          <div class="ach-desc">${isSecret ? 'Tajemnicze osiągnięcie' : (unlocked ? ach.desc : ach.desc)}</div>
           <div class="ach-xp-tag">+${ach.xp} XP</div>`;
+
         grid.appendChild(card);
       });
+
       section.appendChild(grid);
       container.appendChild(section);
     });
