@@ -15,8 +15,8 @@
  */
 
 // ── Cloudinary config ─────────────────────────────────────────
-const CLOUD_NAME   = 'weekendwarrior';      // ← zmień na swój cloud name
-const UPLOAD_PRESET = 'weekend-warrior';    // ← unsigned preset
+const CLOUD_NAME   = 'dxanfwb3l';      // ← zmień na swój cloud name
+const UPLOAD_PRESET = 'wws_upload';    // ← unsigned preset
 
 // ── Limity ───────────────────────────────────────────────────
 const MAX_SIZE  = 10 * 1024 * 1024;  // 10 MB
