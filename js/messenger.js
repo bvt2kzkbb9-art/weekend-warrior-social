@@ -55,7 +55,8 @@ import {
 // ── Kolekcje ─────────────────────────────────────────────────
 const COL_CONV = 'conversations';
 const COL_MSG  = 'messages';
-
+// fallback dla kolekcji users (jeśli export COL nie zawiera USERS)
+const USERS_COL = (COL && COL.USERS) ? COL.USERS : 'users';
 // Centralny, bezpieczny handler błędów
 function _handleError(TAG, err, userMessage = null) {
   try {
