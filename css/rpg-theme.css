@@ -1,6 +1,5 @@
 /* ============================================
-   WEEKEND WARRIOR — SILVER/WHITE DARK THEME
-   ONLY COLORS — SAFE FOR ALL LAYOUTS
+   WEEKEND WARRIOR — UNOVERRIDABLE DARK SILVER THEME
    ============================================ */
 
 :root {
@@ -13,21 +12,140 @@
   --accent-silver: #C0C7D1;
   --accent-white: #FFFFFF;
 
-  /* Przyciemnione przyciski */
   --btn-dark: #1A1D26;
   --btn-dark-hover: #2A2E3A;
 }
 
 /* GLOBAL */
-body {
+html body {
   background-color: var(--bg-body) !important;
   color: var(--text-main) !important;
 }
 
 /* TEKST */
-h1, h2, h3, h4, h5 {
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5 {
   color: var(--accent-white) !important;
 }
 
-p, span, li, div {
-  color:
+html body p,
+html body span,
+html body li,
+html body div {
+  color: var(--text-main) !important;
+}
+
+html body .text-muted,
+html body .meta,
+html body .subtitle,
+html body .small,
+html body .timestamp {
+  color: var(--text-muted) !important;
+}
+
+/* LINKI */
+html body a {
+  color: var(--accent-silver) !important;
+}
+
+html body a:hover {
+  color: var(--accent-white) !important;
+}
+
+/* KARTY / SEKCJE */
+html body .card,
+html body .panel,
+html body .box,
+html body .container,
+html body .section,
+html body .profile-card,
+html body .feed-item,
+html body .comment-box,
+html body .notification-item {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--accent-silver) !important;
+}
+
+/* PRZYCISKI — PRZYCIEMNIONE */
+html body button,
+html body .btn,
+html body input[type="submit"],
+html body input[type="button"] {
+  background: var(--btn-dark) !important;
+  color: var(--accent-silver) !important;
+  border: 1px solid var(--accent-silver) !important;
+  transition: 0.2s ease !important;
+}
+
+html body button:hover,
+html body .btn:hover,
+html body input[type="submit"]:hover,
+html body input[type="button"]:hover {
+  background: var(--btn-dark-hover) !important;
+  color: var(--accent-white) !important;
+  border-color: var(--accent-white) !important;
+}
+
+/* INPUTY */
+html body input,
+html body textarea,
+html body select {
+  background: #0F1118 !important;
+  color: var(--text-main) !important;
+  border-color: var(--accent-silver) !important;
+}
+
+html body input:focus,
+html body textarea:focus,
+html body select:focus {
+  border-color: var(--accent-white) !important;
+}
+
+/* AVATARY */
+html body .avatar,
+html body .profile-img,
+html body .round-img {
+  border-color: var(--accent-silver) !important;
+}
+
+/* XP / RANGI / ODZNAKI */
+html body .xp,
+html body .rank,
+html body .badge,
+html body .achievement {
+  color: var(--accent-white) !important;
+  border-color: var(--accent-white) !important;
+}
+
+/* REAKCJE */
+html body .feed-reaction,
+html body .reaction-btn {
+  color: var(--accent-silver) !important;
+}
+
+html body .feed-reaction:hover,
+html body .reaction-btn:hover {
+  color: var(--accent-white) !important;
+}
+
+/* POWIADOMIENIA */
+html body .notification-item.unread {
+  border-left-color: var(--accent-white) !important;
+}
+
+/* TABS */
+html body .tab,
+html body .feed-tab {
+  color: var(--accent-silver) !important;
+  border-bottom-color: transparent !important;
+}
+
+html body .tab.active,
+html body .feed-tab.active {
+  color: var(--accent-white) !important;
+  border-bottom-color: var(--accent-white) !important;
+}
