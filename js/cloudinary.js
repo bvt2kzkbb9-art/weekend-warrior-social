@@ -1,25 +1,29 @@
-const CLOUD_NAME = 'dxanfwb3l';
-const UPLOAD_PRESET = 'wws_upload';
+export const CLOUDINARY_CLOUD_NAME = 'TWOJ_CLOUD_NAME';
+export const CLOUDINARY_UPLOAD_PRESET = 'weekend-warrior';
 
-export async function uploadImage(file) {
-  const fd = new FormData();
+export async function uploadToCloudinary(file, folder = 'wws') {
+const formData = new FormData();
 
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
+formData.append('file', file);
+formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+formData.append('folder', folder);
 
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-    {
-      method: 'POST',
-      body: fd
-    }
-  );
+const response = await fetch(
+`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+{
+method: 'POST',
+body: formData
+}
+);
 
-  if (!res.ok) {
-    throw new Error('Cloudinary upload failed');
-  }
+if (!response.ok) {
+throw new Error('Cloudinary upload failed');
+}
 
-  const data = await res.json();
+const data = await response.json();
 
-  return data.secure_url;
+return {
+url: data.secure_url,
+publicId: data.public_id
+};
 }
