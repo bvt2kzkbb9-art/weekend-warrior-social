@@ -30,6 +30,7 @@ const PRECACHE = [
   './js/challenges.js',
   './js/achievements.js',
   './js/friends.js',
+  './js/laga.js',
   './js/search.js',
   './js/pajac.js',
   './js/blocks.js',

@@ -69,6 +69,9 @@ export const COL = {
   PAJAC:                'pajacChallenges',
   BLOCKS:               'blocks',
   REPORTS:              'reports',
+  LAGA_INVITES:         'laga_invites',
+  ACTIVE_LAGAS:         'active_lagas',
+  LAGA_EVENTS:          'laga_events',
 };
 
 // ── System rang ──────────────────────────────────────────────

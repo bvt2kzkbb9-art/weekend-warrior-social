@@ -48,6 +48,15 @@ const NOTIF_ICONS = {
   new_message:      '💬',
   post_like:        '❤️',
   post_comment:     '💬',
+  // Laga system
+  LAGA_RECEIVED:    '🔥',
+  LAGA_ACCEPTED:    '✅',
+  LAGA_DECLINED:    '❌',
+  LAGA_REPLY:       '⚔️',
+  laga_received:    '🔥',
+  laga_accepted:    '✅',
+  laga_declined:    '❌',
+  laga_reply:       '⚔️',
 };
 
 let unsubNotifications = null;

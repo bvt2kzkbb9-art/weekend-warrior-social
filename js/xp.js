@@ -55,6 +55,11 @@ export const XP_ACTIONS = {
   PAJAC_ACCEPTED:       { key: 'pajac_accepted',       xp: 2,   label: 'Laga Pajacu przyjęta'    },
   PAJAC_WON:            { key: 'pajac_won',            xp: 25,  label: 'Laga Pajacu — wygrana!'  },
   PAJAC_COMPLETED:      { key: 'pajac_completed',      xp: 10,  label: 'Laga Pajacu — ukończona' },
+  // Laga system (nowy)
+  LAGA_SENT:            { key: 'laga_sent',            xp: 5,   label: 'Wysłano lagę'            },
+  LAGA_ACCEPTED:        { key: 'laga_accepted',        xp: 10,  label: 'Przyjęto lagę'           },
+  LAGA_REPLIED:         { key: 'laga_replied',         xp: 15,  label: 'Odpowiedź lagą'          },
+  LAGA_COMPLETED:       { key: 'laga_completed',       xp: 25,  label: 'Laga wykonana'           },
 };
 
 
