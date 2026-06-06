@@ -14,7 +14,7 @@ body::before, body::after         { display: none !important; }
 
 .rpg-panel-header { display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border); }
 .rpg-panel-title  { font-size:.8125rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:.375rem;letter-spacing:normal;text-transform:none;font-family:var(--font-ui); }
-.rpg-panel-link   { font-size:.75rem;font-weight:600;color:var(--brand);transition:color var(--dur-fast); }
+.rpg-panel-link   { font-size:.75rem;font-weight:600;color:var(--silver-3,#C8D8E8);transition:color var(--dur-fast); }
 .rpg-panel-link:hover { color:var(--text-primary); }
 
 /* ── Char card ── */
@@ -47,15 +47,15 @@ body::before, body::after         { display: none !important; }
 
 /* ── Misc ── */
 .rpg-see-all { display:block;text-align:center;padding:.625rem;font-size:.75rem;font-weight:600;color:var(--text-muted);border-top:1px solid var(--border);transition:color var(--dur-fast); }
-.rpg-see-all:hover { color:var(--brand); }
+.rpg-see-all:hover { color:var(--silver-3,#C8D8E8); }
 .rpg-divider { display:flex;align-items:center;gap:.625rem;font-size:.6875rem;font-weight:700;color:var(--text-primary);margin:.5rem 0; }
 .rpg-divider::before,.rpg-divider::after { content:'';flex:1;height:1px;background:var(--border); }
-.rpg-count-badge { display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:var(--brand);color:#fff;font-size:.5625rem;font-weight:700;border-radius:9px; }
+.rpg-count-badge { display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:var(--silver-gradient,linear-gradient(135deg,#8A9AB0,#C8D8E8));color:#fff;font-size:.5625rem;font-weight:700;border-radius:9px; }
 
 /* ── Buttons ── */
 .rpg-btn { display:inline-flex;align-items:center;justify-content:center;gap:.375rem;padding:.5rem 1rem;border-radius:var(--r-md);font-size:.875rem;font-weight:600;cursor:pointer;transition:all var(--dur-fast);border:1px solid var(--border-light);background:var(--bg-elevated);color:var(--text-primary);min-height:44px; }
 .rpg-btn:hover { border-color:var(--border-focus);background:var(--bg-card); }
-.rpg-btn-gold   { background:var(--brand);color:#fff;border-color:transparent;box-shadow:0 2px 8px var(--brand-glow); }
+.rpg-btn-gold   { background:var(--silver-gradient,linear-gradient(135deg,#8A9AB0,#C8D8E8));color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(168,184,200,.25); }
 .rpg-btn-gold:hover { background:var(--brand-hover); }
 .rpg-btn-danger { background:rgba(239,68,68,.1);color:var(--error);border-color:rgba(239,68,68,.2); }
 .rpg-btn-danger:hover { background:rgba(239,68,68,.18); }
@@ -67,7 +67,7 @@ body::before, body::after         { display: none !important; }
 .rpg-ch-body { padding:.5rem .625rem; }
 .rpg-ch-emoji{ font-size:1.375rem;text-align:center;padding:.375rem 0 .125rem; }
 .rpg-ch-title{ font-size:.75rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.125rem; }
-.rpg-ch-xp   { font-size:.5625rem;color:var(--brand);font-weight:600; }
+.rpg-ch-xp   { font-size:.5625rem;color:var(--silver-3,#C8D8E8);font-weight:600; }
 .rpg-cards-scroll { display:flex;gap:.625rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.375rem;scrollbar-width:none; }
 .rpg-cards-scroll::-webkit-scrollbar { display:none; }
 .rpg-cards-scroll .rpg-ch-card { flex-shrink:0;width:120px; }
@@ -136,7 +136,7 @@ body::before, body::after         { display: none !important; }
 .challenge-header { display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem; }
 .challenge-icon  { font-size:2rem;flex-shrink:0; }
 .challenge-title { font-size:.9375rem;font-weight:700;color:var(--text-primary); }
-.challenge-xp    { font-size:.75rem;color:var(--brand);font-weight:600; }
+.challenge-xp    { font-size:.75rem;color:var(--silver-3,#C8D8E8);font-weight:600; }
 
 /* ── Duel button ── */
 .duel-btn { display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.75rem 1rem;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:var(--r-lg);font-size:.8125rem;font-weight:700;color:var(--error);cursor:pointer;transition:all var(--dur-fast);min-height:44px; }

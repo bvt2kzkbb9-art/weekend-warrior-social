@@ -10,7 +10,8 @@
 
 .messenger-page {
   display: flex;
-  height: calc(100vh - 56px);       /* minus nav */
+  /* Mobile: pełna wysokość minus top-bar (56px + safe-area) i nav (60px + safe-area) */
+  height: calc(100svh - var(--top-h, 56px) - var(--safe-t, 0px) - var(--nav-h, 60px) - var(--safe-b, 0px));
   max-width: 900px;
   margin: 0 auto;
   overflow: hidden;
@@ -23,6 +24,8 @@
 .conv-sidebar {
   width: 300px;
   flex-shrink: 0;
+  /* Mobile: ukryj sidebar gdy czat otwarty */
+
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
