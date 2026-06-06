@@ -3,64 +3,91 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
+  <meta name="theme-color" content="#0B0D12"/>
   <title>Misje — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
   <link rel="stylesheet" href="css/challenges.css"/>
-  
+  <style>
+    /* ── Tabs ── */
+    .cs-tabs {
+      display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; gap: 0;
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 3px; margin-bottom: .875rem;
+    }
+    .cs-tabs::-webkit-scrollbar { display: none; }
+    [data-cs-tab] {
+      flex: 1; flex-shrink: 0;
+      padding: .5rem .5rem; background: none; border: none;
+      border-radius: calc(var(--r-lg) - 3px);
+      font-family: var(--font-ui); font-size: .6875rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      transition: all var(--dur-fast); white-space: nowrap; min-height: 36px;
+    }
+    [data-cs-tab].active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+
+    /* ── Challenge cards grid ── */
+    .cs-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px,100%), 1fr));
+      gap: .875rem; width: 100%;
+    }
+
+    /* ── Sections ── */
+    .cs-section { display: none; }
+
+    /* Page header */
+    .ch-page-header { padding: .75rem 0 .5rem; }
+    .ch-page-title  { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+    .ch-page-sub    { font-size: .875rem; color: var(--text-muted); margin-top: .125rem; }
+  </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <header class="top-bar">
-  
-  <a href="index.html" class="top-bar-brand">Misje</a>
-  <nav class="top-bar-actions" aria-label="Akcje górne">
-    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    </a>
-    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości" id="msg-top-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-      </svg>
-      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
-    </a>
-    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 01-3.46 0"/>
-      </svg>
-      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
-    </button>
-    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
-  </nav>
+  <div class="top-bar-inner">
+    <a href="index.html" class="top-bar-brand">Misje Areny</a>
+    <nav class="top-bar-actions">
+      <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </a>
+      <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+      </a>
+      <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+      </button>
+      <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Profil">W</a>
+    </nav>
+  </div>
 </header>
 
-<!-- Notifications dropdown -->
-<div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Powiadomienia">
+<!-- Notif dropdown -->
+<div id="notif-dropdown" class="notif-dropdown hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
-    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
-    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
+    <span style="font-size:.875rem;font-weight:700;">Powiadomienia</span>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz przeczytane</button>
   </div>
-  <div id="notif-list" style="overflow-y:auto;max-height:360px;-webkit-overflow-scrolling:touch;"></div>
+  <div id="notif-list" style="overflow-y:auto;max-height:360px;"></div>
 </div>
 
-
-<nav class="nav" aria-label="Nawigacja główna">
+<!-- BOTTOM NAV -->
+<nav class="nav" aria-label="Nawigacja">
   <a href="index.html" class="nav-item">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>Arena</span>
   </a>
   <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <span>Kroniki</span>
   </a>
-  <a href="challenges.html" class="nav-item nav-item-hero  active" aria-current="page">
+  <a href="challenges.html" class="nav-item nav-item-hero active" aria-current="page">
     <div class="nav-hero-shield">⚔</div>
     <span>Misje</span>
   </a>
@@ -70,414 +97,121 @@
   </a>
 </nav>
 
+<!-- MAIN CONTENT -->
+<main class="content-area">
+  <div class="page" style="max-width:680px;">
 
-<div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div>
-</div>
+    <div class="ch-page-header">
+      <div class="ch-page-title">🐍 Misje Areny</div>
+      <div class="ch-page-sub">Wybierz swoją próbę, Wojowniku</div>
+    </div>
 
-<!-- Nav -->
+    <!-- Tabs -->
+    <div class="cs-tabs" role="tablist">
+      <button data-cs-tab="challenges" class="active" role="tab">⚔️ Misje</button>
+      <button data-cs-tab="received"   role="tab">📥 Odebrane <span id="received-badge" style="display:none;" class="rpg-count-badge">0</span></button>
+      <button data-cs-tab="sent"       role="tab">📤 Wysłane</button>
+      <button data-cs-tab="active"     role="tab">🎯 Aktywne</button>
+      <button data-cs-tab="history"    role="tab">📜 Historia</button>
+    </div>
 
-
-<!-- Content -->
-<main class="content-area" style="position:relative;z-index:1;">
-  <div class="challenges-page">
-
-    <div class="challenges-header">
-      <div style="font-family:var(--font-display);font-size:clamp(1.125rem,4vw,1.75rem);font-weight:900;
-           letter-spacing:.1em;color:var(--gold-400);text-shadow:0 0 30px var(--gold-glow-lg);margin-bottom:.2rem;">
-        🐍 Misje Areny
+    <!-- SECTION: Challenge cards -->
+    <div id="cs-section-challenges" class="cs-section">
+      <div id="cs-cards-grid" class="cs-cards-grid">
+        <!-- Skeleton -->
+        <div class="ch-card" style="opacity:.4;">
+          <div class="skeleton" style="height:120px;border-radius:var(--r-md);margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:14px;width:60%;border-radius:4px;margin-bottom:.375rem;"></div>
+          <div class="skeleton" style="height:10px;width:40%;border-radius:4px;"></div>
+        </div>
+        <div class="ch-card" style="opacity:.25;">
+          <div class="skeleton" style="height:120px;border-radius:var(--r-md);margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:14px;width:55%;border-radius:4px;margin-bottom:.375rem;"></div>
+          <div class="skeleton" style="height:10px;width:35%;border-radius:4px;"></div>
+        </div>
       </div>
-      <div class="label-caps" style="margin-bottom:.875rem;">Wybierz swoją próbę, Wojowniku</div>
     </div>
 
-    <!-- Challenges grid -->
-    <div id="challenges-grid" class="challenges-grid">
-      <!-- filled by JS -->
+    <!-- SECTION: Received challenges -->
+    <div id="cs-section-received" class="cs-section">
+      <div id="cs-received-list"></div>
     </div>
 
-    <div style="height:1rem;"></div>
+    <!-- SECTION: Sent challenges -->
+    <div id="cs-section-sent" class="cs-section">
+      <div id="cs-sent-list"></div>
+    </div>
+
+    <!-- SECTION: Active challenges -->
+    <div id="cs-section-active" class="cs-section">
+      <div id="cs-active-list"></div>
+    </div>
+
+    <!-- SECTION: History -->
+    <div id="cs-section-history" class="cs-section">
+      <div id="cs-history-list"></div>
+    </div>
+
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════
-     CHALLENGE MODAL
-══════════════════════════════════════════ -->
-<div id="ch-modal-backdrop" class="ch-modal-backdrop hidden">
-  <div class="ch-modal" id="ch-modal">
-    <img id="modal-img" src="" alt="" class="ch-modal-img" style="display:none;"/>
-    <div class="ch-modal-body">
-      <div id="modal-badge" class="ch-modal-badge"></div>
-      <div id="modal-title" class="ch-modal-title"></div>
-      <div id="modal-desc" class="ch-modal-desc"></div>
-      <div class="ch-modal-stats">
-        <div class="ch-modal-stat">
-          <span id="modal-xp" class="ch-modal-stat-val">+0 XP</span>
-          <span class="ch-modal-stat-label">Nagroda</span>
-        </div>
-        <div class="ch-modal-stat">
-          <span id="modal-diff" class="ch-modal-stat-val">—</span>
-          <span class="ch-modal-stat-label">Poziom</span>
-        </div>
-        <div class="ch-modal-stat">
-          <span id="modal-cat" class="ch-modal-stat-val">—</span>
-          <span class="ch-modal-stat-label">Kategoria</span>
-        </div>
-      </div>
-      <div class="ch-modal-actions">
-        <button id="modal-quiz-btn" class="rpg-btn rpg-btn-gold" style="flex:1;">🧠 Przystąp do Quizu</button>
-        <button id="modal-close-btn" class="rpg-btn rpg-btn-outline" style="flex:1;">✖ Zamknij</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     QUIZ OVERLAY — PRÓBA WOJOWNIKA
-══════════════════════════════════════════ -->
-<div id="quiz-overlay" class="quiz-overlay hidden">
-  <div class="quiz-container">
-
-    <!-- Quiz header -->
-    <div class="quiz-header">
-      <span class="quiz-eyebrow">⚔ Próba Wojownika</span>
-      <div id="quiz-ch-title" class="quiz-title">—</div>
-      <div class="quiz-progress-row">
-        <div class="quiz-progress-track">
-          <div id="quiz-progress-fill" class="quiz-progress-fill" style="width:0%;"></div>
-        </div>
-        <span id="quiz-progress-label" class="quiz-progress-label">0 / 0</span>
-      </div>
-    </div>
-
-    <!-- Question parchment -->
-    <div class="quiz-parchment" id="quiz-parchment-wrap">
-      <div id="quiz-q-num" class="quiz-q-num">Pytanie 1</div>
-      <div id="quiz-question" class="quiz-question">—</div>
-    </div>
-
-    <!-- Answers -->
-    <div id="quiz-answers" class="quiz-answers"></div>
-
-    <!-- Feedback -->
-    <div id="quiz-feedback" class="quiz-feedback hidden"></div>
-
-    <!-- Result -->
-    <div id="quiz-result" class="quiz-result hidden">
-      <div id="quiz-result-icon" class="quiz-result-icon">🏆</div>
-      <div id="quiz-result-title" class="quiz-result-title">—</div>
-      <div id="quiz-result-msg" class="quiz-result-message">—</div>
-      <div id="quiz-xp-earned" class="quiz-xp-earned">⭐ +0 XP</div>
-      <div style="display:flex;gap:.625rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem;">
-        <button id="quiz-back-btn" class="rpg-btn rpg-btn-gold">⚔ Wróć do Misji</button>
-        <button id="quiz-retry-btn" class="rpg-btn rpg-btn-outline" style="display:none;">🔄 Spróbuj ponownie</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Level-up overlay -->
-<div id="level-up-overlay" class="level-up-overlay hidden">
-  <div class="level-up-burst">🎉 AWANS!</div>
-  <div id="level-up-text" class="level-up-burst" style="font-size:clamp(1.25rem,4vw,2rem);"></div>
-  <div class="level-up-sub">Nowy poziom osiągnięty, Wojowniku!</div>
-</div>
-
 <script type="module">
-  import { injectMessengerBadge } from './js/messenger.js';
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
-  import { checkAuth, logout, showToast } from './js/auth.js';
-  import { db, COL, getLevel, getRank, RANKS } from './js/firebase.js';
-  import { CHALLENGES_DATA } from './js/challenge-system.js';
-  import {
-    collection, addDoc, doc, updateDoc, getDoc, increment, serverTimestamp,
-    query, where, getDocs, orderBy, limit,
-  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
+import { auth, db, COL, getRank, getLevel } from './js/firebase.js';
+import { initChallengeSystem } from './js/challenge-system.js';
+import { injectMessengerBadge } from './js/messenger.js';
+import { initNotifications } from './js/notifications.js';
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  injectLightModeCSS();
-  initTheme();
+// ── Top Bar ───────────────────────────────────────────────
+document.getElementById('notif-bell-btn')?.addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown'))
+    document.getElementById('notif-dropdown')?.classList.add('hidden');
+});
+document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
+  const { markAllRead } = await import('./js/notifications.js');
+  const u = auth.currentUser; if (u) await markAllRead(u.uid);
+});
 
-  document.getElementById('logout-btn').addEventListener('click', logout);
+// ── Init ──────────────────────────────────────────────────
+checkAuth(async (user) => {
+  injectMessengerBadge(user.uid);
+  initNotifications(user.uid);
 
-  let currentUser = null;
-  let currentUserData = null;
-  let currentChallenge = null;
-
-  checkAuth(async (user) => {
-    currentUser = user;
-    injectMessengerBadge(user.uid);
-    // 2s skeleton safety (grid is rendered by JS anyway — just ensure it shows empty if CHALLENGES_DATA fails)
-    const skTimer = setTimeout(() => {
-      const grid = document.getElementById('challenges-grid');
-      if (grid && grid.children.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;
-          font-family:var(--font-heading);font-size:.7rem;color:var(--text-faint);font-style:italic;">
-          Brak dostępnych misji.</div>`;
-      }
-    }, 2000);
-    try {
-      const snap = await getDoc(doc(db, COL.USERS, user.uid));
-      currentUserData = snap.exists() ? snap.data() : { points: 0, displayName: user.displayName };
-    } catch {}
-    clearTimeout(skTimer);
-    _renderGrid();
-  });
-
-  // ── Challenge Grid ──────────────────────────────────────────────
-  function _renderGrid() {
-    const grid = document.getElementById('challenges-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    CHALLENGES_DATA.forEach((ch, idx) => {
-      const card = document.createElement('div');
-      card.className = 'ch-full-card';
-      card.style.animationDelay = (idx * 0.06) + 's';
-      card.innerHTML = `
-        <div class="rpg-ch-num">${ch.order}</div>
-        <div class="ch-full-img-wrap">
-          <img src="${ch.image}" alt="${_esc(ch.title)}" class="ch-full-img" loading="lazy"
-            onerror="this.style.display='none';this.parentElement.style.background='#1A150E'"/>
-        </div>
-        <div class="ch-full-body">
-          <div class="ch-full-badge">${ch.badge}</div>
-          <div class="ch-full-title">${_esc(ch.title)}</div>
-          <div class="ch-full-xp">+${ch.xp} XP</div>
-          <div class="ch-full-actions">
-            <div class="ch-full-action primary">🧠 Quiz</div>
-            <div class="ch-full-action">⚔️ Rzuć</div>
-          </div>
-        </div>`;
-      card.querySelectorAll('.ch-full-action')[0].addEventListener('click', e => {
-        e.stopPropagation(); _openQuiz(ch);
-      });
-      card.querySelectorAll('.ch-full-action')[1].addEventListener('click', e => {
-        e.stopPropagation(); _openModal(ch);
-      });
-      card.addEventListener('click', () => _openModal(ch));
-      grid.appendChild(card);
-    });
-  }
-
-  // ── Challenge Modal ─────────────────────────────────────────────
-  function _openModal(ch) {
-    currentChallenge = ch;
-    document.getElementById('modal-badge').textContent = ch.badge;
-    document.getElementById('modal-title').textContent = ch.title;
-    document.getElementById('modal-desc').textContent = ch.description || `Podejmij wyzwanie ${ch.title} i zdobądź XP!`;
-    document.getElementById('modal-xp').textContent = `+${ch.xp} XP`;
-    document.getElementById('modal-diff').textContent = ch.difficulty || 'Średni';
-    document.getElementById('modal-cat').textContent = ch.category || 'Ogólne';
-    const img = document.getElementById('modal-img');
-    if (ch.image) { img.src = ch.image; img.style.display = 'block'; } else img.style.display = 'none';
-    document.getElementById('ch-modal-backdrop').classList.remove('hidden');
-  }
-
-  document.getElementById('modal-close-btn').addEventListener('click', () => {
-    document.getElementById('ch-modal-backdrop').classList.add('hidden');
-  });
-  document.getElementById('ch-modal-backdrop').addEventListener('click', e => {
-    if (e.target === document.getElementById('ch-modal-backdrop'))
-      document.getElementById('ch-modal-backdrop').classList.add('hidden');
-  });
-  document.getElementById('modal-quiz-btn').addEventListener('click', () => {
-    document.getElementById('ch-modal-backdrop').classList.add('hidden');
-    if (currentChallenge) _openQuiz(currentChallenge);
-  });
-
-  // ── Quiz System ─────────────────────────────────────────────────
-  let quizState = {
-    questions: [], current: 0, correct: 0,
-    answered: false, challenge: null
-  };
-
-  /**
-   * Konwertuje format z challenge-system.js:
-   *   ch.quiz = { question, answers: [...], correct: N, wrongMessages: [...] }
-   * na wewnętrzny format:
-   *   [{ question, options: [...], correctIndex: N }]
-   */
-  function _buildQuestions(ch) {
-    // Nowy format: ch.quiz to obiekt z jednym pytaniem (challenge-system.js)
-    if (ch.quiz && ch.quiz.question && Array.isArray(ch.quiz.answers)) {
-      return [{
-        question:     ch.quiz.question,
-        options:      ch.quiz.answers,
-        correctIndex: typeof ch.quiz.correct === 'number' ? ch.quiz.correct : 0,
-      }];
+  // Top bar avatar
+  try {
+    const snap = await getDoc(doc(db, COL.USERS, user.uid));
+    const d    = snap.exists() ? snap.data() : {};
+    const av   = document.getElementById('top-bar-avatar');
+    if (av) {
+      if (d.photoURL) av.innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
+      else av.textContent = (d.displayName||user.displayName||'W').charAt(0).toUpperCase();
     }
-    // Stary format tablicowy: ch.quiz = [{ question, options, correctIndex }]
-    if (Array.isArray(ch.quiz) && ch.quiz.length > 0) {
-      return ch.quiz;
-    }
-    // Fallback
-    return _defaultQuestions(ch);
-  }
+  } catch {}
 
-  function _openQuiz(ch) {
-    const questions = _buildQuestions(ch);
-    quizState = { questions, current: 0, correct: 0, answered: false, challenge: ch };
+  // Pobierz dane użytkownika
+  let userData = null;
+  try { userData = await getCurrentUserData(user.uid, user); } catch {}
+  userData ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
 
-    document.getElementById('quiz-ch-title').textContent = ch.title;
-    document.getElementById('quiz-overlay').classList.remove('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
-    document.getElementById('quiz-parchment-wrap').classList.remove('hidden');
-    document.getElementById('quiz-answers').classList.remove('hidden');
-    _renderQuestion();
-  }
+  // Inicjalizuj system wyzwań (zakładki + karty + send modal + realtime)
+  initChallengeSystem(user, userData);
 
-  function _renderQuestion() {
-    const { questions, current } = quizState;
-    const q = questions[current];
-    if (!q) return;
+  // Pokaż domyślną sekcję
+  const hash = window.location.hash.replace('#','');
+  const validTabs = ['challenges','received','sent','active','history'];
+  const startTab  = validTabs.includes(hash) ? hash : 'challenges';
 
-    document.getElementById('quiz-q-num').textContent = `Pytanie ${current + 1}`;
-    document.getElementById('quiz-question').textContent = q.question;
-    document.getElementById('quiz-progress-label').textContent = `${current + 1} / ${questions.length}`;
-    const pct = ((current + 1) / questions.length) * 100;
-    document.getElementById('quiz-progress-fill').style.width = pct + '%';
-    document.getElementById('quiz-feedback').classList.add('hidden');
-
-    const answersEl = document.getElementById('quiz-answers');
-    answersEl.innerHTML = '';
-    const runes = ['Ⅰ','Ⅱ','Ⅲ','Ⅳ'];
-    // Obsługuje zarówno `options` jak i `answers` (aliasy)
-    const opts = q.options || q.answers || [];
-    opts.forEach((opt, i) => {
-      const btn = document.createElement('div');
-      btn.className = 'quiz-answer';
-      btn.style.animationDelay = (i * 0.07) + 's';
-      btn.innerHTML = `
-        <div class="quiz-answer-rune">${runes[i] || (i + 1)}</div>
-        <div class="quiz-answer-text">${_esc(opt)}</div>`;
-      btn.addEventListener('click', () => _selectAnswer(i, btn));
-      answersEl.appendChild(btn);
-    });
-    quizState.answered = false;
-  }
-
-  function _selectAnswer(idx, btn) {
-    if (quizState.answered) return;
-    quizState.answered = true;
-
-    const q = quizState.questions[quizState.current];
-    // Obsługuje zarówno `correctIndex` jak i `correct` (aliasy)
-    const correctIdx = typeof q.correctIndex === 'number' ? q.correctIndex
-                     : typeof q.correct      === 'number' ? q.correct
-                     : 0;
-    const isCorrect = idx === correctIdx;
-    const feedback = document.getElementById('quiz-feedback');
-    const allBtns = document.querySelectorAll('.quiz-answer');
-
-    // Zaznacz poprawną odpowiedź
-    if (allBtns[correctIdx]) allBtns[correctIdx].classList.add('correct');
-    if (!isCorrect) btn.classList.add('wrong');
-
-    // Feedback message
-    feedback.classList.remove('hidden', 'correct', 'wrong');
-    if (isCorrect) {
-      feedback.classList.add('correct');
-      feedback.innerHTML = `<span class="quiz-feedback-icon">⚔️</span>Arena uznała Cię za godnego!`;
-      quizState.correct++;
-    } else {
-      // Losowy komunikat z wrongMessages lub domyślny
-      const msgs = q.wrongMessages;
-      const msg = (Array.isArray(msgs) && msgs.length)
-        ? msgs[Math.floor(Math.random() * msgs.length)]
-        : 'Hydra śmieje się z Twojej odpowiedzi…';
-      feedback.classList.add('wrong');
-      feedback.innerHTML = `<span class="quiz-feedback-icon">🐍</span>${_esc(msg)}`;
-    }
-
-    // Advance after delay
-    setTimeout(() => {
-      quizState.current++;
-      if (quizState.current < quizState.questions.length) {
-        _renderQuestion();
-      } else {
-        _showResult();
-      }
-    }, 1600);
-  }
-
-  async function _showResult() {
-    const { questions, correct, challenge } = quizState;
-    const total = questions.length;
-    const passed = correct >= Math.ceil(total * 0.6);
-    const xpEarned = passed ? Math.round(challenge.xp * (correct / total)) : 0;
-
-    document.getElementById('quiz-parchment-wrap').classList.add('hidden');
-    document.getElementById('quiz-answers').classList.add('hidden');
-    document.getElementById('quiz-feedback').classList.add('hidden');
-
-    const result = document.getElementById('quiz-result');
-    result.classList.remove('hidden');
-    document.getElementById('quiz-result-icon').textContent = passed ? '🏆' : '💀';
-    document.getElementById('quiz-result-title').textContent = passed
-      ? '⚔️ Przetestowany w Boju!'
-      : '🐍 Hydra Zatriumfowała...';
-    document.getElementById('quiz-result-msg').textContent = passed
-      ? `Odpowiedziałeś poprawnie na ${correct} z ${total} pytań. Arena cię honoruje!`
-      : `Tylko ${correct} z ${total} odpowiedzi było poprawnych. Trenuj mocniej, wojowniku!`;
-    document.getElementById('quiz-xp-earned').textContent = xpEarned > 0 ? `⭐ +${xpEarned} XP` : '❌ 0 XP';
-    document.getElementById('quiz-retry-btn').style.display = passed ? 'none' : 'inline-flex';
-
-    if (xpEarned > 0 && currentUser) {
-      try {
-        const userRef = doc(db, COL.USERS, currentUser.uid);
-        const beforeSnap = await getDoc(userRef);
-        const oldPts = beforeSnap.data()?.points || 0;
-        await updateDoc(userRef, {
-          points: increment(xpEarned),
-          quizzesCompleted: increment(1),
-        });
-        // Check level-up
-        const newPts = oldPts + xpEarned;
-        if (getLevel(newPts) > getLevel(oldPts)) {
-          _showLevelUp(getLevel(newPts), getRank(newPts));
-        }
-        showToast(`+${xpEarned} XP zdobyte! 🌟`, 'success');
-      } catch (e) { console.warn('[xp update]', e); }
-    }
-  }
-
-  function _showLevelUp(level, rankObj) {
-    const overlay = document.getElementById('level-up-overlay');
-    const text = document.getElementById('level-up-text');
-    text.textContent = `Poziom ${level} · ${rankObj.emoji} ${rankObj.label}`;
-    overlay.classList.remove('hidden');
-    setTimeout(() => overlay.classList.add('hidden'), 3500);
-  }
-
-  document.getElementById('quiz-back-btn').addEventListener('click', () => {
-    document.getElementById('quiz-overlay').classList.add('hidden');
+  document.querySelectorAll('[data-cs-tab]').forEach(btn => {
+    const isActive = btn.dataset.csTab === startTab;
+    btn.classList.toggle('active', isActive);
   });
-  document.getElementById('quiz-retry-btn').addEventListener('click', () => {
-    if (quizState.challenge) _openQuiz(quizState.challenge);
-  });
-
-  function _defaultQuestions(ch) {
-    return [
-      {
-        question: `Jakiej dyscypliny sportowej dotyczy wyzwanie "${ch.title}"?`,
-        options: ['Bieganie', 'Pływanie', 'Siłownia', 'Ogólna sprawność'],
-        correctIndex: 3,
-      },
-      {
-        question: 'Jak często należy trenować, aby zauważyć postępy?',
-        options: ['Raz w miesiącu', 'Raz w tygodniu', '3–4 razy w tygodniu', '10 razy dziennie'],
-        correctIndex: 2,
-      },
-      {
-        question: 'Co jest kluczem do sukcesu w długoterminowym treningu?',
-        options: ['Intensywność', 'Regularność i konsekwencja', 'Drogi sprzęt', 'Dieta białkowa'],
-        correctIndex: 1,
-      },
-    ];
-  }
-
-  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  // Sekcja zostanie pokazana przez initChallengeSystem._loadTab
+});
 </script>
-
 </body>
 </html>
