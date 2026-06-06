@@ -111,9 +111,44 @@
     .user-card-link:hover { color: var(--text-primary); }
 
     /* ── CHALLENGE CARDS ── */
-    .ch-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: .25rem; }
-    .ch-scroll-wrap::-webkit-scrollbar { display: none; }
-    .ch-scroll { display: flex; gap: .625rem; }
+    /* ── Challenge Carousel ── */
+    .ch-scroll-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    .ch-scroll {
+      display: flex;
+      gap: .625rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      padding-bottom: .25rem;
+      cursor: grab;
+    }
+    .ch-scroll:active { cursor: grabbing; }
+    .ch-scroll::-webkit-scrollbar { display: none; }
+    .ch-card-mini {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      width: 130px;
+    }
+    /* Nawigacja karuzeli */
+    .ch-nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg-panel); border: 1px solid var(--border-light);
+      color: var(--text-primary); cursor: pointer; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      transition: all .15s ease; font-size: .875rem;
+    }
+    .ch-nav-btn:hover { background: var(--bg-card); }
+    .ch-nav-prev { left: -4px; }
+    .ch-nav-next { right: -4px; }
+    @media (max-width: 480px) { .ch-nav-btn { display: none; } }
     .ch-card-mini {
       flex-shrink: 0; width: 130px;
       background: var(--bg-panel);
@@ -344,9 +379,36 @@
           <div class="section-title">⚔ Wyzwania dnia</div>
           <a href="challenges.html" class="section-link">Wszystkie →</a>
         </div>
-        <div class="ch-scroll-wrap">
+        <div class="ch-scroll-wrap" id="ch-scroll-wrap">
+          <button class="ch-nav-btn ch-nav-prev" id="ch-prev" aria-label="Poprzednie">◀</button>
           <div class="ch-scroll" id="ch-cards"></div>
+          <button class="ch-nav-btn ch-nav-next" id="ch-next" aria-label="Następne">▶</button>
         </div>
+      </div>
+
+      <!-- 🔥 ZRÓB LAGĘ — główny przycisk -->
+      <div style="margin-bottom:1rem;">
+        <button id="laga-main-btn" style="
+          width:100%; padding:.875rem 1rem;
+          background: linear-gradient(135deg, #6A7A90 0%, #B8C8D8 40%, #8A9AB0 60%, #C8D8E8 100%);
+          border:none; border-radius:var(--r-lg);
+          font-size:1.0625rem; font-weight:800; color:#0B0D12;
+          cursor:pointer; transition:all .15s ease;
+          box-shadow:0 4px 16px rgba(168,184,200,.35), 0 1px 3px rgba(255,255,255,.2) inset;
+          letter-spacing:.01em;
+          display:flex; align-items:center; justify-content:center; gap:.5rem;
+        ">
+          🔥 <span>ZRÓB LAGĘ</span>
+        </button>
+      </div>
+
+      <!-- 🍺 Laga Inbox (przychodzące) -->
+      <div id="laga-inbox-section" style="display:none;margin-bottom:1rem;">
+        <div class="section-header">
+          <div class="section-title">🔥 Przychodzące Lagi</div>
+          <span id="laga-inbox-count" style="font-size:.75rem;font-weight:700;color:#C8D8E8;"></span>
+        </div>
+        <div id="laga-inbox-list"></div>
       </div>
 
       <!-- Received challenges -->
@@ -404,6 +466,7 @@
 
 <script type="module">
   import { checkAuth, logout, getCurrentUserData } from './js/auth.js';
+  import { openLagaModal, listenPendingLagas, buildLagaCard } from './js/laga.js';
   import { auth, db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
   import { checkDailyLogin } from './js/xp.js';
   import { CHALLENGES_DATA } from './js/challenge-system.js';
@@ -435,6 +498,14 @@
 
     checkDailyLogin(user.uid).catch(() => {});
 
+    // ── Laga button ──
+    document.getElementById('laga-main-btn')?.addEventListener('click', () => {
+      openLagaModal(user.uid, data);
+    });
+
+    // ── Laga inbox (realtime) ──
+    _initLagaInbox(user.uid, data);
+
     // Load user data
     const skTimer = setTimeout(() => {
       document.getElementById('user-card-skeleton')?.classList.add('hidden');
@@ -449,6 +520,7 @@
     _renderUserCard(user, userData);
     _updateTopBarAvatar(user, userData);
     _renderChallengeCards();
+    setTimeout(_initCarousel, 300);  // po renderowaniu kart
     _listenInbox(user.uid);
     _listenActive(user.uid);
     _listenStreak(user.uid, userData);
@@ -676,6 +748,109 @@
   })();
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  // ════════════════════════════════════════════════════════
+  // CAROUSEL — Wyzwania dnia
+  // ════════════════════════════════════════════════════════
+  function _initCarousel() {
+    const scroll   = document.getElementById('ch-cards');
+    const prevBtn  = document.getElementById('ch-prev');
+    const nextBtn  = document.getElementById('ch-next');
+    if (!scroll) return;
+
+    const CARD_W = 138; // 130px + 8px gap
+    let autoTimer = null;
+    let userInteracted = false;
+
+    // ── Nav buttons ──
+    prevBtn?.addEventListener('click', () => {
+      userInteracted = true;
+      clearInterval(autoTimer);
+      scroll.scrollBy({ left: -CARD_W * 2, behavior: 'smooth' });
+    });
+    nextBtn?.addEventListener('click', () => {
+      userInteracted = true;
+      clearInterval(autoTimer);
+      scroll.scrollBy({ left: CARD_W * 2, behavior: 'smooth' });
+    });
+
+    // ── Touch swipe (iOS Safari) ──
+    let touchStartX = 0;
+    scroll.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      userInteracted = true;
+      clearInterval(autoTimer);
+    }, { passive: true });
+    scroll.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        scroll.scrollBy({ left: diff > 0 ? CARD_W * 2 : -CARD_W * 2, behavior: 'smooth' });
+      }
+    }, { passive: true });
+
+    // ── Mouse drag ──
+    let isDragging = false, startX = 0, startScroll = 0;
+    scroll.addEventListener('mousedown', e => {
+      isDragging = true; startX = e.pageX; startScroll = scroll.scrollLeft;
+      userInteracted = true; clearInterval(autoTimer);
+    });
+    document.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      scroll.scrollLeft = startScroll - (e.pageX - startX);
+    });
+    document.addEventListener('mouseup', () => { isDragging = false; });
+
+    // ── Autoplay ──
+    function autoScroll() {
+      if (userInteracted) return;
+      const maxScroll = scroll.scrollWidth - scroll.clientWidth;
+      if (scroll.scrollLeft >= maxScroll - 4) {
+        scroll.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        scroll.scrollBy({ left: CARD_W, behavior: 'smooth' });
+      }
+    }
+    setTimeout(() => {
+      if (!userInteracted) {
+        autoTimer = setInterval(autoScroll, 5000);
+      }
+    }, 3000);
+
+    // ── Update nav button visibility ──
+    const updateNav = () => {
+      if (!prevBtn || !nextBtn) return;
+      prevBtn.style.opacity = scroll.scrollLeft > 10 ? '1' : '0.3';
+      nextBtn.style.opacity = scroll.scrollLeft < scroll.scrollWidth - scroll.clientWidth - 10 ? '1' : '0.3';
+    };
+    scroll.addEventListener('scroll', updateNav, { passive: true });
+    setTimeout(updateNav, 500);
+  }
+
+  // ════════════════════════════════════════════════════════
+  // LAGA INBOX (przychodzące lagi)
+  // ════════════════════════════════════════════════════════
+  function _initLagaInbox(uid, userData) {
+    const section = document.getElementById('laga-inbox-section');
+    const list    = document.getElementById('laga-inbox-list');
+    const count   = document.getElementById('laga-inbox-count');
+
+    const unsub = listenPendingLagas(uid, (lagas) => {
+      if (!section || !list) return;
+      if (!lagas.length) { section.style.display = 'none'; return; }
+
+      section.style.display = 'block';
+      if (count) count.textContent = `${lagas.length} nowych`;
+      list.innerHTML = '';
+
+      lagas.slice(0, 5).forEach(laga => {
+        const card = buildLagaCard(laga, uid, userData);
+        list.appendChild(card);
+      });
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', unsub);
+  }
 </script>
 </body>
 </html>

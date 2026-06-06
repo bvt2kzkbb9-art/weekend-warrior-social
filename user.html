@@ -289,6 +289,7 @@
 
 <script type="module">
 import { checkAuth } from './js/auth.js';
+  import { openLagaModal } from './js/laga.js';
 import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
 import { followUser, unfollowUser, isFollowing, getFollowCounts } from './js/social.js';
 import { injectMessengerBadge } from './js/messenger.js';
@@ -564,6 +565,19 @@ function _setupActions(myUser, target) {
   msgBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Napisz`;
   msgBtn.addEventListener('click', () => openConversation(target.uid));
   actions.appendChild(msgBtn);
+
+  // 🔥 Laga button
+  const lagaBtn2 = document.createElement('button');
+  lagaBtn2.className   = 'btn btn-sm';
+  lagaBtn2.style.cssText = 'background:linear-gradient(135deg,#8A9AB0,#C8D8E8);color:#0B0D12;font-weight:800;border:none;';
+  lagaBtn2.innerHTML   = '🔥 Zrób Lagę';
+  lagaBtn2.addEventListener('click', () => {
+    openLagaModal(myUser.uid, {
+      displayName: myData.displayName || myUser.displayName,
+      photoURL:    myData.photoURL    || myUser.photoURL || '',
+    });
+  });
+  actions.appendChild(lagaBtn2);
 }
 
 function _fmtTime(ts) {
