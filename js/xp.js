@@ -35,11 +35,26 @@ import { checkAndUnlockAchievements } from './achievements.js';
 
 // ── XP Values ────────────────────────────────────────────────
 export const XP_ACTIONS = {
-  POST_CREATED:     { key: 'post_created',     xp: 10, label: 'Opublikowano post'    },
-  LIKE_RECEIVED:    { key: 'like_received',    xp: 2,  label: 'Otrzymano lajka'      },
-  COMMENT_ADDED:    { key: 'comment_added',    xp: 3,  label: 'Dodano komentarz'     },
-  COMMENT_RECEIVED: { key: 'comment_received', xp: 1,  label: 'Otrzymano komentarz'  },
-  DAILY_LOGIN:      { key: 'daily_login',      xp: 5,  label: 'Dzienne logowanie'    },
+  // Feed
+  POST_CREATED:         { key: 'post_created',         xp: 10,  label: 'Opublikowano post'       },
+  LIKE_RECEIVED:        { key: 'like_received',        xp: 2,   label: 'Otrzymano lajka'         },
+  COMMENT_ADDED:        { key: 'comment_added',        xp: 3,   label: 'Dodano komentarz'        },
+  COMMENT_RECEIVED:     { key: 'comment_received',     xp: 1,   label: 'Otrzymano komentarz'     },
+  DAILY_LOGIN:          { key: 'daily_login',          xp: 5,   label: 'Dzienne logowanie'       },
+  // Challenges
+  CHALLENGE_SENT:       { key: 'challenge_sent',       xp: 2,   label: 'Wysłano wyzwanie'        },
+  CHALLENGE_ACCEPTED:   { key: 'challenge_accepted',   xp: 5,   label: 'Zaakceptowano wyzwanie'  },
+  CHALLENGE_COMPLETED:  { key: 'challenge_completed',  xp: 25,  label: 'Ukończono wyzwanie'      },
+  QUIZ_PASSED:          { key: 'quiz_passed',          xp: 15,  label: 'Zaliczono quiz'          },
+  // Social
+  FOLLOW_RECEIVED:      { key: 'follow_received',      xp: 1,   label: 'Nowy obserwujący'        },
+  FRIEND_ADDED:         { key: 'friend_added',         xp: 5,   label: 'Nowy znajomy'            },
+  INVITE_ACCEPTED:      { key: 'invite_accepted',      xp: 20,  label: 'Zaproszenie zaakceptowane'},
+  // Laga Pajacu
+  PAJAC_SENT:           { key: 'pajac_sent',           xp: 2,   label: 'Laga Pajacu wysłana'     },
+  PAJAC_ACCEPTED:       { key: 'pajac_accepted',       xp: 2,   label: 'Laga Pajacu przyjęta'    },
+  PAJAC_WON:            { key: 'pajac_won',            xp: 25,  label: 'Laga Pajacu — wygrana!'  },
+  PAJAC_COMPLETED:      { key: 'pajac_completed',      xp: 10,  label: 'Laga Pajacu — ukończona' },
 };
 
 

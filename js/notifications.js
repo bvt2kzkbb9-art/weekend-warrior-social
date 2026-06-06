@@ -28,6 +28,7 @@ const NOTIF_ICONS = {
   duel:             '⚔️',
   challenge:        '🐍',
   challenge_invite: '⚔️',
+  challenge_accepted:'✅',
   follow:           '👁️',
   achievement:      '🏆',
   xp:               '⭐',
@@ -41,8 +42,12 @@ const NOTIF_ICONS = {
   pajac_completed:  '🏆',
   pajac_expired:    '⏰',
   // Social
-  friend_added:     '🤝',
+  friend_request:   '🤝',
+  friend_accepted:  '🎉',
   share:            '↻',
+  new_message:      '💬',
+  post_like:        '❤️',
+  post_comment:     '💬',
 };
 
 let unsubNotifications = null;
@@ -87,14 +92,21 @@ export function destroyNotifications() {
 // ════════════════════════════════════════════════════════════
 
 function updateBadge(count) {
-  document.querySelectorAll('.notif-badge').forEach(el => {
-    if (count > 0) {
-      el.textContent    = count > 9 ? '9+' : count;
-      el.style.display  = 'flex';
-    } else {
-      el.style.display  = 'none';
-    }
+  const label   = count > 9 ? '9+' : String(count);
+  const visible = count > 0;
+
+  // Legacy badge selectors (.notif-badge, .notif-bell-badge)
+  document.querySelectorAll('.notif-badge, .notif-bell-badge').forEach(el => {
+    el.textContent   = label;
+    el.style.display = visible ? 'flex' : 'none';
   });
+
+  // Top-bar badge (#notif-top-badge)
+  const topBadge = document.getElementById('notif-top-badge');
+  if (topBadge) {
+    topBadge.textContent   = label;
+    topBadge.style.display = visible ? 'flex' : 'none';
+  }
 }
 
 // ════════════════════════════════════════════════════════════

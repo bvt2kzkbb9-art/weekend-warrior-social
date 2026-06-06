@@ -135,6 +135,8 @@ export function initMessenger() {
     }
 
     document.getElementById('msg-skeleton')?.classList.add('hidden');
+    document.getElementById('msg-skeleton')?.remove();
+    document.getElementById('conv-skeleton')?.remove();
     document.getElementById('msg-content')?.classList.remove('hidden');
   });
 }
@@ -258,21 +260,7 @@ function _startConvListStream() {
       setTimeout(() => _startConvListStream(), 2000);
     }
   }, (err) => {
-    console.group('[messenger] ❌ Błąd Firestore — conversations');
-    console.error('Kod:', err.code, '| Msg:', err.message);
-    if (err.code === 'permission-denied') {
-      console.error('➡ ROZWIĄZANIE: Dodaj w Firebase Console → Rules:');
-      console.error('   match /conversations/{c} {');
-      console.error('     allow read: if request.auth != null');
-      console.error('       && request.auth.uid in resource.data.participants;');
-      console.error('   }');
-    } else if (err.code === 'failed-precondition') {
-      console.error('➡ ROZWIĄZANIE: Brak indeksu. Dodaj w Firebase Console → Indexes:');
-      console.error('   Collection: conversations');
-      console.error('   Field: participants (array-contains)');
-    }
-    console.groupEnd();
-    _handleError(TAG, err, 'Błąd subskrypcji konwersacji. Sprawdź reguły Firestore.');
+    _handleError(TAG, err, 'Błąd subskrypcji konwersacji.');
   });
 }
 
@@ -374,7 +362,7 @@ function _renderChatHeader(convId, other, otherId) {
   if (!header) return;
   const ini = (other.displayName || 'W').charAt(0).toUpperCase();
   header.innerHTML = `
-    <button class="chat-back-btn" id="chat-back" aria-label="Wróć">
+    <button class="chat-back-btn" style="display:none;width:36px;height:36px;border-radius:50%;background:none;border:none;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;margin-right:.25rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="chat-back-btn" id="chat-back" aria-label="Wróć">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
