@@ -4,7 +4,49 @@
  * Firebase SDK 10.12.2 | ES Modules | CDN
  * ============================================================
  */
-{
+
+import { initializeApp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+import {
+  getFirestore,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// ── Konfiguracja ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            'AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98',
+  authDomain:        'weekend-warrior-social-ed3d0.firebaseapp.com',
+  projectId:         'weekend-warrior-social-ed3d0',
+  storageBucket:     'weekend-warrior-social-ed3d0.firebasestorage.app',
+  messagingSenderId: '487311448505',
+  appId:             '1:487311448505:web:ffbe035b92efa8fc193e68',
+};
+
+// ── Inicjalizacja ────────────────────────────────────────────
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+  console.log('[Firebase] ✅ App initialized — project:', firebaseConfig.projectId);
+} catch (err) {
+  console.error('[Firebase] ❌ initializeApp failed:', err);
+  throw err;
+}
+
+export const auth = getAuth(app);
+export const db   = getFirestore(app);
+
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+console.log('[Firebase] ✅ Auth + Firestore ready');
+
+// {
+  "firestore": {{
   "indexes": [
     {
       "collectionGroup": "posts",
@@ -233,48 +275,6 @@
   ],
   "fieldOverrides": []
 }
-import { initializeApp }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-
-import {
-  getAuth,
-  GoogleAuthProvider,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-import {
-  getFirestore,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-// ── Konfiguracja ─────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey:            'AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98',
-  authDomain:        'weekend-warrior-social-ed3d0.firebaseapp.com',
-  projectId:         'weekend-warrior-social-ed3d0',
-  storageBucket:     'weekend-warrior-social-ed3d0.firebasestorage.app',
-  messagingSenderId: '487311448505',
-  appId:             '1:487311448505:web:ffbe035b92efa8fc193e68',
-};
-
-// ── Inicjalizacja ────────────────────────────────────────────
-let app;
-try {
-  app = initializeApp(firebaseConfig);
-  console.log('[Firebase] ✅ App initialized — project:', firebaseConfig.projectId);
-} catch (err) {
-  console.error('[Firebase] ❌ initializeApp failed:', err);
-  throw err;
-}
-
-export const auth = getAuth(app);
-export const db   = getFirestore(app);
-
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-console.log('[Firebase] ✅ Auth + Firestore ready');
-
-// {
-  "firestore": {
     "indexes": "firestore.indexes.json"
   }
 }
