@@ -22,7 +22,7 @@ import {
 
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
 import { makeAvatarsClickable, openUserProfile } from './social.js';
-import { lookupByUsername } from './search.js';
+import { getFriends } from './friends.js';
 import { injectNotifBell, createNotification } from './notifications.js';
 
 import {
@@ -46,7 +46,6 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 import { uploadToCloudinary } from './cloudinary.js';
-import { getBlockedIds, filterBlockedPosts, injectReportButton } from './blocks.js';
 
 
 // ════════════════════════════════════════════════════════════
@@ -65,8 +64,9 @@ let hasMorePosts    = false;
 let unsubFeed       = null;
 let selectedImage   = null;
 let isPosting       = false;
-let activeTab       = 'forYou';   // 'forYou' | 'following' | 'latest'
+let activeTab       = 'forYou';   // 'forYou' | 'following' | 'latest' | 'friends'
 let followingIds    = [];          // UIDs obserwowanych — dla zakładki "Obserwowani"
+let friendIds       = [];          // UIDs znajomych — dla zakładki "Znajomi" 
 
 
 // ════════════════════════════════════════════════════════════
@@ -154,8 +154,6 @@ export function initFeed() {
     startFeedStream();
 
     checkDailyLogin(user.uid).catch(() => {});
-    // Załaduj zablokowanych użytkowników
-    getBlockedIds(user.uid).catch(() => []);
     document.getElementById('logout-btn')?.addEventListener('click', logout);
 
     // Signal skeleton can hide
@@ -181,6 +179,11 @@ async function _loadFollowingIds(uid) {
     console.warn('[loadFollowingIds]', e.code);
     followingIds = [];
   }
+  // Załaduj znajomych
+  try {
+    friendIds = await getFriends(currentUser.uid);
+    console.log('[feed] Znajomi:', friendIds.length);
+  } catch { friendIds = []; }
 }
 
 
@@ -389,7 +392,19 @@ function startFeedStream() {
 
   // Build query based on active tab
   let q;
-  if (activeTab === 'following' && followingIds.length > 0) {
+  if (activeTab === 'friends' && friendIds.length > 0) {
+    const ids = friendIds.slice(0, 30);
+    q = query(
+      collection(db, COL.POSTS),
+      where('authorId', 'in', ids),
+      orderBy('createdAt', 'desc'),
+      limit(POSTS_PER_PAGE),
+    );
+  } else if (activeTab === 'friends' && friendIds.length === 0) {
+    if (feedLoading) feedLoading.classList.add('hidden');
+    _showEmptyFeed('Brak znajomych', 'Dodaj znajomych, aby zobaczyć ich posty.');
+    return;
+  } else if (activeTab === 'following' && followingIds.length > 0) {
     // Firestore 'in' max 30 items — wytnij
     const ids = followingIds.slice(0, 30);
     q = query(
@@ -539,12 +554,7 @@ function createPostElement(postId, data) {
           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
         </svg>
       </button>`
-    : `<button class="post-menu-btn report-post-btn" aria-label="Zgłoś post" title="Zgłoś post" data-post-id="${postId}" data-author-id="${data.authorId || ''}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-          <line x1="4" y1="22" x2="4" y2="15"/>
-        </svg>
-      </button>`;
+    : '';
 
   // Render content z @mention i #hashtag
   const contentHTML = data.content ? renderContent(data.content) : '';
@@ -692,40 +702,15 @@ function createPostElement(postId, data) {
   // Delete
   el.querySelector('.delete-post-btn')?.addEventListener('click', () => confirmDeletePost(postId, data));
 
-  // Report (non-owner)
-  el.querySelector('.report-post-btn')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (currentUser) {
-      injectReportButton(null, currentUser.uid, 'post', postId, data.authorId);
-      // Wywołaj modal bezpośrednio
-      import('./blocks.js').then(({ injectReportButton: rb }) => {
-        const container = document.createElement('div');
-        rb(container, currentUser.uid, 'post', postId, data.authorId || '');
-        container.querySelector('.report-btn')?.click();
-      });
-    }
-  });
-
   // Image lightbox
   el.querySelector('.post-image')?.addEventListener('click', (e) => openLightbox(e.target.src));
 
   // @mention click
   el.querySelectorAll('.mention-link').forEach(m => {
-    m.addEventListener('click', async (e) => {
+    m.addEventListener('click', (e) => {
       e.preventDefault();
-      // Jeśli mamy uid bezpośrednio (stary format)
-      if (m.dataset.uid) { openUserProfile(m.dataset.uid); return; }
-      // Lookup przez username → uid (nowy format z kolekcji usernames)
-      const nick = m.dataset.mention;
-      if (!nick) return;
-      const btn = m;
-      btn.style.opacity = '.5';
-      try {
-        const uid = await lookupByUsername(nick);
-        if (uid) openUserProfile(uid);
-        else showToast(`Nie znaleziono @${nick}`, 'info', 2000);
-      } catch { showToast('Błąd wyszukiwania.', 'error'); }
-      finally { btn.style.opacity = '1'; }
+      const uid = m.dataset.uid;
+      if (uid) openUserProfile(uid);
     });
   });
 
