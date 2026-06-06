@@ -141,3 +141,79 @@ body::before, body::after         { display: none !important; }
 /* ── Duel button ── */
 .duel-btn { display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.75rem 1rem;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:var(--r-lg);font-size:.8125rem;font-weight:700;color:var(--error);cursor:pointer;transition:all var(--dur-fast);min-height:44px; }
 .duel-btn:hover,.duel-btn:active { background:rgba(239,68,68,.18);transform:translateY(-1px); }
+
+
+/* ══════════════════════════════════════════════════════════════
+   GLOBAL iOS OVERFLOW FIX
+══════════════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  /* Don't add max-width:100% globally — breaks flex/grid */
+}
+
+/* All panels and cards must not overflow */
+.rpg-panel, .rpg-ch-card, .challenge-card,
+.cs-modal, .ch-detail-modal, .ch-card,
+.post-card, .compose-card, .user-card,
+.ach-card, .achievement-item {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Challenge grid — single column on narrow screens */
+.challenges-grid, .ch-cards-grid, #cs-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: .875rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Horizontal scroll containers — clamp width */
+.rpg-cards-scroll, .ch-scroll-wrap, .ch-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rpg-cards-scroll::-webkit-scrollbar,
+.ch-scroll-wrap::-webkit-scrollbar { display: none; }
+
+/* Modals — never wider than viewport */
+.cs-modal-bg, .ch-detail-backdrop,
+.pajac-modal-overlay, .block-modal-overlay {
+  padding-left: max(.75rem, var(--safe-l, 0px));
+  padding-right: max(.75rem, var(--safe-r, 0px));
+}
+.cs-modal, .ch-detail-modal, .pajac-modal, .block-modal {
+  width: 100%;
+  max-width: min(480px, calc(100vw - 1.5rem));
+  box-sizing: border-box;
+}
+
+/* Images inside cards */
+.ch-card-img, .ch-full-img, .ch-detail-img,
+.post-image, .pub-post-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+/* Nav items text — no overflow on very small screens */
+.nav-item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Profile stats grid — 2 col on very small */
+@media (max-width: 320px) {
+  .profile-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .pub-stats          { grid-template-columns: repeat(2, 1fr); }
+}
