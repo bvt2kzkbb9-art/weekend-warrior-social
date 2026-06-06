@@ -31,10 +31,11 @@ const firebaseConfig = {
 let app;
 try {
   app = initializeApp(firebaseConfig);
-  console.log('[Firebase] ✅ App initialized — project:', firebaseConfig.projectId);
 } catch (err) {
-  console.error('[Firebase] ❌ initializeApp failed:', err);
-  throw err;
+  if (err.code !== 'app/duplicate-app') throw err;
+  // already initialized in another module
+  const { getApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+  app = getApp();
 }
 
 export const auth = getAuth(app);
@@ -43,27 +44,34 @@ export const db   = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-console.log('[Firebase] ✅ Auth + Firestore ready');
-
 // ── Kolekcje ─────────────────────────────────────────────────
 export const COL = {
-  USERS:              'users',
-  POSTS:              'posts',
-  CHALLENGES:         'challenges',
-  ACHIEVEMENTS:       'achievements',
-  FOLLOWERS:          'followers',
-  NOTIFICATIONS:      'notifications',
-  POKES:              'pokes',
-  CONVERSATIONS:      'conversations',
-  WEEKLY:             'weeklyScores',
-  CHALLENGE_INVITES:  'challenge_invites',
-  CHALLENGE_COMPLETIONS: 'challenge_completions',
-  CHALLENGE_QUIZZES:  'challenge_quizzes',
-  DUELS:              'duels',
-  USER_CHALLENGES:    'userChallenges',
+  USERS:                'users',
+  POSTS:                'posts',
+  CHALLENGES:           'challenges',
+  ACHIEVEMENTS:         'achievements',
+  FOLLOWERS:            'followers',
+  NOTIFICATIONS:        'notifications',
+  POKES:                'pokes',
+  CONVERSATIONS:        'conversations',
+  WEEKLY:               'weeklyScores',
+  // Friends system
+  FRIEND_REQUESTS:      'friend_requests',
+  FRIENDS:              'friends',
+  // Challenges v2
+  CHALLENGE_INVITES:    'challenge_invites',
+  CHALLENGE_COMPLETIONS:'challenge_completions',
+  CHALLENGE_QUIZZES:    'challenge_quizzes',
+  DUELS:                'duels',
+  USER_CHALLENGES:      'userChallenges',
+  // Misc
+  USERNAMES:            'usernames',
+  PAJAC:                'pajacChallenges',
+  BLOCKS:               'blocks',
+  REPORTS:              'reports',
 };
 
-// ── System rang RPG ──────────────────────────────────────────
+// ── System rang ──────────────────────────────────────────────
 export const RANKS = [
   { id: 'Rookie',   label: 'Rookie',   emoji: '🥉', min: 0,     cssClass: 'rank-rookie'   },
   { id: 'Warrior',  label: 'Warrior',  emoji: '🥈', min: 500,   cssClass: 'rank-warrior'  },
@@ -71,72 +79,22 @@ export const RANKS = [
   { id: 'Legend',   label: 'Legend',   emoji: '💎', min: 10000, cssClass: 'rank-legend'   },
 ];
 
-/**
- * Zwraca obiekt rangi dla podanej liczby punktów.
- * @param {number} points
- * @returns {{ id, label, emoji, min, cssClass }}
- */
 export function getRank(points = 0) {
   const p = Number(points) || 0;
-  const sorted = [...RANKS].reverse();
-  return sorted.find(r => p >= r.min) ?? RANKS[0];
+  return [...RANKS].reverse().find(r => p >= r.min) ?? RANKS[0];
 }
 
-/**
- * Oblicza poziom (co 100 pkt = 1 poziom, min 1).
- * @param {number} points
- * @returns {number}
- */
 export function getLevel(points = 0) {
-  const p = Number(points) || 0;
-  return Math.max(1, Math.floor(p / 100) + 1);
+  return Math.max(1, Math.floor((Number(points) || 0) / 100) + 1);
 }
 
-/**
- * Procent postępu do następnej rangi (0–100).
- * @param {number} points
- * @returns {number}
- */
 export function getRankProgress(points = 0) {
   const p       = Number(points) || 0;
   const current = getRank(p);
   const idx     = RANKS.findIndex(r => r.id === current.id);
   const next    = RANKS[idx + 1];
   if (!next) return 100;
-  const done  = p - current.min;
-  const range = next.min - current.min;
-  return Math.min(100, Math.round((done / range) * 100));
+  return Math.min(100, Math.round(((p - current.min) / (next.min - current.min)) * 100));
 }
 
 export default app;
-
-// ════════════════════════════════════════════════════════════
-// GLOBALNY DEBUG LOGGER
-// ════════════════════════════════════════════════════════════
-// Wywołaj: window.wwsDebug() w konsoli przeglądarki
-window.wwsDebug = async function() {
-  const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-  const { collection, getDocs, query, limit } =
-    await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-
-  console.group('🔍 Firebase Debug — Weekend Warrior Social');
-
-  const user = getAuth().currentUser;
-  console.log('Auth:', user ? `✅ ${user.email} (${user.uid})` : '❌ Niezalogowany');
-
-  for (const [name, colName] of Object.entries(COL)) {
-    try {
-      const snap = await getDocs(query(collection(db, colName), limit(1)));
-      console.log(`Firestore ${colName}:`, snap.empty ? '⚠️ Pusta kolekcja' : `✅ Dostęp OK (≥${snap.size} doc)`);
-    } catch(e) {
-      console.error(`Firestore ${colName}:`, '❌', e.code || e.message);
-    }
-  }
-
-  console.groupEnd();
-};
-
-console.log('[Firebase] 💡 Debug: wpisz window.wwsDebug() w konsoli przeglądarki');
-
-
-// Storage: nie używamy Firebase Storage — wyłącznie Cloudinary (js/cloudinary.js)
