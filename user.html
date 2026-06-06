@@ -82,6 +82,17 @@
     <span>Bohater</span>
   </a>
 
+  <a href="pajac.html" class="nav-item" style="position:relative;">
+    <span style="font-size:1.125rem;line-height:1;display:block;">🍺</span>
+    <span id="pajac-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:#FFAA44;color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Laga</span>
+  </a>
+  <a href="search.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <span>Szukaj</span>
+  </a>
   <a href="messenger.html" class="nav-item" style="position:relative;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
@@ -174,6 +185,8 @@
           </button>
           <!-- Poke container -->
           <div id="poke-container" style="display:none;"></div>
+          <div id="pajac-container" style="display:none;"></div>
+          <div id="block-container" style="margin-top:.25rem;"></div>
 
           <div id="self-msg" class="hidden"
             style="text-align:center;padding:.875rem;font-family:var(--font-heading);
@@ -229,6 +242,8 @@
   import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
   import { CHALLENGES_DATA } from './js/challenge-system.js';
   import { injectPokeButton } from './js/poke.js';
+  import { injectPajacButton } from './js/pajac.js';
+  import { injectBlockButton, injectReportButton } from './js/blocks.js';
   import { openConversation } from './js/messenger.js';
   import {
     doc, getDoc, collection, query, where, orderBy, limit, getDocs, addDoc, serverTimestamp,
@@ -299,6 +314,24 @@
         displayName: myData.displayName || myUser.displayName || 'Wojownik',
         photoURL:    myData.photoURL    || myUser.photoURL    || '',
       });
+    }
+
+    // Laga Pajacu button
+    const pajacContainer = document.getElementById('pajac-container');
+    if (target.uid !== myUser.uid && pajacContainer) {
+      pajacContainer.style.display = 'block';
+      injectPajacButton(pajacContainer, myUser.uid,
+        { displayName: myData.displayName || myUser.displayName, photoURL: myData.photoURL || myUser.photoURL },
+        target.uid,
+        { displayName: userData.displayName, photoURL: userData.photoURL || '' }
+      );
+    }
+
+    // Block button (tylko dla innych)
+    const blockContainer = document.getElementById('block-container');
+    if (target.uid !== myUser.uid && blockContainer) {
+      injectBlockButton(blockContainer, myUser.uid, target.uid);
+      injectReportButton(blockContainer, myUser.uid, 'user', target.uid, target.uid);
     }
   });
 
