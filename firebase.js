@@ -45,7 +45,12 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 console.log('[Firebase] ✅ Auth + Firestore ready');
 
-// ── Kolekcje ─────────────────────────────────────────────────
+// {
+  "firestore": {
+    "indexes": "firestore.indexes.json"
+  }
+}
+── Kolekcje ─────────────────────────────────────────────────
 export const COL = {
   USERS:              'users',
   POSTS:              'posts',
