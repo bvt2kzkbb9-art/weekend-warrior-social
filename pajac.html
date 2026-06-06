@@ -346,38 +346,43 @@ async function loadHistory() {
     list.appendChild(card);
   });
 }
+
+  // ── Top Bar init ─────────────────────────────────────────────
+  (async function() {
+    try {
+      const { auth, db, COL } = await import('./js/firebase.js');
+      const { injectMessengerBadge } = await import('./js/messenger.js');
+      const { initNotifications } = await import('./js/notifications.js');
+      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        injectMessengerBadge(user.uid);
+        initNotifications(user.uid);
+        try {
+          const snap = await getDoc(doc(db, COL.USERS, user.uid));
+          const d    = snap.exists() ? snap.data() : {};
+          const avEl = document.getElementById('top-bar-avatar');
+          if (avEl) {
+            if (d.photoURL) avEl.innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
+            else avEl.textContent = (d.displayName||user.displayName||'W').charAt(0).toUpperCase();
+          }
+          const _sync = () => {
+            const b = document.querySelector('.notif-bell-badge');
+            const t = document.getElementById('notif-top-badge');
+            if (b && t) { t.textContent=b.textContent; t.style.display=(b.style.display!=='none'&&b.textContent&&b.textContent!=='0')?'flex':'none'; }
+          };
+          setTimeout(() => { const b=document.querySelector('.notif-bell-badge'); if(b) new MutationObserver(_sync).observe(b,{childList:true,attributes:true}); _sync(); }, 1000);
+        } catch(e) { console.warn('[topBar avatar]', e.message); }
+      });
+      document.getElementById('notif-bell-btn')?.addEventListener('click', e => { e.stopPropagation(); document.getElementById('notif-dropdown')?.classList.toggle('hidden'); });
+      document.addEventListener('click', e => { if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) document.getElementById('notif-dropdown')?.classList.add('hidden'); });
+      document.getElementById('notif-mark-all')?.addEventListener('click', async () => { const {markAllRead}=await import('./js/notifications.js'); const u=auth.currentUser; if(u) await markAllRead(u.uid); });
+    } catch(e) { console.warn('[topBarInit]', e.message); }
+  })();
 </script>
 
-<script type="module">
-(async function _initTopBar() {
-  try {
-    const { checkAuth } = await import('./js/auth.js');
-    const { db, COL }   = await import('./js/firebase.js');
-    const { injectMessengerBadge } = await import('./js/messenger.js');
-    const { initNotifications }    = await import('./js/notifications.js');
-    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-    checkAuth(async (user) => {
-      injectMessengerBadge(user.uid);
-      initNotifications(user.uid);
-      try {
-        const snap = await getDoc(doc(db, COL.USERS, user.uid));
-        const data = snap.exists() ? snap.data() : {};
-        const avEl = document.getElementById('top-bar-avatar');
-        if (avEl && data.photoURL) avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
-        else if (avEl) avEl.textContent = (data.displayName||user.displayName||'W').charAt(0).toUpperCase();
-        const _sync = () => {
-          const b = document.querySelector('.notif-bell-badge'), tb = document.getElementById('notif-top-badge');
-          if (b && tb) { tb.textContent=b.textContent; tb.style.display=(b.style.display!=='none'&&b.textContent&&b.textContent!=='0')?'flex':'none'; }
-        };
-        setTimeout(() => { const b=document.querySelector('.notif-bell-badge'); if(b){new MutationObserver(_sync).observe(b,{childList:true,attributes:true});} _sync(); }, 1000);
-      } catch {}
-      document.getElementById('notif-bell-btn')?.addEventListener('click', e => { e.stopPropagation(); document.getElementById('notif-dropdown')?.classList.toggle('hidden'); });
-      document.addEventListener('click', e => { if(!e.target.closest('#notif-bell-btn')&&!e.target.closest('#notif-dropdown')) document.getElementById('notif-dropdown')?.classList.add('hidden'); });
-      document.getElementById('notif-mark-all')?.addEventListener('click', async () => { const {markAllRead}=await import('./js/notifications.js'); await markAllRead(user.uid); });
-    });
-  } catch(e) { console.warn('[topBar]', e.message); }
-})();
-</script>
+
 
 </body>
 </html>

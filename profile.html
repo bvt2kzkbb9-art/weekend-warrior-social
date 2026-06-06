@@ -308,8 +308,35 @@
     });
   }
 
+  // Notif bell
+  document.getElementById('notif-bell-btn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown'))
+      document.getElementById('notif-dropdown')?.classList.add('hidden');
+  });
+  document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
+    const { markAllRead } = await import('./js/notifications.js');
+    const u = (await import('./js/firebase.js')).auth.currentUser;
+    if (u) await markAllRead(u.uid);
+  });
+
   checkAuth(async (user) => {
     injectMessengerBadge(user.uid);
+    // Inicjalizuj powiadomienia i top bar avatar
+    const { initNotifications } = await import('./js/notifications.js');
+    initNotifications(user.uid);
+    // Top bar avatar
+    try {
+      const avEl = document.getElementById('top-bar-avatar');
+      if (avEl && user.photoURL) {
+        avEl.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
+      } else if (avEl) {
+        avEl.textContent = (user.displayName||'W').charAt(0).toUpperCase();
+      }
+    } catch {}
     // 2s skeleton safety
     const skTimer = setTimeout(() => {
       document.getElementById('profile-skeleton').style.display = 'none';
@@ -512,128 +539,6 @@
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
-<script type="module">
-  // ── Top Bar wiring (wspólne dla wszystkich stron) ──────────────
-  (async function _initTopBar() {
-    try {
-      const { checkAuth, getCurrentUserData } = await import('./js/auth.js');
-      const { db, COL } = await import('./js/firebase.js');
-      const { injectMessengerBadge } = await import('./js/messenger.js');
-      const { initNotifications } = await import('./js/notifications.js');
-      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
 
-      checkAuth(async (user) => {
-        // Messenger badge
-        injectMessengerBadge(user.uid);
-
-        // Notifications
-        initNotifications(user.uid);
-
-        // Avatar
-        try {
-          const snap = await getDoc(doc(db, COL.USERS, user.uid));
-          const data = snap.exists() ? snap.data() : {};
-          const avEl = document.getElementById('top-bar-avatar');
-          if (avEl) {
-            if (data.photoURL) {
-              avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
-            } else {
-              avEl.textContent = (data.displayName || user.displayName || 'W').charAt(0).toUpperCase();
-            }
-          }
-          // Sync notif badge to top bar
-          const _syncBadge = () => {
-            const src = document.querySelector('.notif-bell-badge');
-            const dst = document.getElementById('notif-top-badge');
-            if (src && dst) {
-              dst.textContent   = src.textContent;
-              dst.style.display = src.style.display !== 'none' && src.textContent !== '0' && src.textContent !== '' ? 'flex' : 'none';
-            }
-          };
-          const obs = new MutationObserver(_syncBadge);
-          setTimeout(() => {
-            const b = document.querySelector('.notif-bell-badge');
-            if (b) obs.observe(b, { childList:true, attributes:true, attributeFilter:['style'] });
-            _syncBadge();
-          }, 800);
-        } catch {}
-
-        // Notif dropdown toggle
-        document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.getElementById('notif-dropdown')?.classList.toggle('hidden');
-        });
-        document.addEventListener('click', (e) => {
-          if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
-            document.getElementById('notif-dropdown')?.classList.add('hidden');
-          }
-        });
-        document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
-          const { markAllRead } = await import('./js/notifications.js');
-          await markAllRead(user.uid);
-        });
-      });
-    } catch(e) { console.warn('[topBar]', e.message); }
-  })();
-
-  // ── Banner hover ─────────────────────────────────────────────
-  const bannerEl  = document.getElementById('profile-banner-el');
-  const bannerOverlay = document.getElementById('banner-overlay');
-  bannerEl?.addEventListener('mouseenter', () => { if(bannerOverlay) bannerOverlay.style.opacity='1'; });
-  bannerEl?.addEventListener('mouseleave', () => { if(bannerOverlay) bannerOverlay.style.opacity='0'; });
-  bannerEl?.addEventListener('click', () => document.getElementById('banner-file-input')?.click());
-
-  document.getElementById('banner-file-input')?.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const { uploadToCloudinary } = await import('./js/cloudinary.js');
-      const { auth, db, COL }      = await import('./js/firebase.js');
-      const { doc, updateDoc }     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const { showToast }          = await import('./js/auth.js');
-      showToast('Przesyłam baner...', 'info', 2000);
-      const res = await uploadToCloudinary(file, `banners/${auth.currentUser?.uid}`);
-      if (bannerEl) bannerEl.style.backgroundImage = `url(${res.url})`;
-      await updateDoc(doc(db, COL.USERS, auth.currentUser.uid), { bannerUrl: res.url });
-      showToast('Baner zaktualizowany! ✅', 'success');
-    } catch(err) {
-      const { showToast } = await import('./js/auth.js');
-      showToast('Błąd uploadu: ' + err.message, 'error');
-    }
-    e.target.value = '';
-  });
-
-  // ── Avatar click ─────────────────────────────────────────────
-  document.getElementById('profile-avatar-clickable')?.addEventListener('click', () => {
-    document.getElementById('avatar-file-input')?.click();
-  });
-
-  document.getElementById('avatar-file-input')?.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const { uploadToCloudinary } = await import('./js/cloudinary.js');
-      const { auth, db, COL }      = await import('./js/firebase.js');
-      const { doc, updateDoc }     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const { updateProfile }      = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-      const { showToast }          = await import('./js/auth.js');
-      showToast('Przesyłam avatar...', 'info', 2000);
-      const res = await uploadToCloudinary(file, `avatars/${auth.currentUser?.uid}`);
-      await updateProfile(auth.currentUser, { photoURL: res.url });
-      await updateDoc(doc(db, COL.USERS, auth.currentUser.uid), { photoURL: res.url });
-      // Update avatar in DOM
-      const avEl = document.getElementById('profile-avatar');
-      if (avEl) avEl.innerHTML = `<img src="${res.url}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar"/>`;
-      const tbAv = document.getElementById('top-bar-avatar');
-      if (tbAv) tbAv.innerHTML = `<img src="${res.url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
-      showToast('Avatar zaktualizowany! ✅', 'success');
-    } catch(err) {
-      const { showToast } = await import('./js/auth.js');
-      showToast('Błąd uploadu: ' + err.message, 'error');
-    }
-    e.target.value = '';
-  });
-
-</script>
 </body>
 </html>

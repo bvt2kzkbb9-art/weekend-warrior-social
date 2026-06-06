@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/arena.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <link rel="stylesheet" href="css/challenges.css"/>
   
 </head>
 <body>
@@ -477,69 +478,6 @@
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
-<script type="module">
-  // ── Top Bar wiring (wspólne dla wszystkich stron) ──────────────
-  (async function _initTopBar() {
-    try {
-      const { checkAuth, getCurrentUserData } = await import('./js/auth.js');
-      const { db, COL } = await import('./js/firebase.js');
-      const { injectMessengerBadge } = await import('./js/messenger.js');
-      const { initNotifications } = await import('./js/notifications.js');
-      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
 
-      checkAuth(async (user) => {
-        // Messenger badge
-        injectMessengerBadge(user.uid);
-
-        // Notifications
-        initNotifications(user.uid);
-
-        // Avatar
-        try {
-          const snap = await getDoc(doc(db, COL.USERS, user.uid));
-          const data = snap.exists() ? snap.data() : {};
-          const avEl = document.getElementById('top-bar-avatar');
-          if (avEl) {
-            if (data.photoURL) {
-              avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
-            } else {
-              avEl.textContent = (data.displayName || user.displayName || 'W').charAt(0).toUpperCase();
-            }
-          }
-          // Sync notif badge to top bar
-          const _syncBadge = () => {
-            const src = document.querySelector('.notif-bell-badge');
-            const dst = document.getElementById('notif-top-badge');
-            if (src && dst) {
-              dst.textContent   = src.textContent;
-              dst.style.display = src.style.display !== 'none' && src.textContent !== '0' && src.textContent !== '' ? 'flex' : 'none';
-            }
-          };
-          const obs = new MutationObserver(_syncBadge);
-          setTimeout(() => {
-            const b = document.querySelector('.notif-bell-badge');
-            if (b) obs.observe(b, { childList:true, attributes:true, attributeFilter:['style'] });
-            _syncBadge();
-          }, 800);
-        } catch {}
-
-        // Notif dropdown toggle
-        document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.getElementById('notif-dropdown')?.classList.toggle('hidden');
-        });
-        document.addEventListener('click', (e) => {
-          if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
-            document.getElementById('notif-dropdown')?.classList.add('hidden');
-          }
-        });
-        document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
-          const { markAllRead } = await import('./js/notifications.js');
-          await markAllRead(user.uid);
-        });
-      });
-    } catch(e) { console.warn('[topBar]', e.message); }
-  })();
-</script>
 </body>
 </html>
