@@ -183,6 +183,35 @@ export const ACHIEVEMENTS = [
     check:    (d) => (d.points ?? 0) >= 7500,
   },
 
+  // ── Laga Pajacu ───────────────────────────────────────────
+  {
+    id:       'first_pajac',
+    category: 'Laga Pajacu',
+    emoji:    '🍺',
+    name:     'Pierwszy Pajac',
+    desc:     'Rzuć pierwsze wyzwanie Lagi Pajacu.',
+    secret:   false,
+    check:    (d) => (d.pajacTotal ?? 0) >= 1,
+  },
+  {
+    id:       'pajac_lord',
+    category: 'Laga Pajacu',
+    emoji:    '👑',
+    name:     'Pajacowy Lord',
+    desc:     'Wygraj 10 wyzwań Lagi Pajacu.',
+    secret:   false,
+    check:    (d) => (d.pajacWins ?? 0) >= 10,
+  },
+  {
+    id:       'laga_legend',
+    category: 'Laga Pajacu',
+    emoji:    '🏆',
+    name:     'Legenda Lagi',
+    desc:     'Wygraj 50 wyzwań Lagi Pajacu.',
+    secret:   false,
+    check:    (d) => (d.pajacWins ?? 0) >= 50,
+  },
+
   // ── Ukryte ────────────────────────────────────────────────
   {
     id:       'golden_disc',

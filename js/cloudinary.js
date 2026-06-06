@@ -4,24 +4,21 @@
  * Upload manager — WYŁĄCZNIE Cloudinary, zero Firebase Storage
  * ============================================================
  *
- * KONFIGURACJA:
- *   1. Wejdź na https://cloudinary.com/console
- *   2. Skopiuj Cloud Name i wpisz poniżej
- *   3. Settings → Upload → Add preset → "weekend-warrior" → Unsigned
+ * Cloud Name i preset pobrane z config.js (dxanfwb3l / wws_upload)
  */
 
-export const CLOUDINARY_CLOUD_NAME   = 'TWOJ_CLOUD_NAME';   // ← ZMIEŃ
-export const CLOUDINARY_UPLOAD_PRESET = 'weekend-warrior';   // ← unsigned preset
+export const CLOUDINARY_CLOUD_NAME    = 'dxanfwb3l';    // z config.js
+export const CLOUDINARY_UPLOAD_PRESET = 'wws_upload';    // z config.js
 
 const BASE_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}`;
-const MAX_SIZE  = 10 * 1024 * 1024;
-const ALLOWED   = ['image/jpeg','image/png','image/webp','image/gif'];
+const MAX_SIZE  = 10 * 1024 * 1024; // 10 MB
+const ALLOWED   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 // ── Upload z progress ──────────────────────────────────────────
 export async function uploadToCloudinary(file, folder = 'wws', onProgress = null) {
   if (!file) throw new Error('Brak pliku');
   if (!ALLOWED.includes(file.type)) throw new Error('Dozwolone: JPG, PNG, WebP, GIF');
-  if (file.size > MAX_SIZE) throw new Error('Plik za duży (max 10 MB)');
+  if (file.size > MAX_SIZE)         throw new Error('Plik za duży (max 10 MB)');
 
   const formData = new FormData();
   formData.append('file',          file);
@@ -34,7 +31,7 @@ export async function uploadToCloudinary(file, folder = 'wws', onProgress = null
     return _uploadXHR(formData, onProgress);
   }
 
-  const res  = await fetch(`${BASE_URL}/image/upload`, { method:'POST', body: formData });
+  const res = await fetch(`${BASE_URL}/image/upload`, { method: 'POST', body: formData });
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
     throw new Error(e?.error?.message || `Cloudinary error ${res.status}`);
@@ -55,9 +52,9 @@ function _uploadXHR(formData, onProgress) {
         try {
           const d = JSON.parse(xhr.responseText);
           resolve({ url: d.secure_url, publicId: d.public_id });
-        } catch { reject(new Error('Nieprawidłowa odpowiedź')); }
+        } catch { reject(new Error('Nieprawidłowa odpowiedź Cloudinary')); }
       } else {
-        try { reject(new Error(JSON.parse(xhr.responseText)?.error?.message || `HTTP ${xhr.status}`)); }
+        try   { reject(new Error(JSON.parse(xhr.responseText)?.error?.message || `HTTP ${xhr.status}`)); }
         catch { reject(new Error(`HTTP ${xhr.status}`)); }
       }
     };
@@ -71,7 +68,7 @@ function _uploadXHR(formData, onProgress) {
 // ── Thumbnail URL ─────────────────────────────────────────────
 export function cloudinaryUrl(publicId, opts = {}) {
   if (!publicId) return '';
-  const { w=null, h=null, crop='fill', quality='auto' } = opts;
+  const { w = null, h = null, crop = 'fill', quality = 'auto' } = opts;
   const t = ['f_auto', `q_${quality}`];
   if (w) t.push(`w_${w}`);
   if (h) t.push(`h_${h}`);
@@ -79,8 +76,10 @@ export function cloudinaryUrl(publicId, opts = {}) {
   return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${t.join(',')}/${publicId}`;
 }
 
-// ── Delete (unsigned — loguje tylko, fizyczne usunięcie wymaga backend) ─
+// ── Delete ────────────────────────────────────────────────────
+// Unsigned preset nie pozwala na delete bez backendu.
+// publicId zapisywany w Firestore — można usunąć ręcznie w Dashboard.
 export async function deleteFromCloudinary(publicId) {
   if (!publicId) return;
-  console.log('[Cloudinary] publicId do usunięcia (ręcznie w Dashboard):', publicId);
+  console.log('[Cloudinary] Plik do usunięcia (ręcznie w Dashboard):', publicId);
 }

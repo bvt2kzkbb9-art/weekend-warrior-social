@@ -258,7 +258,21 @@ function _startConvListStream() {
       setTimeout(() => _startConvListStream(), 2000);
     }
   }, (err) => {
-    _handleError(TAG, err, 'Błąd subskrypcji konwersacji.');
+    console.group('[messenger] ❌ Błąd Firestore — conversations');
+    console.error('Kod:', err.code, '| Msg:', err.message);
+    if (err.code === 'permission-denied') {
+      console.error('➡ ROZWIĄZANIE: Dodaj w Firebase Console → Rules:');
+      console.error('   match /conversations/{c} {');
+      console.error('     allow read: if request.auth != null');
+      console.error('       && request.auth.uid in resource.data.participants;');
+      console.error('   }');
+    } else if (err.code === 'failed-precondition') {
+      console.error('➡ ROZWIĄZANIE: Brak indeksu. Dodaj w Firebase Console → Indexes:');
+      console.error('   Collection: conversations');
+      console.error('   Field: participants (array-contains)');
+    }
+    console.groupEnd();
+    _handleError(TAG, err, 'Błąd subskrypcji konwersacji. Sprawdź reguły Firestore.');
   });
 }
 

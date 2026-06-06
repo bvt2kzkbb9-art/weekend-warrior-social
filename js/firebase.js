@@ -47,19 +47,20 @@ console.log('[Firebase] ✅ Auth + Firestore ready');
 
 // ── Kolekcje ─────────────────────────────────────────────────
 export const COL = {
-  USERS:         'users',
-  POSTS:         'posts',
-  CHALLENGES:    'challenges',
-  ACHIEVEMENTS:  'achievements',
-  // Social Layer 1.0
-  FOLLOWERS:     'followers',
-  NOTIFICATIONS: 'notifications',
-  // Feed 2.0
-  POKES:         'pokes',
-  // Messenger
-  CONVERSATIONS: 'conversations',
-  // Weekly
-  WEEKLY:        'weeklyScores',
+  USERS:              'users',
+  POSTS:              'posts',
+  CHALLENGES:         'challenges',
+  ACHIEVEMENTS:       'achievements',
+  FOLLOWERS:          'followers',
+  NOTIFICATIONS:      'notifications',
+  POKES:              'pokes',
+  CONVERSATIONS:      'conversations',
+  WEEKLY:             'weeklyScores',
+  CHALLENGE_INVITES:  'challenge_invites',
+  CHALLENGE_COMPLETIONS: 'challenge_completions',
+  CHALLENGE_QUIZZES:  'challenge_quizzes',
+  DUELS:              'duels',
+  USER_CHALLENGES:    'userChallenges',
 };
 
 // ── System rang RPG ──────────────────────────────────────────
@@ -108,6 +109,35 @@ export function getRankProgress(points = 0) {
 }
 
 export default app;
+
+// ════════════════════════════════════════════════════════════
+// GLOBALNY DEBUG LOGGER
+// ════════════════════════════════════════════════════════════
+// Wywołaj: window.wwsDebug() w konsoli przeglądarki
+window.wwsDebug = async function() {
+  const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+  const { collection, getDocs, query, limit } =
+    await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+  console.group('🔍 Firebase Debug — Weekend Warrior Social');
+
+  const user = getAuth().currentUser;
+  console.log('Auth:', user ? `✅ ${user.email} (${user.uid})` : '❌ Niezalogowany');
+
+  for (const [name, colName] of Object.entries(COL)) {
+    try {
+      const snap = await getDocs(query(collection(db, colName), limit(1)));
+      console.log(`Firestore ${colName}:`, snap.empty ? '⚠️ Pusta kolekcja' : `✅ Dostęp OK (≥${snap.size} doc)`);
+    } catch(e) {
+      console.error(`Firestore ${colName}:`, '❌', e.code || e.message);
+    }
+  }
+
+  console.groupEnd();
+};
+
+console.log('[Firebase] 💡 Debug: wpisz window.wwsDebug() w konsoli przeglądarki');
+
 
 // ── Storage (eksportowane dla feed.js) ──────────────────────
 export { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';

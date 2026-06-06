@@ -32,10 +32,17 @@ const NOTIF_ICONS = {
   achievement:      '🏆',
   xp:               '⭐',
   system:           '📣',
-  // Messenger
   message:          '💬',
-  // Poke
   poke:             '👈',
+  // Laga Pajacu
+  pajac_challenge:  '🍺',
+  pajac_accepted:   '🔥',
+  pajac_declined:   '🚫',
+  pajac_completed:  '🏆',
+  pajac_expired:    '⏰',
+  // Social
+  friend_added:     '🤝',
+  share:            '↻',
 };
 
 let unsubNotifications = null;

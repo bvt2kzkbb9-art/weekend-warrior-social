@@ -197,6 +197,11 @@ export async function ensureUserDoc(user, extra = {}) {
   try {
     await setDoc(doc(db, COL.USERS, user.uid), data);
     console.log(TAG, '✅ Dokument utworzony:', data.displayName);
+    // Zarejestruj username → uid mapping (dla @mention lookup)
+    try {
+      const regFn = await _getRegisterUsername();
+      if (regFn && data.username) await regFn(user.uid, data.username);
+    } catch {}
     return data;
   } catch (err) {
     console.error(TAG, '❌ setDoc error:', err.code, err.message);

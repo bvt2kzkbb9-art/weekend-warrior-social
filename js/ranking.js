@@ -163,14 +163,23 @@ async function loadAndRender() {
     renderRanking(filterUsers(allUsers, activeTab));
 
   } catch (err) {
-    console.error(TAG, '❌', err.code, err.message);
+    console.group('[ranking] ❌ Błąd Firestore');
+    console.error('Kod:', err.code, '| Msg:', err.message);
+    console.error('Kolekcja: users | Query: orderBy(points, desc) limit(100)');
+    if (err.code === 'permission-denied') {
+      console.error('➡ ROZWIĄZANIE: Dodaj w Firebase Console → Firestore → Rules:');
+      console.error('   match /users/{uid} { allow read: if request.auth != null; }');
+    } else if (err.code === 'failed-precondition') {
+      console.error('➡ ROZWIĄZANIE: Brak composite indeksu. Dodaj w Firebase Console:');
+      console.error('   Collection: users | Field: points DESCENDING');
+    }
+    console.groupEnd();
     hideSkeleton();
 
     if (err.code === 'permission-denied') {
-      showToast('Brak dostępu. Sprawdź reguły Firestore.', 'error');
+      showToast('Brak dostępu do rankingu. Sprawdź reguły Firestore.', 'error');
     } else if (err.code === 'failed-precondition') {
-      // Brak indeksu Firestore
-      console.warn(TAG, '⚠️ Brak indeksu Firestore dla points. Używam fallback.');
+      console.warn(TAG, '⚠️ Brak indeksu — próbuję fallback bez sortowania Firestore');
       await loadFallback();
     } else {
       showToast('Błąd ładowania rankingu.', 'error');
