@@ -342,11 +342,15 @@
       document.getElementById('profile-skeleton').style.display = 'none';
       document.getElementById('profile-content').classList.remove('hidden');
     }, 2000);
-    let data = null;
-    try { data = await getCurrentUserData(user.uid, user); } catch {}
-    data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
+    // Immediate render z danymi Auth (żeby skeleton nie czekał)
+    const quickData = { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
     clearTimeout(skTimer);
-    _renderProfile(user, data);
+    _renderProfile(user, quickData);  // render natychmiast
+
+    // Potem załaduj pełne dane z Firestore i zaktualizuj
+    let data = null;
+    try { data = await getCurrentUserData(user.uid, user); } catch(e) { console.warn('[profile] Firestore:', e.code); }
+    if (data) _renderProfile(user, data);  // update z pełnymi danymi
     _renderAchievements(data);
     _renderStreakCalendar(data);
     await _loadHistory(user.uid);

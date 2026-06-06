@@ -76,7 +76,7 @@
 
 
 <!-- Messenger Layout -->
-<main style="height:calc(100vh - 56px);position:relative;z-index:1;overflow:hidden;">
+<main style="height:calc(100svh - var(--top-h,56px) - var(--safe-t,0px));margin-top:calc(var(--top-h,56px) + var(--safe-t,0px));position:relative;z-index:1;overflow:hidden;">
   <div class="messenger-page" id="msg-content">
 
     <!-- Conversations sidebar -->
@@ -204,10 +204,12 @@
     }
   });
 
-  // Usuń skeleton po załadowaniu
+  // Skeleton usuwany przez initMessenger po załadowaniu danych
+  // Fallback: po 5s jeśli JS nie załadował
   setTimeout(() => {
-    document.getElementById('conv-skeleton')?.remove();
-  }, 2000);
+    const sk = document.getElementById('conv-skeleton');
+    if (sk) sk.remove();
+  }, 5000);
 
   initMessenger();
 
@@ -244,6 +246,33 @@
       document.getElementById('notif-mark-all')?.addEventListener('click', async () => { const {markAllRead}=await import('./js/notifications.js'); const u=auth.currentUser; if(u) await markAllRead(u.uid); });
     } catch(e) { console.warn('[topBarInit]', e.message); }
   })();
+
+  // ── Mobile: sidebar ↔ chat toggle ────────────────────────────
+  function _showChat() {
+    if (window.innerWidth >= 640) return;
+    const sidebar = document.getElementById('conv-sidebar');
+    const chat    = document.getElementById('chat-panel');
+    const empty   = document.getElementById('chat-empty');
+    sidebar?.classList.add('hidden-mobile');
+    chat?.classList.add('active-mobile');
+    empty?.classList.remove('active-mobile');
+  }
+  function _showSidebar() {
+    if (window.innerWidth >= 640) return;
+    const sidebar = document.getElementById('conv-sidebar');
+    const chat    = document.getElementById('chat-panel');
+    sidebar?.classList.remove('hidden-mobile');
+    chat?.classList.remove('active-mobile');
+  }
+  // Override conv-item click to also show chat on mobile
+  document.addEventListener('click', e => {
+    const convItem = e.target.closest('.conv-item');
+    if (convItem) { setTimeout(_showChat, 50); }
+  });
+  // Back button (injected into chat-header by messenger.js)
+  document.addEventListener('click', e => {
+    if (e.target.closest('.chat-back-btn')) _showSidebar();
+  });
 </script>
 
 </body>
