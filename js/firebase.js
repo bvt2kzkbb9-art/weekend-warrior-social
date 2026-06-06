@@ -139,5 +139,4 @@ window.wwsDebug = async function() {
 console.log('[Firebase] 💡 Debug: wpisz window.wwsDebug() w konsoli przeglądarki');
 
 
-// ── Storage (eksportowane dla feed.js) ──────────────────────
-export { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+// Storage: nie używamy Firebase Storage — wyłącznie Cloudinary (js/cloudinary.js)

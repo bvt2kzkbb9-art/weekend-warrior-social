@@ -75,10 +75,10 @@ let followingIds    = [];          // UIDs obserwowanych — dla zakładki "Obse
 
 const REACTIONS = [
   { id: 'like',    emoji: '👍', label: 'Szacunek' },
+  { id: 'fire',    emoji: '🔥', label: 'Kozak'    },
   { id: 'warrior', emoji: '⚔️', label: 'Wojownik' },
-  { id: 'fire',    emoji: '🔥', label: 'Ogień'    },
-  { id: 'legend',  emoji: '👑', label: 'Legenda'  },
-  { id: 'brutal',  emoji: '💀', label: 'Brutalne' },
+  { id: 'dead',    emoji: '💀', label: 'Poległem' },
+  { id: 'lol',     emoji: '😂', label: 'Bekowe'   },
 ];
 
 // Suma wszystkich reakcji na poście
