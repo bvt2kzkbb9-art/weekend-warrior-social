@@ -3,59 +3,137 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
+  <meta name="theme-color" content="#0B0D12"/>
   <title>Sala Chwały — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    .ranking-page { max-width: 640px; margin: 0 auto; padding: 0 .875rem 1rem; }
+
+    /* Header */
+    .ranking-header { padding: .75rem 0 .875rem; }
+    .ranking-title  { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); }
+    .ranking-subtitle { font-size: .875rem; color: var(--text-muted); margin-top: .125rem; }
+
+    /* My position card */
+    #my-position-card {
+      background: rgba(79,124,255,.08);
+      border: 1px solid rgba(79,124,255,.2);
+      border-radius: var(--r-lg);
+      padding: .875rem 1rem;
+      margin-bottom: .875rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    #my-pos-number { font-size: 1.5rem; font-weight: 900; color: var(--brand); flex-shrink: 0; width: 3rem; text-align: center; }
+    #my-pos-name   { font-size: .9375rem; font-weight: 700; color: var(--text-primary); }
+    #my-pos-sub    { font-size: .75rem; color: var(--text-muted); margin-top: .125rem; }
+
+    /* Podium */
+    .ranking-podium {
+      display: grid; grid-template-columns: 1fr 1.15fr 1fr;
+      gap: .5rem; padding: 1rem .875rem .875rem;
+    }
+    .podium-slot {
+      display: flex; flex-direction: column; align-items: center; gap: .25rem;
+      animation: fadeUp .3s ease both;
+    }
+    .podium-crown-wrap { font-size: 1.25rem; min-height: 1.5rem; text-align: center; }
+    .podium-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--bg-elevated); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; color: var(--text-secondary);
+      border: 2.5px solid var(--border-light);
+    }
+    .rank-1 .podium-avatar { border-color: var(--podium-1); width: 64px; height: 64px; }
+    .rank-2 .podium-avatar { border-color: var(--podium-2); }
+    .rank-3 .podium-avatar { border-color: var(--podium-3); }
+    .podium-avatar img { width:100%;height:100%;object-fit:cover; }
+    .podium-base { text-align: center; }
+    .podium-name { font-size: .6875rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+    .podium-pts  { font-size: .625rem; color: var(--text-muted); margin-top: .1rem; }
+
+    /* Filters */
+    .ranking-filters {
+      display: flex; gap: .375rem;
+      padding: .625rem .875rem;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ranking-filters::-webkit-scrollbar { display: none; }
+    .rank-filter {
+      flex-shrink: 0;
+      padding: .375rem .75rem; font-size: .8125rem; font-weight: 600;
+      border-radius: var(--r-full); cursor: pointer; transition: all var(--dur-fast);
+      border: 1px solid var(--border-light); background: transparent; color: var(--text-muted);
+      white-space: nowrap; min-height: 36px;
+    }
+    .rank-filter.active { background: var(--brand); color: #fff; border-color: transparent; }
+    .rank-filter:hover:not(.active) { border-color: var(--border-focus); color: var(--text-primary); }
+
+    /* Ranking rows (override defaults for this page's HTML) */
+    .rank-number {
+      width: 28px; font-size: .875rem; font-weight: 700;
+      color: var(--text-muted); text-align: center; flex-shrink: 0;
+    }
+    .rank-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg-elevated); overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .75rem; color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+    }
+    .rank-avatar img { width:100%;height:100%;object-fit:cover; }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name  { font-size: .9375rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank-sub   { font-size: .6875rem; color: var(--text-muted); }
+    .rank-pts   { font-size: .9375rem; font-weight: 700; color: var(--text-primary); flex-shrink: 0; }
+    .rank-streak { font-size: .75rem; margin-left: .375rem; flex-shrink: 0; }
+    .ranking-row.is-me { background: rgba(79,124,255,.06); }
+    .ranking-row.is-me .rank-name { color: var(--brand); }
+  </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <header class="top-bar">
-  
-  <a href="index.html" class="top-bar-brand">Sala Chwały</a>
-  <nav class="top-bar-actions" aria-label="Akcje górne">
-    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    </a>
-    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości" id="msg-top-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-      </svg>
-      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
-    </a>
-    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 01-3.46 0"/>
-      </svg>
-      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
-    </button>
-    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
-  </nav>
+  <div class="top-bar-inner">
+    <a href="index.html" class="top-bar-brand">Weekend Warrior</a>
+    <nav class="top-bar-actions">
+      <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </a>
+      <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+      </a>
+      <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+      </button>
+      <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar">W</a>
+    </nav>
+  </div>
 </header>
-
-<!-- Notifications dropdown -->
-<div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Powiadomienia">
+<div id="notif-dropdown" class="notif-dropdown hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
     <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
-    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz przeczytane</button>
   </div>
   <div id="notif-list" style="overflow-y:auto;max-height:360px;-webkit-overflow-scrolling:touch;"></div>
 </div>
 
-
-<nav class="nav" aria-label="Nawigacja główna">
+<!-- BOTTOM NAV -->
+<nav class="nav" aria-label="Nawigacja">
   <a href="index.html" class="nav-item">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>Arena</span>
   </a>
   <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <span>Kroniki</span>
   </a>
   <a href="challenges.html" class="nav-item nav-item-hero">
@@ -68,73 +146,59 @@
   </a>
 </nav>
 
-
-<div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div>
-</div>
-
-<!-- Nav -->
-
-
-<main class="content-area" style="position:relative;z-index:1;">
+<main class="content-area">
   <div class="ranking-page">
 
-    <!-- Header -->
     <div class="ranking-header">
       <div class="ranking-title">👑 Sala Chwały</div>
-      <div class="ranking-subtitle">Tabela Najlepszych Wojowników Areny</div>
+      <div class="ranking-subtitle" id="ranking-subtitle">Ładowanie…</div>
     </div>
 
-    <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
-      <!-- Podium skeleton -->
-      <div id="podium-skeleton" style="padding:1.5rem 1rem 1rem;display:flex;justify-content:center;align-items:flex-end;gap:.75rem;">
+    <!-- My position -->
+    <div id="my-position-card" style="display:none;">
+      <div id="my-pos-number">#—</div>
+      <div>
+        <div id="my-pos-name">—</div>
+        <div id="my-pos-sub"></div>
+      </div>
+    </div>
+
+    <!-- Podium panel -->
+    <div class="rpg-panel" style="margin-bottom:.875rem;overflow:hidden;">
+      <div id="podium-skeleton" style="padding:1.25rem .875rem;display:flex;justify-content:center;align-items:flex-end;gap:.75rem;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;">
-          <div class="skeleton" style="width:56px;height:56px;border-radius:50%;"></div>
-          <div class="skeleton" style="height:10px;width:50px;border-radius:4px;"></div>
-          <div class="skeleton" style="height:8px;width:40px;border-radius:4px;"></div>
+          <div class="skeleton" style="width:52px;height:52px;border-radius:50%;"></div>
+          <div class="skeleton" style="height:10px;width:48px;border-radius:3px;"></div>
+          <div class="skeleton" style="height:8px;width:36px;border-radius:3px;"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:8px;">
-          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
-          <div class="skeleton" style="height:10px;width:60px;border-radius:4px;"></div>
-          <div class="skeleton" style="height:8px;width:50px;border-radius:4px;"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:12px;">
+          <div class="skeleton" style="width:64px;height:64px;border-radius:50%;"></div>
+          <div class="skeleton" style="height:10px;width:56px;border-radius:3px;"></div>
+          <div class="skeleton" style="height:8px;width:44px;border-radius:3px;"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:16px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:24px;">
           <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
-          <div class="skeleton" style="height:10px;width:44px;border-radius:4px;"></div>
-          <div class="skeleton" style="height:8px;width:36px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:10px;width:44px;border-radius:3px;"></div>
+          <div class="skeleton" style="height:8px;width:36px;border-radius:3px;"></div>
         </div>
       </div>
-
-      <!-- Podium content -->
       <div id="ranking-podium" class="ranking-podium hidden"></div>
     </div>
 
-    <!-- Ranking list -->
+    <!-- List panel -->
     <div class="rpg-panel">
       <div class="rpg-panel-header">
-        <div class="rpg-panel-title">🗡 Tablice Wojowników</div>
-        <div id="total-count" class="label-caps" style="font-size:.45rem;">—</div>
+        <div class="rpg-panel-title">🗡 Wojownicy</div>
+        <div id="total-count" style="font-size:.6875rem;color:var(--text-muted);"></div>
       </div>
-
-      <!-- Filters -->
-      <div style="display:flex;gap:.375rem;padding:.625rem .875rem;border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none;">
-        <button class="btn btn-primary btn-sm rank-filter active" data-filter="xp">⚔ XP</button>
-        <button class="btn btn-outline btn-sm rank-filter" data-filter="wins">🏆 Wygrane</button>
-        <button class="btn btn-outline btn-sm rank-filter" data-filter="streak">🔥 Seria</button>
+      <div class="ranking-filters">
+        <button class="rank-filter active" data-filter="xp">⚔ XP</button>
+        <button class="rank-filter" data-filter="wins">🏆 Wygrane</button>
+        <button class="rank-filter" data-filter="streak">🔥 Seria</button>
       </div>
-
-      <div id="ranking-list" class="ranking-list">
-        <!-- Skeleton rows (static) -->
-        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:55%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:35%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
-        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:48%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:30%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
-        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:60%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:38%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
-        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:42%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:28%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
-        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:52%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:33%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
-      </div>
-
+      <div id="ranking-list" class="ranking-list"></div>
       <div id="load-more-ranking" style="padding:.625rem;text-align:center;display:none;">
-        <button id="load-more-btn" class="btn btn-outline btn-sm">Załaduj więcej</button>
+        <button id="load-more-btn" class="btn btn-outline btn-sm" style="width:100%;">Załaduj więcej</button>
       </div>
     </div>
 
@@ -143,201 +207,198 @@
 </main>
 
 <script type="module">
-  import { injectMessengerBadge } from './js/messenger.js';
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
-  import { checkAuth, logout } from './js/auth.js';
-  import { db, COL, getRank, getLevel } from './js/firebase.js';
-  import { collection, query, orderBy, limit, getDocs, startAfter } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { checkAuth, logout, getCurrentUserData } from './js/auth.js';
+import { db, COL, getRank, getLevel } from './js/firebase.js';
+import { injectMessengerBadge } from './js/messenger.js';
+import { initNotifications } from './js/notifications.js';
+import {
+  collection, query, orderBy, limit, getDocs, startAfter, doc, getDoc,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  document.getElementById('logout-btn').addEventListener('click', logout);
+let myUid = null, myData = null, lastDoc = null;
+let currentFilter = 'points';
+const PAGE_SIZE = 20;
 
-  let myUid = null;
-  let lastDoc = null;
-  let currentFilter = 'points';
-  const PAGE_SIZE = 20;
+// Notif bell toggle
+document.getElementById('notif-bell-btn')?.addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown'))
+    document.getElementById('notif-dropdown')?.classList.add('hidden');
+});
+document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
+  const { markAllRead } = await import('./js/notifications.js');
+  await markAllRead(myUid);
+});
 
-  injectLightModeCSS();
-  initTheme();
+checkAuth(async (user) => {
+  myUid = user.uid;
+  injectMessengerBadge(user.uid);
+  initNotifications(user.uid);
 
-  checkAuth(async (user) => {
-    myUid = user.uid;
-    // 2s skeleton timeout safety
-    const skeletonTimeout = setTimeout(() => {
-      const sk = document.getElementById('podium-skeleton');
-      if (sk && sk.style.display !== 'none') {
-        sk.style.display = 'none';
-        document.getElementById('ranking-podium').classList.remove('hidden');
-      }
-    }, 2000);
-    await _loadPodium();
-    clearTimeout(skeletonTimeout);
-    await _loadRankingPage(true);
-    _setupFilters();
-  });
+  // Update top bar avatar
+  try {
+    const snap = await getDoc(doc(db, COL.USERS, user.uid));
+    myData = snap.exists() ? snap.data() : {};
+    const avEl = document.getElementById('top-bar-avatar');
+    if (avEl && myData.photoURL) avEl.innerHTML = `<img src="${_esc(myData.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
+    else if (avEl) avEl.textContent = (myData.displayName || user.displayName || 'W').charAt(0).toUpperCase();
+  } catch {}
 
-  async function _loadPodium() {
-    try {
-      const snap = await getDocs(query(collection(db, COL.USERS), orderBy('points','desc'), limit(3)));
-      const users = []; snap.forEach(d => users.push({uid:d.id,...d.data()}));
-      const podium = document.getElementById('ranking-podium');
-      const skeleton = document.getElementById('podium-skeleton');
-      skeleton.style.display = 'none';
-      podium.classList.remove('hidden');
+  const skTimer = setTimeout(() => {
+    document.getElementById('podium-skeleton').style.display = 'none';
+    document.getElementById('ranking-podium').classList.remove('hidden');
+  }, 3000);
 
-      const slots = [
-        {rank:2, i:1, users},
-        {rank:1, i:0, users},
-        {rank:3, i:2, users},
-      ];
-      slots.forEach(({rank, i}) => {
-        const u = users[i];
-        if (!u) return;
-        const ini = (u.displayName||'?')[0].toUpperCase();
-        const crown = ['','👑','🥈','🥉'][rank];
-        const colors = ['','var(--podium-1)','var(--podium-2)','var(--podium-3)'];
-        const div = document.createElement('div');
-        div.className = `podium-slot rank-${rank}`;
-        div.style.animationDelay = (i * .12) + 's';
-        div.innerHTML = `
-          <div class="podium-crown-wrap" style="color:${colors[rank]};">${crown}</div>
-          <div class="podium-avatar-wrap">
-            <div class="podium-avatar">
-              ${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-              :ini}
-            </div>
-          </div>
-          <div class="podium-base">
-            <div class="podium-name">${_esc((u.displayName||'?').split(' ')[0])}</div>
-            <div class="podium-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>
-          </div>`;
-        if (u.uid === myUid) div.style.filter = 'drop-shadow(0 0 12px rgba(212,175,55,.4))';
-        podium.appendChild(div);
-      });
-    } catch(e) { console.warn('[podium]', e); }
+  await _loadPodium();
+  clearTimeout(skTimer);
+  await _loadRankingPage(true);
+  _setupFilters();
+});
+
+async function _loadPodium() {
+  try {
+    const snap = await getDocs(query(collection(db, COL.USERS), orderBy('points','desc'), limit(3)));
+    const users = []; snap.forEach(d => users.push({uid:d.id,...d.data()}));
+
+    const skeleton = document.getElementById('podium-skeleton');
+    const podium   = document.getElementById('ranking-podium');
+    skeleton.style.display = 'none';
+    podium.classList.remove('hidden');
+
+    if (!users.length) return;
+
+    // Order: 2nd | 1st | 3rd
+    const order = [1, 0, 2];
+    order.forEach((i, slot) => {
+      const u = users[i];
+      if (!u) return;
+      const rank  = i + 1;
+      const ini   = (u.displayName||'?')[0].toUpperCase();
+      const crown = ['👑','🥈','🥉'][i];
+      const div   = document.createElement('div');
+      div.className = `podium-slot rank-${rank}`;
+      div.style.animationDelay = (slot * .12) + 's';
+      div.innerHTML = `
+        <div class="podium-crown-wrap">${crown}</div>
+        <div class="podium-avatar">
+          ${u.photoURL ? `<img src="${_esc(u.photoURL)}" alt="Av" onerror="this.parentElement.textContent='${ini}'"/>` : ini}
+        </div>
+        <div class="podium-base">
+          <div class="podium-name">${_esc((u.displayName||'?').split(' ')[0])}</div>
+          <div class="podium-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>
+        </div>`;
+      div.style.cursor = 'pointer';
+      div.addEventListener('click', () => { window.location.href = u.uid===myUid ? 'profile.html' : `user.html?uid=${u.uid}`; });
+      podium.appendChild(div);
+    });
+
+    document.getElementById('ranking-subtitle').textContent = `${snap.size} wojowników na podium`;
+  } catch(e) {
+    console.warn('[podium]', e.code, e.message);
+    document.getElementById('podium-skeleton').style.display = 'none';
+    document.getElementById('ranking-podium').classList.remove('hidden');
+    document.getElementById('ranking-subtitle').textContent = 'Błąd ładowania podium';
+  }
+}
+
+async function _loadRankingPage(reset = false) {
+  if (reset) { lastDoc = null; }
+  const list = document.getElementById('ranking-list');
+  if (reset) {
+    list.innerHTML = '';
+    // Show mini skeleton while loading
+    for (let i = 0; i < 3; i++) {
+      const row = document.createElement('div');
+      row.className = 'ranking-row';
+      row.innerHTML = `
+        <div class="skeleton" style="width:24px;height:14px;border-radius:3px;flex-shrink:0;"></div>
+        <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:.3rem;">
+          <div class="skeleton" style="height:12px;width:52%;border-radius:3px;"></div>
+          <div class="skeleton" style="height:9px;width:35%;border-radius:3px;"></div>
+        </div>
+        <div class="skeleton" style="width:52px;height:12px;border-radius:3px;"></div>`;
+      list.appendChild(row);
+    }
   }
 
-  async function _loadRankingPage(reset = false) {
-    if (reset) { lastDoc = null; }
-    const list = document.getElementById('ranking-list');
+  try {
+    let q = query(collection(db, COL.USERS), orderBy(currentFilter, 'desc'), limit(PAGE_SIZE));
+    if (lastDoc) q = query(collection(db, COL.USERS), orderBy(currentFilter,'desc'), startAfter(lastDoc), limit(PAGE_SIZE));
+    const snap = await getDocs(q);
+    const docs  = snap.docs;
+    lastDoc = docs[docs.length - 1] || null;
+
     if (reset) list.innerHTML = '';
 
-    try {
-      let q = query(collection(db, COL.USERS), orderBy(currentFilter,'desc'), limit(PAGE_SIZE));
-      if (lastDoc) q = query(collection(db, COL.USERS), orderBy(currentFilter,'desc'), startAfter(lastDoc), limit(PAGE_SIZE));
-      const snap = await getDocs(q);
-      const docs = snap.docs;
-      lastDoc = docs[docs.length - 1];
+    const offset = reset ? 0 : list.querySelectorAll('.ranking-row').length;
+    const total  = document.getElementById('total-count');
+    if (total && reset) total.textContent = `${snap.size} graczy`;
 
-      const startPos = reset ? 1 : list.querySelectorAll('.ranking-row').length + 1;
-      docs.forEach((d, i) => {
-        const u = {uid:d.id,...d.data()};
-        const pos = startPos + i;
-        const ini = (u.displayName||'?')[0].toUpperCase();
-        const rankObj = getRank(u.points||0);
-        const row = document.createElement('div');
-        row.className = 'ranking-row' + (u.uid===myUid?' is-me':'');
-        row.style.animationDelay = (i*.04)+'s';
-        row.innerHTML = `
-          <div class="rank-number">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
-          <div class="rank-avatar">${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            :ini}</div>
-          <div class="rank-info">
-            <div class="rank-name">${_esc(u.displayName||'Wojownik')}${u.uid===myUid?' (Ty)':''}</div>
-            <div class="rank-sub">${rankObj.emoji} ${rankObj.label}</div>
-          </div>
-          <div class="rank-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>
-          ${(u.streak||0)>=3?`<div class="rank-streak">${u.streak}🔥</div>`:''}`;
-        row.addEventListener('click', () => { window.location.href = `user.html?uid=${u.uid}`; });
-        list.appendChild(row);
-      });
+    // Find my position
+    let myPos = null;
+    docs.forEach((d, i) => { if (d.id === myUid) myPos = offset + i + 1; });
+    if (myPos) {
+      const card = document.getElementById('my-position-card');
+      if (card) {
+        card.style.display = 'flex';
+        document.getElementById('my-pos-number').textContent = `#${myPos}`;
+        document.getElementById('my-pos-name').textContent   = myData?.displayName || 'Ty';
+        const rankObj = getRank(myData?.points || 0);
+        document.getElementById('my-pos-sub').textContent    = `${rankObj.emoji} ${rankObj.label} · ${(myData?.points||0).toLocaleString('pl-PL')} XP`;
+      }
+    }
 
-      const loadMoreWrap = document.getElementById('load-more-ranking');
-      loadMoreWrap.style.display = docs.length === PAGE_SIZE ? 'block' : 'none';
-    } catch(e) { console.warn('[ranking]', e); }
-  }
-
-  function _setupFilters() {
-    document.querySelectorAll('.rank-filter').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.rank-filter').forEach(b => {
-          b.classList.remove('active');
-          b.className = b.className.replace('btn-primary','btn-outline');
-        });
-        btn.classList.add('active');
-        btn.className = btn.className.replace('btn-outline','btn-primary');
-        const f = btn.dataset.filter;
-        currentFilter = f === 'xp' ? 'points' : f === 'wins' ? 'challengesCompleted' : 'streak';
-        _loadRankingPage(true);
-      });
+    docs.forEach((d, i) => {
+      const u   = { uid: d.id, ...d.data() };
+      const pos = offset + i + 1;
+      const ini = (u.displayName||'?')[0].toUpperCase();
+      const rankObj = getRank(u.points || 0);
+      const medals  = { 1:'🥇', 2:'🥈', 3:'🥉' };
+      const row     = document.createElement('div');
+      row.className = 'ranking-row' + (u.uid===myUid ? ' is-me' : '');
+      row.style.animationDelay = (i * .035) + 's';
+      row.innerHTML = `
+        <div class="rank-number">${medals[pos] || pos}</div>
+        <div class="rank-avatar">
+          ${u.photoURL ? `<img src="${_esc(u.photoURL)}" alt="Av" onerror="this.parentElement.textContent='${ini}'"/>` : ini}
+        </div>
+        <div class="rank-info">
+          <div class="rank-name">${_esc(u.displayName||'Wojownik')}${u.uid===myUid?' 👈':''}</div>
+          <div class="rank-sub">${rankObj.emoji} ${rankObj.label}</div>
+        </div>
+        <div class="rank-pts">${(u[currentFilter]||0).toLocaleString('pl-PL')} ${currentFilter==='points'?'XP':''}</div>
+        ${(u.streak||0)>=3?`<div class="rank-streak">${u.streak}🔥</div>`:''}`;
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => { window.location.href = u.uid===myUid ? 'profile.html' : `user.html?uid=${u.uid}`; });
+      list.appendChild(row);
     });
-    document.getElementById('load-more-btn')?.addEventListener('click', () => _loadRankingPage(false));
+
+    document.getElementById('load-more-ranking').style.display = docs.length === PAGE_SIZE ? 'block' : 'none';
+
+  } catch(e) {
+    console.error('[ranking list]', e.code, e.message);
+    if (reset) list.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div><p style="color:var(--error)">Błąd ładowania. Sprawdź reguły Firestore.<br>${e.code}</p></div>`;
   }
+}
 
-  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-</script>
-<script type="module">
-  // ── Top Bar wiring (wspólne dla wszystkich stron) ──────────────
-  (async function _initTopBar() {
-    try {
-      const { checkAuth, getCurrentUserData } = await import('./js/auth.js');
-      const { db, COL } = await import('./js/firebase.js');
-      const { injectMessengerBadge } = await import('./js/messenger.js');
-      const { initNotifications } = await import('./js/notifications.js');
-      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+function _setupFilters() {
+  document.querySelectorAll('.rank-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.rank-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      currentFilter = f === 'xp' ? 'points' : f === 'wins' ? 'challengesCompleted' : 'streak';
+      _loadRankingPage(true);
+    });
+  });
+  document.getElementById('load-more-btn')?.addEventListener('click', () => _loadRankingPage(false));
+}
 
-      checkAuth(async (user) => {
-        // Messenger badge
-        injectMessengerBadge(user.uid);
-
-        // Notifications
-        initNotifications(user.uid);
-
-        // Avatar
-        try {
-          const snap = await getDoc(doc(db, COL.USERS, user.uid));
-          const data = snap.exists() ? snap.data() : {};
-          const avEl = document.getElementById('top-bar-avatar');
-          if (avEl) {
-            if (data.photoURL) {
-              avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
-            } else {
-              avEl.textContent = (data.displayName || user.displayName || 'W').charAt(0).toUpperCase();
-            }
-          }
-          // Sync notif badge to top bar
-          const _syncBadge = () => {
-            const src = document.querySelector('.notif-bell-badge');
-            const dst = document.getElementById('notif-top-badge');
-            if (src && dst) {
-              dst.textContent   = src.textContent;
-              dst.style.display = src.style.display !== 'none' && src.textContent !== '0' && src.textContent !== '' ? 'flex' : 'none';
-            }
-          };
-          const obs = new MutationObserver(_syncBadge);
-          setTimeout(() => {
-            const b = document.querySelector('.notif-bell-badge');
-            if (b) obs.observe(b, { childList:true, attributes:true, attributeFilter:['style'] });
-            _syncBadge();
-          }, 800);
-        } catch {}
-
-        // Notif dropdown toggle
-        document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.getElementById('notif-dropdown')?.classList.toggle('hidden');
-        });
-        document.addEventListener('click', (e) => {
-          if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
-            document.getElementById('notif-dropdown')?.classList.add('hidden');
-          }
-        });
-        document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
-          const { markAllRead } = await import('./js/notifications.js');
-          await markAllRead(user.uid);
-        });
-      });
-    } catch(e) { console.warn('[topBar]', e.message); }
-  })();
+function _esc(s) { if (typeof s !== 'string') return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
