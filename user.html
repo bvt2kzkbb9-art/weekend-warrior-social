@@ -3,536 +3,585 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
-  <title>Profil Wojownika — Weekend Warrior Social</title>
+  <meta name="theme-color" content="#0B0D12"/>
+  <title>Profil — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
   <style>
-    .user-page { max-width: 600px; margin: 0 auto; padding: 0 .875rem; }
+    .profile-page { max-width: 680px; margin: 0 auto; padding: 0 1rem; }
 
-    /* Challenge button with user name */
-    .duel-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .5rem;
-      width: 100%;
-      padding: .875rem 1rem;
-      background: linear-gradient(135deg, #3A0A0A 0%, #6A1010 50%, #8B0000 100%);
-      border: 1px solid rgba(180,30,30,.4);
-      border-radius: var(--r-lg);
-      font-family: var(--font-heading);
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #FFBBBB;
-      cursor: pointer;
-      transition: all var(--dur-base) var(--ease-out);
+    /* Banner */
+    .profile-banner {
+      width: 100%; height: 160px;
+      background: linear-gradient(135deg, #1A2035 0%, #0F1628 100%);
+      background-size: cover; background-position: center;
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
       position: relative;
+    }
+    @media (min-width: 480px) { .profile-banner { height: 200px; } }
+
+    /* Avatar wrap */
+    .profile-av-wrap {
+      position: relative; display: inline-block;
+      margin-top: -44px; margin-bottom: .625rem;
+    }
+    .profile-av {
+      width: 88px; height: 88px; border-radius: 50%;
+      border: 4px solid var(--bg-app);
+      background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.625rem; font-weight: 700; color: var(--text-secondary);
       overflow: hidden;
     }
-    .duel-btn:hover {
-      box-shadow: 0 6px 28px rgba(139,0,0,.5), 0 0 40px rgba(139,0,0,.15);
-      transform: translateY(-2px);
-      border-color: rgba(200,50,50,.5);
-    }
-    .duel-btn::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background var(--dur-fast);
-    }
-    .duel-btn:hover::after { background: rgba(255,255,255,.04); }
+    .profile-av img { width:100%;height:100%;object-fit:cover; }
 
-    /* Feed posts on profile */
-    .user-posts { display: flex; flex-direction: column; gap: .75rem; }
+    /* Follow/actions */
+    .profile-actions {
+      display: flex; gap: .5rem; flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: .75rem;
+    }
+
+    /* Stats row */
+    .pub-stats {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: .5rem; padding: .75rem 0;
+    }
+    .pub-stat { text-align: center; }
+    .pub-stat-val { font-size: 1.125rem; font-weight: 800; color: var(--text-primary); display: block; }
+    .pub-stat-label { font-size: .625rem; color: var(--text-muted); }
+
+    /* Follow button */
+    .follow-btn {
+      display: inline-flex; align-items: center; gap: .375rem;
+      padding: .5rem 1.125rem;
+      border-radius: var(--r-full);
+      font-size: .8125rem; font-weight: 700;
+      cursor: pointer; transition: all var(--dur-fast);
+      border: none;
+    }
+    .follow-btn.unfollow-state {
+      background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .follow-btn.unfollow-state:hover { border-color: var(--error); color: var(--error); }
+    .follow-btn.follow-state {
+      background: var(--brand); color: #fff;
+      box-shadow: 0 2px 8px rgba(79,124,255,.3);
+    }
+    .follow-btn.follow-state:hover { background: #5F8BFF; }
+    .follow-btn:disabled { opacity: .5; pointer-events: none; }
+
+    /* Bio */
+    .pub-bio {
+      font-size: .9375rem; color: var(--text-secondary);
+      line-height: 1.6; text-align: center;
+      padding: 0 1rem .75rem;
+    }
+
+    /* Posts section */
+    .pub-posts { display: flex; flex-direction: column; gap: .75rem; }
+    .pub-post-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+      transition: border-color var(--dur-fast);
+    }
+    .pub-post-card:hover { border-color: var(--border-light); }
+    .pub-post-header {
+      display: flex; align-items: center; gap: .625rem;
+      padding: .75rem .875rem .5rem;
+    }
+    .pub-post-av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--bg-elevated); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .625rem; font-weight: 700; color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .pub-post-av img { width:100%;height:100%;object-fit:cover; }
+    .pub-post-time { font-size: .6875rem; color: var(--text-muted); }
+    .pub-post-content {
+      padding: .25rem .875rem .75rem;
+      font-size: .9375rem; color: var(--text-secondary); line-height: 1.65;
+    }
+    .pub-post-img {
+      width: 100%; max-height: 280px;
+      object-fit: cover; display: block;
+    }
+
+    /* Tabs */
+    .pub-tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: .875rem;
+    }
+    .pub-tab {
+      flex: 1; padding: .75rem;
+      background: none; border: none;
+      font-size: .8125rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all var(--dur-fast);
+    }
+    .pub-tab.active { color: var(--text-primary); border-bottom-color: var(--brand); }
   </style>
 </head>
 <body>
-<div class="bg-orbs" aria-hidden="true"></div>
-<div class="particles" aria-hidden="true">
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-</div>
 
-<!-- Nav -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+<!-- TOP BAR -->
+<header class="top-bar">
+  <button onclick="history.back()" class="top-bar-btn" aria-label="Wróć" style="flex-shrink:0;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <span class="top-bar-brand" id="page-title">Profil</span>
+  <nav class="top-bar-actions">
+    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+    </a>
+    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
+  </nav>
+</header>
+
+<!-- BOTTOM NAV -->
+<nav class="nav" aria-label="Nawigacja">
   <a href="index.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
     <span>Arena</span>
   </a>
   <a href="feed.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+    </svg>
     <span>Kroniki</span>
   </a>
-  <a href="challenges.html" class="nav-item-hero nav-item">
+  <a href="challenges.html" class="nav-item nav-item-hero">
     <div class="nav-hero-shield">⚔</div>
     <span>Misje</span>
   </a>
   <a href="ranking.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-    <span>Chwała</span>
-  </a>
-  <a href="profile.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>Bohater</span>
-  </a>
-
-  <a href="pajac.html" class="nav-item" style="position:relative;">
-    <span style="font-size:1.125rem;line-height:1;display:block;">🍺</span>
-    <span id="pajac-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:#FFAA44;color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Laga</span>
-  </a>
-  <a href="search.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
     </svg>
-    <span>Szukaj</span>
-  </a>
-  <a href="messenger.html" class="nav-item" style="position:relative;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Wiadomości</span>
+    <span>Chwała</span>
   </a>
 </nav>
 
-<!-- Back button -->
-<div style="position:relative;z-index:1;padding:.875rem .875rem 0;max-width:600px;margin:0 auto;">
-  <button onclick="history.back()" class="btn btn-ghost btn-sm"
-    style="gap:.375rem;color:var(--text-muted);">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Powrót
-  </button>
-</div>
-
-<main class="content-area" style="padding-top:.5rem;position:relative;z-index:1;">
-  <div class="user-page">
+<main class="content-area">
+  <div class="profile-page">
 
     <!-- Skeleton -->
-    <div id="user-skeleton">
-      <div class="rpg-panel" style="margin-bottom:.875rem;">
-        <div style="text-align:center;padding:2rem 1rem 1.5rem;">
-          <div class="skeleton" style="width:96px;height:96px;border-radius:50%;margin:0 auto 1rem;"></div>
-          <div class="skeleton" style="height:18px;width:42%;border-radius:4px;margin:0 auto .5rem;"></div>
-          <div class="skeleton" style="height:12px;width:28%;border-radius:4px;margin:0 auto 1rem;"></div>
-          <div class="skeleton" style="height:8px;max-width:260px;border-radius:4px;margin:0 auto;"></div>
+    <div id="profile-skeleton">
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:.875rem;">
+        <div class="skeleton" style="height:160px;border-radius:var(--r-lg) var(--r-lg) 0 0;"></div>
+        <div style="text-align:center;padding:0 1rem 1.5rem;">
+          <div class="skeleton" style="width:88px;height:88px;border-radius:50%;margin:-44px auto .75rem;border:4px solid var(--bg-app);"></div>
+          <div class="skeleton" style="height:18px;width:45%;border-radius:4px;margin:0 auto .5rem;"></div>
+          <div class="skeleton" style="height:12px;width:30%;border-radius:4px;margin:0 auto 1rem;"></div>
+          <div class="skeleton" style="height:36px;width:120px;border-radius:var(--r-full);margin:0 auto;"></div>
         </div>
-        <div class="skeleton" style="height:64px;margin:.75rem;border-radius:var(--r-lg);"></div>
       </div>
     </div>
 
-    <!-- User content -->
-    <div id="user-content" class="hidden">
+    <!-- Profile content -->
+    <div id="profile-content" class="hidden">
 
-      <!-- Profile hero -->
-      <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
-        <div class="profile-hero" style="padding-bottom:.875rem;">
-          <div class="profile-avatar-wrap">
-            <div id="user-avatar" class="profile-avatar"></div>
-            <div class="profile-level-badge" id="user-level">Poz. 1</div>
+      <!-- Hero card -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:.875rem;">
+
+        <!-- Banner -->
+        <div class="profile-banner" id="pub-banner"></div>
+
+        <!-- Avatar + info -->
+        <div style="text-align:center;padding:0 1rem .75rem;position:relative;z-index:1;">
+          <div class="profile-av-wrap">
+            <div class="profile-av" id="pub-avatar">W</div>
           </div>
-          <div class="profile-name" id="user-name">—</div>
-          <div class="profile-rank-tag" id="user-rank-tag">
-            <span id="user-rank-emoji">⚔️</span>
-            <span id="user-rank-label">Rookie</span>
+
+          <div class="profile-name" id="pub-name">—</div>
+          <div class="profile-rank-tag" id="pub-rank-tag" style="display:inline-flex;margin-bottom:.375rem;">
+            <span id="pub-rank-emoji">⚔️</span>&nbsp;<span id="pub-rank-label">Rookie</span>
           </div>
-          <div class="profile-xp-section">
-            <div class="profile-xp-label">
-              <span class="label-caps">Doświadczenie</span>
-              <span id="user-xp-text" class="label-caps">—</span>
-            </div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.625rem;">
+            Poziom <span id="pub-level">1</span> · <span id="pub-xp-text">0 XP</span>
+          </div>
+
+          <!-- XP bar -->
+          <div style="max-width:240px;margin:0 auto .875rem;">
             <div class="profile-xp-track">
-              <div id="user-xp-fill" class="profile-xp-fill" style="width:0%;"></div>
+              <div class="profile-xp-fill" id="pub-xp-fill" style="width:0%;"></div>
+            </div>
+          </div>
+
+          <!-- Follow counts -->
+          <div style="display:flex;justify-content:center;gap:2rem;margin-bottom:.75rem;">
+            <div style="text-align:center;">
+              <div style="font-size:1rem;font-weight:800;color:var(--text-primary);" id="pub-followers">0</div>
+              <div style="font-size:.6875rem;color:var(--text-muted);">Obserwujący</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1rem;font-weight:800;color:var(--text-primary);" id="pub-following">0</div>
+              <div style="font-size:.6875rem;color:var(--text-muted);">Obserwuje</div>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div class="pub-bio" id="pub-bio" style="display:none;"></div>
+
+          <!-- Actions -->
+          <div class="profile-actions" id="pub-actions">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div style="border-top:1px solid var(--border);padding:.625rem 1rem;">
+          <div class="pub-stats">
+            <div class="pub-stat">
+              <span class="pub-stat-val" id="pub-posts">0</span>
+              <span class="pub-stat-label">Posty</span>
+            </div>
+            <div class="pub-stat">
+              <span class="pub-stat-val" id="pub-xp">0</span>
+              <span class="pub-stat-label">XP</span>
+            </div>
+            <div class="pub-stat">
+              <span class="pub-stat-val" id="pub-wins">0</span>
+              <span class="pub-stat-label">Wygrane</span>
+            </div>
+            <div class="pub-stat">
+              <span class="pub-stat-val" id="pub-streak" style="color:var(--fire);">0🔥</span>
+              <span class="pub-stat-label">Seria</span>
             </div>
           </div>
         </div>
-
-        <!-- Stats row -->
-        <div class="profile-stats-grid" style="padding:0 .875rem .875rem;grid-template-columns:repeat(4,1fr);">
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="us-wins">0</span>
-            <span class="profile-stat-label">Wygrane</span>
-          </div>
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="us-xp">0</span>
-            <span class="profile-stat-label">XP</span>
-          </div>
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="us-posts">0</span>
-            <span class="profile-stat-label">Posty</span>
-          </div>
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="us-streak" style="color:var(--fire);">0🔥</span>
-            <span class="profile-stat-label">Seria</span>
-          </div>
-        </div>
-
-        <!-- Duel button -->
-        <div style="padding:0 .875rem .875rem;">
-          <button id="duel-btn" class="duel-btn" style="display:none;">
-            🐍 Rzuć Wyzwanie — <span id="duel-name">Wojownikowi</span>
-          </button>
-          <!-- Messenger Button -->
-          <button id="msg-btn" class="btn btn-outline btn-sm" style="display:none;gap:.375rem;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-            </svg>
-            Napisz
-          </button>
-          <!-- Poke container -->
-          <div id="poke-container" style="display:none;"></div>
-          <div id="pajac-container" style="display:none;"></div>
-          <div id="block-container" style="margin-top:.25rem;"></div>
-
-          <div id="self-msg" class="hidden"
-            style="text-align:center;padding:.875rem;font-family:var(--font-heading);
-            font-size:.6rem;letter-spacing:.1em;color:var(--text-faint);font-style:italic;">
-            To Twoja własna karta bohatera.
-            <a href="profile.html" style="color:var(--gold-500);margin-left:.375rem;">Edytuj Postać →</a>
-          </div>
-        </div>
       </div>
 
-      <!-- Achievements mini -->
-      <div class="rpg-panel" style="margin-bottom:.875rem;" id="user-ach-panel">
+      <!-- Achievements -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:.875rem;">
         <div class="rpg-panel-header">
-          <div class="rpg-panel-title">🏅 Odznaki</div>
-          <span id="user-ach-count" class="label-caps">0</span>
+          <div class="rpg-panel-title">🏅 Osiągnięcia</div>
+          <span id="pub-ach-count" style="font-size:.75rem;color:var(--text-muted);"></span>
         </div>
-        <div id="user-ach-grid" class="achievements-grid" style="padding:.75rem;"></div>
+        <div id="pub-ach-grid" class="achievements-grid"></div>
       </div>
 
-      <!-- Recent posts -->
-      <div class="rpg-panel" style="margin-bottom:1rem;">
-        <div class="rpg-panel-header">
-          <div class="rpg-panel-title">📜 Ostatnie Kroniki</div>
+      <!-- Posts tabs + list -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1rem;">
+        <div class="pub-tabs">
+          <button class="pub-tab active" data-tab="posts">📜 Posty</button>
+          <button class="pub-tab" data-tab="achievements">🏅 Odznaki</button>
         </div>
-        <div id="user-posts" style="padding:.5rem .75rem 1rem;" class="user-posts">
-          <div style="text-align:center;padding:1.5rem;font-family:var(--font-heading);
-               font-size:.6rem;color:var(--text-faint);font-style:italic;">Ładowanie kronik...</div>
-        </div>
+        <div id="pub-posts-list" style="padding:.75rem;"></div>
       </div>
 
-    </div>
+    </div><!-- /profile-content -->
   </div>
 </main>
 
-<!-- Challenge modal (pick challenge) -->
-<div id="duel-modal" class="ch-modal-backdrop hidden">
-  <div class="ch-modal" style="max-width:420px;">
-    <div class="ch-modal-body">
-      <div class="ch-modal-badge">⚔️</div>
-      <div class="ch-modal-title" id="duel-modal-title">Wybierz wyzwanie</div>
-      <div class="ch-modal-desc">Wybierz misję, którą chcesz rzucić wojownikowi:</div>
-      <div id="duel-ch-list" style="display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;
-           max-height:320px;overflow-y:auto;"></div>
-      <div style="display:flex;gap:.625rem;">
-        <button id="duel-cancel" class="rpg-btn rpg-btn-outline" style="flex:1;">Anuluj</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script type="module">
-  import { checkAuth, showToast, logout } from './js/auth.js';
-  import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
-  import { CHALLENGES_DATA } from './js/challenge-system.js';
-  import { injectPokeButton } from './js/poke.js';
-  import { injectPajacButton } from './js/pajac.js';
-  import { injectBlockButton, injectReportButton } from './js/blocks.js';
-  import { openConversation } from './js/messenger.js';
-  import {
-    doc, getDoc, collection, query, where, orderBy, limit, getDocs, addDoc, serverTimestamp,
-  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { checkAuth } from './js/auth.js';
+import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
+import { followUser, unfollowUser, isFollowing, getFollowCounts } from './js/social.js';
+import { injectMessengerBadge } from './js/messenger.js';
+import { openConversation } from './js/messenger.js';
+import {
+  doc, getDoc, getDocs, collection, query, where, orderBy, limit,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  // Logout
-  document.querySelector('.nav-item[href="profile.html"]')?.addEventListener('click', () => {});
-  // (no logout btn on user.html nav by design — use profile link)
+// ── Osiągnięcia — te same IDs co achievements.js ──────────────
+const ACH_DEFS = [
+  { id:'first_post',      icon:'📝', name:'Pierwsze słowo',           check: d=>(d.postsCount??0)>=1 },
+  { id:'five_posts',      icon:'✍️', name:'Narrator areny',           check: d=>(d.postsCount??0)>=5 },
+  { id:'ten_posts',       icon:'📖', name:'Kronikarz bitew',          check: d=>(d.postsCount??0)>=10 },
+  { id:'first_comment',   icon:'💬', name:'Pierwszy głos',           check: d=>(d.commentsCount??0)>=1 },
+  { id:'first_like',      icon:'❤️', name:'Pierwsze uznanie',        check: d=>(d.likesReceived??0)>=1 },
+  { id:'ten_likes',       icon:'🔥', name:'Wojownik popularny',      check: d=>(d.likesReceived??0)>=10 },
+  { id:'rank_warrior',    icon:'🥈', name:'Warrior',                  check: d=>(d.points??0)>=500 },
+  { id:'rank_champion',   icon:'🥇', name:'Champion',                 check: d=>(d.points??0)>=2000 },
+  { id:'rank_legend',     icon:'💎', name:'Legend',                   check: d=>(d.points??0)>=10000 },
+  { id:'golden_circle',   icon:'🌟', name:'Złoty Krąg',              check: d=>(d.points??0)>=1000 },
+  { id:'dragon_slayer',   icon:'🐉', name:'Pogromca Węża',           check: d=>(d.points??0)>=5000 },
+];
 
-  injectLightModeCSS();
-  initTheme();
+const params    = new URLSearchParams(window.location.search);
+const targetUid = params.get('uid') || params.get('id');
 
-  const params = new URLSearchParams(window.location.search);
-  const targetUid = params.get('uid');
+if (!targetUid) {
+  document.getElementById('profile-skeleton').innerHTML = `
+    <div style="text-align:center;padding:3rem 1rem;">
+      <div style="font-size:2rem;margin-bottom:1rem;">⚔️</div>
+      <div style="color:var(--text-muted);">Nie podano ID użytkownika</div>
+      <a href="index.html" style="color:var(--brand);display:block;margin-top:1rem;">← Wróć do Areny</a>
+    </div>`;
+}
 
-  if (!targetUid) {
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;
-      min-height:100vh;text-align:center;padding:2rem;font-family:'Cinzel',serif;color:#D4AF37;">
-      <div><div style="font-size:2rem;margin-bottom:1rem;">⚔️</div>
-      <div>Nie podano ID wojownika</div>
-      <a href="ranking.html" style="color:#D4AF37;display:block;margin-top:1rem;">← Wróć do Rankingu</a></div></div>`;
+let myUid = null, myData = {};
+
+checkAuth(async (user) => {
+  myUid = user.uid;
+  injectMessengerBadge(user.uid);
+
+  // Update top bar avatar
+  try {
+    const snap = await getDoc(doc(db, COL.USERS, user.uid));
+    myData = snap.data() || {};
+    const avEl = document.getElementById('top-bar-avatar');
+    if (avEl && myData.photoURL) avEl.innerHTML = `<img src="${_esc(myData.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+    else if (avEl) avEl.textContent = (myData.displayName||user.displayName||'W').charAt(0).toUpperCase();
+  } catch {}
+
+  // If viewing own profile → redirect to profile.html
+  if (targetUid === user.uid) {
+    window.location.href = 'profile.html';
+    return;
   }
 
-  let myUid = null;
+  // Load target user
+  const skTimer = setTimeout(() => {
+    document.getElementById('profile-skeleton')?.remove();
+    document.getElementById('profile-content')?.classList.remove('hidden');
+  }, 2500);
 
-  checkAuth(async (user) => {
-    myUid = user.uid;
-
-    // 2s skeleton safety
-    const skTimer = setTimeout(() => {
-      document.getElementById('user-skeleton')?.remove();
-      document.getElementById('user-content')?.classList.remove('hidden');
-    }, 2000);
-
-    // Load target user
-    let data = null;
-    try {
-      const snap = await getDoc(doc(db, COL.USERS, targetUid));
-      if (!snap.exists()) throw new Error('not found');
-      data = { uid: snap.id, ...snap.data() };
-    } catch {
-      clearTimeout(skTimer);
-      showToast('Nie znaleziono wojownika.', 'error');
-      setTimeout(() => history.back(), 1500);
-      return;
-    }
-
+  let userData = null;
+  try {
+    const snap = await getDoc(doc(db, COL.USERS, targetUid));
+    if (!snap.exists()) { throw new Error('not_found'); }
+    userData = { uid: snap.id, ...snap.data() };
+  } catch {
     clearTimeout(skTimer);
-    document.getElementById('user-skeleton')?.remove();
-    document.getElementById('user-content').classList.remove('hidden');
-    _renderProfile(data);
-    _renderAchievements(data);
-    await _loadPosts(targetUid);
-    _setupDuel(user, data);
-
-    // Messenger button
-    const msgBtn = document.getElementById('msg-btn');
-    if (target.uid !== myUser.uid && msgBtn) {
-      msgBtn.style.display = 'inline-flex';
-      msgBtn.addEventListener('click', () => openConversation(target.uid));
-    }
-
-    // Poke button
-    const pokeContainer = document.getElementById('poke-container');
-    if (target.uid !== myUser.uid && pokeContainer) {
-      pokeContainer.style.display = 'block';
-      injectPokeButton(pokeContainer, myUser.uid, target.uid, {
-        displayName: myData.displayName || myUser.displayName || 'Wojownik',
-        photoURL:    myData.photoURL    || myUser.photoURL    || '',
-      });
-    }
-
-    // Laga Pajacu button
-    const pajacContainer = document.getElementById('pajac-container');
-    if (target.uid !== myUser.uid && pajacContainer) {
-      pajacContainer.style.display = 'block';
-      injectPajacButton(pajacContainer, myUser.uid,
-        { displayName: myData.displayName || myUser.displayName, photoURL: myData.photoURL || myUser.photoURL },
-        target.uid,
-        { displayName: userData.displayName, photoURL: userData.photoURL || '' }
-      );
-    }
-
-    // Block button (tylko dla innych)
-    const blockContainer = document.getElementById('block-container');
-    if (target.uid !== myUser.uid && blockContainer) {
-      injectBlockButton(blockContainer, myUser.uid, target.uid);
-      injectReportButton(blockContainer, myUser.uid, 'user', target.uid, target.uid);
-    }
-  });
-
-  function _renderProfile(data) {
-    const name = data.displayName || 'Wojownik';
-    const points = Number(data.points) || 0;
-    const level = getLevel(points);
-    const rankObj = getRank(points);
-    const progress = getRankProgress(points);
-    const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
-    const nextMin = Array.isArray(RANKS) && rankIdx >= 0 && rankIdx < RANKS.length - 1
-      ? RANKS[rankIdx + 1]?.min : points + 500;
-    const xpIn = Math.max(0, points - rankObj.min);
-    const xpNeed = Math.max(1, nextMin - rankObj.min);
-
-    document.title = `${name} — Weekend Warrior Social`;
-
-    const av = document.getElementById('user-avatar');
-    const ini = name.split(' ').map(w=>w[0]??'').join('').slice(0,2).toUpperCase();
-    if (data.photoURL) {
-      const img = document.createElement('img');
-      img.src = data.photoURL; img.alt = 'Avatar';
-      img.onerror = () => { av.textContent = ini; };
-      av.appendChild(img);
-    } else av.textContent = ini;
-
-    const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-    s('user-level', `Poz. ${level}`);
-    s('user-name', name);
-    s('user-rank-emoji', rankObj.emoji);
-    s('user-rank-label', rankObj.label);
-    s('user-xp-text', `${xpIn.toLocaleString('pl-PL')} / ${xpNeed.toLocaleString('pl-PL')} XP`);
-    s('us-wins', String(data.challengesCompleted || 0));
-    s('us-xp', (points).toLocaleString('pl-PL'));
-    s('us-posts', String(data.postsCount || 0));
-    s('us-streak', `${data.streak || 0}🔥`);
-    setTimeout(() => {
-      const f = document.getElementById('user-xp-fill');
-      if (f) f.style.width = progress + '%';
-    }, 400);
+    document.getElementById('profile-skeleton').innerHTML = `
+      <div style="text-align:center;padding:3rem 1rem;">
+        <div style="font-size:2rem;margin-bottom:1rem;">😕</div>
+        <div style="color:var(--text-muted);">Nie znaleziono wojownika.</div>
+        <a href="index.html" style="color:var(--brand);display:block;margin-top:1rem;">← Wróć do Areny</a>
+      </div>`;
+    return;
   }
 
-  function _renderAchievements(data) {
-    const grid = document.getElementById('user-ach-grid');
-    const count = document.getElementById('user-ach-count');
-    if (!grid) return;
-    const earned = new Set(data.achievements || []);
-    const ACH = [
-      {id:'first_post',icon:'📜',name:'Kronikarz'}, {id:'first_win',icon:'⚔️',name:'Pierwsza Krew'},
-      {id:'wins_10',icon:'🏆',name:'Champion'},     {id:'wins_50',icon:'👑',name:'Legenda'},
-      {id:'streak_7',icon:'🔥',name:'Tydzień'},     {id:'streak_30',icon:'💎',name:'Wieczny Płomień'},
-      {id:'level_5',icon:'🛡',name:'Giermek'},       {id:'level_10',icon:'⚔',name:'Rycerz'},
-      {id:'quizzes_10',icon:'🧠',name:'Uczony'},     {id:'perfect_quiz',icon:'💡',name:'Jasność'},
-    ];
-    let earnedCount = 0;
-    ACH.forEach((ach, i) => {
-      const unlocked = earned.has(ach.id);
-      if (unlocked) earnedCount++;
-      const item = document.createElement('div');
-      item.className = 'achievement-item' + (unlocked ? '' : ' locked');
-      item.style.animationDelay = (i * .05) + 's';
-      item.title = unlocked ? ach.name : '???';
-      item.innerHTML = `
-        <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
-        <div class="achievement-name">${unlocked ? ach.name : '???'}</div>`;
-      grid.appendChild(item);
+  clearTimeout(skTimer);
+  document.getElementById('profile-skeleton')?.remove();
+  document.getElementById('profile-content').classList.remove('hidden');
+
+  _renderProfile(userData);
+  _renderAchievements(userData);
+  await _loadPosts(targetUid);
+  await _loadFollowCounts(targetUid);
+  _setupActions(user, userData);
+
+  // Tab switching
+  document.querySelectorAll('.pub-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pub-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.tab === 'posts') _loadPosts(targetUid);
+      else _renderAchievementsTab(userData);
     });
-    if (count) count.textContent = `${earnedCount} odblok.`;
+  });
+});
+
+function _renderProfile(data) {
+  const name     = data.displayName || 'Wojownik';
+  const points   = Number(data.points) || 0;
+  const level    = getLevel(points);
+  const rankObj  = getRank(points);
+  const progress = getRankProgress(points);
+  const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
+  const next     = RANKS[rankIdx + 1];
+  const xpIn     = Math.max(0, points - rankObj.min);
+  const xpNeed   = Math.max(1, (next?.min ?? points + 500) - rankObj.min);
+
+  document.title = `${name} — Weekend Warrior Social`;
+
+  // Banner
+  const banner = document.getElementById('pub-banner');
+  if (banner && data.bannerUrl) banner.style.backgroundImage = `url(${_esc(data.bannerUrl)})`;
+
+  // Avatar
+  const av  = document.getElementById('pub-avatar');
+  const ini = name.charAt(0).toUpperCase();
+  if (av) {
+    if (data.photoURL) {
+      av.innerHTML = `<img src="${_esc(data.photoURL)}" alt="Avatar" onerror="this.style.display='none';this.parentElement.textContent='${ini}'"/>`;
+    } else { av.textContent = ini; }
   }
 
-  async function _loadPosts(uid) {
-    const container = document.getElementById('user-posts');
-    try {
-      const postsCol = (COL && COL.POSTS) ? COL.POSTS : 'posts';
-      const snap = await getDocs(query(
-        collection(db, postsCol),
-        where('authorId','==', uid),
-        orderBy('createdAt','desc'),
-        limit(5)
-      ));
-      if (snap.empty) {
-        container.innerHTML = `<div style="text-align:center;padding:1.25rem;font-family:var(--font-heading);
-          font-size:.6rem;color:var(--text-faint);font-style:italic;">Brak kronik.</div>`;
-        return;
-      }
-      container.innerHTML = '';
-      snap.forEach(d => {
-        const p = d.data();
-        const card = document.createElement('div');
-        card.className = 'post-card';
-        const dt = p.createdAt?.toDate?.() ?? new Date();
-        const timeStr = _fmtTime(p.createdAt);
-        card.innerHTML = `
-          <div class="post-header">
-            <div class="post-avatar" style="cursor:default;">
-              ${p.authorPhoto?`<img src="${_esc(p.authorPhoto)}" onerror="this.parentElement.textContent='${(p.authorName||'?')[0]}'">`
-              :(p.authorName||'?')[0].toUpperCase()}
-            </div>
-            <div class="post-meta">
-              <div class="post-name">${_esc(p.authorName||'Wojownik')}</div>
-              <div class="post-time">${timeStr}</div>
-            </div>
-          </div>
-          ${p.text ? `<div class="post-body">${_esc(p.text)}</div>` : ''}
-          ${p.imageURL ? `<div class="post-image-wrap"><img src="${_esc(p.imageURL)}" alt="Obraz" loading="lazy"/></div>` : ''}`;
-        container.appendChild(card);
-      });
-    } catch(e) { console.warn('[user-posts]', e); }
-  }
+  const s = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  s('page-title',    name);
+  s('pub-name',      name);
+  s('pub-rank-emoji', rankObj.emoji);
+  s('pub-rank-label', rankObj.label);
+  s('pub-level',     level);
+  s('pub-xp-text',   `${xpIn.toLocaleString('pl-PL')} / ${xpNeed.toLocaleString('pl-PL')} XP`);
+  s('pub-posts',     data.postsCount || 0);
+  s('pub-xp',        points.toLocaleString('pl-PL'));
+  s('pub-wins',      data.challengesCompleted || 0);
+  s('pub-streak',    `${data.streak || 0}🔥`);
 
-  function _setupDuel(myUser, target) {
-    const duelBtn = document.getElementById('duel-btn');
-    const selfMsg = document.getElementById('self-msg');
-    const nameEl = document.getElementById('duel-name');
+  // Bio
+  const bioEl = document.getElementById('pub-bio');
+  if (bioEl && data.bio) { bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
 
-    if (target.uid === myUser.uid) {
-      selfMsg.classList.remove('hidden');
+  setTimeout(() => {
+    const f = document.getElementById('pub-xp-fill');
+    if (f) f.style.width = progress + '%';
+  }, 400);
+}
+
+async function _loadFollowCounts(uid) {
+  try {
+    const counts = await getFollowCounts(uid);
+    const s = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    s('pub-followers', counts.followers);
+    s('pub-following', counts.following);
+  } catch {}
+}
+
+function _renderAchievements(data) {
+  const grid = document.getElementById('pub-ach-grid');
+  const count = document.getElementById('pub-ach-count');
+  if (!grid) return;
+  const earned = new Set(Array.isArray(data.achievements) ? data.achievements : []);
+  let n = 0;
+  grid.innerHTML = '';
+  ACH_DEFS.forEach((ach, i) => {
+    const unlocked = earned.has(ach.id) || ach.check(data);
+    if (unlocked) n++;
+    const item = document.createElement('div');
+    item.className = 'achievement-item' + (unlocked ? '' : ' locked');
+    item.style.animationDelay = (i * .04) + 's';
+    item.title = ach.name;
+    item.innerHTML = `<div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div><div class="achievement-name">${unlocked ? ach.name : '???'}</div>`;
+    grid.appendChild(item);
+  });
+  if (count) count.textContent = `${n} / ${ACH_DEFS.length}`;
+}
+
+function _renderAchievementsTab(data) {
+  const container = document.getElementById('pub-posts-list');
+  if (!container) return;
+  const earned = new Set(Array.isArray(data.achievements) ? data.achievements : []);
+  container.innerHTML = '<div class="achievements-grid">' + ACH_DEFS.map(ach => {
+    const unlocked = earned.has(ach.id) || ach.check(data);
+    return `<div class="achievement-item ${unlocked ? '' : 'locked'}" title="${_esc(ach.name)}">
+      <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
+      <div class="achievement-name">${unlocked ? _esc(ach.name) : '???'}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+async function _loadPosts(uid) {
+  const container = document.getElementById('pub-posts-list');
+  if (!container) return;
+  container.innerHTML = '<div class="skeleton" style="height:80px;border-radius:var(--r-md);margin-bottom:.5rem;"></div>'.repeat(2);
+  try {
+    const snap = await getDocs(query(
+      collection(db, COL.POSTS),
+      where('authorId','==', uid),
+      orderBy('createdAt','desc'),
+      limit(10)
+    ));
+    container.innerHTML = '';
+    if (snap.empty) {
+      container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);">Brak postów.</div>`;
       return;
     }
-
-    if (nameEl) nameEl.textContent = target.displayName || 'Wojownikowi';
-    duelBtn.style.display = 'flex';
-
-    duelBtn.addEventListener('click', () => {
-      document.getElementById('duel-modal-title').textContent =
-        `Wybierz misję dla ${target.displayName || 'wojownika'}`;
-      _populateDuelList(myUser, target);
-      document.getElementById('duel-modal').classList.remove('hidden');
-    });
-    document.getElementById('duel-cancel').addEventListener('click', () => {
-      document.getElementById('duel-modal').classList.add('hidden');
-    });
-    document.getElementById('duel-modal').addEventListener('click', e => {
-      if (e.target === document.getElementById('duel-modal'))
-        document.getElementById('duel-modal').classList.add('hidden');
-    });
-  }
-
-  function _populateDuelList(myUser, target) {
-    const list = document.getElementById('duel-ch-list');
-    list.innerHTML = '';
-    CHALLENGES_DATA.forEach(ch => {
-      const item = document.createElement('div');
-      item.style.cssText = `display:flex;align-items:center;gap:.75rem;padding:.625rem .75rem;
-        background:var(--bg-card);border:1px solid var(--border-dim);border-radius:var(--r-md);
-        cursor:pointer;transition:all var(--dur-fast);`;
-      item.innerHTML = `
-        <div style="font-size:1.25rem;flex-shrink:0;">${ch.badge}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:var(--font-heading);font-size:.625rem;font-weight:700;
-               letter-spacing:.1em;text-transform:uppercase;color:var(--text-bright);">${_esc(ch.title)}</div>
-          <div style="font-family:var(--font-heading);font-size:.5rem;color:var(--gold-500);
-               font-weight:700;">+${ch.xp} XP</div>
+    snap.forEach(d => {
+      const p   = d.data();
+      const ini = (p.authorName||'W').charAt(0).toUpperCase();
+      const card = document.createElement('div');
+      card.className = 'pub-post-card';
+      card.innerHTML = `
+        <div class="pub-post-header">
+          <div class="pub-post-av">
+            ${p.authorPhoto ? `<img src="${_esc(p.authorPhoto)}" alt="Av" onerror="this.style.display='none';this.parentElement.textContent='${ini}'"/>` : ini}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.8125rem;font-weight:600;color:var(--text-primary);">${_esc(p.authorName||'Wojownik')}</div>
+            <div class="pub-post-time">${_fmtTime(p.createdAt)}</div>
+          </div>
         </div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-faint);flex-shrink:0;">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>`;
-      item.addEventListener('mouseenter', () => { item.style.borderColor = 'var(--border-gold)'; });
-      item.addEventListener('mouseleave', () => { item.style.borderColor = 'var(--border-dim)'; });
-      item.addEventListener('click', () => _sendDuel(myUser, target, ch));
-      list.appendChild(item);
+        ${p.content ? `<div class="pub-post-content">${_esc(p.content)}</div>` : ''}
+        ${p.imageUrl ? `<img src="${_esc(p.imageUrl)}" class="pub-post-img" loading="lazy" alt="Zdjęcie"/>` : ''}`;
+      container.appendChild(card);
     });
-  }
+  } catch(e) { console.warn('[loadPosts]', e.code); }
+}
 
-  async function _sendDuel(myUser, target, ch) {
-    try {
-      let myData = {};
-      try { const s = await getDoc(doc(db, COL.USERS, myUser.uid)); myData = s.data() || {}; } catch {}
-      await addDoc(collection(db, 'challenge_invites'), {
-        challengerId:   myUser.uid,
-        challengerName: myData.displayName || myUser.displayName || 'Wojownik',
-        challengerPhoto: myData.photoURL || myUser.photoURL || '',
-        targetId:       target.uid,
-        targetName:     target.displayName || 'Wojownik',
-        challengeId:    ch.id,
-        challengeTitle: ch.title,
-        challengeXP:    ch.xp,
-        challengeBadge: ch.badge,
-        status:         'pending',
-        createdAt:      serverTimestamp(),
-      });
-      document.getElementById('duel-modal').classList.add('hidden');
-      showToast(`Wyzwanie rzucone! ⚔️ ${target.displayName} je odbierze.`, 'success', 4000);
-    } catch(e) {
-      showToast('Błąd wysyłania: ' + e.message, 'error');
+function _setupActions(myUser, target) {
+  const actions = document.getElementById('pub-actions');
+  if (!actions) return;
+  actions.innerHTML = '';
+
+  // Follow button
+  const followBtn = document.createElement('button');
+  followBtn.className = 'follow-btn follow-state';
+  followBtn.textContent = '+ Obserwuj';
+  let followDocId = null;
+
+  isFollowing(myUser.uid, target.uid).then(({ following, docId }) => {
+    followDocId = docId;
+    if (following) {
+      followBtn.className = 'follow-btn unfollow-state';
+      followBtn.textContent = 'Obserwujesz';
     }
-  }
+  }).catch(() => {});
 
-  function _fmtTime(ts) {
-    if (!ts) return '';
-    const d = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds*1000) : new Date(ts));
-    if (isNaN(d)) return '';
-    const m = Math.floor((Date.now()-d)/60000);
-    if (m < 1) return 'przed chwilą';
-    if (m < 60) return `${m} min. temu`;
-    const h = Math.floor(m/60);
-    if (h < 24) return `${h} godz. temu`;
-    return `${Math.floor(h/24)} dni temu`;
-  }
-  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  followBtn.addEventListener('click', async () => {
+    followBtn.disabled = true;
+    try {
+      if (followDocId) {
+        await unfollowUser(myUser.uid, target.uid);
+        followDocId = null;
+        followBtn.className = 'follow-btn follow-state';
+        followBtn.textContent = '+ Obserwuj';
+        const f = document.getElementById('pub-followers');
+        if (f) f.textContent = Math.max(0, (parseInt(f.textContent)||1) - 1);
+      } else {
+        followDocId = await followUser(myUser.uid, target.uid,
+          myData.displayName || myUser.displayName || 'Wojownik');
+        followBtn.className = 'follow-btn unfollow-state';
+        followBtn.textContent = 'Obserwujesz';
+        const f = document.getElementById('pub-followers');
+        if (f) f.textContent = (parseInt(f.textContent)||0) + 1;
+      }
+    } catch(e) { console.warn(e.message); }
+    finally { followBtn.disabled = false; }
+  });
+  actions.appendChild(followBtn);
+
+  // Message button
+  const msgBtn = document.createElement('button');
+  msgBtn.className = 'btn btn-outline btn-sm';
+  msgBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Napisz`;
+  msgBtn.addEventListener('click', () => openConversation(target.uid));
+  actions.appendChild(msgBtn);
+}
+
+function _fmtTime(ts) {
+  if (!ts) return '';
+  const d = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds*1000) : new Date(ts));
+  if (isNaN(d)) return '';
+  const m = Math.floor((Date.now()-d)/60000);
+  if (m < 1)  return 'przed chwilą';
+  if (m < 60) return `${m} min. temu`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h} godz. temu`;
+  return `${Math.floor(h/24)} dni temu`;
+}
+
+function _esc(s) {
+  if (typeof s !== 'string') return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>

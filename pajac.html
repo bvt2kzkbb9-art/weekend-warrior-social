@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Centrum Lag — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <style>
+    .pajac-page { max-width: 640px; margin: 0 auto; padding: 0 .875rem; }
+
+    .pajac-hero {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .pajac-hero-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: .5rem;
+      animation: badge-unlock .6s var(--ease-out);
+    }
+    .pajac-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #FFAA44;
+      text-shadow: 0 0 30px rgba(255,170,68,.4);
+    }
+    .pajac-hero-sub {
+      font-family: var(--font-heading);
+      font-size: .6rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: .375rem;
+    }
+
+    /* Stats row */
+    .pajac-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5rem;
+      margin: .875rem 0;
+    }
+    .pajac-stat {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-lg);
+      padding: .875rem .5rem;
+      text-align: center;
+    }
+    .pajac-stat-val {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #FFAA44;
+      display: block;
+    }
+    .pajac-stat-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Tabs */
+    .pajac-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-lg);
+      padding: 3px;
+      margin-bottom: .875rem;
+    }
+    .pajac-tab {
+      flex: 1;
+      padding: .5rem .25rem;
+      background: none;
+      border: none;
+      border-radius: calc(var(--r-lg) - 3px);
+      font-family: var(--font-heading);
+      font-size: .525rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+    .pajac-tab.active {
+      background: linear-gradient(135deg, rgba(255,170,68,.18), rgba(255,170,68,.08));
+      color: #FFAA44;
+      box-shadow: 0 2px 8px rgba(255,170,68,.12);
+    }
+
+    .pajac-list { display: flex; flex-direction: column; gap: .75rem; }
+    .pajac-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-family: var(--font-heading);
+      font-size: .875rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  <a href="index.html" class="top-bar-brand">Weekend Warrior</a>
+  <nav class="top-bar-actions" aria-label="Akcje górne">
+    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </a>
+    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+    </a>
+    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+    </button>
+    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Profil">W</a>
+  </nav>
+</header>
+<div id="notif-dropdown" class="notif-dropdown hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
+    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:360px;"></div>
+</div>
+
+<div class="bg-orbs" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Nawigacja główna">
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Arena</span>
+  </a>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Kroniki</span>
+  </a>
+  <a href="challenges.html" class="nav-item nav-item-hero">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
+  </a>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Chwała</span>
+  </a>
+</nav>
+
+
+<main class="content-area page" style="position:relative;z-index:1;">
+  <div class="pajac-page">
+
+    <!-- Hero -->
+    <div class="pajac-hero">
+      <span class="pajac-hero-icon">🍺</span>
+      <div class="pajac-hero-title">Centrum Lag Pajacu™</div>
+      <div class="pajac-hero-sub">Arena Wyzwań Honoru</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="pajac-stats">
+      <div class="pajac-stat">
+        <span class="pajac-stat-val" id="stat-wins">—</span>
+        <span class="pajac-stat-label">Wygrane</span>
+      </div>
+      <div class="pajac-stat">
+        <span class="pajac-stat-val" id="stat-total">—</span>
+        <span class="pajac-stat-label">Łącznie</span>
+      </div>
+      <div class="pajac-stat">
+        <span class="pajac-stat-val" id="stat-win-rate">—</span>
+        <span class="pajac-stat-label">Skuteczność</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="pajac-tabs" role="tablist">
+      <button class="pajac-tab active" data-tab="incoming" role="tab">🍺 Przychodzące</button>
+      <button class="pajac-tab" data-tab="outgoing"  role="tab">⚔️ Wysłane</button>
+      <button class="pajac-tab" data-tab="history"   role="tab">📜 Historia</button>
+    </div>
+
+    <!-- Content -->
+    <div id="pajac-content">
+      <div class="pajac-list" id="pajac-list">
+        <div style="text-align:center;padding:2rem 1rem;">
+          <div class="skeleton" style="height:100px;border-radius:var(--r-lg);margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:100px;border-radius:var(--r-lg);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;padding:1.25rem 0 .5rem;">
+      <a href="search.html" class="btn btn-primary btn-sm" style="gap:.375rem;">
+        🔍 Znajdź Wojownika do Lagi
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+import { checkAuth, logout } from './js/auth.js';
+import { db } from './js/firebase.js';
+import {
+  getPendingPajacs, completePajac, respondToPajac,
+  buildPajacCard, initPajacInbox, PAJAC_ACTIONS,
+} from './js/pajac.js';
+import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
+import { injectMessengerBadge } from './js/messenger.js';
+import {
+  collection, doc, getDoc, getDocs, query, where, orderBy, limit,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+injectLightModeCSS();
+initTheme();
+
+let myUid = null;
+let activeTab = 'incoming';
+
+document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+checkAuth(async (user) => {
+  myUid = user.uid;
+  injectMessengerBadge(user.uid);
+  initPajacInbox(user.uid);
+
+  // Załaduj statystyki
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    const data = snap.data() || {};
+    const wins  = data.pajacWins   ?? 0;
+    const total = data.pajacTotal  ?? 0;
+    const rate  = total > 0 ? Math.round((wins / total) * 100) : 0;
+    document.getElementById('stat-wins').textContent    = wins;
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-win-rate').textContent = rate + '%';
+  } catch {}
+
+  // Setup tabs
+  document.querySelectorAll('.pajac-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pajac-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTab = btn.dataset.tab;
+      loadTab(activeTab);
+    });
+  });
+
+  loadTab('incoming');
+});
+
+async function loadTab(tab) {
+  const list = document.getElementById('pajac-list');
+  list.innerHTML = `<div style="text-align:center;padding:2rem 1rem;">
+    <div class="skeleton" style="height:110px;border-radius:var(--r-lg);margin-bottom:.75rem;"></div>
+    <div class="skeleton" style="height:110px;border-radius:var(--r-lg);"></div>
+  </div>`;
+
+  try {
+    if (tab === 'history') {
+      await loadHistory();
+    } else {
+      const { incoming, outgoing } = await getPendingPajacs(myUid);
+      const items = tab === 'incoming' ? incoming : outgoing;
+      renderPajacs(list, items);
+    }
+  } catch(e) {
+    list.innerHTML = `<div class="pajac-empty">Błąd ładowania. Spróbuj ponownie.</div>`;
+  }
+}
+
+function renderPajacs(container, items) {
+  container.innerHTML = '';
+  if (!items.length) {
+    const labels = { incoming:'Brak przychodzących wyzwań', outgoing:'Nie wysłałeś żadnych wyzwań' };
+    container.innerHTML = `<div class="pajac-empty">
+      <div style="font-size:2rem;margin-bottom:.5rem;">🍺</div>
+      Brak wyzwań na razie.<br>
+      <a href="search.html" style="color:#FFAA44;margin-top:.5rem;display:inline-block;">
+        Znajdź wojownika do lagi →
+      </a>
+    </div>`;
+    return;
+  }
+  items.forEach(pajac => {
+    const card = buildPajacCard(pajac, myUid);
+    container.appendChild(card);
+  });
+}
+
+async function loadHistory() {
+  const list = document.getElementById('pajac-list');
+  list.innerHTML = '';
+
+  const [asInit, asTarget] = await Promise.all([
+    getDocs(query(
+      collection(db, 'pajacChallenges'),
+      where('initiatorId', '==', myUid),
+      where('status', 'in', ['completed','declined','expired']),
+      orderBy('createdAt','desc'), limit(20),
+    )),
+    getDocs(query(
+      collection(db, 'pajacChallenges'),
+      where('targetId', '==', myUid),
+      where('status', 'in', ['completed','declined','expired']),
+      orderBy('createdAt','desc'), limit(20),
+    )),
+  ]);
+
+  const all = [];
+  asInit.forEach(d  => all.push({ id:d.id, ...d.data() }));
+  asTarget.forEach(d => { if (!all.find(a=>a.id===d.id)) all.push({ id:d.id, ...d.data() }); });
+  all.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+  if (!all.length) {
+    list.innerHTML = `<div class="pajac-empty">
+      <div style="font-size:2rem;margin-bottom:.5rem;">📜</div>
+      Brak historii wyzwań.
+    </div>`;
+    return;
+  }
+
+  all.slice(0,30).forEach(pajac => {
+    const card = buildPajacCard(pajac, myUid);
+    list.appendChild(card);
+  });
+}
+</script>
+
+<script type="module">
+(async function _initTopBar() {
+  try {
+    const { checkAuth } = await import('./js/auth.js');
+    const { db, COL }   = await import('./js/firebase.js');
+    const { injectMessengerBadge } = await import('./js/messenger.js');
+    const { initNotifications }    = await import('./js/notifications.js');
+    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    checkAuth(async (user) => {
+      injectMessengerBadge(user.uid);
+      initNotifications(user.uid);
+      try {
+        const snap = await getDoc(doc(db, COL.USERS, user.uid));
+        const data = snap.exists() ? snap.data() : {};
+        const avEl = document.getElementById('top-bar-avatar');
+        if (avEl && data.photoURL) avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
+        else if (avEl) avEl.textContent = (data.displayName||user.displayName||'W').charAt(0).toUpperCase();
+        const _sync = () => {
+          const b = document.querySelector('.notif-bell-badge'), tb = document.getElementById('notif-top-badge');
+          if (b && tb) { tb.textContent=b.textContent; tb.style.display=(b.style.display!=='none'&&b.textContent&&b.textContent!=='0')?'flex':'none'; }
+        };
+        setTimeout(() => { const b=document.querySelector('.notif-bell-badge'); if(b){new MutationObserver(_sync).observe(b,{childList:true,attributes:true});} _sync(); }, 1000);
+      } catch {}
+      document.getElementById('notif-bell-btn')?.addEventListener('click', e => { e.stopPropagation(); document.getElementById('notif-dropdown')?.classList.toggle('hidden'); });
+      document.addEventListener('click', e => { if(!e.target.closest('#notif-bell-btn')&&!e.target.closest('#notif-dropdown')) document.getElementById('notif-dropdown')?.classList.add('hidden'); });
+      document.getElementById('notif-mark-all')?.addEventListener('click', async () => { const {markAllRead}=await import('./js/notifications.js'); await markAllRead(user.uid); });
+    });
+  } catch(e) { console.warn('[topBar]', e.message); }
+})();
+</script>
+
+</body>
+</html>

@@ -8,61 +8,74 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  
 </head>
 <body>
-<div class="bg-orbs" aria-hidden="true"></div>
-<div class="particles" aria-hidden="true">
-  <div class="particle"></div><div class="particle"></div>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  
+  <a href="index.html" class="top-bar-brand">Mój profil</a>
+  <nav class="top-bar-actions" aria-label="Akcje górne">
+    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </a>
+    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości" id="msg-top-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+    </a>
+    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+    </button>
+    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
+  </nav>
+</header>
+
+<!-- Notifications dropdown -->
+<div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Powiadomienia">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
+    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:360px;-webkit-overflow-scrolling:touch;"></div>
+</div>
+
+
+<nav class="nav" aria-label="Nawigacja główna">
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Arena</span>
+  </a>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span>Kroniki</span>
+  </a>
+  <a href="challenges.html" class="nav-item nav-item-hero">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
+  </a>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Chwała</span>
+  </a>
+</nav>
+
+
+<div class="particle"></div>
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
 
 <!-- Nav -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
-  <a href="index.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
-    <span>Arena</span>
-  </a>
-  <a href="feed.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    <span>Kroniki</span>
-  </a>
-  <a href="challenges.html" class="nav-item-hero nav-item">
-    <div class="nav-hero-shield">⚔</div>
-    <span>Misje</span>
-  </a>
-  <a href="ranking.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-    <span>Chwała</span>
-  </a>
-  <a href="profile.html" class="nav-item active" aria-current="page">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>Bohater</span>
-  </a>
-  <a href="search.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <span>Szukaj</span>
-  </a>
-  <a href="messenger.html" class="nav-item" style="position:relative;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;
-      min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;
-      font-size:.5rem;font-weight:800;align-items:center;justify-content:center;
-      border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Wiadomości</span>
-  </a>
-  <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);" title="Wyloguj">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    </button>
-  </div>
-</nav>
+
 
 <main class="content-area page" style="max-width:640px;">
 
@@ -83,9 +96,17 @@
 
     <!-- Hero section -->
     <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
+      <!-- Banner (klikalne = zmiana bannera) -->
+      <div id="profile-banner-wrap" style="width:100%;height:120px;background:linear-gradient(135deg,#1A2035,#0F1628);background-size:cover;background-position:center;border-radius:var(--r-lg) var(--r-lg) 0 0;cursor:pointer;position:relative;overflow:hidden;" id="profile-banner-el">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;background:rgba(0,0,0,.35);" id="banner-overlay">
+          <span style="color:#fff;font-size:.75rem;font-weight:600;">📷 Zmień baner</span>
+        </div>
+        <input type="file" id="banner-file-input" accept="image/jpeg,image/png,image/webp" style="display:none;" aria-label="Zmień baner"/>
+      </div>
       <div class="profile-hero">
-        <div class="profile-avatar-wrap">
+        <div class="profile-avatar-wrap" style="cursor:pointer;" id="profile-avatar-clickable">
           <div id="profile-avatar" class="profile-avatar"></div>
+          <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" style="display:none;" aria-label="Zmień avatar"/>
           <div class="profile-level-badge" id="profile-level">Poz. 1</div>
         </div>
         <div class="profile-name" id="profile-name">—</div>
@@ -321,6 +342,9 @@
     const xpIn = Math.max(0, points - rankObj.min);
     const xpNeed = Math.max(1, (nextRankMin ?? points + 500) - rankObj.min);
 
+    // Render banner
+    const bnEl = document.getElementById('profile-banner-el');
+    if (bnEl && data.bannerUrl) bnEl.style.backgroundImage = `url(${data.bannerUrl})`;
     const av = document.getElementById('profile-avatar');
     const ini = name.split(' ').map(w => w[0]??'').join('').slice(0,2).toUpperCase();
     if (data.photoURL) {
@@ -487,6 +511,129 @@
   }
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+<script type="module">
+  // ── Top Bar wiring (wspólne dla wszystkich stron) ──────────────
+  (async function _initTopBar() {
+    try {
+      const { checkAuth, getCurrentUserData } = await import('./js/auth.js');
+      const { db, COL } = await import('./js/firebase.js');
+      const { injectMessengerBadge } = await import('./js/messenger.js');
+      const { initNotifications } = await import('./js/notifications.js');
+      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+      checkAuth(async (user) => {
+        // Messenger badge
+        injectMessengerBadge(user.uid);
+
+        // Notifications
+        initNotifications(user.uid);
+
+        // Avatar
+        try {
+          const snap = await getDoc(doc(db, COL.USERS, user.uid));
+          const data = snap.exists() ? snap.data() : {};
+          const avEl = document.getElementById('top-bar-avatar');
+          if (avEl) {
+            if (data.photoURL) {
+              avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
+            } else {
+              avEl.textContent = (data.displayName || user.displayName || 'W').charAt(0).toUpperCase();
+            }
+          }
+          // Sync notif badge to top bar
+          const _syncBadge = () => {
+            const src = document.querySelector('.notif-bell-badge');
+            const dst = document.getElementById('notif-top-badge');
+            if (src && dst) {
+              dst.textContent   = src.textContent;
+              dst.style.display = src.style.display !== 'none' && src.textContent !== '0' && src.textContent !== '' ? 'flex' : 'none';
+            }
+          };
+          const obs = new MutationObserver(_syncBadge);
+          setTimeout(() => {
+            const b = document.querySelector('.notif-bell-badge');
+            if (b) obs.observe(b, { childList:true, attributes:true, attributeFilter:['style'] });
+            _syncBadge();
+          }, 800);
+        } catch {}
+
+        // Notif dropdown toggle
+        document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
+            document.getElementById('notif-dropdown')?.classList.add('hidden');
+          }
+        });
+        document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
+          const { markAllRead } = await import('./js/notifications.js');
+          await markAllRead(user.uid);
+        });
+      });
+    } catch(e) { console.warn('[topBar]', e.message); }
+  })();
+
+  // ── Banner hover ─────────────────────────────────────────────
+  const bannerEl  = document.getElementById('profile-banner-el');
+  const bannerOverlay = document.getElementById('banner-overlay');
+  bannerEl?.addEventListener('mouseenter', () => { if(bannerOverlay) bannerOverlay.style.opacity='1'; });
+  bannerEl?.addEventListener('mouseleave', () => { if(bannerOverlay) bannerOverlay.style.opacity='0'; });
+  bannerEl?.addEventListener('click', () => document.getElementById('banner-file-input')?.click());
+
+  document.getElementById('banner-file-input')?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const { uploadToCloudinary } = await import('./js/cloudinary.js');
+      const { auth, db, COL }      = await import('./js/firebase.js');
+      const { doc, updateDoc }     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const { showToast }          = await import('./js/auth.js');
+      showToast('Przesyłam baner...', 'info', 2000);
+      const res = await uploadToCloudinary(file, `banners/${auth.currentUser?.uid}`);
+      if (bannerEl) bannerEl.style.backgroundImage = `url(${res.url})`;
+      await updateDoc(doc(db, COL.USERS, auth.currentUser.uid), { bannerUrl: res.url });
+      showToast('Baner zaktualizowany! ✅', 'success');
+    } catch(err) {
+      const { showToast } = await import('./js/auth.js');
+      showToast('Błąd uploadu: ' + err.message, 'error');
+    }
+    e.target.value = '';
+  });
+
+  // ── Avatar click ─────────────────────────────────────────────
+  document.getElementById('profile-avatar-clickable')?.addEventListener('click', () => {
+    document.getElementById('avatar-file-input')?.click();
+  });
+
+  document.getElementById('avatar-file-input')?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const { uploadToCloudinary } = await import('./js/cloudinary.js');
+      const { auth, db, COL }      = await import('./js/firebase.js');
+      const { doc, updateDoc }     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      const { updateProfile }      = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+      const { showToast }          = await import('./js/auth.js');
+      showToast('Przesyłam avatar...', 'info', 2000);
+      const res = await uploadToCloudinary(file, `avatars/${auth.currentUser?.uid}`);
+      await updateProfile(auth.currentUser, { photoURL: res.url });
+      await updateDoc(doc(db, COL.USERS, auth.currentUser.uid), { photoURL: res.url });
+      // Update avatar in DOM
+      const avEl = document.getElementById('profile-avatar');
+      if (avEl) avEl.innerHTML = `<img src="${res.url}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar"/>`;
+      const tbAv = document.getElementById('top-bar-avatar');
+      if (tbAv) tbAv.innerHTML = `<img src="${res.url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
+      showToast('Avatar zaktualizowany! ✅', 'success');
+    } catch(err) {
+      const { showToast } = await import('./js/auth.js');
+      showToast('Błąd uploadu: ' + err.message, 'error');
+    }
+    e.target.value = '';
+  });
+
 </script>
 </body>
 </html>

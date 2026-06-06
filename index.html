@@ -3,681 +3,679 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
+  <meta name="theme-color" content="#0B0D12"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="WWS Arena"/>
-  <meta name="description" content="Weekend Warrior Social — Arena Wojowników"/>
-  <meta property="og:title" content="⚔️ Weekend Warrior Social"/>
-  <meta property="og:description" content="Dołącz. Walcz. Zwyciężaj."/>
+  <meta name="apple-mobile-web-app-title" content="WWS"/>
+  <meta name="description" content="Weekend Warrior Social"/>
   <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
   <link rel="manifest" href="manifest.json"/>
-  <title>Arena Wojowników — Weekend Warrior Social</title>
+  <title>Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/arena.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    /* ── HOME PAGE SPECIFIC ─────────────────────── */
+    .home-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .875rem;
+    }
+    @media (min-width: 900px) {
+      .home-layout {
+        grid-template-columns: 280px 1fr 280px;
+        gap: 1.25rem;
+        align-items: start;
+      }
+      .home-left, .home-right {
+        position: sticky;
+        top: calc(var(--top-bar-h) + var(--safe-t) + 1rem);
+      }
+    }
+    @media (min-width: 640px) and (max-width: 899px) {
+      .home-layout { grid-template-columns: 1fr 1fr; }
+      .home-left  { grid-column: 1 / 2; }
+      .home-center { grid-column: 1 / -1; order: -1; }
+      .home-right { grid-column: 2 / 3; }
+    }
+
+    /* ── USER CARD ── */
+    .user-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+    .user-card-cover {
+      height: 64px;
+      background: linear-gradient(135deg, #1A2035 0%, #0F1628 100%);
+    }
+    .user-card-body {
+      padding: 0 1rem 1rem;
+      margin-top: -28px;
+      text-align: center;
+    }
+    .user-card-av {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 3px solid var(--bg-panel);
+      background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.125rem; font-weight: 700;
+      color: var(--text-secondary);
+      overflow: hidden;
+      margin: 0 auto .5rem;
+    }
+    .user-card-av img { width:100%;height:100%;object-fit:cover; }
+    .user-card-name {
+      font-size: .9375rem; font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: .125rem;
+    }
+    .user-card-rank {
+      font-size: .75rem; color: var(--text-muted);
+      margin-bottom: .75rem;
+    }
+    .user-card-xp-track {
+      height: 4px; background: var(--bg-elevated);
+      border-radius: 2px; overflow: hidden; margin-bottom: .375rem;
+    }
+    .user-card-xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand), var(--accent));
+      border-radius: 2px; transition: width .6s var(--ease-out);
+    }
+    .user-card-xp-label {
+      font-size: .625rem; color: var(--text-muted);
+      display: flex; justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+    .user-card-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: .375rem; margin-bottom: .75rem;
+    }
+    .user-card-stat { text-align: center; }
+    .user-card-stat-val {
+      font-size: 1rem; font-weight: 800;
+      color: var(--text-primary); display: block;
+    }
+    .user-card-stat-label { font-size: .5625rem; color: var(--text-muted); }
+    .user-card-divider {
+      height: 1px; background: var(--border); margin: .75rem 0;
+    }
+    .user-card-link {
+      display: block; text-align: center;
+      font-size: .75rem; font-weight: 600;
+      color: var(--brand); padding: .25rem;
+    }
+    .user-card-link:hover { color: var(--text-primary); }
+
+    /* ── CHALLENGE CARDS ── */
+    .ch-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: .25rem; }
+    .ch-scroll-wrap::-webkit-scrollbar { display: none; }
+    .ch-scroll { display: flex; gap: .625rem; }
+    .ch-card-mini {
+      flex-shrink: 0; width: 130px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden; cursor: pointer;
+      transition: border-color var(--dur-fast), transform var(--dur-fast);
+    }
+    .ch-card-mini:hover { border-color: var(--border-light); transform: translateY(-2px); }
+    .ch-card-mini-img {
+      width: 100%; height: 72px;
+      background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+    }
+    .ch-card-mini-body { padding: .5rem .625rem; }
+    .ch-card-mini-title {
+      font-size: .6875rem; font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: .15rem;
+    }
+    .ch-card-mini-xp { font-size: .5625rem; color: var(--brand); font-weight: 600; }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .5rem 0;
+      margin-bottom: .5rem;
+    }
+    .section-title { font-size: .875rem; font-weight: 700; color: var(--text-primary); }
+    .section-link  { font-size: .75rem; font-weight: 600; color: var(--brand); }
+
+    /* ── INBOX ITEM ── */
+    .inbox-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .625rem .875rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-panel);
+      border-radius: var(--r-md); margin-bottom: .375rem;
+    }
+    .inbox-item-av {
+      width: 36px; height: 36px;
+      border-radius: 50%; background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8125rem; font-weight: 700;
+      color: var(--text-secondary); overflow: hidden; flex-shrink: 0;
+    }
+    .inbox-item-av img { width:100%;height:100%;object-fit:cover; }
+    .inbox-item-text { flex: 1; min-width: 0; }
+    .inbox-item-name { font-size: .8125rem; font-weight: 600; color: var(--text-primary); }
+    .inbox-item-desc { font-size: .75rem; color: var(--text-muted); }
+    .inbox-item-actions { display: flex; gap: .375rem; flex-shrink: 0; }
+
+    /* ── STREAK ── */
+    .streak-row {
+      display: flex; align-items: center; gap: .625rem;
+      padding: .75rem 1rem;
+    }
+    .streak-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .streak-info { flex: 1; }
+    .streak-days { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+    .streak-label { font-size: .6875rem; color: var(--text-muted); }
+    .streak-bar-track { height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; margin-top: .375rem; }
+    .streak-bar-fill  { height: 100%; background: var(--fire); border-radius: 2px; transition: width .6s; }
+
+    /* ── MINI RANKING ── */
+    .mini-rank-item {
+      display: flex; align-items: center; gap: .625rem;
+      padding: .5rem .875rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .mini-rank-item:last-child { border-bottom: none; }
+    .mini-rank-pos { width: 20px; font-size: .75rem; font-weight: 700; color: var(--text-muted); text-align: center; flex-shrink: 0; }
+    .mini-rank-av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--bg-elevated);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6875rem; font-weight: 700; color: var(--text-secondary);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .mini-rank-av img { width:100%;height:100%;object-fit:cover; }
+    .mini-rank-name { flex: 1; font-size: .8125rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-rank-pts  { font-size: .75rem; font-weight: 700; color: var(--accent-dim); flex-shrink: 0; }
+  </style>
 </head>
 <body>
 
-<!-- Atmospheric layers -->
-<div class="bg-orbs" aria-hidden="true"></div>
-<div class="particles" aria-hidden="true">
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-</div>
-<div class="fog-layer" aria-hidden="true"></div>
+<!-- TOP BAR -->
+<header class="top-bar">
+  <a href="index.html" class="top-bar-brand">Weekend Warrior</a>
+  <nav class="top-bar-actions">
+    <!-- Search -->
+    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </a>
+    <!-- Messenger -->
+    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+    </a>
+    <!-- Notifications -->
+    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+    </button>
+    <!-- Profile avatar -->
+    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Profil">W</a>
+  </nav>
+</header>
 
-<!-- ══════════════════════════════════════════
-     BOTTOM NAVIGATION
-══════════════════════════════════════════ -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
-
+<!-- BOTTOM NAV (4 items) -->
+<nav class="nav" aria-label="Nawigacja główna">
   <a href="index.html" class="nav-item active" aria-current="page">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-      <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
     </svg>
     <span>Arena</span>
   </a>
-
   <a href="feed.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
     </svg>
     <span>Kroniki</span>
   </a>
-
-  <a href="challenges.html" class="nav-item-hero nav-item">
+  <a href="challenges.html" class="nav-item nav-item-hero">
     <div class="nav-hero-shield">⚔</div>
     <span>Misje</span>
   </a>
-
   <a href="ranking.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="8" r="6"/>
-      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+      <polyline points="17 6 23 6 23 12"/>
     </svg>
     <span>Chwała</span>
   </a>
-
-  <a href="profile.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Bohater</span>
-  </a>
-
-  <a href="pajac.html" class="nav-item" style="position:relative;">
-    <span style="font-size:1.125rem;line-height:1;display:block;">🍺</span>
-    <span id="pajac-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:#FFAA44;color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Laga</span>
-  </a>
-  <a href="search.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <span>Szukaj</span>
-  </a>
-  <a href="messenger.html" class="nav-item" style="position:relative;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Wiadomości</span>
-  </a>
-  <div class="nav-actions" id="nav-notif-anchor"></div>
 </nav>
 
-<!-- ══════════════════════════════════════════
-     MAIN CONTENT
-══════════════════════════════════════════ -->
-<div class="content-area" style="padding-top:.5rem;">
-
-  <!-- Mobile hero strip (shown only on mobile, filled by JS) -->
-  <div id="mobile-hero"></div>
-
-  <!-- RPG 3-col layout -->
-  <div class="rpg-layout">
-
-    <!-- ═══ LEFT SIDEBAR — CHARACTER CARD ═══ -->
-    <aside class="rpg-sidebar-left">
-      <div class="rpg-panel">
-        <!-- Skeleton -->
-        <div id="char-skeleton" style="padding:1rem .875rem;">
-          <div class="skeleton" style="width:80px;height:80px;border-radius:50%;margin:0 auto .875rem;"></div>
-          <div class="skeleton" style="height:14px;width:65%;border-radius:4px;margin:0 auto .375rem;"></div>
-          <div class="skeleton" style="height:10px;width:45%;border-radius:4px;margin:0 auto .875rem;"></div>
-          <div class="skeleton" style="height:7px;border-radius:4px;margin-bottom:.875rem;"></div>
-          <div class="skeleton" style="height:72px;border-radius:8px;margin-bottom:.75rem;"></div>
-          <div class="skeleton" style="height:120px;border-radius:8px;"></div>
-        </div>
-
-        <!-- Char card content -->
-        <div id="char-card" class="rpg-char-card hidden">
-          <div class="rpg-char-avatar-wrap">
-            <div id="char-avatar" class="rpg-char-avatar"></div>
-            <div class="rpg-level-badge" id="char-level">Poz. 1</div>
-          </div>
-
-          <div class="rpg-char-name" id="char-name">—</div>
-          <div class="rpg-char-rank" id="char-rank">Rookie</div>
-
-          <div class="rpg-xp-label">Doświadczenie</div>
-          <div class="rpg-xp-track">
-            <div class="rpg-xp-fill" id="char-xp-fill" style="width:0%;"></div>
-          </div>
-          <div class="rpg-xp-text" id="char-xp-text">0 / 500 XP</div>
-
-          <div class="rpg-achievement-badge" style="margin:.75rem 0;">
-            <div class="rpg-badge-icon">🌼</div>
-            <div class="rpg-badge-label" id="char-badge-name">Inicjacja</div>
-          </div>
-
-          <div class="rpg-divider"><span>◆</span></div>
-
-          <div style="font-family:var(--font-heading);font-size:.45rem;font-weight:700;
-               letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);
-               text-align:center;margin:.375rem 0 .25rem;">Statystyki</div>
-
-          <table class="rpg-stats-table">
-            <tr><td>Wygrane wyzwania</td><td id="cs-wins">0</td></tr>
-            <tr><td>Rzucone wyzwania</td><td id="cs-sent-c">0</td></tr>
-            <tr><td>Posty</td><td id="cs-posts">0</td></tr>
-            <tr><td>Zdobyte XP</td><td id="cs-xp">0</td></tr>
-            <tr><td>Aktywna seria</td><td id="cs-streak" class="fire">0 🔥</td></tr>
-          </table>
-
-          <div style="margin-top:.875rem;">
-            <a href="profile.html" class="rpg-btn rpg-btn-outline" style="width:100%;padding:.5rem;">
-              🛡 Karta Bohatera
-            </a>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ═══ CENTER — ARENA ═══ -->
-    <main class="rpg-main" style="min-width:0;">
-
-      <!-- Arena header -->
-      <div class="rpg-arena-header">
-        <div class="rpg-brand-title">Weekend Warrior</div>
-        <div class="rpg-brand-sub">Social</div>
-        <div class="rpg-swords" style="margin:.375rem 0;"></div>
-        <div class="rpg-section-title">Arena Wojowników</div>
-        <div style="font-size:.6875rem;color:var(--text-faint);margin-top:.25rem;
-             font-family:var(--font-heading);font-style:italic;letter-spacing:.06em;">
-          Podejmij wyzwania, pokonaj Węże i wspinaj się w rankingu
-        </div>
-        <div style="margin:.875rem 0 .375rem;display:flex;gap:.625rem;justify-content:center;flex-wrap:wrap;">
-          <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="gap:.5rem;padding:.5625rem 1.375rem;">
-            ⚔ Rzuć Wyzwanie
-          </a>
-          <a href="feed.html" class="rpg-btn rpg-btn-outline" style="padding:.5rem 1rem;">
-            📜 Kroniki
-          </a>
-        </div>
-      </div>
-
-      <!-- Challenge Cards -->
-      <div style="padding:.125rem 0 .25rem;">
-        <div class="rpg-divider" style="padding:0 .875rem;margin-bottom:.5rem;">
-          <span>Wyzwania Areny</span>
-        </div>
-        <div class="rpg-cards-scroll" id="rpg-cards-scroll">
-          <!-- skeleton card -->
-          <div class="rpg-ch-card" style="animation:none;">
-            <div class="rpg-ch-img-wrap" style="background:var(--bg-card);">
-              <div class="skeleton" style="width:100%;height:100%;border-radius:0;"></div>
-            </div>
-            <div class="rpg-ch-body">
-              <div class="skeleton" style="height:9px;border-radius:3px;margin-bottom:.375rem;"></div>
-              <div class="skeleton" style="height:11px;width:55%;border-radius:3px;margin:0 auto;"></div>
-            </div>
-          </div>
-        </div>
-        <div style="padding:0 .875rem .25rem;">
-          <a href="challenges.html" class="rpg-see-all">Zobacz wszystkie wyzwania</a>
-        </div>
-      </div>
-
-      <!-- Bottom grid -->
-      <div style="display:grid;grid-template-columns:1fr;gap:.75rem;padding:0 .5rem .875rem;">
-        <div id="rpg-bottom-grid" style="display:grid;grid-template-columns:1fr;gap:.75rem;">
-
-          <!-- Odebrane wyzwania -->
-          <div class="rpg-panel">
-            <div class="rpg-panel-header">
-              <div class="rpg-panel-title">
-                📥 Odebrane Wyzwania
-                <span class="rpg-count-badge" id="received-count" style="display:none;">0</span>
-              </div>
-              <a href="challenges.html" class="rpg-panel-link">Wszystkie</a>
-            </div>
-            <div id="received-list" style="padding:.375rem 0;">
-              <div style="text-align:center;padding:1.5rem .75rem;">
-                <div style="font-size:1.25rem;margin-bottom:.375rem;">📭</div>
-                <div class="label-caps">Ładowanie...</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aktywne + Seria -->
-          <div style="display:flex;flex-direction:column;gap:.75rem;">
-            <!-- Aktywne Lagi Pajacu -->
-            <div class="rpg-panel" id="pajac-inbox-panel" style="display:none;">
-              <div class="rpg-panel-header">
-                <div class="rpg-panel-title">🍺 Aktywne Lagi</div>
-                <a href="pajac.html" class="rpg-panel-link">Wszystkie</a>
-              </div>
-              <div id="pajac-inbox-list" style="padding:.5rem .875rem;display:flex;flex-direction:column;gap:.5rem;">
-              </div>
-            </div>
-
-            <div class="rpg-panel">
-              <div class="rpg-panel-header">
-                <div class="rpg-panel-title">⚔️ Aktywne Wyzwania</div>
-              </div>
-              <div id="active-ch-content" style="padding:.75rem .875rem;">
-                <div style="text-align:center;padding:.75rem;font-family:var(--font-heading);
-                     font-size:.6rem;color:var(--text-faint);letter-spacing:.1em;font-style:italic;">
-                  Brak aktywnych
-                </div>
-              </div>
-            </div>
-
-            <div class="rpg-panel">
-              <div class="rpg-panel-header">
-                <div class="rpg-panel-title">🔥 Twoja Seria</div>
-              </div>
-              <div class="rpg-streak-card">
-                <div class="rpg-streak-ring">
-                  <div class="rpg-streak-num" id="streak-num">0</div>
-                  <div class="rpg-streak-unit">DNI</div>
-                </div>
-                <div class="rpg-streak-label" id="streak-label">⚔️ Zacznij serię!</div>
-                <div class="rpg-streak-sub" id="streak-sub">Zaloguj się każdego dnia</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mini ranking -->
-        <div class="rpg-panel" id="mini-ranking-panel">
-          <div class="rpg-panel-header">
-            <div class="rpg-panel-title">👑 Ranking Wojowników</div>
-            <a href="ranking.html" class="rpg-panel-link">Pełny</a>
-          </div>
-          <div class="rpg-mini-podium" id="mini-podium"></div>
-          <div id="mini-rank-list"></div>
-          <a href="ranking.html" class="rpg-see-all">Zobacz pełny ranking</a>
-        </div>
-      </div>
-    </main>
-
-    <!-- ═══ RIGHT SIDEBAR — KOMNATA POSŁAŃCÓW ═══ -->
-    <aside class="rpg-sidebar-right">
-      <div class="rpg-panel" style="max-height:calc(100vh - 110px);display:flex;flex-direction:column;overflow:hidden;">
-        <div class="rpg-panel-header" style="flex-shrink:0;">
-          <div class="rpg-panel-title">
-            💌 Komnata Posłańców
-            <span class="rpg-count-badge notif-badge" style="display:none;">0</span>
-          </div>
-        </div>
-        <div id="right-notif-list" style="flex:1;overflow-y:auto;">
-          <div style="text-align:center;padding:2rem .75rem;font-family:var(--font-heading);
-               font-size:.6rem;color:var(--text-faint);font-style:italic;">
-            Ładowanie posłańców...
-          </div>
-        </div>
-        <a href="#" id="see-all-notifs" class="rpg-see-all" style="flex-shrink:0;">
-          Zobacz wszystkie
-        </a>
-      </div>
-    </aside>
+<!-- Notifications dropdown (injected into top bar) -->
+<div id="notif-dropdown" class="notif-dropdown hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
+    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz jako przeczytane</button>
   </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:360px;"></div>
 </div>
 
+<!-- MAIN CONTENT -->
+<main class="content-area">
+  <div class="page home-layout" id="home-content">
+
+    <!-- LEFT: User Card -->
+    <aside class="home-left">
+      <div class="user-card" id="user-card">
+        <div class="user-card-cover"></div>
+        <div class="user-card-body">
+          <!-- Skeleton -->
+          <div id="user-card-skeleton">
+            <div class="user-card-av"><div class="skeleton" style="width:100%;height:100%;border-radius:50%;"></div></div>
+            <div class="skeleton" style="height:14px;width:60%;border-radius:4px;margin:.5rem auto;"></div>
+            <div class="skeleton" style="height:10px;width:40%;border-radius:4px;margin:0 auto .75rem;"></div>
+            <div class="skeleton" style="height:4px;border-radius:2px;margin-bottom:.375rem;"></div>
+          </div>
+          <!-- Content -->
+          <div id="user-card-content" class="hidden">
+            <div class="user-card-av" id="uc-avatar">W</div>
+            <div class="user-card-name" id="uc-name">—</div>
+            <div class="user-card-rank" id="uc-rank">Rookie</div>
+            <div class="user-card-xp-track">
+              <div class="user-card-xp-fill" id="uc-xp-fill" style="width:0%;"></div>
+            </div>
+            <div class="user-card-xp-label">
+              <span id="uc-level">Poziom 1</span>
+              <span id="uc-xp">0 XP</span>
+            </div>
+            <div class="user-card-stats">
+              <div class="user-card-stat">
+                <span class="user-card-stat-val" id="uc-posts">0</span>
+                <span class="user-card-stat-label">Posty</span>
+              </div>
+              <div class="user-card-stat">
+                <span class="user-card-stat-val" id="uc-wins">0</span>
+                <span class="user-card-stat-label">Wygrane</span>
+              </div>
+              <div class="user-card-stat">
+                <span class="user-card-stat-val" id="uc-xp-pts">0</span>
+                <span class="user-card-stat-label">XP</span>
+              </div>
+            </div>
+            <div class="user-card-divider"></div>
+            <a href="profile.html" class="user-card-link">Edytuj profil</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="user-card" style="margin-top:.875rem;">
+        <div class="rpg-panel-header">
+          <div class="rpg-panel-title">🔥 Seria</div>
+        </div>
+        <div class="streak-row">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-info">
+            <div class="streak-days"><span id="streak-days">0</span> dni</div>
+            <div class="streak-label">Aktywna seria logowań</div>
+            <div class="streak-bar-track" style="margin-top:.375rem;">
+              <div class="streak-bar-fill" id="streak-bar" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: Challenges + Inbox -->
+    <section class="home-center">
+
+      <!-- Challenge cards -->
+      <div style="margin-bottom:1rem;">
+        <div class="section-header">
+          <div class="section-title">⚔ Wyzwania dnia</div>
+          <a href="challenges.html" class="section-link">Wszystkie →</a>
+        </div>
+        <div class="ch-scroll-wrap">
+          <div class="ch-scroll" id="ch-cards"></div>
+        </div>
+      </div>
+
+      <!-- Received challenges -->
+      <div id="inbox-section" style="display:none;margin-bottom:1rem;">
+        <div class="section-header">
+          <div class="section-title">📥 Wyzwania dla Ciebie</div>
+          <span id="inbox-count" style="font-size:.75rem;font-weight:700;color:var(--brand);"></span>
+        </div>
+        <div id="inbox-list"></div>
+      </div>
+
+      <!-- Active challenges -->
+      <div id="active-section" style="display:none;margin-bottom:1rem;">
+        <div class="section-header">
+          <div class="section-title">🎯 Aktywne wyzwania</div>
+        </div>
+        <div id="active-list"></div>
+      </div>
+
+      <!-- Quick actions -->
+      <div style="display:flex;gap:.625rem;margin-bottom:1rem;">
+        <a href="feed.html" class="btn btn-outline" style="flex:1;justify-content:center;gap:.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          </svg>
+          Kroniki
+        </a>
+        <a href="search.html" class="btn btn-outline" style="flex:1;justify-content:center;gap:.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Szukaj
+        </a>
+        <a href="achievements.html" class="btn btn-outline" style="flex:1;justify-content:center;gap:.5rem;">
+          🏅
+          Odznaki
+        </a>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: Mini ranking -->
+    <aside class="home-right">
+      <div class="user-card">
+        <div class="rpg-panel-header">
+          <div class="rpg-panel-title">👑 Top Wojownicy</div>
+          <a href="ranking.html" class="rpg-panel-link">Pełny</a>
+        </div>
+        <div id="mini-ranking"></div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
 <script type="module">
-  import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { injectNotifBell } from './js/notifications.js';
-  import { initPajacInbox } from './js/pajac.js';
+  import { checkAuth, logout, getCurrentUserData } from './js/auth.js';
   import { auth, db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
-  import { initArena } from './js/arena.js';
-  import { injectMessengerBadge } from './js/messenger.js';
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
+  import { checkDailyLogin } from './js/xp.js';
   import { CHALLENGES_DATA } from './js/challenge-system.js';
+  import { injectMessengerBadge } from './js/messenger.js';
   import {
     collection, query, where, orderBy, limit,
-    onSnapshot, getDocs, doc, getDoc,
+    onSnapshot, getDocs, doc, getDoc, updateDoc, serverTimestamp,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  injectLightModeCSS();
-  initTheme();
-  initArena();
+  // ── Notif bell toggle ──────────────────────────────────────────
+  document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
+      document.getElementById('notif-dropdown')?.classList.add('hidden');
+    }
+  });
 
   checkAuth(async (user) => {
-    const anchor = document.getElementById('nav-notif-anchor');
-    if (anchor) {
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'btn btn-ghost btn-sm';
-      logoutBtn.style.cssText = 'padding:.5rem;color:var(--text-faint);';
-      logoutBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`;
-      anchor.appendChild(logoutBtn);
-      logoutBtn.addEventListener('click', logout);
-    }
-
-    // 2s skeleton safety timeout
-    const skTimer = setTimeout(() => {
-      document.getElementById('char-skeleton')?.classList.add('hidden');
-      document.getElementById('char-card')?.classList.remove('hidden');
-    }, 2000);
-
-    injectNotifBell(user.uid);
+    // Messenger badge
     injectMessengerBadge(user.uid);
+
+    // Inject notification bell using existing notifications.js
+    const { injectNotifBell } = await import('./js/notifications.js');
+    // Wire up existing notif bell to top-bar bell button
+    _wireNotifBell(user.uid);
+
+    checkDailyLogin(user.uid).catch(() => {});
+
+    // Load user data
+    const skTimer = setTimeout(() => {
+      document.getElementById('user-card-skeleton')?.classList.add('hidden');
+      document.getElementById('user-card-content')?.classList.remove('hidden');
+    }, 2000);
 
     let userData = null;
     try { userData = await getCurrentUserData(user.uid, user); } catch {}
     userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0 };
 
     clearTimeout(skTimer);
-    _renderCharCard(user, userData);
-    _renderMobileHero(user, userData);
+    _renderUserCard(user, userData);
+    _updateTopBarAvatar(user, userData);
     _renderChallengeCards();
-    _listenReceived(user.uid);
+    _listenInbox(user.uid);
     _listenActive(user.uid);
     _listenStreak(user.uid, userData);
     _loadMiniRanking(user.uid);
-    _loadRightNotifs(user.uid);
   });
 
-  // ── Character Card ──────────────────────────────────────────────
-  function _renderCharCard(user, data) {
-    document.getElementById('char-skeleton')?.classList.add('hidden');
-    const card = document.getElementById('char-card');
-    if (!card) return;
-    card.classList.remove('hidden');
+  // ── Top bar avatar ─────────────────────────────────────────────
+  function _updateTopBarAvatar(user, data) {
+    const el = document.getElementById('top-bar-avatar');
+    if (!el) return;
+    const name = data.displayName || user.displayName || 'W';
+    const init = name.charAt(0).toUpperCase();
+    if (data.photoURL) {
+      el.innerHTML = `<img src="${_esc(data.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
+    } else {
+      el.textContent = init;
+    }
+  }
 
-    const name = data.displayName || user.displayName || 'Wojownik';
-    const points = Number(data.points) || 0;
-    const level = getLevel(points);
+  // ── Notifications bell wiring ─────────────────────────────────
+  function _wireNotifBell(uid) {
+    const { initNotifications, markAllRead } = _loadNotifModule(uid);
+    document.getElementById('notif-mark-all')?.addEventListener('click', () => markAllRead?.(uid));
+  }
+  async function _loadNotifModule(uid) {
+    const mod = await import('./js/notifications.js');
+    mod.initNotifications(uid);
+    // Sync badge with top bar
+    const origUpdate = document.querySelectorAll.bind(document);
+    return mod;
+  }
+
+  // ── User Card ─────────────────────────────────────────────────
+  function _renderUserCard(user, data) {
+    document.getElementById('user-card-skeleton')?.classList.add('hidden');
+    document.getElementById('user-card-content')?.classList.remove('hidden');
+
+    const name    = data.displayName || user.displayName || 'Wojownik';
+    const points  = Number(data.points) || 0;
+    const level   = getLevel(points);
     const rankObj = getRank(points);
     const progress = getRankProgress(points);
-    const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
-    const nextRank = Array.isArray(RANKS) ? RANKS[rankIdx + 1] : null;
-    const nextMin = nextRank?.min ?? rankObj.min;
-    const xpInLevel = Math.max(0, points - rankObj.min);
-    const xpNeeded = Math.max(1, nextMin - rankObj.min);
+    const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
+    const next     = RANKS[rankIdx + 1];
+    const xpIn     = Math.max(0, points - rankObj.min);
+    const xpNeed   = Math.max(1, (next?.min ?? points + 500) - rankObj.min);
+    const init     = name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
 
-    const avEl = document.getElementById('char-avatar');
-    const init = name.split(' ').map(w=>w[0]??'').join('').slice(0,2).toUpperCase();
+    const avEl = document.getElementById('uc-avatar');
     if (avEl) {
       if (data.photoURL) {
-        avEl.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = data.photoURL; img.alt = 'Avatar';
-        img.onerror = () => { avEl.textContent = init; };
-        avEl.appendChild(img);
+        avEl.innerHTML = `<img src="${_esc(data.photoURL)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent='${init}'"/>`;
       } else { avEl.textContent = init; }
     }
 
-    const s = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    s('char-level', `Poz. ${level}`);
-    s('char-name', name);
-    s('char-rank', `${rankObj.emoji} ${rankObj.label}`);
-    s('char-xp-text', `${xpInLevel.toLocaleString('pl-PL')} / ${xpNeeded.toLocaleString('pl-PL')} XP`);
-    const fill = document.getElementById('char-xp-fill');
-    if (fill) setTimeout(() => { fill.style.width = progress + '%'; }, 400);
-    s('cs-wins', String(data.challengesCompleted || 0));
-    s('cs-sent-c', String(data.challengesSent || 0));
-    s('cs-posts', String(data.postsCount || 0));
-    s('cs-xp', (points).toLocaleString('pl-PL'));
-    const badgeNames = ['Inicjacja','Łowca','Wojownik','Champion','Legenda'];
-    s('char-badge-name', badgeNames[Math.min(level-1, badgeNames.length-1)]);
-  }
-
-  // ── Mobile hero strip ───────────────────────────────────────────
-  function _renderMobileHero(user, data) {
-    const hero = document.getElementById('mobile-hero');
-    if (!hero) return;
-    const name = data.displayName || user.displayName || 'Wojownik';
-    const points = Number(data.points) || 0;
-    const level = getLevel(points);
-    const rankObj = getRank(points);
-    const progress = getRankProgress(points);
-    const init = name.split(' ').map(w=>w[0]??'').join('').slice(0,2).toUpperCase();
-    const avatarHTML = data.photoURL
-      ? `<img src="${_esc(data.photoURL)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent='${init}'">`
-      : init;
-    hero.innerHTML = `
-      <div class="mobile-char-strip">
-        <div class="mobile-char-avatar">${avatarHTML}</div>
-        <div class="mobile-char-info">
-          <div class="mobile-char-name">${_esc(name)}</div>
-          <div class="mobile-char-rank">${rankObj.emoji} ${rankObj.label}</div>
-          <div class="mobile-xp-track">
-            <div class="mobile-xp-fill" style="width:0%;" id="mobile-xp-fill"></div>
-          </div>
-        </div>
-        <div class="mobile-char-level">Poz. ${level}</div>
-      </div>`;
+    const s = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    s('uc-name',  name);
+    s('uc-rank',  `${rankObj.emoji} ${rankObj.label} · Poz. ${level}`);
+    s('uc-level', `Poziom ${level}`);
+    s('uc-xp',    `${xpIn.toLocaleString('pl-PL')} / ${xpNeed.toLocaleString('pl-PL')} XP`);
+    s('uc-posts', String(data.postsCount || 0));
+    s('uc-wins',  String(data.challengesCompleted || 0));
+    s('uc-xp-pts', points.toLocaleString('pl-PL'));
     setTimeout(() => {
-      const f = document.getElementById('mobile-xp-fill');
+      const f = document.getElementById('uc-xp-fill');
       if (f) f.style.width = progress + '%';
     }, 400);
+
+    _updateTopBarAvatar(user, data);
   }
 
-  // ── Challenge cards ─────────────────────────────────────────────
+  // ── Challenge cards ───────────────────────────────────────────
   function _renderChallengeCards() {
-    const scroll = document.getElementById('rpg-cards-scroll');
-    if (!scroll) return;
-    scroll.innerHTML = '';
-    CHALLENGES_DATA.forEach((ch, idx) => {
-      const card = document.createElement('div');
-      card.className = 'rpg-ch-card';
-      card.style.animationDelay = (idx * 0.07) + 's';
+    const scroll = document.getElementById('ch-cards');
+    if (!scroll || !CHALLENGES_DATA?.length) return;
+    CHALLENGES_DATA.slice(0,8).forEach(ch => {
+      const card = document.createElement('a');
+      card.href      = 'challenges.html';
+      card.className = 'ch-card-mini';
       card.innerHTML = `
-        <div class="rpg-ch-num">${ch.order}</div>
-        <div class="rpg-ch-img-wrap">
-          <img src="${ch.image}" alt="${_esc(ch.title)}" class="rpg-ch-img" loading="lazy"
-            onerror="this.style.display='none';this.parentElement.style.background='#1A150E'"/>
-        </div>
-        <div class="rpg-ch-body">
-          <div class="rpg-ch-orn">◆</div>
-          <div class="rpg-ch-title">${_esc(ch.title)}</div>
-          <div class="rpg-ch-xp">+${ch.xp} XP</div>
-          <div class="rpg-ch-actions">
-            <div class="rpg-ch-action-btn primary" title="Quiz">🎯</div>
-            <div class="rpg-ch-action-btn" title="Wyzwanie">⚔️</div>
-          </div>
+        <div class="ch-card-mini-img">${ch.badge || '⚔️'}</div>
+        <div class="ch-card-mini-body">
+          <div class="ch-card-mini-title">${_esc(ch.title)}</div>
+          <div class="ch-card-mini-xp">+${ch.xp} XP</div>
         </div>`;
-      card.addEventListener('click', () => { window.location.href = 'challenges.html'; });
       scroll.appendChild(card);
     });
   }
 
-  // ── Received challenges ─────────────────────────────────────────
-  function _listenReceived(uid) {
-    const el = document.getElementById('received-list');
-    const countEl = document.getElementById('received-count');
-    if (!el) return;
+  // ── Inbox (received challenges) ───────────────────────────────
+  function _listenInbox(uid) {
     const q = query(
-      collection(db,'challenge_invites'),
-      where('targetId','==',uid),
-      where('status','in',['pending','quiz_pending','active']),
+      collection(db, 'challenge_invites'),
+      where('targetId', '==', uid),
+      where('status', '==', 'pending'),
+      orderBy('createdAt', 'desc'), limit(10)
     );
     onSnapshot(q, snap => {
-      const items = [];
-      snap.forEach(d => items.push({id:d.id,...d.data()}));
-      items.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-      if (countEl) { countEl.textContent=items.length; countEl.style.display=items.length>0?'inline-flex':'none'; }
-      el.innerHTML = '';
-      if (!items.length) {
-        el.innerHTML = `<div style="text-align:center;padding:1.25rem .75rem;">
-          <div style="font-size:1.125rem;margin-bottom:.3rem;">📭</div>
-          <div class="label-caps" style="font-size:.45rem;">Brak odebranych</div></div>`;
-        return;
-      }
-      items.slice(0, 3).forEach(inv => {
-        const ini = (inv.challengerName||'?')[0].toUpperCase();
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'padding:.375rem .75rem;';
-        wrap.innerHTML = `
-          <div class="rpg-scroll-card">
-            <div class="rpg-scroll-header">
-              <div class="rpg-scroll-avatar">${inv.challengerPhoto
-                ? `<img src="${_esc(inv.challengerPhoto)}" onerror="this.parentElement.textContent='${ini}'">`
-                : ini}</div>
-              <div>
-                <div class="rpg-scroll-from"><strong>${_esc(inv.challengerName||'Wojownik')}</strong><br>rzucił Ci wyzwanie</div>
-                <div class="rpg-scroll-ch-name">${inv.challengeBadge??'⚔️'} ${_esc(inv.challengeTitle)}</div>
-                <div class="rpg-scroll-xp">+${inv.challengeXP} XP</div>
-              </div>
-            </div>
-            ${inv.status === 'pending' ? `
-            <div class="rpg-scroll-actions">
-              <button class="btn-accept" data-id="${inv.id}">PRZYJMIJ</button>
-              <button class="btn-reject" data-id="${inv.id}">ODRZUĆ</button>
-            </div>` : `
-            <div style="font-size:.55rem;font-weight:700;color:#4F8CFF;
-              font-family:var(--font-heading);letter-spacing:.08em;text-transform:uppercase;margin-top:.375rem;">
-              ${inv.status==='quiz_pending'?'🧠 Quiz do wykonania':'⚔️ W realizacji'}
-            </div>`}
+      const section = document.getElementById('inbox-section');
+      const list    = document.getElementById('inbox-list');
+      const count   = document.getElementById('inbox-count');
+      if (!section || !list) return;
+      if (snap.empty) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+      if (count) count.textContent = `${snap.size} nowych`;
+      list.innerHTML = '';
+      snap.forEach(d => {
+        const inv = { id: d.id, ...d.data() };
+        const ini = (inv.challengerName||'W').charAt(0).toUpperCase();
+        const item = document.createElement('div');
+        item.className = 'inbox-item';
+        item.innerHTML = `
+          <div class="inbox-item-av">
+            ${inv.challengerPhoto ? `<img src="${_esc(inv.challengerPhoto)}" alt="Avatar" onerror="this.parentElement.textContent='${ini}'"/>` : ini}
+          </div>
+          <div class="inbox-item-text">
+            <div class="inbox-item-name">${_esc(inv.challengerName||'Wojownik')}</div>
+            <div class="inbox-item-desc">${inv.challengeBadge||'⚔️'} ${_esc(inv.challengeTitle)} · +${inv.challengeXP||0} XP</div>
+          </div>
+          <div class="inbox-item-actions">
+            <button class="btn-accept" data-id="${inv.id}" data-cid="${inv.challengeId}">✓</button>
+            <button class="btn-reject" data-id="${inv.id}">✕</button>
           </div>`;
-        wrap.querySelector('.btn-accept')?.addEventListener('click', async e => {
-          e.stopPropagation();
-          const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          try { await updateDoc(_doc(db,'challenge_invites',inv.id),{status:'quiz_pending'}); showToast('Wyzwanie zaakceptowane! 🧠','success',4000); }
-          catch(err) { showToast('Błąd: '+err.code,'error'); }
-        });
-        wrap.querySelector('.btn-reject')?.addEventListener('click', async e => {
-          e.stopPropagation();
-          const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          try { await updateDoc(_doc(db,'challenge_invites',inv.id),{status:'rejected'}); showToast('Odrzucono.','info'); }
-          catch(err) { showToast('Błąd: '+err.code,'error'); }
-        });
-        el.appendChild(wrap);
+        item.querySelector('.btn-accept')?.addEventListener('click', () => _respondInvite(inv.id, 'accepted'));
+        item.querySelector('.btn-reject')?.addEventListener('click', () => _respondInvite(inv.id, 'rejected'));
+        list.appendChild(item);
       });
-      if (items.length > 3) {
-        el.innerHTML += `<a href="challenges.html" class="rpg-see-all">+${items.length-3} więcej</a>`;
-      }
-    }, err => console.warn('[received]', err.code));
+    }, err => console.warn('[inbox]', err.code));
   }
 
-  // ── Active challenge ────────────────────────────────────────────
-  function _listenActive(uid) {
-    const el = document.getElementById('active-ch-content');
-    if (!el) return;
-    const q = query(collection(db,'challenge_invites'),where('targetId','==',uid),where('status','==','active'),limit(1));
-    onSnapshot(q, snap => {
-      if (snap.empty) {
-        el.innerHTML = `<div style="text-align:center;padding:.75rem;font-family:var(--font-heading);
-          font-size:.6rem;color:var(--text-faint);letter-spacing:.08em;font-style:italic;">Brak aktywnych</div>`;
-        return;
-      }
-      const inv = {id:snap.docs[0].id,...snap.docs[0].data()};
-      const ch = CHALLENGES_DATA.find(c=>c.id===inv.challengeId);
-      el.innerHTML = `
-        <div class="rpg-active-ch">
-          ${ch?.image
-            ? `<img src="${ch.image}" class="rpg-active-thumb" alt="${_esc(inv.challengeTitle)}" onerror="this.style.display='none'">`
-            : `<div class="rpg-active-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg-card);border-radius:var(--r-md);border:1px solid var(--border-dim);">${inv.challengeBadge??'⚔️'}</div>`}
-          <div class="rpg-active-info">
-            <div class="rpg-active-title">${_esc(inv.challengeTitle)}</div>
-            <div class="rpg-active-from">Od: ${_esc(inv.challengerName||'?')}</div>
-            <div style="display:flex;align-items:center;gap:.25rem;margin-top:.5rem;">
-              <div class="rpg-step done"><div class="rpg-step-icon">✓</div><div class="rpg-step-label">Quiz</div></div>
-              <div class="rpg-step-line"></div>
-              <div class="rpg-step current"><div class="rpg-step-icon">⚔</div><div class="rpg-step-label">Zadanie</div></div>
-              <div class="rpg-step-line"></div>
-              <div class="rpg-step locked"><div class="rpg-step-icon" style="font-size:.75rem;">🔒</div><div class="rpg-step-label">Ukończ</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="rpg-active-xp">+${inv.challengeXP} XP</div>
-        <div style="margin-top:.625rem;">
-          <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="width:100%;padding:.5rem;">⚔️ Realizuj wyzwanie</a>
-        </div>`;
-    }, err => console.warn('[active]', err.code));
-  }
-
-  // ── Streak ──────────────────────────────────────────────────────
-  function _listenStreak(uid, userData) {
-    const days = Number(userData.streak || userData.loginStreak || 0);
-    const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    s('streak-num', days);
-    const label = document.getElementById('streak-label');
-    if (label) {
-      label.style.color = days>=7 ? 'var(--fire)' : 'var(--text-muted)';
-      label.textContent = days>=30?'🏆 LEGENDARNA SERIA!':days>=14?'🔥 NIESAMOWITE!':days>=7?'🔥 Świetna robota!':days>=1?'🔥 Trzymaj rytm!':'⚔️ Zacznij serię!';
-    }
-    s('streak-sub', days>=1?'Zaloguj się jutro, Wojowniku.':'Zaloguj się każdego dnia.');
-    s('cs-streak', `${days} 🔥`);
-  }
-
-  // ── Mini Ranking ────────────────────────────────────────────────
-  async function _loadMiniRanking(myUid) {
-    const podiumEl = document.getElementById('mini-podium');
-    const listEl = document.getElementById('mini-rank-list');
-    if (!podiumEl||!listEl) return;
+  async function _respondInvite(inviteId, status) {
     try {
-      const snap = await getDocs(query(collection(db,COL.USERS),orderBy('points','desc'),limit(5)));
-      const users = [];
-      snap.forEach(d=>users.push({uid:d.id,...d.data()}));
-      const pc=['p1','p2','p3'], crowns=['👑','🥈','🥉'];
-      podiumEl.innerHTML = '';
-      users.slice(0,3).forEach((u,i) => {
-        const ini=(u.displayName||'?')[0].toUpperCase();
-        const div=document.createElement('div');
-        div.className=`rpg-podium-item ${pc[i]}`;
-        div.innerHTML=`
-          <div class="rpg-podium-crown" style="color:${i===0?'var(--podium-1)':i===1?'var(--podium-2)':'var(--podium-3)'};">${crowns[i]}</div>
-          <div class="rpg-podium-avatar">
-            ${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            :ini}
-            ${u.uid===myUid?'<div style="position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold-400);"></div>':''}
-          </div>
-          <div class="rpg-podium-name">${_esc((u.displayName||'?').split(' ')[0])}</div>
-          <div class="rpg-podium-xp">${(u.points||0).toLocaleString('pl-PL')} XP</div>`;
-        podiumEl.appendChild(div);
+      await updateDoc(doc(db, 'challenge_invites', inviteId), {
+        status, respondedAt: serverTimestamp(),
       });
-      listEl.innerHTML='';
-      users.slice(3,5).forEach((u,i)=>{
-        const ini=(u.displayName||'?')[0].toUpperCase();
-        const row=document.createElement('div');
-        row.className='rpg-rank-row';
-        row.innerHTML=`
-          <div class="rpg-rank-pos">${i+4}</div>
-          <div class="rpg-rank-mini-av">${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            :ini}</div>
-          <div class="rpg-rank-name">${_esc(u.displayName||'Wojownik')}</div>
-          <div class="rpg-rank-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>`;
-        listEl.appendChild(row);
-      });
-    } catch(err) { console.warn('[miniRanking]',err.code); }
+    } catch(e) { console.warn('[respondInvite]', e.code); }
   }
 
-  // ── Right notifications ─────────────────────────────────────────
-  function _loadRightNotifs(uid) {
-    const el=document.getElementById('right-notif-list');
-    if(!el) return;
-    onSnapshot(
-      query(collection(db,'notifications',uid,'items'),orderBy('createdAt','desc'),limit(8)),
-      snap => {
-        const items=[]; snap.forEach(d=>items.push({id:d.id,...d.data()}));
-        el.innerHTML='';
-        if(!items.length){
-          el.innerHTML=`<div style="text-align:center;padding:2rem .75rem;font-family:var(--font-heading);
-            font-size:.6rem;color:var(--text-faint);font-style:italic;">Brak posłańców</div>`;
-          return;
-        }
-        const iconMap={like:'❤️',comment:'💬',duel:'⚔️',achievement:'🏆',xp:'⭐',system:'📣'};
-        items.forEach(n=>{
-          const item=document.createElement('div');
-          item.className='rpg-notif-item';
-          item.innerHTML=`
-            <div class="rpg-notif-av">${iconMap[n.type]??'📣'}</div>
-            <div class="rpg-notif-body">
-              <div class="rpg-notif-name">${_esc(n.title||'')}</div>
-              <div class="rpg-notif-action">${_esc(n.body||'')}</div>
-              <div class="rpg-notif-time">${_fmtTime(n.createdAt)}</div>
-            </div>
-            ${!n.read?'<div class="rpg-notif-dot"></div>':''}`;
-          if(n.url){item.style.cursor='pointer';item.addEventListener('click',()=>window.location.href=n.url);}
-          el.appendChild(item);
-        });
-      }, err=>console.warn('[rightNotifs]',err.code)
+  // ── Active challenges ─────────────────────────────────────────
+  function _listenActive(uid) {
+    const q = query(
+      collection(db, 'challenge_invites'),
+      where('targetId', '==', uid),
+      where('status', '==', 'accepted'),
+      limit(5)
     );
+    onSnapshot(q, snap => {
+      const section = document.getElementById('active-section');
+      const list    = document.getElementById('active-list');
+      if (!section || !list) return;
+      if (snap.empty) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+      list.innerHTML = '';
+      snap.forEach(d => {
+        const inv = { id: d.id, ...d.data() };
+        const item = document.createElement('div');
+        item.className = 'inbox-item';
+        item.innerHTML = `
+          <div class="inbox-item-av" style="font-size:1.25rem;">${inv.challengeBadge||'⚔️'}</div>
+          <div class="inbox-item-text">
+            <div class="inbox-item-name">${_esc(inv.challengeTitle)}</div>
+            <div class="inbox-item-desc">Od: ${_esc(inv.challengerName||'?')} · +${inv.challengeXP||0} XP</div>
+          </div>
+          <a href="challenges.html" class="btn btn-primary btn-sm">Idź →</a>`;
+        list.appendChild(item);
+      });
+    }, () => {});
   }
 
-  function _fmtTime(ts) {
-    if(!ts) return '';
-    const d=ts?.toDate?.()??( ts?.seconds?new Date(ts.seconds*1000):new Date(ts) );
-    if(isNaN(d)) return '';
-    const m=Math.floor((Date.now()-d)/60000);
-    if(m<1) return 'przed chwilą';
-    if(m<60) return `${m} min. temu`;
-    const h=Math.floor(m/60);
-    if(h<24) return `${h} godz. temu`;
-    return `${Math.floor(h/24)} dni temu`;
+  // ── Streak ────────────────────────────────────────────────────
+  async function _listenStreak(uid, userData) {
+    const streak = userData?.streak || 0;
+    const el = document.getElementById('streak-days');
+    const bar = document.getElementById('streak-bar');
+    if (el)  el.textContent = streak;
+    if (bar) setTimeout(() => { bar.style.width = Math.min(100, (streak / 30) * 100) + '%'; }, 500);
   }
+
+  // ── Mini ranking ──────────────────────────────────────────────
+  async function _loadMiniRanking(myUid) {
+    const container = document.getElementById('mini-ranking');
+    if (!container) return;
+    try {
+      const snap = await getDocs(query(
+        collection(db, COL.USERS),
+        orderBy('points','desc'),
+        limit(5)
+      ));
+      container.innerHTML = '';
+      const medals = ['🥇','🥈','🥉','4.','5.'];
+      snap.docs.forEach((d, i) => {
+        const u   = d.data();
+        const ini = (u.displayName||'W').charAt(0).toUpperCase();
+        const row = document.createElement('div');
+        row.className = 'mini-rank-item';
+        const isMe = d.id === myUid;
+        row.innerHTML = `
+          <div class="mini-rank-pos">${medals[i]||''}</div>
+          <div class="mini-rank-av">
+            ${u.photoURL ? `<img src="${_esc(u.photoURL)}" alt="Av" onerror="this.parentElement.textContent='${ini}'"/>` : ini}
+          </div>
+          <div class="mini-rank-name" style="${isMe ? 'color:var(--brand);font-weight:800;' : ''}">${_esc(u.displayName||'Wojownik')}</div>
+          <div class="mini-rank-pts">${(u.points||0).toLocaleString('pl-PL')}</div>`;
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => { window.location.href = d.id === myUid ? 'profile.html' : `user.html?uid=${d.id}`; });
+        container.appendChild(row);
+      });
+    } catch(e) { console.warn('[miniRanking]', e.code); }
+  }
+
+  // ── Notif badge wiring ────────────────────────────────────────
+  // Wire notification badge to top bar after initNotifications runs
+  (function wireNotifBadge() {
+    const origQSA = document.querySelectorAll.bind(document);
+    // Poll for badge updates from notifications.js
+    setInterval(() => {
+      const badge = document.querySelector('.notif-badge') || document.querySelector('.notif-bell-badge');
+      const topBadge = document.getElementById('notif-top-badge');
+      if (badge && topBadge) {
+        const visible = badge.style.display !== 'none';
+        topBadge.textContent   = badge.textContent;
+        topBadge.style.display = visible ? 'flex' : 'none';
+      }
+    }, 500);
+  })();
+
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
-  }
 </script>
 </body>
 </html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Szukaj Wojowników — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <style>
+    /* ── Searchbar ── */
+    .search-bar-wrap {
+      position: sticky;
+      top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+      z-index: 50;
+      background: var(--bg-void);
+      padding: .75rem .875rem .5rem;
+      margin: 0 -.875rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .search-form {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-full);
+      padding: .5rem .875rem;
+      transition: border-color var(--dur-fast);
+    }
+    .search-form:focus-within {
+      border-color: var(--gold-500);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.1);
+    }
+    .search-form svg { color: var(--text-muted); flex-shrink: 0; }
+    #search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      padding: 0;
+    }
+    #search-input::placeholder { color: var(--text-faint); }
+    #search-clear {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: none;
+      display: none;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    #search-clear:hover { background: var(--border-dim); }
+
+    /* ── Results ── */
+    .search-section { padding: 0 0 1rem; }
+
+    #results-title {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold-500);
+      padding: .875rem 0 .5rem;
+    }
+
+    .search-user-card {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--border-dim);
+      cursor: pointer;
+      animation: fadeInUp .25s ease both;
+    }
+    .search-user-card:last-child { border-bottom: none; }
+    .search-user-card:hover .suc-info { color: var(--gold-400); }
+
+    .suc-av {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-900), var(--bg-elevated));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1rem; font-weight: 700;
+      color: var(--gold-500);
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--border-dim);
+      transition: border-color var(--dur-fast);
+    }
+    .search-user-card:hover .suc-av { border-color: var(--gold-500); }
+    .suc-av img { width:100%;height:100%;object-fit:cover; }
+
+    .suc-info { flex: 1; min-width: 0; }
+    .suc-name {
+      font-family: var(--font-heading);
+      font-size: .9375rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .suc-meta {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: .2rem;
+    }
+    .suc-rank {
+      font-family: var(--font-heading);
+      font-size: .575rem;
+      letter-spacing: .08em;
+      color: var(--gold-500);
+      font-weight: 700;
+    }
+    .suc-level {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--text-muted);
+    }
+    .suc-bio {
+      font-size: .75rem;
+      color: var(--text-muted);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    .suc-follow-btn {
+      padding: .4rem .875rem;
+      border-radius: var(--r-full);
+      font-family: var(--font-heading);
+      font-size: .575rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--dur-fast);
+      white-space: nowrap;
+      background: linear-gradient(135deg, var(--gold-700), var(--gold-500));
+      border: none;
+      color: #000;
+    }
+    .suc-follow-btn:hover { opacity: .85; transform: scale(1.03); }
+    .suc-follow-btn.following {
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+    }
+    .suc-follow-btn.following:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .suc-follow-btn:disabled { opacity: .5; pointer-events: none; }
+
+    .search-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-family: var(--font-heading);
+      font-size: .875rem;
+      color: var(--text-muted);
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  
+  <a href="index.html" class="top-bar-brand">Szukaj</a>
+  <nav class="top-bar-actions" aria-label="Akcje górne">
+    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </a>
+    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości" id="msg-top-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
+    </a>
+    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
+    </button>
+    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
+  </nav>
+</header>
+
+<!-- Notifications dropdown -->
+<div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Powiadomienia">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
+    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
+    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
+  </div>
+  <div id="notif-list" style="overflow-y:auto;max-height:360px;-webkit-overflow-scrolling:touch;"></div>
+</div>
+
+
+<nav class="nav" aria-label="Nawigacja główna">
+  <a href="index.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Arena</span>
+  </a>
+  <a href="feed.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span>Kroniki</span>
+  </a>
+  <a href="challenges.html" class="nav-item nav-item-hero">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
+  </a>
+  <a href="ranking.html" class="nav-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Chwała</span>
+  </a>
+</nav>
+
+
+
+<!-- Nav -->
+
+
+<main class="content-area page" style="position:relative;z-index:1;">
+
+  <!-- Searchbar -->
+  <div class="search-bar-wrap">
+    <form class="search-form" id="search-form" role="search" autocomplete="off">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        id="search-input"
+        placeholder="Szukaj wojownika po nicku..."
+        autocomplete="off"
+        spellcheck="false"
+        maxlength="40"
+        aria-label="Szukaj użytkownika"/>
+      <button type="button" id="search-clear" aria-label="Wyczyść">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Results -->
+  <div class="search-section">
+    <div id="results-title" style="font-family:var(--font-heading);font-size:.55rem;font-weight:700;
+      letter-spacing:.14em;text-transform:uppercase;color:var(--gold-500);padding:.875rem 0 .5rem;">
+      Nowi Wojownicy na Arenie
+    </div>
+    <div id="search-results">
+      <!-- Loading skeleton -->
+      <div style="display:flex;flex-direction:column;gap:.75rem;padding:.5rem 0;">
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.625rem 0;">
+          <div class="skeleton" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
+            <div class="skeleton" style="height:13px;width:45%;border-radius:4px;"></div>
+            <div class="skeleton" style="height:10px;width:30%;border-radius:4px;"></div>
+          </div>
+          <div class="skeleton" style="height:30px;width:80px;border-radius:9999px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.625rem 0;">
+          <div class="skeleton" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
+            <div class="skeleton" style="height:13px;width:38%;border-radius:4px;"></div>
+            <div class="skeleton" style="height:10px;width:25%;border-radius:4px;"></div>
+          </div>
+          <div class="skeleton" style="height:30px;width:80px;border-radius:9999px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script type="module">
+  import { initSearchPage } from './js/search.js';
+  initSearchPage();
+</script>
+<script type="module">
+  // ── Top Bar wiring (wspólne dla wszystkich stron) ──────────────
+  (async function _initTopBar() {
+    try {
+      const { checkAuth, getCurrentUserData } = await import('./js/auth.js');
+      const { db, COL } = await import('./js/firebase.js');
+      const { injectMessengerBadge } = await import('./js/messenger.js');
+      const { initNotifications } = await import('./js/notifications.js');
+      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+      checkAuth(async (user) => {
+        // Messenger badge
+        injectMessengerBadge(user.uid);
+
+        // Notifications
+        initNotifications(user.uid);
+
+        // Avatar
+        try {
+          const snap = await getDoc(doc(db, COL.USERS, user.uid));
+          const data = snap.exists() ? snap.data() : {};
+          const avEl = document.getElementById('top-bar-avatar');
+          if (avEl) {
+            if (data.photoURL) {
+              avEl.innerHTML = `<img src="${data.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar"/>`;
+            } else {
+              avEl.textContent = (data.displayName || user.displayName || 'W').charAt(0).toUpperCase();
+            }
+          }
+          // Sync notif badge to top bar
+          const _syncBadge = () => {
+            const src = document.querySelector('.notif-bell-badge');
+            const dst = document.getElementById('notif-top-badge');
+            if (src && dst) {
+              dst.textContent   = src.textContent;
+              dst.style.display = src.style.display !== 'none' && src.textContent !== '0' && src.textContent !== '' ? 'flex' : 'none';
+            }
+          };
+          const obs = new MutationObserver(_syncBadge);
+          setTimeout(() => {
+            const b = document.querySelector('.notif-bell-badge');
+            if (b) obs.observe(b, { childList:true, attributes:true, attributeFilter:['style'] });
+            _syncBadge();
+          }, 800);
+        } catch {}
+
+        // Notif dropdown toggle
+        document.getElementById('notif-bell-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.getElementById('notif-dropdown')?.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) {
+            document.getElementById('notif-dropdown')?.classList.add('hidden');
+          }
+        });
+        document.getElementById('notif-mark-all')?.addEventListener('click', async () => {
+          const { markAllRead } = await import('./js/notifications.js');
+          await markAllRead(user.uid);
+        });
+      });
+    } catch(e) { console.warn('[topBar]', e.message); }
+  })();
+</script>
+</body>
+</html>
