@@ -13,7 +13,7 @@
  * Eksporty:
  *   initChallengesPage()
  */
-
+import { CHALLENGES_DATA } from './js/challenge-system.js'
 import { auth, db, COL } from './firebase.js';
 import { injectNotifBell } from './notifications.js';
 import { checkAuth, logout, getCurrentUserData, showToast } from './auth.js';
@@ -30,7 +30,7 @@ import {
 // ════════════════════════════════════════════════════════════
 // DANE WYZWAŃ — DROGA WOJOWNIKA
 // ════════════════════════════════════════════════════════════
-
+import { CHALLENGES_DATA } from './js/challenge-system.js'
 const CHALLENGES = [
   {
     id:        'lowca_wezy',
