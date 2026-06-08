@@ -345,3 +345,4 @@ export function injectInviteBanner(containerEl, uid) {
   containerEl.appendChild(div);
   div.querySelector('#inject-invite-btn')?.addEventListener('click', () => copyInviteLink(uid));
 }
+
