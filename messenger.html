@@ -8,75 +8,51 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
-  
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
   <link rel="stylesheet" href="css/messenger.css"/>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<header class="top-bar">
-  
-  <a href="index.html" class="top-bar-brand">Wiadomości</a>
-  <nav class="top-bar-actions" aria-label="Akcje górne">
-    <a href="search.html" class="top-bar-btn" aria-label="Szukaj">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    </a>
-    <a href="messenger.html" class="top-bar-btn" aria-label="Wiadomości" id="msg-top-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-      </svg>
-      <span id="msg-nav-badge" class="top-bar-badge" style="display:none;">0</span>
-    </a>
-    <button class="top-bar-btn" id="notif-bell-btn" aria-label="Powiadomienia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 01-3.46 0"/>
-      </svg>
-      <span id="notif-top-badge" class="top-bar-badge" style="display:none;">0</span>
-    </button>
-    <a href="profile.html" class="top-bar-avatar" id="top-bar-avatar" aria-label="Mój profil">W</a>
-  </nav>
-</header>
+<div class="bg-orbs" aria-hidden="true"></div>
 
-<!-- Notifications dropdown -->
-<div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Powiadomienia">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:.875rem 1rem;border-bottom:1px solid var(--border);">
-    <span style="font-size:.875rem;font-weight:700;color:var(--text-primary);">Powiadomienia</span>
-    <button id="notif-mark-all" style="font-size:.75rem;color:var(--brand);font-weight:600;background:none;border:none;cursor:pointer;">Oznacz wszystkie</button>
-  </div>
-  <div id="notif-list" style="overflow-y:auto;max-height:360px;-webkit-overflow-scrolling:touch;"></div>
-</div>
-
-
-<nav class="nav" aria-label="Nawigacja główna">
+<!-- Nav -->
+<nav class="nav" aria-label="Główna nawigacja">
+  <span class="nav-brand">⚔ WWS</span>
   <a href="index.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
     <span>Arena</span>
   </a>
   <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <span>Kroniki</span>
   </a>
-  <a href="challenges.html" class="nav-item nav-item-hero">
+  <a href="challenges.html" class="nav-item-hero nav-item">
     <div class="nav-hero-shield">⚔</div>
     <span>Misje</span>
   </a>
   <a href="ranking.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
     <span>Chwała</span>
   </a>
+  <a href="messenger.html" class="nav-item active">
+    <div style="position:relative;display:inline-flex;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span id="msg-nav-badge" style="display:none;">0</span>
+    </div>
+    <span>Wiadomości</span>
+  </a>
+  <div class="nav-actions">
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-muted);" title="Wyloguj">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
+  </div>
 </nav>
 
-
-
-
-<!-- Nav -->
-
-
 <!-- Messenger Layout -->
-<main style="height:calc(100svh - var(--top-h,56px) - var(--safe-t,0px));margin-top:calc(var(--top-h,56px) + var(--safe-t,0px));position:relative;z-index:1;overflow:hidden;">
+<main style="height:calc(100vh - 56px);position:relative;z-index:1;overflow:hidden;">
   <div class="messenger-page" id="msg-content">
 
     <!-- Conversations sidebar -->
@@ -204,76 +180,12 @@
     }
   });
 
-  // Skeleton usuwany przez initMessenger po załadowaniu danych
-  // Fallback: po 5s jeśli JS nie załadował
+  // Usuń skeleton po załadowaniu
   setTimeout(() => {
-    const sk = document.getElementById('conv-skeleton');
-    if (sk) sk.remove();
-  }, 5000);
+    document.getElementById('conv-skeleton')?.remove();
+  }, 2000);
 
   initMessenger();
-
-  // ── Top Bar init ─────────────────────────────────────────────
-  (async function() {
-    try {
-      const { auth, db, COL } = await import('./js/firebase.js');
-      const { injectMessengerBadge } = await import('./js/messenger.js');
-      const { initNotifications } = await import('./js/notifications.js');
-      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) return;
-        injectMessengerBadge(user.uid);
-        initNotifications(user.uid);
-        try {
-          const snap = await getDoc(doc(db, COL.USERS, user.uid));
-          const d    = snap.exists() ? snap.data() : {};
-          const avEl = document.getElementById('top-bar-avatar');
-          if (avEl) {
-            if (d.photoURL) avEl.innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Av"/>`;
-            else avEl.textContent = (d.displayName||user.displayName||'W').charAt(0).toUpperCase();
-          }
-          const _sync = () => {
-            const b = document.querySelector('.notif-bell-badge');
-            const t = document.getElementById('notif-top-badge');
-            if (b && t) { t.textContent=b.textContent; t.style.display=(b.style.display!=='none'&&b.textContent&&b.textContent!=='0')?'flex':'none'; }
-          };
-          setTimeout(() => { const b=document.querySelector('.notif-bell-badge'); if(b) new MutationObserver(_sync).observe(b,{childList:true,attributes:true}); _sync(); }, 1000);
-        } catch(e) { console.warn('[topBar avatar]', e.message); }
-      });
-      document.getElementById('notif-bell-btn')?.addEventListener('click', e => { e.stopPropagation(); document.getElementById('notif-dropdown')?.classList.toggle('hidden'); });
-      document.addEventListener('click', e => { if (!e.target.closest('#notif-bell-btn') && !e.target.closest('#notif-dropdown')) document.getElementById('notif-dropdown')?.classList.add('hidden'); });
-      document.getElementById('notif-mark-all')?.addEventListener('click', async () => { const {markAllRead}=await import('./js/notifications.js'); const u=auth.currentUser; if(u) await markAllRead(u.uid); });
-    } catch(e) { console.warn('[topBarInit]', e.message); }
-  })();
-
-  // ── Mobile: sidebar ↔ chat toggle ────────────────────────────
-  function _showChat() {
-    if (window.innerWidth >= 640) return;
-    const sidebar = document.getElementById('conv-sidebar');
-    const chat    = document.getElementById('chat-panel');
-    const empty   = document.getElementById('chat-empty');
-    sidebar?.classList.add('hidden-mobile');
-    chat?.classList.add('active-mobile');
-    empty?.classList.remove('active-mobile');
-  }
-  function _showSidebar() {
-    if (window.innerWidth >= 640) return;
-    const sidebar = document.getElementById('conv-sidebar');
-    const chat    = document.getElementById('chat-panel');
-    sidebar?.classList.remove('hidden-mobile');
-    chat?.classList.remove('active-mobile');
-  }
-  // Override conv-item click to also show chat on mobile
-  document.addEventListener('click', e => {
-    const convItem = e.target.closest('.conv-item');
-    if (convItem) { setTimeout(_showChat, 50); }
-  });
-  // Back button (injected into chat-header by messenger.js)
-  document.addEventListener('click', e => {
-    if (e.target.closest('.chat-back-btn')) _showSidebar();
-  });
 </script>
-
 </body>
 </html>
