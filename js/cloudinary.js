@@ -6,10 +6,14 @@
  *
  * Cloud Name i preset pobrane z config.js (dxanfwb3l / wws_upload)
  */
+// Cloudinary config
 
 export const CLOUDINARY_CLOUD_NAME    = 'dxanfwb3l';    // z config.js
 export const CLOUDINARY_UPLOAD_PRESET = 'wws_upload';    // z config.js
-
+// Cloudinary config
+const CLOUDINARY_CLOUD_NAME = "dxanfwb3l"; 
+const CLOUDINARY_UPLOAD_PRESET = "wws_upload";
+const CLOUDINARY_API = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 const BASE_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}`;
 const MAX_SIZE  = 10 * 1024 * 1024; // 10 MB
 const ALLOWED   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
