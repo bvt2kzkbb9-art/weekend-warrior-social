@@ -10,8 +10,7 @@
 
 .messenger-page {
   display: flex;
-  /* Mobile: pełna wysokość minus top-bar (56px + safe-area) i nav (60px + safe-area) */
-  height: calc(100svh - var(--top-h, 56px) - var(--safe-t, 0px) - var(--nav-h, 60px) - var(--safe-b, 0px));
+  height: calc(100vh - 56px);       /* minus nav */
   max-width: 900px;
   margin: 0 auto;
   overflow: hidden;
@@ -24,8 +23,6 @@
 .conv-sidebar {
   width: 300px;
   flex-shrink: 0;
-  /* Mobile: ukryj sidebar gdy czat otwarty */
-
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
@@ -482,7 +479,6 @@
 
 .msg-compose {
   border-top: 1px solid var(--border);
-  padding-bottom: calc(.5rem + var(--safe-b, 0px));
   background: var(--bg-card);
   padding: .625rem .875rem;
   flex-shrink: 0;
@@ -625,81 +621,3 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(22,199,132,.5); }
   50%       { box-shadow: 0 0 0 4px rgba(22,199,132,0); }
 }
-
-
-/* ══════════════════════════════════════════════════════════════
-   MESSENGER MOBILE FIXES
-══════════════════════════════════════════════════════════════ */
-
-/* Mobile: full screen chat, hide sidebar when chat open */
-@media (max-width: 639px) {
-  .messenger-page {
-    display: block;
-    position: relative;
-  }
-
-  .conv-sidebar {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 10;
-    transition: transform .25s ease;
-  }
-  .conv-sidebar.hidden-mobile {
-    transform: translateX(-100%);
-    pointer-events: none;
-  }
-
-  .chat-area {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    transform: translateX(100%);
-    transition: transform .25s ease;
-  }
-  .chat-area.active-mobile {
-    transform: translateX(0);
-  }
-  .chat-area.hidden {
-    display: block !important;
-    transform: translateX(100%);
-    pointer-events: none;
-  }
-
-  /* Back button in chat header */
-  .chat-back-btn {
-    display: flex;
-  }
-}
-
-@media (min-width: 640px) {
-  .chat-back-btn { display: none; }
-  .conv-sidebar.hidden-mobile { transform: none; pointer-events: auto; }
-  .chat-area.active-mobile { transform: none; }
-}
-
-/* Textarea auto-resize */
-#msg-input {
-  overflow: hidden;
-  min-height: 38px;
-  max-height: 120px;
-  transition: height .1s ease;
-}
-
-/* No horizontal scroll in msg-list */
-#msg-list {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-
-/* Message bubbles max-width */
-.msg-bubble {
-  max-width: min(320px, 75vw);
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-
-/* Image messages */
-.msg-img { max-width: 100%; height: auto; }
