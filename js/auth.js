@@ -197,11 +197,6 @@ export async function ensureUserDoc(user, extra = {}) {
   try {
     await setDoc(doc(db, COL.USERS, user.uid), data);
     console.log(TAG, '✅ Dokument utworzony:', data.displayName);
-    // Zarejestruj username → uid mapping (dla @mention lookup)
-    try {
-      const regFn = await _getRegisterUsername();
-      if (regFn && data.username) await regFn(user.uid, data.username);
-    } catch {}
     return data;
   } catch (err) {
     console.error(TAG, '❌ setDoc error:', err.code, err.message);
@@ -270,6 +265,40 @@ service cloud.firestore {
       allow read:   if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == uid;
       allow update: if request.auth != null && request.auth.uid == uid;
+    }
+    match /posts/{postId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && resource.data.authorId == request.auth.uid;
+    }
+    match /posts/{postId}/comments/{commentId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    match /followers/{docId} {
+      allow read:   if request.auth != null;
+      allow write:  if request.auth != null;
+    }
+    match /notifications/{uid}/items/{notifId} {
+      allow read:   if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == uid;
+    }
+    match /conversations/{convId} {
+      allow read, write: if request.auth != null;
+    }
+    match /conversations/{convId}/messages/{msgId} {
+      allow read, write: if request.auth != null;
+    }
+    match /challenge_invites/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /pokes/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /weeklyScores/{weekId}/scores/{uid} {
+      allow read, write: if request.auth != null;
     }
   }
 }`;

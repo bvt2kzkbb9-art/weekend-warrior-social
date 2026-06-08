@@ -22,8 +22,8 @@ import { createNotification } from './notifications.js';
 
 import {
   collection, doc, addDoc, getDoc, getDocs,
-  updateDoc, onSnapshot, query, where, limit,
-  orderBy, serverTimestamp, Timestamp,
+  updateDoc, onSnapshot, query, where,
+  serverTimestamp, Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 
@@ -263,15 +263,7 @@ export function initChallengeSystem(user, userData) {
   _userData = userData;
   if (!user?.uid) return;
   _setupTabs();
-  // Odczytaj hash URL lub użyj domyślnego
-  const hash = window.location.hash.replace('#','');
-  const valid = ['challenges','received','sent','active','history'];
-  _activeTab = valid.includes(hash) ? hash : 'challenges';
   _loadTab(_activeTab);
-  // Synchronizuj tab buttons
-  document.querySelectorAll('[data-cs-tab]').forEach(b => {
-    b.classList.toggle('active', b.dataset.csTab === _activeTab);
-  });
 }
 
 function _setupTabs() {
@@ -291,7 +283,7 @@ function _setupTabs() {
 function _loadTab(tab) {
   ['challenges','received','sent','active','history'].forEach(s => {
     const el = document.getElementById(`cs-section-${s}`);
-    if (el) el.style.display = s === tab ? 'block' : 'none';
+    if (el) el.style.display = s === tab ? '' : 'none';
   });
   _unsubs.forEach(u => { try { u(); } catch {} });
   _unsubs = [];
@@ -608,9 +600,6 @@ function _listenReceived() {
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
     items.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-    // Update badge
-    const badge = document.getElementById('received-badge');
-    if (badge) { badge.textContent = items.length; badge.style.display = items.length ? 'inline-flex' : 'none'; }
     el.innerHTML = '';
     if (!items.length) {
       el.innerHTML = _emptyHTML('📭', 'Brak odebranych wyzwań', 'Nikt jeszcze Cię nie wyzwał. Poczekaj na wyzwanie.');

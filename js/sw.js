@@ -5,8 +5,8 @@
  * ============================================================
  */
 
-const CACHE_NAME  = 'wws-v3';
-const CACHE_PAGES = 'wws-pages-v3';
+const CACHE_NAME  = 'wws-v1';
+const CACHE_PAGES = 'wws-pages-v1';
 
 // Assets to cache immediately on install
 const PRECACHE = [
@@ -29,13 +29,6 @@ const PRECACHE = [
   './js/ranking.js',
   './js/challenges.js',
   './js/achievements.js',
-  './js/friends.js',
-  './js/laga.js',
-  './js/search.js',
-  './js/pajac.js',
-  './js/blocks.js',
-  './search.html',
-  './pajac.html',
   './js/messenger.js',
   './js/poke.js',
   './js/media.js',

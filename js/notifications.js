@@ -28,35 +28,14 @@ const NOTIF_ICONS = {
   duel:             '⚔️',
   challenge:        '🐍',
   challenge_invite: '⚔️',
-  challenge_accepted:'✅',
   follow:           '👁️',
   achievement:      '🏆',
   xp:               '⭐',
   system:           '📣',
+  // Messenger
   message:          '💬',
+  // Poke
   poke:             '👈',
-  // Laga Pajacu
-  pajac_challenge:  '🍺',
-  pajac_accepted:   '🔥',
-  pajac_declined:   '🚫',
-  pajac_completed:  '🏆',
-  pajac_expired:    '⏰',
-  // Social
-  friend_request:   '🤝',
-  friend_accepted:  '🎉',
-  share:            '↻',
-  new_message:      '💬',
-  post_like:        '❤️',
-  post_comment:     '💬',
-  // Laga system
-  LAGA_RECEIVED:    '🔥',
-  LAGA_ACCEPTED:    '✅',
-  LAGA_DECLINED:    '❌',
-  LAGA_REPLY:       '⚔️',
-  laga_received:    '🔥',
-  laga_accepted:    '✅',
-  laga_declined:    '❌',
-  laga_reply:       '⚔️',
 };
 
 let unsubNotifications = null;
@@ -101,21 +80,14 @@ export function destroyNotifications() {
 // ════════════════════════════════════════════════════════════
 
 function updateBadge(count) {
-  const label   = count > 9 ? '9+' : String(count);
-  const visible = count > 0;
-
-  // Legacy badge selectors (.notif-badge, .notif-bell-badge)
-  document.querySelectorAll('.notif-badge, .notif-bell-badge').forEach(el => {
-    el.textContent   = label;
-    el.style.display = visible ? 'flex' : 'none';
+  document.querySelectorAll('.notif-badge').forEach(el => {
+    if (count > 0) {
+      el.textContent    = count > 9 ? '9+' : count;
+      el.style.display  = 'flex';
+    } else {
+      el.style.display  = 'none';
+    }
   });
-
-  // Top-bar badge (#notif-top-badge)
-  const topBadge = document.getElementById('notif-top-badge');
-  if (topBadge) {
-    topBadge.textContent   = label;
-    topBadge.style.display = visible ? 'flex' : 'none';
-  }
 }
 
 // ════════════════════════════════════════════════════════════

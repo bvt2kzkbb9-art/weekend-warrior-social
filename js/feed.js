@@ -22,7 +22,6 @@ import {
 
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
 import { makeAvatarsClickable, openUserProfile } from './social.js';
-import { getFriends } from './friends.js';
 import { injectNotifBell, createNotification } from './notifications.js';
 
 import {
@@ -64,9 +63,8 @@ let hasMorePosts    = false;
 let unsubFeed       = null;
 let selectedImage   = null;
 let isPosting       = false;
-let activeTab       = 'forYou';   // 'forYou' | 'following' | 'latest' | 'friends'
+let activeTab       = 'forYou';   // 'forYou' | 'following' | 'latest'
 let followingIds    = [];          // UIDs obserwowanych — dla zakładki "Obserwowani"
-let friendIds       = [];          // UIDs znajomych — dla zakładki "Znajomi" 
 
 
 // ════════════════════════════════════════════════════════════
@@ -75,10 +73,10 @@ let friendIds       = [];          // UIDs znajomych — dla zakładki "Znajomi"
 
 const REACTIONS = [
   { id: 'like',    emoji: '👍', label: 'Szacunek' },
-  { id: 'fire',    emoji: '🔥', label: 'Kozak'    },
   { id: 'warrior', emoji: '⚔️', label: 'Wojownik' },
-  { id: 'dead',    emoji: '💀', label: 'Poległem' },
-  { id: 'lol',     emoji: '😂', label: 'Bekowe'   },
+  { id: 'fire',    emoji: '🔥', label: 'Ogień'    },
+  { id: 'legend',  emoji: '👑', label: 'Legenda'  },
+  { id: 'brutal',  emoji: '💀', label: 'Brutalne' },
 ];
 
 // Suma wszystkich reakcji na poście
@@ -176,14 +174,12 @@ async function _loadFollowingIds(uid) {
     snap.forEach(d => followingIds.push(d.data().followingId));
     console.log('[feed] Obserwuje:', followingIds.length, 'użytkowników');
   } catch(e) {
-    console.warn('[loadFollowingIds]', e.code);
+    console.warn('[loadFollowingIds] ⚠️ Kod:', e.code, '| Kolekcja: followers');
+    if (e.code === 'permission-denied') {
+      console.error('[loadFollowingIds] ➡ Dodaj regułę: match /followers/{d} { allow read: if request.auth != null; }');
+    }
     followingIds = [];
   }
-  // Załaduj znajomych
-  try {
-    friendIds = await getFriends(currentUser.uid);
-    console.log('[feed] Znajomi:', friendIds.length);
-  } catch { friendIds = []; }
 }
 
 
@@ -392,19 +388,7 @@ function startFeedStream() {
 
   // Build query based on active tab
   let q;
-  if (activeTab === 'friends' && friendIds.length > 0) {
-    const ids = friendIds.slice(0, 30);
-    q = query(
-      collection(db, COL.POSTS),
-      where('authorId', 'in', ids),
-      orderBy('createdAt', 'desc'),
-      limit(POSTS_PER_PAGE),
-    );
-  } else if (activeTab === 'friends' && friendIds.length === 0) {
-    if (feedLoading) feedLoading.classList.add('hidden');
-    _showEmptyFeed('Brak znajomych', 'Dodaj znajomych, aby zobaczyć ich posty.');
-    return;
-  } else if (activeTab === 'following' && followingIds.length > 0) {
+  if (activeTab === 'following' && followingIds.length > 0) {
     // Firestore 'in' max 30 items — wytnij
     const ids = followingIds.slice(0, 30);
     q = query(
@@ -477,9 +461,21 @@ function startFeedStream() {
     });
 
   }, (err) => {
-    console.error(TAG, '❌', err.code, err.message);
+    console.group('[feed] ❌ Błąd Firestore');
+    console.error('Kod błędu:', err.code);
+    console.error('Wiadomość:', err.message);
+    console.error('Kolekcja: posts');
+    console.error('Query: orderBy(createdAt, desc) limit(10)');
+    if (err.code === 'permission-denied') {
+      console.error('➡ ROZWIĄZANIE: Sprawdź firestore.rules — dodaj regułę dla /posts/{postId}');
+      console.error('   allow read: if request.auth != null;');
+    } else if (err.code === 'failed-precondition') {
+      console.error('➡ ROZWIĄZANIE: Brak indeksu Firestore. Dodaj w Firebase Console:');
+      console.error('   Collection: posts | Field: createdAt DESC');
+    }
+    console.groupEnd();
     if (feedLoading) feedLoading.classList.add('hidden');
-    showToast(err.code === 'permission-denied' ? 'Brak dostępu do postów.' : 'Błąd ładowania.', 'error');
+    showToast(err.code === 'permission-denied' ? 'Brak dostępu do postów. Sprawdź reguły Firestore.' : 'Błąd ładowania feedu.', 'error');
   });
 
   document.getElementById('load-more-btn')?.addEventListener('click', loadMorePosts);
@@ -522,90 +518,7 @@ async function loadMorePosts() {
 // CREATE POST ELEMENT
 // ════════════════════════════════════════════════════════════
 
-// ── Laga Event Post ───────────────────────────────────────────
-function _createLagaPostElement(postId, data) {
-  const el = document.createElement('article');
-  el.className    = 'post-card';
-  el.dataset.postId = postId;
-
-  const timeStr  = formatTime(data.createdAt);
-  const ini      = (data.authorName||'W').charAt(0).toUpperCase();
-  const avatarHTML = data.authorPhoto
-    ? `<img src="${escHtml(data.authorPhoto)}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='${escHtml(ini)}'"/>`
-    : escHtml(ini);
-
-  // Like counts
-  const likesCount = data.likesCount ?? (data.likes?.length ?? 0);
-  const isLiked    = Array.isArray(data.likes) && data.likes.includes(currentUser?.uid);
-
-  el.innerHTML = `
-    <div class="post-header">
-      <div class="post-avatar" data-user-uid="${escHtml(data.authorId||'')}">
-        ${avatarHTML}
-      </div>
-      <div class="post-meta">
-        <div class="post-author">${escHtml(data.authorName||'Wojownik')}</div>
-        <div class="post-time">${timeStr}</div>
-      </div>
-    </div>
-    <div class="post-body" style="
-      padding:.5rem 1rem .75rem;
-      background:rgba(168,184,200,.04);
-      border-top:1px solid rgba(168,184,200,.12);
-      border-bottom:1px solid rgba(168,184,200,.12);
-      margin:0;
-    ">
-      <div style="font-size:1.375rem;margin-bottom:.25rem;line-height:1;">${escHtml(data.lagaEmoji||'🔥')}</div>
-      <div style="font-size:.9375rem;line-height:1.55;color:var(--text-secondary);">${escHtml(data.content||'')}</div>
-    </div>
-    <div class="post-actions">
-      <button class="post-action-btn laga-like-btn${isLiked ? ' liked' : ''}" data-pid="${escHtml(postId)}">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-        ${likesCount > 0 ? `<span>${likesCount}</span>` : 'Szacunek'}
-      </button>
-      <button class="post-action-btn comments-btn" data-pid="${escHtml(postId)}">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        ${data.commentsCount > 0 ? `<span>${data.commentsCount}</span>` : 'Komentarz'}
-      </button>
-      <div class="post-action-sep"></div>
-    </div>
-    <div class="comments-section" id="comments-${escHtml(postId)}"></div>`;
-
-  // Klikalne avatary
-  el.querySelector('[data-user-uid]')?.addEventListener('click', () => {
-    import('./social.js').then(({ openUserProfile }) => openUserProfile(data.authorId));
-  });
-
-  // Like
-  el.querySelector('.laga-like-btn')?.addEventListener('click', async () => {
-    if (!currentUser) return;
-    const { arrayUnion, arrayRemove, updateDoc, doc, increment } =
-      await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-    const { db, COL } = await import('./firebase.js');
-    const ref = doc(db, COL.POSTS, postId);
-    const liked = Array.isArray(data.likes) && data.likes.includes(currentUser.uid);
-    await updateDoc(ref, {
-      likes: liked ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid),
-      likesCount: liked ? (likesCount - 1) : (likesCount + 1),
-    }).catch(() => {});
-  });
-
-  // Comments
-  el.querySelector('.comments-btn')?.addEventListener('click', () => {
-    const section = el.querySelector(`#comments-${postId}`);
-    if (section) { section.classList.toggle('open'); _loadComments(postId, section); }
-  });
-
-  return el;
-}
-
-
 function createPostElement(postId, data) {
-  // Laga event — specjalna karta
-  if (data.type === 'laga_event') {
-    return _createLagaPostElement(postId, data);
-  }
-
   const isOwner       = data.authorId === currentUser?.uid;
   const myReaction    = getUserReaction(data, currentUser?.uid);
   const totalCount    = getTotalReactions(data);
