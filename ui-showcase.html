@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekend Warrior Social V4 — UI Showcase</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #050505;
+      --bg-secondary: #0A0A0B;
+      --bg-tertiary: #111111;
+      --gold: #D4AF37;
+      --brass: #B8860B;
+      --amber: #FFA500;
+      --text-primary: #E8DCC4;
+      --text-secondary: #A89968;
+      --accent-fire: #FF6B35;
+      --accent-ice: #4F8CFF;
+
+      --gradient-dark-gold: linear-gradient(135deg, #050505 0%, #D4AF37 100%);
+      --gradient-graphite-amber: linear-gradient(135deg, #2A2A2B 0%, #FFA500 100%);
+
+      --shadow-glow: 0 0 30px rgba(212, 175, 55, 0.3);
+      --shadow-intense: 0 0 60px rgba(212, 175, 55, 0.5);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── ANIMATIONS */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: var(--shadow-glow); }
+      50% { box-shadow: var(--shadow-intense); }
+    }
+
+    @keyframes glow-text {
+      0%, 100% { text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+      50% { text-shadow: 0 0 40px rgba(212, 175, 55, 0.8); }
+    }
+
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce-in {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+
+    @keyframes particle-float {
+      0% { opacity: 0; transform: translateY(0) translateX(0); }
+      50% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-100px) translateX(var(--tx)); }
+    }
+
+    /* ─────────────────────────────────────────────────────────────── COMPONENTS */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .nav-main {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 2px solid var(--gold);
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+      padding: 12px 0;
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      padding: 8px;
+      border: none;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    }
+
+    .nav-item span {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .screen {
+      display: none;
+      animation: slide-in 0.5s ease-out;
+      margin-bottom: 100px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .btn {
+      padding: 12px 32px;
+      border: 2px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      background: var(--gold);
+      color: var(--bg-primary);
+      box-shadow: var(--shadow-intense);
+    }
+
+    .btn-large {
+      padding: 16px 48px;
+      font-size: 16px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── HERO SCREEN */
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: particle-float 3s ease-in infinite;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-swords {
+      font-size: 120px;
+      margin-bottom: 30px;
+      animation: glow-pulse 2.5s ease-in-out infinite;
+    }
+
+    .hero-title {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+      animation: glow-text 2.5s ease-in-out infinite;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+      font-size: 24px;
+      color: var(--text-secondary);
+      margin-bottom: 50px;
+      font-style: italic;
+      letter-spacing: 2px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .glow-orb {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── ARENA SCREEN */
+    .arena-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .card-hero {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border: 2px solid var(--gold);
+      padding: 30px;
+      border-radius: 4px;
+      text-align: center;
+      box-shadow: var(--shadow-glow);
+      animation: bounce-in 0.5s ease-out;
+      transition: all 0.3s ease;
+    }
+
+    .card-hero:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-intense);
+    }
+
+    .card-hero-avatar {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      background: radial-gradient(circle, var(--gold) 0%, var(--brass) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+    }
+
+    .card-hero-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .card-hero-rank {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin: 20px 0;
+      padding: 20px 0;
+      border-top: 1px solid var(--gold);
+      border-bottom: 1px solid var(--gold);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .streak {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 165, 0, 0.1);
+      border-left: 4px solid var(--amber);
+    }
+
+    .streak-label {
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .streak-value {
+      font-size: 32px;
+      color: var(--amber);
+    }
+
+    /* ─────────────────────────────────────────────────────────────── CHALLENGES */
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .challenge-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--gold);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .challenge-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-intense);
+    }
+
+    .challenge-image {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #2A2A2B 0%, #D4AF37 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .challenge-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .challenge-content {
+      padding: 20px;
+    }
+
+    .challenge-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .challenge-difficulty {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(255, 107, 53, 0.2);
+      color: var(--accent-fire);
+      font-size: 12px;
+      border-radius: 3px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .challenge-xp {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .challenge-xp strong {
+      color: var(--gold);
+      font-size: 20px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── FEED */
+    .feed-items {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .feed-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--gold);
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      animation: slide-in 0.5s ease-out;
+      box-shadow: var(--shadow-glow);
+      transition: all 0.3s ease;
+    }
+
+    .feed-item:hover {
+      box-shadow: var(--shadow-intense);
+    }
+
+    .feed-header {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+
+    .feed-avatar {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--brass) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .feed-meta {
+      flex: 1;
+    }
+
+    .feed-name {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 16px;
+    }
+
+    .feed-rank {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .feed-content {
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+
+    .feed-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold);
+      border-radius: 3px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+
+    .feed-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .feed-stat {
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .feed-stat:hover {
+      color: var(--gold);
+    }
+
+    /* ─────────────────────────────────────────────────────────────── RANKING */
+    .ranking-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 20px;
+      margin: 50px 0;
+      align-items: flex-end;
+    }
+
+    .podium-slot {
+      text-align: center;
+      animation: bounce-in 0.6s ease-out;
+    }
+
+    .podium-slot.gold {
+      order: 2;
+    }
+
+    .podium-slot.silver {
+      order: 1;
+    }
+
+    .podium-slot.bronze {
+      order: 3;
+    }
+
+    .medal {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .podium-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .podium-xp {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .ranking-table {
+      width: 100%;
+      margin-top: 40px;
+    }
+
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px;
+      gap: 20px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .ranking-row:hover {
+      background: var(--bg-tertiary);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .ranking-position {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    .ranking-user {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .ranking-avatar {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--brass) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .ranking-info h4 {
+      color: var(--gold);
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .ranking-info p {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .ranking-xp {
+      text-align: right;
+    }
+
+    .ranking-xp .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .ranking-xp .label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    /* ─────────────────────────────────────────────────────────────── PROFILE */
+    .profile-banner {
+      height: 300px;
+      background: linear-gradient(135deg, #2A2A2B 0%, #D4AF37 100%);
+      position: relative;
+      margin-bottom: 50px;
+    }
+
+    .profile-avatar {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, var(--gold) 0%, var(--brass) 100%);
+      border-radius: 50%;
+      border: 4px solid var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 100px;
+      box-shadow: 0 0 60px rgba(212, 175, 55, 0.5);
+    }
+
+    .profile-content {
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .profile-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .profile-rank {
+      font-size: 18px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto 50px;
+    }
+
+    .profile-stat-card {
+      background: var(--bg-secondary);
+      padding: 20px;
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+    }
+
+    .profile-stat-card .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .profile-stat-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .achievement-badge {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #2A2A2B 0%, #D4AF37 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .achievement-badge:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-intense);
+    }
+
+    /* ─────────────────────────────────────────────────────────────── RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 42px;
+      }
+
+      .hero-subtitle {
+        font-size: 18px;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+      }
+
+      .btn-large {
+        width: 100%;
+      }
+
+      .challenges-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .podium {
+        margin: 30px 0;
+      }
+
+      .profile-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .nav-item {
+        font-size: 11px;
+      }
+
+      .nav-item span {
+        font-size: 18px;
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────── SECTION TITLE */
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 40px;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- ═════════════════════════════════════════════════════════════════ HERO SCREEN -->
+  <div class="screen active" id="screen-hero">
+    <div class="hero-section">
+      <div class="hero-particles" id="particles"></div>
+      <div class="glow-orb" style="top: 10%; left: 5%;"></div>
+      <div class="glow-orb" style="bottom: 10%; right: 5%;"></div>
+
+      <div class="hero-content">
+        <div class="hero-swords">⚔️</div>
+        <h1 class="hero-title">Weekend Warrior</h1>
+        <h2 class="hero-title" style="font-size: 48px; margin-bottom: 20px;">SOCIAL</h2>
+        <p class="hero-subtitle">Twoja legenda czeka</p>
+
+        <div class="hero-buttons">
+          <button class="btn btn-large">Wstąp do Areny</button>
+          <button class="btn btn-large" onclick="switchScreen('screen-arena')">Odkryj Świat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ ARENA SCREEN -->
+  <div class="screen" id="screen-arena">
+    <div class="container">
+      <h2 class="section-title">⚔️ Arena Główna</h2>
+
+      <div class="arena-grid">
+        <!-- Karta Wojownika -->
+        <div class="card-hero">
+          <div class="card-hero-avatar">🗡️</div>
+          <div class="card-hero-name">Twoja Legenda</div>
+          <div class="card-hero-rank">Rookie Warrior</div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Poziom</div>
+              <div class="stat-value">12</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">XP</div>
+              <div class="stat-value">6,240</div>
+            </div>
+          </div>
+
+          <div class="streak">
+            <div class="streak-label">🔥 Bieżąca seria</div>
+            <div class="streak-value">7 dni</div>
+          </div>
+
+          <button class="btn" style="margin-top: 20px; width: 100%;">Edytuj Profil</button>
+        </div>
+
+        <!-- Aktywne Wyzwania -->
+        <div class="card-hero">
+          <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
+          <div class="card-hero-name">Aktywne Wyzwania</div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">W trakcie</div>
+              <div class="stat-value">3</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Ukończone</div>
+              <div class="stat-value">27</div>
+            </div>
+          </div>
+          <button class="btn" style="margin-top: 20px; width: 100%;">Przejmij Wyzwanie</button>
+        </div>
+
+        <!-- Ranking -->
+        <div class="card-hero">
+          <div style="font-size: 60px; margin-bottom: 20px;">🏆</div>
+          <div class="card-hero-name">Pozycja w Rankingu</div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Miejsce</div>
+              <div class="stat-value">#42</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Tygodniowo</div>
+              <div class="stat-value">#15</div>
+            </div>
+          </div>
+          <button class="btn" style="margin-top: 20px; width: 100%;" onclick="switchScreen('screen-ranking')">Sala Chwały</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ CHALLENGES SCREEN -->
+  <div class="screen" id="screen-challenges">
+    <div class="container">
+      <h2 class="section-title">⚔️ Droga Wojownika</h2>
+
+      <div class="challenges-grid">
+        <div class="challenge-card">
+          <div class="challenge-image">💪</div>
+          <div class="challenge-content">
+            <div class="challenge-title">Spartan Race</div>
+            <div class="challenge-difficulty">Średnia</div>
+            <div class="challenge-xp"><strong>500</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+
+        <div class="challenge-card">
+          <div class="challenge-image">🏃</div>
+          <div class="challenge-content">
+            <div class="challenge-title">Maraton 10K</div>
+            <div class="challenge-difficulty">Łatwa</div>
+            <div class="challenge-xp"><strong>250</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+
+        <div class="challenge-card">
+          <div class="challenge-image">🧠</div>
+          <div class="challenge-content">
+            <div class="challenge-title">Masterclass</div>
+            <div class="challenge-difficulty">Trudna</div>
+            <div class="challenge-xp"><strong>750</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+
+        <div class="challenge-card">
+          <div class="challenge-image">🍎</div>
+          <div class="challenge-content">
+            <div class="challenge-title">30 Dni Zdrowia</div>
+            <div class="challenge-difficulty">Średnia</div>
+            <div class="challenge-xp"><strong>600</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+
+        <div class="challenge-card">
+          <div class="challenge-image">🎯</div>
+          <div class="challenge-content">
+            <div class="challenge-title">Limitowana Misja</div>
+            <div class="challenge-difficulty">Legenda</div>
+            <div class="challenge-xp"><strong>1500</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+
+        <div class="challenge-card">
+          <div class="challenge-image">⚡</div>
+          <div class="challenge-content">
+            <div class="challenge-title">Event Specjalny</div>
+            <div class="challenge-difficulty">Epika</div>
+            <div class="challenge-xp"><strong>1200</strong> XP</div>
+            <button class="btn" style="width: 100%; margin-top: 10px;">Przejmij</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ FEED SCREEN -->
+  <div class="screen" id="screen-feed">
+    <div class="container">
+      <h2 class="section-title">📜 Kroniki Bohaterów</h2>
+
+      <div class="feed-items">
+        <div class="feed-item">
+          <div class="feed-header">
+            <div class="feed-avatar">🗡️</div>
+            <div class="feed-meta">
+              <div class="feed-name">Michał</div>
+              <div class="feed-rank">Champion • Poziom 24</div>
+            </div>
+          </div>
+          <div class="feed-content">
+            🏆 Ukończył Spartan Race i zdobył Złoty Medal!
+            <br><br>
+            <span class="feed-badge">+500 XP</span>
+            <span class="feed-badge">Achievement Unlocked</span>
+          </div>
+          <div class="feed-stats">
+            <div class="feed-stat">❤️ 234 polubień</div>
+            <div class="feed-stat">💬 45 komentarzy</div>
+            <div class="feed-stat">⚔️ 12 wyzwań</div>
+          </div>
+        </div>
+
+        <div class="feed-item">
+          <div class="feed-header">
+            <div class="feed-avatar">⚔️</div>
+            <div class="feed-meta">
+              <div class="feed-name">Anna</div>
+              <div class="feed-rank">Legend • Poziom 31</div>
+            </div>
+          </div>
+          <div class="feed-content">
+            🥇 Awansowała na pozycję #1 w rankingu globalnym!
+            <br><br>
+            <span class="feed-badge">+1000 XP</span>
+            <span class="feed-badge">Hall of Fame</span>
+          </div>
+          <div class="feed-stats">
+            <div class="feed-stat">❤️ 892 polubień</div>
+            <div class="feed-stat">💬 156 komentarzy</div>
+            <div class="feed-stat">⚔️ 89 wyzwań</div>
+          </div>
+        </div>
+
+        <div class="feed-item">
+          <div class="feed-header">
+            <div class="feed-avatar">🛡️</div>
+            <div class="feed-meta">
+              <div class="feed-name">Piotr</div>
+              <div class="feed-rank">Warrior • Poziom 18</div>
+            </div>
+          </div>
+          <div class="feed-content">
+            🔥 7 dni bez przerwy! Seria się rozwinęła!
+            <br><br>
+            <span class="feed-badge">+150 XP</span>
+            <span class="feed-badge">On Fire</span>
+          </div>
+          <div class="feed-stats">
+            <div class="feed-stat">❤️ 567 polubień</div>
+            <div class="feed-stat">💬 78 komentarzy</div>
+            <div class="feed-stat">⚔️ 34 wyzwań</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ RANKING SCREEN -->
+  <div class="screen" id="screen-ranking">
+    <div class="container">
+      <h2 class="section-title">🏆 Sala Chwały</h2>
+
+      <div class="ranking-container">
+        <div class="podium">
+          <div class="podium-slot silver">
+            <div class="medal">🥈</div>
+            <div class="podium-name">Piotr</div>
+            <div class="podium-xp">42,500 XP</div>
+          </div>
+          <div class="podium-slot gold">
+            <div class="medal">🥇</div>
+            <div class="podium-name">Anna</div>
+            <div class="podium-xp">89,200 XP</div>
+          </div>
+          <div class="podium-slot bronze">
+            <div class="medal">🥉</div>
+            <div class="podium-name">Michał</div>
+            <div class="podium-xp">38,700 XP</div>
+          </div>
+        </div>
+
+        <div class="ranking-table">
+          <div class="ranking-row" style="background: var(--bg-tertiary); border-bottom: 2px solid var(--gold);">
+            <div class="ranking-position">#4</div>
+            <div class="ranking-user">
+              <div class="ranking-avatar">⚔️</div>
+              <div class="ranking-info">
+                <h4>Katarzyna</h4>
+                <p>Legend • 28 poziom</p>
+              </div>
+            </div>
+            <div class="ranking-xp">
+              <div class="value">37.8K</div>
+              <div class="label">XP</div>
+            </div>
+          </div>
+
+          <div class="ranking-row">
+            <div class="ranking-position">#5</div>
+            <div class="ranking-user">
+              <div class="ranking-avatar">🗡️</div>
+              <div class="ranking-info">
+                <h4>Tomasz</h4>
+                <p>Champion • 24 poziom</p>
+              </div>
+            </div>
+            <div class="ranking-xp">
+              <div class="value">35.2K</div>
+              <div class="label">XP</div>
+            </div>
+          </div>
+
+          <div class="ranking-row">
+            <div class="ranking-position">#6</div>
+            <div class="ranking-user">
+              <div class="ranking-avatar">🛡️</div>
+              <div class="ranking-info">
+                <h4>Marta</h4>
+                <p>Warrior • 21 poziom</p>
+              </div>
+            </div>
+            <div class="ranking-xp">
+              <div class="value">32.1K</div>
+              <div class="label">XP</div>
+            </div>
+          </div>
+
+          <div class="ranking-row">
+            <div class="ranking-position">#7</div>
+            <div class="ranking-user">
+              <div class="ranking-avatar">🏹</div>
+              <div class="ranking-info">
+                <h4>Jakub</h4>
+                <p>Warrior • 20 poziom</p>
+              </div>
+            </div>
+            <div class="ranking-xp">
+              <div class="value">29.5K</div>
+              <div class="label">XP</div>
+            </div>
+          </div>
+
+          <div class="ranking-row">
+            <div class="ranking-position">#8</div>
+            <div class="ranking-user">
+              <div class="ranking-avatar">⚡</div>
+              <div class="ranking-info">
+                <h4>Paweł</h4>
+                <p>Warrior • 19 poziom</p>
+              </div>
+            </div>
+            <div class="ranking-xp">
+              <div class="value">27.8K</div>
+              <div class="label">XP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ PROFILE SCREEN -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-banner"></div>
+
+    <div class="container">
+      <div class="profile-avatar">🗡️</div>
+
+      <div class="profile-content">
+        <h2 class="profile-name">Twoja Legenda</h2>
+        <div class="profile-rank">Rookie Warrior</div>
+
+        <div class="profile-stats">
+          <div class="profile-stat-card">
+            <div class="label">Poziom</div>
+            <div class="value">12</div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="label">XP</div>
+            <div class="value">6,240</div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="label">Wyzwania</div>
+            <div class="value">27</div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="label">Zwycięstwa</div>
+            <div class="value">18</div>
+          </div>
+        </div>
+
+        <h3 style="color: var(--gold); margin: 40px 0 20px; text-transform: uppercase; letter-spacing: 2px;">Odznaczenia Bojowe</h3>
+
+        <div class="achievements-grid">
+          <div class="achievement-badge" title="Pierwszy Krok">🎖️</div>
+          <div class="achievement-badge" title="Pięć Zwycięstw">⭐</div>
+          <div class="achievement-badge" title="Legenda">👑</div>
+          <div class="achievement-badge" title="Mistrzowskie Wyzwanie">🏆</div>
+          <div class="achievement-badge" title="Siedem Dni">🔥</div>
+          <div class="achievement-badge" title="Światowiec">🌟</div>
+          <div class="achievement-badge" title="Champion">💎</div>
+          <div class="achievement-badge" title="Niedostępne">🔒</div>
+        </div>
+
+        <button class="btn btn-large" style="margin-top: 40px;">Edytuj Profil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ NAVIGATION -->
+  <nav class="nav-main">
+    <button class="nav-item active" onclick="switchScreen('screen-hero')">
+      <span>⚔️</span> Brama
+    </button>
+    <button class="nav-item" onclick="switchScreen('screen-arena')">
+      <span>🏰</span> Arena
+    </button>
+    <button class="nav-item" onclick="switchScreen('screen-challenges')">
+      <span>🎯</span> Wyzwania
+    </button>
+    <button class="nav-item" onclick="switchScreen('screen-feed')">
+      <span>📜</span> Feed
+    </button>
+    <button class="nav-item" onclick="switchScreen('screen-ranking')">
+      <span>🏆</span> Ranking
+    </button>
+    <button class="nav-item" onclick="switchScreen('screen-profile')">
+      <span>🗡️</span> Profil
+    </button>
+  </nav>
+
+  <script>
+    function switchScreen(screenId) {
+      // Hide all screens
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+
+      // Show target screen
+      document.getElementById(screenId).classList.add('active');
+
+      // Update nav
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.closest('.nav-item')?.classList.add('active');
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Generate particles
+    function generateParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
+        particle.style.animationDelay = Math.random() * 3 + 's';
+        particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    generateParticles();
+  </script>
+</body>
+</html>
