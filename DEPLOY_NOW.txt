@@ -1,0 +1,45 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                 WDRAŻANIE NA FIREBASE HOSTING - 2 MINUTY                  ║
+║                                                                            ║
+║              Wykonaj te polecenia aby zobaczyć LIVE aplikację             ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+KROKI (wykonaj w terminalu):
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KROK 1: Zaloguj się do Firebase (otworzy przeglądarkę)
+
+  firebase login
+
+Po zalogowaniu się - wróć do terminala.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KROK 2: Wdróż aplikację
+
+  firebase deploy --only hosting
+
+Czekaj aż się skończy (około 2 minuty).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KROK 3: Otwórz aplikację
+
+Po deploymencie zobaczysz URL. Otwórz w przeglądarce:
+
+  https://weekend-warrior-social-ed3d0.web.app/index-v4.html
+
+════════════════════════════════════════════════════════════════════════════════
+
+GOTOWE! Teraz widzisz swoją aplikację LIVE! 🚀
+
+════════════════════════════════════════════════════════════════════════════════
+
+Jeśli chcesz V4 Extended (z Chat, Achievements, Notifications):
+
+  https://weekend-warrior-social-ed3d0.web.app/index-v4-extended.html
+
+════════════════════════════════════════════════════════════════════════════════
