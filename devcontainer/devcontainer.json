@@ -1,6 +1,0 @@
-{
-  "name": "Weekend Warrior Social",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "forwardPorts": [5500],
-  "postCreateCommand": "npm install"
-}
