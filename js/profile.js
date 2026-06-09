@@ -34,16 +34,7 @@ import {
   reauthenticateWithCredential,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
-
-const storage = getStorage();
+import { uploadAvatar } from './profile-service.js';
 
 
 // ════════════════════════════════════════════════════════════
@@ -359,74 +350,56 @@ function initAvatarUpload(user, data) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate
-    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
-      showToast('Dozwolone formaty: JPG, PNG, WebP', 'error');
-      return;
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      showToast('Avatar może mieć max. 3 MB.', 'error');
-      return;
-    }
+    console.log(TAG, '⬆️ Uploading avatar:', file.name);
 
-    console.log(TAG, '⬆️ Upload avatara:', file.name);
-
-    if (progressEl) progressEl.classList.add('visible');
+    if (progressEl) {
+      progressEl.classList.add('visible');
+      progressEl.textContent = '0%';
+    }
 
     try {
-      // Upload do Storage
-      const ext  = file.name.split('.').pop() || 'jpg';
-      const path = `avatars/${user.uid}/avatar.${ext}`;
-      const sRef = ref(storage, path);
-      const task = uploadBytesResumable(sRef, file);
+      // Simulate progress since Cloudinary doesn't provide granular progress
+      const progressInterval = setInterval(() => {
+        const current = parseInt(progressEl?.textContent || '0');
+        if (current < 90) {
+          const next = current + Math.random() * 30;
+          if (progressEl) progressEl.textContent = Math.min(90, next).toFixed(0) + '%';
+        }
+      }, 200);
 
-      await new Promise((resolve, reject) => {
-        task.on('state_changed',
-          (snap) => {
-            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-            if (progressEl) progressEl.textContent = pct + '%';
-            console.log(TAG, 'Progress:', pct + '%');
-          },
-          reject,
-          async () => {
-            const url = await getDownloadURL(task.snapshot.ref);
-            console.log(TAG, '✅ Upload OK:', url);
+      // Upload to Cloudinary
+      const result = await uploadAvatar(file);
+      clearInterval(progressInterval);
 
-            // Aktualizuj Auth profile
-            await updateProfile(user, { photoURL: url });
+      if (progressEl) progressEl.textContent = '100%';
+      console.log(TAG, '✅ Upload successful:', result.url);
 
-            // Aktualizuj Firestore
-            await updateDoc(doc(db, COL.USERS, user.uid), {
-              photoURL:   url,
-              lastActive: serverTimestamp(),
-            });
+      // Update Firebase Auth profile
+      await updateProfile(user, { photoURL: result.url });
 
-            // Aktualizuj avatar w UI
-            const avatarEl = document.getElementById('profile-avatar-el');
-            if (avatarEl) {
-              avatarEl.innerHTML = '';
-              const img     = document.createElement('img');
-              img.src       = url;
-              img.alt       = 'Avatar';
-              img.className = 'avatar av-xl';
-              img.onerror   = () => { avatarEl.innerHTML = ''; };
-              avatarEl.appendChild(img);
-            }
-
-            showToast('Avatar zaktualizowany! 🎉', 'success');
-            resolve();
-          }
-        );
+      // Update Firestore
+      await updateDoc(doc(db, COL.USERS, user.uid), {
+        photoURL:   result.url,
+        lastActive: serverTimestamp(),
       });
 
+      // Update avatar in UI
+      const avatarEl = document.getElementById('profile-avatar-el');
+      if (avatarEl) {
+        avatarEl.innerHTML = '';
+        const img     = document.createElement('img');
+        img.src       = result.url;
+        img.alt       = 'Avatar';
+        img.className = 'avatar av-xl';
+        img.onerror   = () => { avatarEl.innerHTML = ''; avatarEl.textContent = '?'; };
+        avatarEl.appendChild(img);
+      }
+
+      showToast('Avatar zaktualizowany! 🎉', 'success');
+
     } catch (err) {
-      console.error(TAG, '❌', err.code, err.message);
-      showToast(
-        err.code === 'permission-denied'
-          ? 'Brak uprawnień do Storage. Sprawdź reguły Firebase.'
-          : 'Błąd uploadu avatara. Spróbuj ponownie.',
-        'error',
-      );
+      console.error(TAG, '❌', err.message);
+      showToast(err.message || 'Błąd uploadu avatara. Spróbuj ponownie.', 'error');
     } finally {
       if (progressEl) progressEl.classList.remove('visible');
       fileInput.value = '';

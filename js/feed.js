@@ -25,6 +25,7 @@ import {
 
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
 import { makeAvatarsClickable, openUserProfile } from './social.js';
+import { uploadPostImage } from './profile-service.js';
 
 import {
   collection,
@@ -45,13 +46,6 @@ import {
   Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 
 // ── Constants ────────────────────────────────────────────────
@@ -68,8 +62,6 @@ let hasMorePosts    = false;
 let unsubFeed       = null;
 let selectedImage   = null;  // File object
 let isPosting       = false;
-
-const storage = getStorage();
 
 
 // ════════════════════════════════════════════════════════════
@@ -237,15 +229,15 @@ async function submitPost() {
   console.log(TAG, '📝 Publikuję post...');
 
   try {
-    let imageUrl      = '';
-    let imageStoragePath = '';
+    let imageUrl = '';
+    let imagePublicId = '';
 
     // Upload zdjęcia jeśli wybrane
     if (selectedImage) {
       console.log(TAG, '⬆️ Upload zdjęcia...');
       const result = await uploadImage(selectedImage);
-      imageUrl          = result.url;
-      imageStoragePath  = result.path;
+      imageUrl = result.url;
+      imagePublicId = result.publicId;
       console.log(TAG, '✅ Upload OK:', imageUrl);
     }
 
@@ -259,7 +251,7 @@ async function submitPost() {
       authorRankEmoji:rankObj.emoji,
       content,
       imageUrl,
-      imageStoragePath,
+      imagePublicId,
       likes:          [],
       likesCount:     0,
       commentsCount:  0,
@@ -305,39 +297,41 @@ async function submitPost() {
 
 
 // ════════════════════════════════════════════════════════════
-// IMAGE UPLOAD
+// IMAGE UPLOAD (Cloudinary)
 // ════════════════════════════════════════════════════════════
 
-function uploadImage(file) {
-  return new Promise((resolve, reject) => {
-    const ext      = file.name.split('.').pop() || 'jpg';
-    const path     = `posts/${currentUser.uid}/${Date.now()}.${ext}`;
-    const storageRef = ref(storage, path);
-    const task     = uploadBytesResumable(storageRef, file);
+async function uploadImage(file) {
+  const TAG = '[uploadImage]';
+  const progressEl = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('upload-progress-bar');
 
-    // Progress bar
-    const progressEl = document.getElementById('upload-progress');
-    const progressBar = document.getElementById('upload-progress-bar');
-    if (progressEl) progressEl.classList.remove('hidden');
+  if (progressEl) progressEl.classList.remove('hidden');
 
-    task.on('state_changed',
-      (snap) => {
-        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-        if (progressBar) progressBar.style.width = pct + '%';
-        console.log('[uploadImage] Progress:', pct + '%');
-      },
-      (err) => {
-        console.error('[uploadImage] ❌', err);
-        if (progressEl) progressEl.classList.add('hidden');
-        reject(err);
-      },
-      async () => {
-        const url = await getDownloadURL(task.snapshot.ref);
-        if (progressEl) progressEl.classList.add('hidden');
-        resolve({ url, path });
+  try {
+    // Simulate progress since Cloudinary doesn't provide granular progress
+    const progressInterval = setInterval(() => {
+      const current = parseInt(progressBar?.style.width || '0');
+      if (current < 90) {
+        const next = current + Math.random() * 30;
+        if (progressBar) progressBar.style.width = Math.min(90, next).toFixed(0) + '%';
       }
-    );
-  });
+    }, 200);
+
+    // Upload to Cloudinary
+    const result = await uploadPostImage(file);
+    clearInterval(progressInterval);
+
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressEl) progressEl.classList.add('hidden');
+
+    console.log(TAG, '✅ Upload OK:', result.url);
+    return { url: result.url, publicId: result.publicId };
+
+  } catch (err) {
+    console.error(TAG, '❌', err.message);
+    if (progressEl) progressEl.classList.add('hidden');
+    throw err;
+  }
 }
 
 
@@ -880,17 +874,7 @@ async function deletePost(postId, data) {
   console.log(TAG, '🗑️ Usuwam post:', postId);
 
   try {
-    // Usuń zdjęcie ze Storage jeśli istnieje
-    if (data.imageStoragePath) {
-      try {
-        await deleteObject(ref(storage, data.imageStoragePath));
-        console.log(TAG, '✅ Zdjęcie usunięte ze Storage');
-      } catch (err) {
-        console.warn(TAG, '⚠️ Błąd usuwania zdjęcia:', err.message);
-      }
-    }
-
-    // Usuń dokument z Firestore
+    // Usuń dokument z Firestore (Cloudinary image cleanup jest automatyczne)
     await deleteDoc(doc(db, COL.POSTS, postId));
     console.log(TAG, '✅ Post usunięty');
     showToast('Post usunięty.', 'success');
