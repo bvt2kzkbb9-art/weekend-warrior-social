@@ -1,1 +1,0 @@
-Patched xp.js syntax error. login/register still require refactor against auth.js exports.
