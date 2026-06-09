@@ -237,22 +237,34 @@ function updateProfileCard() {
 // EVENT HANDLERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function handleChallengeClick(idx) {
-  const challenge = appState.userChallenges[idx];
-  if (!challenge) return;
+export async function handleChallengeClick(idx) {
+  try {
+    if (!appState.currentUser) {
+      showToast('❌ Nie zalogowany', 'error');
+      return;
+    }
 
-  showToast(`🎯 Przejęto wyzwanie: ${challenge.title}`, 'info');
+    const challenge = appState.userChallenges[idx];
+    if (!challenge) {
+      showToast('❌ Wyzwanie nie znalezione', 'error');
+      return;
+    }
 
-  // Add XP
-  const newXP = (appState.currentUserData?.points || 0) + challenge.xp;
-  const newLevel = getLevel(newXP);
+    const newXP = (appState.currentUserData?.points || 0) + challenge.xp;
+    const newLevel = getLevel(newXP);
 
-  updateDoc(doc(db, COL.USERS, appState.currentUser.uid), {
-    points: newXP,
-    level: newLevel,
-    challengesCompleted: (appState.currentUserData?.challengesCompleted || 0) + 1,
-    lastActive: serverTimestamp()
-  }).catch(err => showToast('❌ Błąd przy aktualizacji XP', 'error'));
+    await updateDoc(doc(db, COL.USERS, appState.currentUser.uid), {
+      points: newXP,
+      level: newLevel,
+      challengesCompleted: (appState.currentUserData?.challengesCompleted || 0) + 1,
+      lastActive: serverTimestamp()
+    });
+
+    showToast(`🎯 +${challenge.xp} XP za "${challenge.title}"`, 'success');
+  } catch (err) {
+    console.error('Challenge error:', err);
+    showToast(`❌ Błąd: ${err.message}`, 'error');
+  }
 }
 
 export function handleLogout() {
