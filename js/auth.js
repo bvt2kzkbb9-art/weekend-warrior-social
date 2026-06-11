@@ -214,3 +214,196 @@ export function handleAuthUI(user, userData) {
   if (userRankEl) userRankEl.textContent = userData.rank || "Rookie";
   if (userXpEl) userXpEl.textContent = userData.points || 0;
 }
+
+// ════════════════════════════════════════════════════════════
+// PRZEKIEROWANIE ZALOGOWANYCH (login.html / register.html)
+// ════════════════════════════════════════════════════════════
+
+export function redirectIfLogged() {
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = "index.html";
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// FORMULARZ LOGOWANIA — login.html
+// ════════════════════════════════════════════════════════════
+
+export function initLoginForm() {
+  const form = document.getElementById("login-form");
+  const emailIn = document.getElementById("email");
+  const passIn = document.getElementById("password");
+  const loginBtn = document.getElementById("login-btn");
+  const googleBtn = document.getElementById("google-btn");
+  const forgotLink = document.getElementById("forgot-link");
+  const errEl = document.getElementById("error-msg");
+
+  const showErr = (msg) => {
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.style.display = msg ? "block" : "none";
+  };
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      showErr("");
+      const email = emailIn?.value.trim();
+      const password = passIn?.value;
+      if (!email || !password) { showErr("Podaj email i hasło."); return; }
+      setLoading(loginBtn, true);
+      try {
+        await loginWithEmail(email, password);
+        window.location.href = "index.html";
+      } catch (err) {
+        const map = {
+          "auth/user-not-found": "Nie znaleziono wojownika o tym adresie.",
+          "auth/wrong-password": "Niepoprawne słowo mocy.",
+          "auth/invalid-credential": "Niepoprawny email lub hasło.",
+          "auth/invalid-email": "Niepoprawny adres email.",
+          "auth/too-many-requests": "Za dużo prób. Odczekaj chwilę.",
+          "auth/network-request-failed": "Brak połączenia z siecią.",
+        };
+        showErr(map[err.code] || "Błąd logowania: " + (err.code || err.message));
+      } finally {
+        setLoading(loginBtn, false);
+      }
+    });
+  }
+
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async (e) => {
+      e.preventDefault(); // przycisk bez type="button" w <form> domyślnie submituje
+      showErr("");
+      try {
+        await loginWithGoogle();
+        window.location.href = "index.html";
+      } catch (err) {
+        if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+          showErr("Błąd logowania Google: " + (err.code || err.message));
+        }
+      }
+    });
+  }
+
+  if (forgotLink) {
+    forgotLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = emailIn?.value.trim() || prompt("Podaj adres email do resetu słowa mocy:");
+      if (!email) return;
+      try { await resetPassword(email); } catch { /* toast pokazany */ }
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// FORMULARZ REJESTRACJI — register.html
+// ════════════════════════════════════════════════════════════
+
+export function initRegisterForm() {
+  const form = document.getElementById("register-form");
+  const nameIn = document.getElementById("display-name");
+  const emailIn = document.getElementById("email");
+  const passIn = document.getElementById("password");
+  const confirmIn = document.getElementById("confirm-password");
+  const termsIn = document.getElementById("terms");
+  const registerBtn = document.getElementById("register-btn");
+  const googleBtn = document.getElementById("google-btn");
+  const strengthLabel = document.getElementById("strength-label");
+  const bars = Array.from(document.querySelectorAll(".strength-bar"));
+
+  // ── Pokaż/ukryj hasło ──────────────────────────────────────
+  const wireToggle = (btnId, input) => {
+    const btn = document.getElementById(btnId);
+    if (!btn || !input) return;
+    btn.addEventListener("click", () => {
+      input.type = input.type === "password" ? "text" : "password";
+    });
+  };
+  wireToggle("toggle-password", passIn);
+  wireToggle("toggle-confirm", confirmIn);
+
+  // ── Siła hasła ─────────────────────────────────────────────
+  const scorePassword = (pw) => {
+    let s = 0;
+    if (pw.length >= 6) s++;
+    if (pw.length >= 10) s++;
+    if (/[A-ZĄĆĘŁŃÓŚŹŻ]/.test(pw) && /[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s = Math.min(3, s + 1);
+    return Math.min(3, s); // 0–3
+  };
+
+  if (passIn) {
+    passIn.addEventListener("input", () => {
+      const pw = passIn.value;
+      const score = pw ? scorePassword(pw) : 0;
+      const cls = ["", "weak", "medium", "strong"][score] || "";
+      bars.forEach((b, i) => {
+        b.classList.remove("weak", "medium", "strong");
+        if (pw && i < score) b.classList.add(cls || "weak");
+      });
+      if (strengthLabel) {
+        strengthLabel.textContent = !pw ? "" :
+          score <= 1 ? "Słabe słowo mocy" :
+          score === 2 ? "Przyzwoite słowo mocy" : "Potężne słowo mocy ⚔️";
+        strengthLabel.style.color = score <= 1 ? "#EF4444" : score === 2 ? "#F59E0B" : "#16C784";
+      }
+    });
+  }
+
+  // ── Walidacja na żywo potwierdzenia ────────────────────────
+  if (confirmIn) {
+    confirmIn.addEventListener("input", () => {
+      clearFieldError(confirmIn);
+      if (confirmIn.value && passIn?.value !== confirmIn.value) {
+        setFieldError(confirmIn, "Słowa mocy nie są zgodne.");
+      }
+    });
+  }
+
+  // ── Submit ─────────────────────────────────────────────────
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      [nameIn, emailIn, passIn, confirmIn].forEach(clearFieldError);
+
+      const name = nameIn?.value.trim();
+      const email = emailIn?.value.trim();
+      const pass = passIn?.value;
+      const confirm = confirmIn?.value;
+
+      let ok = true;
+      if (!name) { setFieldError(nameIn, "Podaj imię wojownika."); ok = false; }
+      if (!email) { setFieldError(emailIn, "Podaj adres email."); ok = false; }
+      if (!pass || pass.length < 6) { setFieldError(passIn, "Min. 6 znaków."); ok = false; }
+      if (pass !== confirm) { setFieldError(confirmIn, "Słowa mocy nie są zgodne."); ok = false; }
+      if (termsIn && !termsIn.checked) {
+        showToast("⚠️ Musisz zaakceptować Regulamin Areny.", "error");
+        ok = false;
+      }
+      if (!ok) return;
+
+      setLoading(registerBtn, true);
+      try {
+        await registerWithEmail(email, pass, name);
+        window.location.href = "index.html";
+      } catch (err) {
+        if (err.code === "auth/email-already-in-use") setFieldError(emailIn, "Email już w użyciu.");
+        else if (err.code === "auth/invalid-email") setFieldError(emailIn, "Niepoprawny email.");
+        else if (err.code === "auth/weak-password") setFieldError(passIn, "Hasło za słabe.");
+      } finally {
+        setLoading(registerBtn, false);
+      }
+    });
+  }
+
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await loginWithGoogle();
+        window.location.href = "index.html";
+      } catch { /* toast pokazany */ }
+    });
+  }
+}

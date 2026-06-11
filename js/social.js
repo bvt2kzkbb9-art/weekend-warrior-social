@@ -346,3 +346,200 @@ export function injectInviteBanner(containerEl, uid) {
   div.querySelector('#inject-invite-btn')?.addEventListener('click', () => copyInviteLink(uid));
 }
 
+
+// ════════════════════════════════════════════════════════════
+// SYSTEM ZNAJOMYCH (ETAP 4)
+// ════════════════════════════════════════════════════════════
+//
+// Kolekcje:
+//   friend_requests/{id} → { senderId, senderName, receiverId, status, createdAt }
+//     status: 'pending' | 'accepted' | 'rejected'
+//   friends/{id} → { uid1, uid2, users:[uid1,uid2], createdAt }
+
+import { getDoc, orderBy, updateDoc as _updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const COL_FRIEND_REQUESTS = 'friend_requests';
+const COL_FRIENDS = 'friends';
+
+/** Wyszukuje użytkowników po nazwie (prefix, case-insensitive po stronie klienta). */
+export async function searchUsers(term, myUid = '', max = 12) {
+  const t = (term || '').trim();
+  if (t.length < 2) return [];
+  try {
+    // Pobierz pulę po prefiksie displayName + dociągnij szerzej i filtruj lokalnie
+    const snap = await getDocs(query(
+      collection(db, 'users'),
+      orderBy('displayName'),
+      limit(60),
+    ));
+    const lower = t.toLowerCase();
+    return snap.docs
+      .map(d => ({ uid: d.id, ...d.data() }))
+      .filter(u => u.uid !== myUid && (
+        (u.displayName || '').toLowerCase().includes(lower) ||
+        (u.username || '').toLowerCase().includes(lower)
+      ))
+      .slice(0, max);
+  } catch (e) {
+    console.warn('[searchUsers]', e.code);
+    return [];
+  }
+}
+
+/** Status relacji: 'none' | 'pending_sent' | 'pending_received' | 'friends' */
+export async function getFriendshipStatus(myUid, targetUid) {
+  if (!myUid || !targetUid || myUid === targetUid) return { status: 'none', docId: null };
+  try {
+    // Znajomi?
+    const fSnap = await getDocs(query(
+      collection(db, COL_FRIENDS),
+      where('users', 'array-contains', myUid),
+    ));
+    const fr = fSnap.docs.find(d => (d.data().users || []).includes(targetUid));
+    if (fr) return { status: 'friends', docId: fr.id };
+
+    // Wysłane zaproszenie?
+    const sentSnap = await getDocs(query(
+      collection(db, COL_FRIEND_REQUESTS),
+      where('senderId', '==', myUid),
+      where('receiverId', '==', targetUid),
+      where('status', '==', 'pending'),
+      limit(1),
+    ));
+    if (!sentSnap.empty) return { status: 'pending_sent', docId: sentSnap.docs[0].id };
+
+    // Otrzymane zaproszenie?
+    const recvSnap = await getDocs(query(
+      collection(db, COL_FRIEND_REQUESTS),
+      where('senderId', '==', targetUid),
+      where('receiverId', '==', myUid),
+      where('status', '==', 'pending'),
+      limit(1),
+    ));
+    if (!recvSnap.empty) return { status: 'pending_received', docId: recvSnap.docs[0].id };
+
+    return { status: 'none', docId: null };
+  } catch (e) {
+    console.warn('[getFriendshipStatus]', e.code);
+    return { status: 'none', docId: null };
+  }
+}
+
+/** Wysyła zaproszenie do znajomych + powiadomienie. */
+export async function sendFriendRequest(myUid, myName, targetUid) {
+  if (!myUid || !targetUid || myUid === targetUid) throw new Error('Nieprawidłowy cel');
+  const { status } = await getFriendshipStatus(myUid, targetUid);
+  if (status === 'friends') throw new Error('Już jesteście towarzyszami broni');
+  if (status === 'pending_sent') throw new Error('Zaproszenie już wysłane');
+
+  const ref = await addDoc(collection(db, COL_FRIEND_REQUESTS), {
+    senderId: myUid,
+    senderName: myName || 'Wojownik',
+    receiverId: targetUid,
+    status: 'pending',
+    createdAt: serverTimestamp(),
+  });
+
+  createNotification(targetUid, {
+    type: 'friend_request',
+    title: `${myName || 'Wojownik'} chce być Twoim towarzyszem 🤝`,
+    body: 'Przyjmij lub odrzuć zaproszenie na swojej Karcie Bohatera.',
+    url: 'profile.html',
+    relatedUid: myUid,
+  }).catch(() => {});
+
+  return ref.id;
+}
+
+/** Akceptuje zaproszenie — tworzy dokument znajomości. */
+export async function acceptFriendRequest(requestId, myUid, myName = 'Wojownik') {
+  const reqRef = doc(db, COL_FRIEND_REQUESTS, requestId);
+  const snap = await getDoc(reqRef);
+  if (!snap.exists()) throw new Error('Zaproszenie nie istnieje');
+  const req = snap.data();
+  if (req.receiverId !== myUid) throw new Error('To nie Twoje zaproszenie');
+
+  const [uid1, uid2] = [req.senderId, req.receiverId].sort();
+  await addDoc(collection(db, COL_FRIENDS), {
+    uid1, uid2,
+    users: [uid1, uid2],
+    createdAt: serverTimestamp(),
+  });
+  await _updateDoc(reqRef, { status: 'accepted' });
+
+  createNotification(req.senderId, {
+    type: 'friend_accept',
+    title: `${myName} przyjął Twoje zaproszenie 🛡️`,
+    body: 'Jesteście teraz towarzyszami broni!',
+    url: `user.html?uid=${encodeURIComponent(myUid)}`,
+    relatedUid: myUid,
+  }).catch(() => {});
+
+  return true;
+}
+
+/** Odrzuca zaproszenie. */
+export async function rejectFriendRequest(requestId, myUid) {
+  const reqRef = doc(db, COL_FRIEND_REQUESTS, requestId);
+  const snap = await getDoc(reqRef);
+  if (!snap.exists()) return;
+  if (snap.data().receiverId !== myUid) throw new Error('To nie Twoje zaproszenie');
+  await _updateDoc(reqRef, { status: 'rejected' });
+}
+
+/** Lista oczekujących zaproszeń DO mnie. */
+export async function getPendingRequests(myUid) {
+  if (!myUid) return [];
+  try {
+    const snap = await getDocs(query(
+      collection(db, COL_FRIEND_REQUESTS),
+      where('receiverId', '==', myUid),
+      where('status', '==', 'pending'),
+    ));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.warn('[getPendingRequests]', e.code);
+    return [];
+  }
+}
+
+/** Lista znajomych (z danymi użytkowników). */
+export async function getFriends(myUid) {
+  if (!myUid) return [];
+  try {
+    const snap = await getDocs(query(
+      collection(db, COL_FRIENDS),
+      where('users', 'array-contains', myUid),
+    ));
+    const results = await Promise.all(snap.docs.map(async d => {
+      const otherUid = (d.data().users || []).find(u => u !== myUid);
+      let userData = { displayName: 'Wojownik' };
+      try {
+        const uSnap = await getDoc(doc(db, 'users', otherUid));
+        if (uSnap.exists()) userData = uSnap.data();
+      } catch {}
+      return { friendDocId: d.id, uid: otherUid, ...userData };
+    }));
+    return results;
+  } catch (e) {
+    console.warn('[getFriends]', e.code);
+    return [];
+  }
+}
+
+/** Liczba znajomych. */
+export async function getFriendCount(uid) {
+  try {
+    const snap = await getDocs(query(
+      collection(db, COL_FRIENDS),
+      where('users', 'array-contains', uid),
+    ));
+    return snap.size;
+  } catch { return 0; }
+}
+
+/** Usuwa znajomość. */
+export async function removeFriend(friendDocId) {
+  if (!friendDocId) return;
+  await deleteDoc(doc(db, COL_FRIENDS, friendDocId));
+}

@@ -27,7 +27,6 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
-  Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 import { checkAndUnlockAchievements } from './achievements.js';
@@ -215,35 +214,34 @@ function showXpGainToast(xp, label) {
 // ════════════════════════════════════════════════════════════
 
 function showRankUpNotification(rankObj) {
-  // Arena ceremony
+  // Arena ceremony — fallback legacy tylko gdy arena.js się nie załaduje
   import('./arena.js').then(({ showRankUp }) => {
     showRankUp(rankObj.id);
-  }).catch(() => {});
+  }).catch(() => {
+    document.querySelector('.unlock-backdrop')?.remove();
+    document.querySelector('.unlock-popup')?.remove();
 
-  // Fallback legacy
-  document.querySelector('.unlock-backdrop')?.remove();
-  document.querySelector('.unlock-popup')?.remove();
+    const backdrop = document.createElement('div');
+    backdrop.className = 'unlock-backdrop';
 
-  const backdrop = document.createElement('div');
-  backdrop.className = 'unlock-backdrop';
-
-  const popup = document.createElement('div');
-  popup.className = 'unlock-popup';
-  popup.innerHTML = `
+    const popup = document.createElement('div');
+    popup.className = 'unlock-popup';
+    popup.innerHTML = `
     <div class="unlock-popup-icon">${rankObj.emoji}</div>
     <div class="unlock-popup-label">Awans rangi!</div>
     <div class="unlock-popup-name">${rankObj.label}</div>
     <div class="unlock-popup-desc">Gratulacje wojowniku!<br>Osiągnąłeś nową rangę.</div>
   `;
 
-  document.body.appendChild(backdrop);
-  document.body.appendChild(popup);
+    document.body.appendChild(backdrop);
+    document.body.appendChild(popup);
 
-  const dismiss = () => {
-    backdrop.remove();
-    popup.remove();
-  };
+    const dismiss = () => {
+      backdrop.remove();
+      popup.remove();
+    };
 
-  backdrop.addEventListener('click', dismiss);
-  setTimeout(dismiss, 4000);
+    backdrop.addEventListener('click', dismiss);
+    setTimeout(dismiss, 4000);
+  });
 }
