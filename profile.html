@@ -9,6 +9,55 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    .profile-banner{position:relative;height:120px;border-radius:var(--r-lg) var(--r-lg) 0 0;
+      background:linear-gradient(135deg,#1a1626 0%,#0d0b14 60%,#1f1a2e 100%);
+      background-size:cover;background-position:center;overflow:hidden;}
+    .profile-banner::after{content:'';position:absolute;inset:0;
+      background:linear-gradient(180deg,transparent 40%,rgba(6,5,10,.75) 100%);}
+    .cam-btn{position:absolute;z-index:3;width:30px;height:30px;border-radius:50%;
+      background:rgba(10,8,16,.85);border:1px solid var(--border-mid);color:var(--text-primary);
+      display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;
+      transition:all .2s ease;}
+    .cam-btn:hover{border-color:var(--gold-700);color:var(--gold-500);}
+    .banner-cam{right:.625rem;bottom:.625rem;}
+    .avatar-cam{right:-4px;bottom:-4px;}
+    .profile-bio{font-family:var(--font-body);font-size:.875rem;color:var(--text-muted);
+      font-style:italic;text-align:center;max-width:420px;margin:.5rem auto 0;line-height:1.45;}
+    .profile-details{display:flex;flex-wrap:wrap;gap:.375rem .625rem;justify-content:center;
+      margin-top:.625rem;}
+    .pd-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .625rem;
+      border-radius:9999px;background:var(--bg-elevated);border:1px solid var(--border-dim);
+      font-family:var(--font-hd);font-size:.65rem;font-weight:700;letter-spacing:.03em;
+      color:var(--text-secondary);}
+    .profile-social-counts{display:flex;justify-content:center;gap:1.5rem;margin-top:.875rem;}
+    .psc-item{text-align:center;}
+    .psc-val{display:block;font-family:var(--font-heading);font-size:1rem;font-weight:800;
+      color:var(--gold-500);}
+    .psc-label{display:block;font-family:var(--font-hd);font-size:.55rem;font-weight:700;
+      letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-top:.1rem;}
+    .friend-row{display:flex;align-items:center;gap:.625rem;padding:.625rem .875rem;
+      border-bottom:1px solid var(--border-dim);}
+    .friend-row:last-child{border-bottom:none;}
+    .friend-av{width:38px;height:38px;border-radius:50%;background:var(--bg-elevated);
+      border:1px solid var(--border-mid);display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-heading);font-size:.75rem;font-weight:800;color:var(--gold-500);
+      overflow:hidden;flex-shrink:0;cursor:pointer;}
+    .friend-av img{width:100%;height:100%;object-fit:cover;}
+    .friend-info{flex:1;min-width:0;cursor:pointer;}
+    .friend-name{font-family:var(--font-hd);font-size:.875rem;font-weight:700;
+      color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .friend-sub{font-size:.7rem;color:var(--text-faint);margin-top:.1rem;}
+    .friend-actions{display:flex;gap:.375rem;flex-shrink:0;}
+    .fr-btn{padding:.35rem .625rem;border-radius:var(--r-sm);border:1px solid var(--border-mid);
+      background:var(--bg-elevated);font-family:var(--font-hd);font-size:.65rem;font-weight:700;
+      letter-spacing:.03em;color:var(--text-secondary);cursor:pointer;transition:all .2s ease;}
+    .fr-btn:hover{border-color:var(--gold-700);color:var(--gold-500);}
+    .fr-btn.accept{border-color:rgba(80,200,120,.4);color:#6BCB8B;}
+    .fr-btn.danger:hover{border-color:rgba(204,68,68,.5);color:#CC4444;}
+    .upload-bar{position:fixed;top:0;left:0;height:3px;background:var(--gold-500);width:0%;
+      z-index:9999;transition:width .2s ease;}
+  </style>
 </head>
 <body>
 <div class="bg-orbs" aria-hidden="true"></div>
@@ -17,6 +66,7 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
+<div id="upload-bar" class="upload-bar"></div>
 
 <!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">
@@ -77,9 +127,16 @@
 
     <!-- Hero section -->
     <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
-      <div class="profile-hero">
-        <div class="profile-avatar-wrap">
-          <div id="profile-avatar" class="profile-avatar"></div>
+      <div id="profile-banner" class="profile-banner">
+        <button id="banner-cam-btn" class="cam-btn banner-cam" title="Zmień zdjęcie w tle">📷</button>
+      </div>
+      <input type="file" id="banner-file" accept="image/*" style="display:none;"/>
+      <input type="file" id="avatar-file" accept="image/*" style="display:none;"/>
+
+      <div class="profile-hero" style="margin-top:-48px;position:relative;z-index:2;">
+        <div class="profile-avatar-wrap" style="position:relative;">
+          <div id="profile-avatar" class="profile-avatar" style="border:3px solid var(--bg-card);"></div>
+          <button id="avatar-cam-btn" class="cam-btn avatar-cam" title="Zmień portret">📷</button>
           <div class="profile-level-badge" id="profile-level">Poz. 1</div>
         </div>
         <div class="profile-name" id="profile-name">—</div>
@@ -87,6 +144,25 @@
           <span id="profile-rank-emoji">⚔️</span>
           <span id="profile-rank-label">Rookie</span>
         </div>
+
+        <div id="profile-bio" class="profile-bio" style="display:none;"></div>
+        <div id="profile-details" class="profile-details"></div>
+
+        <div class="profile-social-counts">
+          <div class="psc-item">
+            <span class="psc-val" id="psc-followers">0</span>
+            <span class="psc-label">Obserwujący</span>
+          </div>
+          <div class="psc-item">
+            <span class="psc-val" id="psc-following">0</span>
+            <span class="psc-label">Obserwowani</span>
+          </div>
+          <div class="psc-item">
+            <span class="psc-val" id="psc-friends">0</span>
+            <span class="psc-label">Towarzysze</span>
+          </div>
+        </div>
+
         <div class="profile-xp-section">
           <div class="profile-xp-label">
             <span class="label-caps">Doświadczenie</span>
@@ -129,6 +205,37 @@
       </div>
     </div>
 
+    <!-- Towarzysze Broni (znajomi) -->
+    <div class="rpg-panel" style="margin-bottom:.875rem;">
+      <div class="rpg-panel-header">
+        <div class="rpg-panel-title">🤝 Towarzysze Broni</div>
+        <span id="friends-count-label" class="label-caps">0</span>
+      </div>
+
+      <div id="friend-requests-wrap" style="display:none;border-bottom:1px solid var(--border-dim);">
+        <div style="padding:.625rem .875rem .25rem;font-family:var(--font-hd);font-size:.6rem;
+          font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-500);">
+          ⏳ Oczekujące zaproszenia
+        </div>
+        <div id="friend-requests-list"></div>
+      </div>
+
+      <div id="friends-list">
+        <div style="text-align:center;padding:1.25rem;font-family:var(--font-heading);
+          font-size:.6rem;color:var(--text-faint);font-style:italic;">Ładowanie towarzyszy...</div>
+      </div>
+
+      <div style="padding:.75rem .875rem;border-top:1px solid var(--border-dim);">
+        <div style="font-family:var(--font-hd);font-size:.6rem;font-weight:700;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--text-faint);margin-bottom:.5rem;">
+          🔍 Znajdź wojowników
+        </div>
+        <input type="text" id="friend-search" class="form-input"
+          placeholder="Wpisz imię wojownika..." autocomplete="off"/>
+        <div id="friend-search-results"></div>
+      </div>
+    </div>
+
     <!-- Achievements -->
     <div class="rpg-panel" style="margin-bottom:.875rem;">
       <div class="rpg-panel-header">
@@ -167,35 +274,14 @@
         </div>
       </div>
     </div>
-<!-- Danger zone -->
-          <!-- Statystyki Lagi Pajacu -->
-      <div class="rpg-panel" style="margin-bottom:.875rem;">
-        <div class="rpg-panel-header">
-          <div class="rpg-panel-title">🍺 Laga Pajacu</div>
-          <a href="pajac.html" class="rpg-panel-link">Centrum Lag</a>
-        </div>
-        <div class="profile-stats-grid" style="padding:.75rem .875rem;">
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="pajac-wins" style="color:#FFAA44;">0</span>
-            <span class="profile-stat-label">Wygrane</span>
-          </div>
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="pajac-total">0</span>
-            <span class="profile-stat-label">Łącznie</span>
-          </div>
-          <div class="profile-stat">
-            <span class="profile-stat-val" id="pajac-rate">—</span>
-            <span class="profile-stat-label">Skuteczność</span>
-          </div>
-        </div>
-      </div>
 
-<div class="rpg-panel" style="margin-bottom:1rem;border-color:rgba(139,0,0,.3);">
+    <!-- Danger zone -->
+    <div class="rpg-panel" style="margin-bottom:1rem;border-color:rgba(139,0,0,.3);">
       <div class="rpg-panel-header">
         <div class="rpg-panel-title" style="color:#CC4444;">⚠ Strefa Zagrożenia</div>
       </div>
       <div style="padding:.875rem;display:flex;flex-direction:column;gap:.625rem;">
-    
+
         <!-- Dark / Light mode toggle -->
         <div style="display:flex;align-items:center;justify-content:space-between;
           padding:.625rem .75rem;background:var(--bg-elevated);
@@ -230,14 +316,42 @@
 
 <!-- Edit Profile Modal -->
 <div id="edit-modal" class="ch-modal-backdrop hidden">
-  <div class="ch-modal" style="max-width:400px;">
-    <div class="ch-modal-body">
+  <div class="ch-modal" style="max-width:420px;">
+    <div class="ch-modal-body" style="max-height:80vh;overflow-y:auto;">
       <div class="ch-modal-badge">✏️</div>
       <div class="ch-modal-title">Edytuj Postać</div>
       <div style="display:flex;flex-direction:column;gap:.875rem;margin-top:1rem;">
         <div class="form-group">
           <label class="form-label">Imię Wojownika</label>
           <input type="text" id="edit-name" class="form-input" placeholder="Twoje imię" maxlength="40"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (opowieść o Tobie)</label>
+          <textarea id="edit-bio" class="form-input" rows="3" maxlength="200"
+            placeholder="Kim jesteś na tej arenie?" style="resize:vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lokalizacja</label>
+          <input type="text" id="edit-location" class="form-input" placeholder="np. Warszawa" maxlength="60"/>
+        </div>
+        <div style="display:flex;gap:.625rem;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Wiek</label>
+            <input type="number" id="edit-age" class="form-input" placeholder="—" min="13" max="120"/>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Wzrost (cm)</label>
+            <input type="number" id="edit-height" class="form-input" placeholder="—" min="100" max="250"/>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Waga (kg)</label>
+            <input type="number" id="edit-weight" class="form-input" placeholder="—" min="30" max="300"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ulubiona dyscyplina</label>
+          <input type="text" id="edit-discipline" class="form-input"
+            placeholder="np. Siłownia, Bieganie, MMA" maxlength="40"/>
         </div>
         <div class="form-group">
           <label class="form-label">URL Portretu (opcjonalne)</label>
@@ -255,11 +369,20 @@
 
 <script type="module">
   import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
+  import {
+    db, COL, getRank, getLevel, getRankProgress, RANKS,
+    uploadImage, compressImage,
+  } from './js/firebase.js';
   import {
     collection, query, where, orderBy, limit, getDocs, doc, updateDoc,
   } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-  import { injectMessengerBadge } from './js/messenger.js';
+  import { injectMessengerBadge, openChatWith } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
+  import {
+    getFollowCounts, getFriendCount, getFriends, getPendingRequests,
+    acceptFriendRequest, rejectFriendRequest, searchUsers,
+    sendFriendRequest, getFriendshipStatus, removeFriend, openUserProfile,
+  } from './js/social.js';
   import { initTheme, injectLightModeCSS, toggleDarkMode } from './js/weekly-ranking.js';
 
   // ── Tryb wyświetlania — wywołaj PRZED wszystkim, żeby nie mignął ciemny ekran ──
@@ -280,8 +403,12 @@
     });
   }
 
+  let ME = null;
+
   checkAuth(async (user) => {
+    ME = user;
     injectMessengerBadge(user.uid);
+    injectNotifBell(user.uid);
     // 2s skeleton safety
     const skTimer = setTimeout(() => {
       document.getElementById('profile-skeleton').style.display = 'none';
@@ -294,8 +421,14 @@
     _renderProfile(user, data);
     _renderAchievements(data);
     _renderStreakCalendar(data);
-    await _loadHistory(user.uid);
     _setupEdit(user, data);
+    _setupImageUploads(user.uid, data);
+    await Promise.allSettled([
+      _loadHistory(user.uid),
+      _loadSocialCounts(user.uid),
+      _loadFriendsPanel(user.uid, data),
+    ]);
+    _setupFriendSearch(user.uid, data);
   });
 
   function _renderProfile(user, data) {
@@ -314,7 +447,14 @@
     const xpIn = Math.max(0, points - rankObj.min);
     const xpNeed = Math.max(1, (nextRankMin ?? points + 500) - rankObj.min);
 
+    // Banner
+    if (data.bannerURL) {
+      document.getElementById('profile-banner').style.backgroundImage = `url("${data.bannerURL}")`;
+    }
+
+    // Avatar
     const av = document.getElementById('profile-avatar');
+    av.innerHTML = '';
     const ini = name.split(' ').map(w => w[0]??'').join('').slice(0,2).toUpperCase();
     if (data.photoURL) {
       const img = document.createElement('img');
@@ -334,12 +474,255 @@
       if (f) f.style.width = progress + '%';
     }, 400);
 
+    // Bio + szczegóły
+    const bioEl = document.getElementById('profile-bio');
+    if (data.bio) { bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
+    else bioEl.style.display = 'none';
+
+    const det = document.getElementById('profile-details');
+    det.innerHTML = '';
+    const chips = [];
+    if (data.location)   chips.push(['📍', data.location]);
+    if (data.age)        chips.push(['🎂', data.age + ' lat']);
+    if (data.height)     chips.push(['📏', data.height + ' cm']);
+    if (data.weight)     chips.push(['⚖️', data.weight + ' kg']);
+    if (data.discipline) chips.push(['🥇', data.discipline]);
+    chips.forEach(([ic, txt]) => {
+      const c = document.createElement('span');
+      c.className = 'pd-chip';
+      c.innerHTML = `<span>${ic}</span><span></span>`;
+      c.lastElementChild.textContent = txt;
+      det.appendChild(c);
+    });
+
     s('ps-wins', String(data.challengesCompleted || 0));
     s('ps-sent', String(data.challengesSent || 0));
     s('ps-xp', (points).toLocaleString('pl-PL'));
     s('ps-posts', String(data.postsCount || 0));
     s('ps-streak', `${data.streak || 0}🔥`);
     s('login-streak-val', `${data.streak || 0} 🔥`);
+  }
+
+  // ── Liczniki: obserwujący / obserwowani / towarzysze ──────────────────────────
+  async function _loadSocialCounts(uid) {
+    try {
+      const [fc, friends] = await Promise.all([getFollowCounts(uid), getFriendCount(uid)]);
+      document.getElementById('psc-followers').textContent = String(fc.followers ?? 0);
+      document.getElementById('psc-following').textContent = String(fc.following ?? 0);
+      document.getElementById('psc-friends').textContent = String(friends ?? 0);
+      document.getElementById('friends-count-label').textContent = String(friends ?? 0);
+    } catch (e) { console.warn('[social-counts]', e); }
+  }
+
+  // ── Upload avatara i bannera (Firebase Storage) ───────────────────────────────
+  function _setupImageUploads(uid, data) {
+    const bar = document.getElementById('upload-bar');
+    const onProg = p => { bar.style.width = p + '%'; if (p >= 100) setTimeout(() => bar.style.width = '0%', 600); };
+
+    const handle = async (file, field) => {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showToast('To nie jest obraz!', 'error'); return; }
+      if (file.size > 8 * 1024 * 1024) { showToast('Maksymalny rozmiar to 8 MB.', 'error'); return; }
+      try {
+        showToast('Wgrywanie obrazu... ⏳', 'info');
+        const compressed = await compressImage(file);
+        const url = await uploadImage(compressed, `profiles/${uid}/${field}_${Date.now()}.jpg`, onProg);
+        await updateDoc(doc(db, COL.USERS, uid), { [field]: url });
+        showToast('Obraz zapisany! 🛡', 'success');
+        setTimeout(() => window.location.reload(), 700);
+      } catch (e) {
+        console.error('[upload]', e);
+        showToast('Błąd wgrywania: ' + (e.message || e.code || e), 'error');
+        bar.style.width = '0%';
+      }
+    };
+
+    const avatarFile = document.getElementById('avatar-file');
+    const bannerFile = document.getElementById('banner-file');
+    document.getElementById('avatar-cam-btn')?.addEventListener('click', () => avatarFile.click());
+    document.getElementById('banner-cam-btn')?.addEventListener('click', () => bannerFile.click());
+    avatarFile.addEventListener('change', () => handle(avatarFile.files[0], 'photoURL'));
+    bannerFile.addEventListener('change', () => handle(bannerFile.files[0], 'bannerURL'));
+  }
+
+  // ── Panel Towarzyszy Broni ────────────────────────────────────────────────────
+  function _friendRow({ uid, name, photo, sub }) {
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    const ini = (name || '?').split(' ').map(w => w[0]??'').join('').slice(0,2).toUpperCase();
+    row.innerHTML = `
+      <div class="friend-av">${photo ? `<img src="${_escAttr(photo)}" alt=""/>` : ini}</div>
+      <div class="friend-info">
+        <div class="friend-name"></div>
+        <div class="friend-sub"></div>
+      </div>
+      <div class="friend-actions"></div>`;
+    row.querySelector('.friend-name').textContent = name || 'Wojownik';
+    row.querySelector('.friend-sub').textContent = sub || '';
+    if (uid) {
+      row.querySelector('.friend-av').addEventListener('click', () => openUserProfile(uid));
+      row.querySelector('.friend-info').addEventListener('click', () => openUserProfile(uid));
+    }
+    return row;
+  }
+
+  async function _loadFriendsPanel(uid, myData) {
+    // Oczekujące zaproszenia
+    try {
+      const reqs = await getPendingRequests(uid);
+      const wrap = document.getElementById('friend-requests-wrap');
+      const list = document.getElementById('friend-requests-list');
+      list.innerHTML = '';
+      if (reqs.length) {
+        wrap.style.display = 'block';
+        reqs.forEach(r => {
+          const row = _friendRow({ uid: r.senderId, name: r.senderName, photo: '', sub: 'chce zostać Twoim towarzyszem' });
+          const acts = row.querySelector('.friend-actions');
+          const ok = document.createElement('button');
+          ok.className = 'fr-btn accept'; ok.textContent = '✓ Przyjmij';
+          ok.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            ok.disabled = true;
+            try {
+              await acceptFriendRequest(r.id, uid, myData.displayName || 'Wojownik');
+              showToast(`${r.senderName} dołącza do Twoich towarzyszy! 🤝`, 'success');
+              row.remove();
+              if (!list.children.length) wrap.style.display = 'none';
+              await Promise.allSettled([_loadSocialCounts(uid), _reloadFriendsList(uid)]);
+            } catch (err) { showToast('Błąd: ' + err.message, 'error'); ok.disabled = false; }
+          });
+          const no = document.createElement('button');
+          no.className = 'fr-btn danger'; no.textContent = '✕';
+          no.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            no.disabled = true;
+            try {
+              await rejectFriendRequest(r.id, uid);
+              row.remove();
+              if (!list.children.length) wrap.style.display = 'none';
+            } catch (err) { showToast('Błąd: ' + err.message, 'error'); no.disabled = false; }
+          });
+          acts.append(ok, no);
+          list.appendChild(row);
+        });
+      } else wrap.style.display = 'none';
+    } catch (e) { console.warn('[requests]', e); }
+
+    await _reloadFriendsList(uid);
+  }
+
+  async function _reloadFriendsList(uid) {
+    const list = document.getElementById('friends-list');
+    try {
+      const friends = await getFriends(uid);
+      list.innerHTML = '';
+      if (!friends.length) {
+        list.innerHTML = `<div style="text-align:center;padding:1.25rem;font-family:var(--font-heading);
+          font-size:.6rem;color:var(--text-faint);font-style:italic;">
+          Brak towarzyszy. Znajdź wojowników poniżej! ⚔</div>`;
+        return;
+      }
+      friends.forEach(f => {
+        const rankObj = getRank(Number(f.points) || 0);
+        const row = _friendRow({
+          uid: f.uid, name: f.displayName, photo: f.photoURL,
+          sub: `${rankObj.emoji} ${rankObj.label} · ${(Number(f.points)||0).toLocaleString('pl-PL')} XP`,
+        });
+        const acts = row.querySelector('.friend-actions');
+        const msg = document.createElement('button');
+        msg.className = 'fr-btn'; msg.textContent = '💬'; msg.title = 'Napisz wiadomość';
+        msg.addEventListener('click', (e) => { e.stopPropagation(); openChatWith(f.uid); });
+        const del = document.createElement('button');
+        del.className = 'fr-btn danger'; del.textContent = '✕'; del.title = 'Usuń towarzysza';
+        del.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!confirm(`Usunąć ${f.displayName || 'wojownika'} z towarzyszy?`)) return;
+          del.disabled = true;
+          try {
+            await removeFriend(f.friendDocId);
+            row.remove();
+            showToast('Towarzysz usunięty.', 'info');
+            await _loadSocialCounts(uid);
+            if (!list.children.length) await _reloadFriendsList(uid);
+          } catch (err) { showToast('Błąd: ' + err.message, 'error'); del.disabled = false; }
+        });
+        acts.append(msg, del);
+        list.appendChild(row);
+      });
+    } catch (e) {
+      console.warn('[friends]', e);
+      list.innerHTML = `<div style="text-align:center;padding:1.25rem;font-family:var(--font-heading);
+        font-size:.6rem;color:var(--text-faint);font-style:italic;">Nie udało się wczytać towarzyszy.</div>`;
+    }
+  }
+
+  // ── Wyszukiwarka wojowników ───────────────────────────────────────────────────
+  function _setupFriendSearch(uid, myData) {
+    const input = document.getElementById('friend-search');
+    const results = document.getElementById('friend-search-results');
+    let timer = null;
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const term = input.value.trim();
+      if (term.length < 2) { results.innerHTML = ''; return; }
+      timer = setTimeout(async () => {
+        results.innerHTML = `<div style="padding:.75rem;text-align:center;font-size:.7rem;
+          color:var(--text-faint);font-style:italic;">Szukam...</div>`;
+        try {
+          const users = await searchUsers(term, uid);
+          results.innerHTML = '';
+          if (!users.length) {
+            results.innerHTML = `<div style="padding:.75rem;text-align:center;font-size:.7rem;
+              color:var(--text-faint);font-style:italic;">Nie znaleziono wojowników.</div>`;
+            return;
+          }
+          for (const u of users) {
+            const rankObj = getRank(Number(u.points) || 0);
+            const row = _friendRow({
+              uid: u.uid, name: u.displayName, photo: u.photoURL,
+              sub: `${rankObj.emoji} ${rankObj.label}`,
+            });
+            const acts = row.querySelector('.friend-actions');
+            const btn = document.createElement('button');
+            btn.className = 'fr-btn';
+            btn.textContent = '...';
+            acts.appendChild(btn);
+            getFriendshipStatus(uid, u.uid).then(st => {
+              if (st.status === 'friends')           { btn.textContent = '🤝 Towarzysz'; btn.disabled = true; }
+              else if (st.status === 'pending_sent') { btn.textContent = '⏳ Wysłano'; btn.disabled = true; }
+              else if (st.status === 'pending_received') {
+                btn.textContent = '✓ Przyjmij'; btn.classList.add('accept');
+                btn.addEventListener('click', async (e) => {
+                  e.stopPropagation(); btn.disabled = true;
+                  try {
+                    await acceptFriendRequest(st.docId, uid, myData.displayName || 'Wojownik');
+                    btn.textContent = '🤝 Towarzysz';
+                    showToast('Nowy towarzysz! 🤝', 'success');
+                    await Promise.allSettled([_loadSocialCounts(uid), _reloadFriendsList(uid)]);
+                  } catch (err) { showToast('Błąd: ' + err.message, 'error'); btn.disabled = false; }
+                });
+              } else {
+                btn.textContent = '+ Zaproś';
+                btn.addEventListener('click', async (e) => {
+                  e.stopPropagation(); btn.disabled = true;
+                  try {
+                    await sendFriendRequest(uid, myData.displayName || 'Wojownik', u.uid);
+                    btn.textContent = '⏳ Wysłano';
+                    showToast('Zaproszenie wysłane! ⚔', 'success');
+                  } catch (err) { showToast('Błąd: ' + err.message, 'error'); btn.disabled = false; }
+                });
+              }
+            }).catch(() => { btn.textContent = '?'; });
+            results.appendChild(row);
+          }
+        } catch (e) {
+          console.warn('[search]', e);
+          results.innerHTML = `<div style="padding:.75rem;text-align:center;font-size:.7rem;
+            color:var(--text-faint);font-style:italic;">Błąd wyszukiwania.</div>`;
+        }
+      }, 350);
+    });
   }
 
   // Dokładnie te same IDs co achievements.js ACHIEVEMENTS + check functions
@@ -444,13 +827,18 @@
 
   function _setupEdit(user, data) {
     const modal = document.getElementById('edit-modal');
-    const nameIn = document.getElementById('edit-name');
-    const photoIn = document.getElementById('edit-photo');
     const errEl = document.getElementById('edit-error');
+    const f = id => document.getElementById(id);
 
     document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
-      nameIn.value = data.displayName || user.displayName || '';
-      photoIn.value = data.photoURL || user.photoURL || '';
+      f('edit-name').value       = data.displayName || user.displayName || '';
+      f('edit-bio').value        = data.bio || '';
+      f('edit-location').value   = data.location || '';
+      f('edit-age').value        = data.age || '';
+      f('edit-height').value     = data.height || '';
+      f('edit-weight').value     = data.weight || '';
+      f('edit-discipline').value = data.discipline || '';
+      f('edit-photo').value      = data.photoURL || user.photoURL || '';
       errEl.style.display = 'none';
       modal.classList.remove('hidden');
     });
@@ -458,13 +846,22 @@
     modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
 
     document.getElementById('edit-save')?.addEventListener('click', async () => {
-      const name = nameIn.value.trim();
+      const name = f('edit-name').value.trim();
       if (!name) { errEl.textContent = 'Imię jest wymagane.'; errEl.style.display = 'block'; return; }
+      const age    = parseInt(f('edit-age').value, 10);
+      const height = parseInt(f('edit-height').value, 10);
+      const weight = parseInt(f('edit-weight').value, 10);
       errEl.style.display = 'none';
       try {
         await updateDoc(doc(db, COL.USERS, user.uid), {
           displayName: name,
-          photoURL: photoIn.value.trim() || '',
+          bio:         f('edit-bio').value.trim().slice(0, 200),
+          location:    f('edit-location').value.trim().slice(0, 60),
+          age:         Number.isFinite(age)    ? age    : null,
+          height:      Number.isFinite(height) ? height : null,
+          weight:      Number.isFinite(weight) ? weight : null,
+          discipline:  f('edit-discipline').value.trim().slice(0, 40),
+          photoURL:    f('edit-photo').value.trim() || data.photoURL || '',
         });
         showToast('Karta postaci zaktualizowana! 🛡', 'success');
         modal.classList.add('hidden');
@@ -480,6 +877,7 @@
   }
 
   function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function _escAttr(s){return _esc(s);}
 </script>
 </body>
 </html>

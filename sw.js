@@ -5,10 +5,11 @@
  * ============================================================
  */
 
-const CACHE_NAME  = 'wws-v1';
-const CACHE_PAGES = 'wws-pages-v1';
+const CACHE_NAME  = 'wws-v2';
+const CACHE_PAGES = 'wws-pages-v2';
 
 // Assets to cache immediately on install
+// (lista zweryfikowana — tylko pliki istniejące w repo)
 const PRECACHE = [
   './',
   './index.html',
@@ -17,26 +18,26 @@ const PRECACHE = [
   './feed.html',
   './ranking.html',
   './profile.html',
+  './user.html',
   './challenges.html',
-  './achievements.html',
-  './onboarding.html',
+  './messenger.html',
+  './terms.html',
   './css/style.css',
-  './css/challenges.css',
+  './css/rpg-theme.css',
+  './css/arena.css',
+  './css/messenger.css',
   './js/firebase.js',
   './js/auth.js',
   './js/feed.js',
-  './js/profile.js',
-  './js/ranking.js',
-  './js/challenges.js',
-  './js/achievements.js',
-  './js/messenger.js',
-  './js/poke.js',
-  './js/media.js',
-  './js/weekly-ranking.js',
-  './messenger.html',
-  './css/messenger.css',
+  './js/social.js',
   './js/xp.js',
-  './assets/icons/icon-512.svg',
+  './js/arena.js',
+  './js/achievements.js',
+  './js/challenge-system.js',
+  './js/messenger.js',
+  './js/notifications.js',
+  './js/weekly-ranking.js',
+  './icon-512.svg',
   './manifest.json',
 ];
 
@@ -46,9 +47,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Precaching app shell');
-      return cache.addAll(PRECACHE).catch(err => {
-        console.warn('[SW] Precache partial fail (ok):', err.message);
-      });
+      // cache.addAll przerywa się na pierwszym 404 — cache'ujemy per plik
+      return Promise.allSettled(
+        PRECACHE.map((url) => cache.add(url).catch((err) =>
+          console.warn('[SW] Skip:', url, err.message)))
+      );
     })
   );
   self.skipWaiting();
