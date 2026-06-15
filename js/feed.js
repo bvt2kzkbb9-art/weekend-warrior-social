@@ -48,7 +48,9 @@ export async function createPost(authorId, authorName, authorAvatar, content, im
       createdAt: serverTimestamp(),
     });
     showToast("✅ Post opublikowany", "success");
-    awardXP(authorId, XP_ACTIONS.POST_CREATED).catch(() => {});
+    awardXP(authorId, XP_ACTIONS.POST_CREATED).catch(err => {
+      console.warn("XP award failed (non-critical):", err.code);
+    });
     return docRef.id;
   } catch (err) {
     showToast("❌ Błąd publikacji: " + (err.code || ""), "error");
@@ -126,7 +128,9 @@ export async function addComment(postId, authorId, authorName, content, parentId
       createdAt: serverTimestamp(),
     });
     await updateDoc(doc(db, COL.POSTS, postId), { commentsCount: increment(1) });
-    awardXP(authorId, XP_ACTIONS.COMMENT_ADDED).catch(() => {});
+    awardXP(authorId, XP_ACTIONS.COMMENT_ADDED).catch(err => {
+      console.warn("XP award failed for comment (non-critical):", err.code);
+    });
     return commentRef.id;
   } catch (err) {
     showToast("❌ Błąd dodawania komentarza", "error");
@@ -468,14 +472,18 @@ export function initFeed() {
         } else {
           await likePost(p.id, me.uid);
           if (p.authorId !== me.uid) {
-            awardXP(p.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(() => {});
+            awardXP(p.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(err => {
+              console.warn("XP award for like failed (non-critical):", err.code);
+            });
             createNotification(p.authorId, {
               type: "like",
               title: `${myData.displayName || "Wojownik"} uznał Twój wpis ⚔️`,
               body: (p.content || "📷 Zdjęcie").substring(0, 50),
               url: "feed.html",
               relatedUid: me.uid,
-            }).catch(() => {});
+            }).catch(err => {
+              console.warn("Notification creation failed (non-critical):", err.code);
+            });
           }
         }
       } finally { btn.disabled = false; }
