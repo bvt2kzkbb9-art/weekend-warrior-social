@@ -160,6 +160,7 @@
 <script type="module">
   import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { initMessenger, setOnlinePresence, injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
   import { auth } from './js/firebase.js';
   import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
@@ -171,6 +172,7 @@
     if (user) {
       setOnlinePresence(user.uid, true);
       injectMessengerBadge(user.uid);
+      injectNotifBell(user.uid);
 
       // Ustaw offline przy zamknięciu
       window.addEventListener('beforeunload', () => setOnlinePresence(user.uid, false));

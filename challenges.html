@@ -163,6 +163,7 @@
 
 <script type="module">
   import { injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
   import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { checkAuth, logout, showToast } from './js/auth.js';
   import { db, COL, getLevel, getRank, RANKS } from './js/firebase.js';
@@ -184,6 +185,7 @@
   checkAuth(async (user) => {
     currentUser = user;
     injectMessengerBadge(user.uid);
+    injectNotifBell(user.uid);
     // 2s skeleton safety (grid is rendered by JS anyway — just ensure it shows empty if CHALLENGES_DATA fails)
     const skTimer = setTimeout(() => {
       const grid = document.getElementById('challenges-grid');

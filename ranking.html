@@ -122,6 +122,7 @@
 
 <script type="module">
   import { injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
   import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { checkAuth, logout } from './js/auth.js';
   import { db, COL, getRank, getLevel } from './js/firebase.js';
@@ -139,6 +140,8 @@
 
   checkAuth(async (user) => {
     myUid = user.uid;
+    injectMessengerBadge(user.uid);
+    injectNotifBell(user.uid);
     // 2s skeleton timeout safety
     const skeletonTimeout = setTimeout(() => {
       const sk = document.getElementById('podium-skeleton');

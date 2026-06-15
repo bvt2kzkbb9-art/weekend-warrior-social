@@ -343,6 +343,7 @@
 <script type="module">
   import { initFeed } from './js/feed.js';
   import { injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
   import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
   import { auth } from './js/firebase.js';
   import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
@@ -358,7 +359,12 @@
 
   injectLightModeCSS();
   initTheme();
-  onAuthStateChanged(auth, u => { if(u) injectMessengerBadge(u.uid); });
+  onAuthStateChanged(auth, u => { 
+    if(u) {
+      injectMessengerBadge(u.uid);
+      injectNotifBell(u.uid);
+    }
+  });
 
   window._clearFeedSkeleton = () => {
     clearTimeout(skTimer);
