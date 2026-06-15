@@ -23,9 +23,7 @@ import {
   query, where, orderBy, limit, startAfter, onSnapshot, serverTimestamp,
   arrayUnion, arrayRemove, addDoc, increment, writeBatch, documentId,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {
-  getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+// ❌ Usunięto: Firebase Storage (używamy Cloudinary zamiast)
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98",
@@ -39,8 +37,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+// ❌ storage usunięty - używamy Cloudinary
 export const googleProvider = new GoogleAuthProvider();
+
+// ════════════════════════════════════════════════════════════
+// CLOUDINARY CONFIGURATION
+// ════════════════════════════════════════════════════════════
+export const CLOUDINARY_CLOUD_NAME = "your-cloud-name-xxxxx";  // ← ZMIEŃ NA SWOJĄ
+export const CLOUDINARY_UPLOAD_PRESET = "weekend-warrior-social";
 
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
@@ -99,7 +103,7 @@ export function getRankProgress(points = 0) {
 }
 
 // ════════════════════════════════════════════════════════════
-// FIREBASE STORAGE — upload / delete zdjęć
+// CLOUDINARY UPLOAD - Image Storage
 // ════════════════════════════════════════════════════════════
 
 /**
@@ -110,7 +114,7 @@ export function getRankProgress(points = 0) {
 export function compressImage(file, maxDim = 1280, quality = 0.85) {
   return new Promise((resolve) => {
     if (!file || !file.type.startsWith('image/') || file.type === 'image/gif') {
-      resolve(file); return; // GIF-y zostawiamy (animacja)
+      resolve(file); return;
     }
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -132,39 +136,65 @@ export function compressImage(file, maxDim = 1280, quality = 0.85) {
 }
 
 /**
- * Upload pliku do Firebase Storage.
+ * Upload pliku na Cloudinary CDN
  * @param {File|Blob} file
- * @param {string} path        — np. `posts/${uid}/${Date.now()}.jpg`
+ * @param {string} folder - 'posts', 'profiles', lub 'messages'
  * @param {(pct:number)=>void} [onProgress]
- * @returns {Promise<string>}  — downloadURL
+ * @returns {Promise<string>} - Cloudinary secure URL
  */
-export async function uploadImage(file, path, onProgress) {
+export async function uploadImage(file, folder = 'posts', onProgress) {
+  if (!file || !file.type.startsWith('image/')) {
+    throw new Error('Plik musi być obrazem');
+  }
+
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error('Obraz nie może być większy niż 8 MB');
+  }
+
   const blob = await compressImage(file);
-  const fileRef = storageRef(storage, path);
+
   return new Promise((resolve, reject) => {
-    const task = uploadBytesResumable(fileRef, blob, {
-      contentType: blob.type || 'image/jpeg',
-      cacheControl: 'public,max-age=31536000',
-    });
-    task.on('state_changed',
-      snap => { if (onProgress) onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)); },
-      err => reject(err),
-      async () => {
-        try { resolve(await getDownloadURL(task.snapshot.ref)); }
-        catch (e) { reject(e); }
+    const formData = new FormData();
+    formData.append('file', blob);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', `weekend-warrior-social/${folder}`);
+    formData.append('resource_type', 'auto');
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        if (onProgress) onProgress(percent);
       }
-    );
+    });
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response.secure_url);
+        } catch (e) {
+          reject(new Error('Błąd parsowania odpowiedzi Cloudinary'));
+        }
+      } else {
+        reject(new Error(`Błąd uploadu: ${xhr.status}`));
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('Błąd połączenia z Cloudinary'));
+    });
+
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+    xhr.send(formData);
   });
 }
 
-/** Usuwa plik ze Storage na podstawie jego download URL. Cicho ignoruje błędy. */
+/** Cloudinary obsługuje usuwanie z dashboarda. Cicho ignorujemy. */
 export async function deleteImageByURL(url) {
-  try {
-    if (!url || !url.includes('firebasestorage')) return;
-    await deleteObject(storageRef(storage, url));
-  } catch (e) {
-    console.warn('[deleteImageByURL]', e.code);
-  }
+  // Cloudinary: usuń manualnie z dashboarda lub czekaj na auto-delete
+  console.log('[deleteImageByURL] Image deletion not implemented for Cloudinary');
 }
 
 // ── Re-export Firestore API (strony importują stąd) ─────────
