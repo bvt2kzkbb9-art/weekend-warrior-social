@@ -1199,7 +1199,7 @@ function _listenHistory() {
 
   const u1 = onSnapshot(q1, snap => {
     items1 = []; snap.forEach(d => items1.push({id:d.id,...d.data()}));
-    ready = Math.max(ready, 1); render();
+    ready = Math.max(ready, 1); if(ready===1) ready=1; render();
   }, ()=>{ready++;render();});
   const u2 = onSnapshot(q2, snap => {
     items2 = []; snap.forEach(d => items2.push({id:d.id,...d.data()}));
