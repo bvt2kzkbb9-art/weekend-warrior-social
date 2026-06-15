@@ -1,0 +1,378 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    GitHub + Firestore Configuration                        ║
+║                     Weekend Warrior Social                                  ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+CZĘŚĆ 1: GITHUB CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ KROK 1: Zaloguj się na GitHub
+─────────────────────────────────
+Przejdź na: https://github.com/login
+Wpisz email/username i hasło
+Zaloguj się
+
+✅ KROK 2: Sprawdź access do repozytorium
+──────────────────────────────────────────
+URL: https://github.com/bvt2kzkbb9-art/weekend-warrior-social
+
+Powinieneś mieć dostęp jako colaborator. Jeśli nie:
+→ Poproś właściciela aby dodał Cię jako collaborator
+
+✅ KROK 3: Konfiguracja Git na maszynie
+───────────────────────────────────────
+W terminalu uruchom:
+
+git config --global user.name "Twoje Imię"
+git config --global user.email "twoj.email@gmail.com"
+
+Sprawdź:
+git config --global user.name
+git config --global user.email
+
+✅ KROK 4: Dodaj GitHub remote
+───────────────────────────────
+cd /home/user/weekend-warrior-social
+
+git remote add origin https://github.com/bvt2kzkbb9-art/weekend-warrior-social.git
+
+Sprawdź:
+git remote -v
+
+Powinieneś zobaczyć:
+origin  https://github.com/bvt2kzkbb9-art/weekend-warrior-social.git (fetch)
+origin  https://github.com/bvt2kzkbb9-art/weekend-warrior-social.git (push)
+
+✅ KROK 5: Ustaw branch
+──────────────────────
+git fetch origin
+
+git checkout -b claude/weekend-warrior-audit-fixes-xykimj \
+  origin/claude/weekend-warrior-audit-fixes-xykimj
+
+Lub jeśli już masz ten branch:
+git checkout claude/weekend-warrior-audit-fixes-xykimj
+git pull origin claude/weekend-warrior-audit-fixes-xykimj
+
+✅ KROK 6: Sprawdzenie statusu
+──────────────────────────────
+git status
+git branch --show-current
+git log --oneline -5
+
+Powinieneś zobaczyć:
+- Na branchu: claude/weekend-warrior-audit-fixes-xykimj
+- Ostatnie commity z auditowaniem
+
+═══════════════════════════════════════════════════════════════════════════════
+CZĘŚĆ 2: FIREBASE CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+PROJECT DETAILS:
+─────────────────
+Project ID:      weekend-warrior-social-ed3d0
+Project Name:    Weekend Warrior Social
+Region:          us-central1 (default)
+Status:          Active
+
+✅ KROK 1: Firebase CLI Setup
+────────────────────────────
+Sprawdź czy Firebase CLI zainstalowany:
+firebase --version
+
+Powinna być: firebase-tools/15.x.x lub wyżej
+
+Jeśli nie zainstalowany:
+npm install -g firebase-tools
+
+✅ KROK 2: Zalogowanie do Firebase
+───────────────────────────────────
+firebase login
+
+To otworzy przeglądarkę:
+1. Zaloguj się na konto Google/GitHub z dostępem do Firebase
+2. Zezwól Firebase CLI dostęp do projektu
+3. Wróć do terminala - powinno się zalogować
+
+Sprawdzenie:
+firebase projects:list
+
+Powinieneś zobaczyć:
+weekend-warrior-social-ed3d0
+
+✅ KROK 3: Ustaw bieżący projekt
+────────────────────────────────
+firebase use weekend-warrior-social-ed3d0
+
+Potwierdzenie:
+firebase projects:describe weekend-warrior-social-ed3d0
+
+✅ KROK 4: Firestore Database Setup
+────────────────────────────────────
+Przejdź do: https://console.firebase.google.com/project/weekend-warrior-social-ed3d0
+
+Menu:
+1. Firestore Database
+2. Kliknij "Create Database"
+3. Modus: Uruchom w trybie testowania (do testów) lub produkcji (ze rules)
+4. Lokalizacja: us-central1 (lub bliżej Ciebie)
+5. Kliknij "Enable"
+
+UWAGA: Baza danych powinna być już utworzona. Jeśli pytanie pojawia się,
+oznacza to że trzeba ją włączyć w Firebase Console.
+
+✅ KROK 5: Firestore Security Rules - Deploy
+──────────────────────────────────────────────
+Sprawdzenie reguł:
+cat firestore.rules | head -20
+
+Deploy reguł:
+firebase deploy --only firestore:rules
+
+Powinno być:
+✔ Deploy complete!
+
+Weryfikacja w konsoli:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/firestore/rules
+
+✅ KROK 6: Cloud Storage Rules - Deploy
+────────────────────────────────────────
+Sprawdzenie reguł:
+cat storage.rules
+
+Deploy:
+firebase deploy --only storage
+
+Powinno być:
+✔ Deploy complete!
+
+Weryfikacja w konsoli:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/storage/rules
+
+✅ KROK 7: Firestore Indexes - Deploy
+──────────────────────────────────────
+Sprawdzenie indeksów:
+cat firestore.indexes.json
+
+Deploy indeksów:
+firebase deploy --only firestore:indexes
+
+To może potrwać 5-15 minut!
+Indeksy budują się w tle.
+
+Monitorowanie:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/firestore/indexes
+
+Status powinien być: "Enabled" (zielony haczyk)
+
+✅ KROK 8: Firebase Authentication - Setup
+───────────────────────────────────────────
+Przejdź do:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/authentication
+
+"Sign-in method" tab:
+
+1. Email/Password
+   - Kliknij "Email/Password"
+   - Włącz "Email/Password"
+   - Wyłącz "Email link (passwordless sign-in)"
+   - Kliknij "Save"
+
+2. Google
+   - Kliknij "Google"
+   - Włącz "Google"
+   - Wpisz "Project name": Weekend Warrior Social
+   - Wpisz "Project public email": (auto-fill lub twój email)
+   - Wpisz "Project support email": (twój email)
+   - Kliknij "Save"
+
+3. OAuth Redirect URIs
+   - Powinna być: https://weekend-warrior-social-ed3d0.firebaseapp.com/__/auth/handler
+   - To auto-dodawane przez Firebase
+
+✅ KROK 9: Cloud Storage Setup
+───────────────────────────────
+Przejdź do:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/storage
+
+"Bucket" powinien być:
+weekend-warrior-social-ed3d0.appspot.com
+
+Jeśli nie istnieje:
+Kliknij "Create bucket"
+- Name: weekend-warrior-social-ed3d0.appspot.com
+- Location: us-central1 (lub bliżej)
+- Data protection: Standard
+- Kliknij "Create"
+
+✅ KROK 10: Firebase Hosting Setup
+───────────────────────────────────
+Przejdź do:
+https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/hosting
+
+"Hosting" powinny być uaktywnione.
+
+Jeśli nie:
+- Kliknij "Get started"
+- Postępuj zgodnie z instrukcjami
+- Lub przejdź do Firestore Hosting Setup w Firebase
+
+═══════════════════════════════════════════════════════════════════════════════
+CZĘŚĆ 3: DEPLOYMENT - OSTATECZNY KROK
+═══════════════════════════════════════════════════════════════════════════════
+
+Upewnij się że:
+✅ Zalogowany w Firebase (firebase login)
+✅ Projekt ustawiony (firebase use weekend-warrior-social-ed3d0)
+✅ Branch poprawny (git branch --show-current)
+✅ Pliki są na miejscu (ls firebase.json firestore.rules storage.rules)
+
+Uruchom deployment:
+───────────────────
+cd /home/user/weekend-warrior-social
+
+./deploy.sh
+
+LUB ręcznie:
+
+firebase deploy --only firestore:rules
+firebase deploy --only storage
+firebase deploy --only firestore:indexes
+firebase deploy --only hosting
+
+⏱️  To potrwa 20-30 minut!
+
+Czekaj na:
+✔ Deploy complete!
+
+═══════════════════════════════════════════════════════════════════════════════
+CZĘŚĆ 4: WERYFIKACJA PO DEPLOYMENCIE
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Sprawdzenie Firestore
+────────────────────────
+Przejdź do: https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/firestore/data
+
+Powinieneś zobaczyć:
+- "users" collection
+- "posts" collection
+- "followers" collection
+- itp.
+
+Rules powinny być załadowane (Firestore > Rules tab)
+
+✅ Sprawdzenie Storage
+──────────────────────
+Przejdź do: https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/storage
+
+Storage bucket powinien być stworzony.
+Rules powinny być załadowane (Storage > Rules tab)
+
+✅ Sprawdzenie Hosting
+──────────────────────
+Przejdź do: https://weekend-warrior-social-ed3d0.web.app
+
+Powinieneś zobaczyć:
+- Stronę logowania (lub główną stronę)
+- Ciemny interfejs
+- Brak błędu 404
+
+✅ Sprawdzenie Indexes
+──────────────────────
+Przejdź do: https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/firestore/indexes
+
+Wszystkie indeksy powinny być w statusie: "Enabled" (może to potrwać 5-15 min)
+
+═══════════════════════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ "Permission denied" przy firebase login
+✓ firebase logout
+✓ firebase login (wpisz ponownie)
+
+❌ "Project not found" przy firebase use
+✓ Sprawdź czy zalogowałeś się (firebase projects:list)
+✓ Wpisz ID: weekend-warrior-social-ed3d0 (bez zmian)
+
+❌ "Firestore Database not found"
+✓ Przejdź do Firebase Console
+✓ Kliknij "Firestore Database"
+✓ Kliknij "Create Database"
+✓ Wybierz tryb i lokalizację
+✓ Kliknij "Enable"
+
+❌ "Storage bucket not found"
+✓ Przejdź do Firebase Console
+✓ Storage > Create bucket
+✓ Użyj domyślnej nazwy
+
+❌ "Hosting returns 404"
+✓ ./deploy.sh --only hosting
+✓ Czekaj 2-5 minut
+✓ Czyszcz cache przeglądarki (Ctrl+Shift+Delete)
+
+❌ "Rules deployment failed"
+✓ Sprawdzenie syntaxu: firebase validate
+✓ Spróbuj ponownie: firebase deploy --only firestore:rules
+
+═══════════════════════════════════════════════════════════════════════════════
+LINKI PRZYDATNE
+═══════════════════════════════════════════════════════════════════════════════
+
+GitHub Repository:
+🔗 https://github.com/bvt2kzkbb9-art/weekend-warrior-social
+
+Firebase Console (Main):
+🔗 https://console.firebase.google.com/project/weekend-warrior-social-ed3d0
+
+Firestore Database:
+🔗 https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/firestore/data
+
+Storage:
+🔗 https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/storage
+
+Authentication:
+🔗 https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/authentication
+
+Hosting:
+🔗 https://console.firebase.google.com/project/weekend-warrior-social-ed3d0/hosting
+
+Aplikacja (po deploymencie):
+🌐 https://weekend-warrior-social-ed3d0.web.app
+
+═══════════════════════════════════════════════════════════════════════════════
+PODSUMOWANIE KOMEND
+═══════════════════════════════════════════════════════════════════════════════
+
+# Git Configuration
+git config --global user.name "Twoje Imię"
+git config --global user.email "twoj.email@gmail.com"
+
+# GitHub Setup
+git remote add origin https://github.com/bvt2kzkbb9-art/weekend-warrior-social.git
+git fetch origin
+git checkout -b claude/weekend-warrior-audit-fixes-xykimj origin/claude/weekend-warrior-audit-fixes-xykimj
+
+# Firebase Setup
+firebase login
+firebase use weekend-warrior-social-ed3d0
+firebase deploy --only firestore:rules
+firebase deploy --only storage
+firebase deploy --only firestore:indexes
+firebase deploy --only hosting
+
+# Or use automatic script
+cd /home/user/weekend-warrior-social
+./deploy.sh
+
+# Verify
+https://weekend-warrior-social-ed3d0.web.app
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Data: 15 czerwca 2026
+Status: ✅ COMPLETE CONFIGURATION GUIDE
+
+═══════════════════════════════════════════════════════════════════════════════
