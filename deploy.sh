@@ -171,14 +171,9 @@ else
 fi
 echo ""
 
-# Deploy Storage Rules
-print_step "Deploying Cloud Storage Rules..."
-if firebase deploy --only storage; then
-    print_success "Cloud Storage Rules deployed"
-else
-    print_error "Cloud Storage Rules deployment failed"
-    exit 1
-fi
+# Skip Cloud Storage (using Cloudinary instead)
+print_step "Cloud Storage Rules..."
+print_warning "Skipped - Using Cloudinary for image storage instead"
 echo ""
 
 # Deploy Firestore Indexes
