@@ -1,19 +1,20 @@
 /**
  * ============================================================
  * WEEKEND WARRIOR SOCIAL — firebase.js (CORE)
- * Firebase SDK 10.12.2 | ES Modules | App + Auth + Firestore + Storage
+ * Firebase SDK 10.12.2 | ES Modules | App + Auth + Firestore
+ * Images: Cloudinary (darmowe, bez limitów Firebase Storage)
  * ============================================================
  *
  * KONTRAKT API (używany przez WSZYSTKIE strony — nie zmieniać sygnatur):
- *   auth, db, storage, googleProvider, COL
+ *   auth, db, googleProvider, COL
  *   RANKS                  — [{ id, label, min, emoji }]
  *   getRank(points)        — zwraca OBIEKT rangi { id, label, min, emoji }
  *   getRankId(points)      — zwraca string id rangi
  *   getLevel(points)       — number
  *   getRankProgress(points)— % postępu do następnej rangi (0–100)
- *   uploadImage(file, path, onProgress) — upload do Firebase Storage → URL
- *   deleteImageByURL(url)  — usuwa plik ze Storage po jego URL
- *   compressImage(file)    — zmniejsza zdjęcie przed uploadem (oszczędza quota)
+ *   uploadImage(file, path, onProgress) — upload do Cloudinary → URL
+ *   deleteImageByURL(url)  — Cloudinary auto-cleanup
+ *   compressImage(file)    — zmniejsza zdjęcie przed uploadem (max 1280px)
  */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -23,9 +24,6 @@ import {
   query, where, orderBy, limit, startAfter, onSnapshot, serverTimestamp,
   arrayUnion, arrayRemove, addDoc, increment, writeBatch, documentId,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import {
-  getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98",
@@ -39,7 +37,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({ prompt: "select_account" });
@@ -139,32 +136,45 @@ export function compressImage(file, maxDim = 1280, quality = 0.85) {
  * @returns {Promise<string>}  — downloadURL
  */
 export async function uploadImage(file, path, onProgress) {
-  const blob = await compressImage(file);
-  const fileRef = storageRef(storage, path);
-  return new Promise((resolve, reject) => {
-    const task = uploadBytesResumable(fileRef, blob, {
-      contentType: blob.type || 'image/jpeg',
-      cacheControl: 'public,max-age=31536000',
-    });
-    task.on('state_changed',
-      snap => { if (onProgress) onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)); },
-      err => reject(err),
-      async () => {
-        try { resolve(await getDownloadURL(task.snapshot.ref)); }
-        catch (e) { reject(e); }
+  if (!file || !file.type.startsWith('image/')) throw new Error('Nie jest obrazem');
+  
+  // Określ upload_preset na podstawie path
+  let uploadPreset = 'wws_avatar';
+  if (path.includes('banner')) uploadPreset = 'wws_banner';
+  
+  const compressed = await compressImage(file);
+  const formData = new FormData();
+  formData.append('file', compressed);
+  formData.append('upload_preset', uploadPreset);
+  formData.append('cloud_name', 'dxanfwb3l');
+  
+  return new Promise((res, rej) => {
+    const xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        onProgress?.(pct);
       }
-    );
+    });
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          res(data.secure_url || data.url);
+        } catch (e) { rej(e); }
+      } else {
+        rej(new Error(`Błąd uploadu: ${xhr.status}`));
+      }
+    });
+    xhr.addEventListener('error', () => rej(new Error('Błąd sieci')));
+    xhr.open('POST', 'https://api.cloudinary.com/v1_1/dxanfwb3l/image/upload');
+    xhr.send(formData);
   });
 }
 
-/** Usuwa plik ze Storage na podstawie jego download URL. Cicho ignoruje błędy. */
+/** Cloudinary auto-usuwa nieużywane pliki, więc delete jest opcjonalny. */
 export async function deleteImageByURL(url) {
-  try {
-    if (!url || !url.includes('firebasestorage')) return;
-    await deleteObject(storageRef(storage, url));
-  } catch (e) {
-    console.warn('[deleteImageByURL]', e.code);
-  }
+  console.log('[deleteImageByURL] Cloudinary obsługuje auto-cleanup');
 }
 
 // ── Re-export Firestore API (strony importują stąd) ─────────
