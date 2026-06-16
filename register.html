@@ -1,118 +1,15 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
-  <title>Zaprzysiężenie Wojownika — Weekend Warrior Social</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/premium-effects.css"/>
-  <style>
-    .register-bg {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .register-bg::before {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
-      background: linear-gradient(180deg, transparent, rgba(212,175,55,.04));
-    }
-    .oath-scroll {
-      background: linear-gradient(135deg, rgba(28,21,9,.9), rgba(19,15,7,.95));
-      border: 1px solid var(--border-gold);
-      border-radius: var(--r-lg);
-      padding: .875rem 1rem;
-      margin: .5rem 0;
-      font-family: var(--font-body);
-      font-size: .875rem;
-      font-style: italic;
-      color: var(--text-muted);
-      line-height: 1.65;
-      text-align: center;
-      position: relative;
-    }
-    .oath-scroll::before { content: '◈'; position:absolute;top:.5rem;left:.75rem;font-size:.5rem;color:var(--gold-700);opacity:.6; }
-    .oath-scroll::after  { content: '◈'; position:absolute;top:.5rem;right:.75rem;font-size:.5rem;color:var(--gold-700);opacity:.6; }
-
-    /* Password strength bars */
-    .strength-bars {
-      display: flex; gap: 3px; margin-top: .375rem;
-    }
-    .strength-bar {
-      flex: 1; height: 4px; border-radius: 2px;
-      background: rgba(212,175,55,.1);
-      transition: background .3s ease;
-    }
-    .strength-bar.weak   { background: #EF4444; }
-    .strength-bar.medium { background: #F59E0B; }
-    .strength-bar.strong { background: #16C784; }
-
-    #strength-label {
-      font-size: .625rem;
-      font-family: var(--font-heading);
-      letter-spacing: .06em;
-      margin-top: .25rem;
-      min-height: 1em;
-      display: block;
-    }
-
-    /* Password toggle */
-    .input-wrap {
-      position: relative;
-    }
-    .input-wrap .form-input {
-      padding-right: 2.5rem;
-    }
-    .toggle-pw-btn {
-      position: absolute;
-      right: .625rem; top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none;
-      color: var(--text-muted);
-      cursor: pointer; padding: .25rem;
-      display: flex; align-items: center;
-      transition: color var(--dur-fast);
-    }
-    .toggle-pw-btn:hover { color: var(--gold-500); }
-
-    /* Terms checkbox */
-    .terms-row {
-      display: flex; align-items: flex-start; gap: .625rem;
-      padding: .25rem 0;
-    }
-    .terms-checkbox {
-      width: 16px; height: 16px;
-      accent-color: var(--gold-500);
-      flex-shrink: 0; margin-top: 2px;
-      cursor: pointer;
-    }
-    .terms-label {
-      font-family: var(--font-body);
-      font-size: .8125rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      cursor: pointer;
-    }
-    .terms-label a {
-      color: var(--gold-500);
-    }
-    .terms-label a:hover { color: var(--gold-300); }
-
-    .form-error-msg {
-      font-size: .75rem;
-      color: #EF4444;
-      margin-top: .25rem;
-      font-style: italic;
-      display: block;
-    }
-
-    input.error { border-color: #EF4444 !important; }
-    input.valid { border-color: #16C784 !important; }
-  </style>
-  <link rel="stylesheet" href="css/reference-design.css"/>
-  <link rel="stylesheet" href="css/guide-implementation.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com; frame-src https://apis.google.com;">
+  <meta name="description" content="Weekend Warrior Social — Rejestracja" />
+  <title>Rejestracja — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <!-- TOP HEADER BAR -->

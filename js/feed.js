@@ -21,14 +21,53 @@
 
 import { auth, db, COL, uploadImage, deleteImageByURL, getRank } from "./firebase.js";
 import {
-  collection, addDoc, query, orderBy, limit, onSnapshot, updateDoc, doc,
-  deleteDoc, getDoc, getDocs, where, startAfter, arrayUnion, arrayRemove,
-  serverTimestamp, increment,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { showToast } from "./auth.js";
-import { createNotification } from "./notifications.js";
-import { awardXP, XP_ACTIONS } from "./xp.js";
+  auth, db, COL, getRank,
+} from './firebase.js';
+
+import {
+  checkAuth, logout, getCurrentUserData, showToast,
+} from './auth.js';
+
+import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
+import { makeAvatarsClickable, openUserProfile } from './social.js';
+import { uploadPostImage } from './profile-service.js';
+
+import {
+  collection,
+  doc,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+  startAfter,
+  arrayUnion,
+  arrayRemove,
+  serverTimestamp,
+  Timestamp,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+
+
+// ── Constants ────────────────────────────────────────────────
+const POSTS_PER_PAGE  = 10;
+const MAX_POST_LENGTH = 500;
+const MAX_IMAGE_SIZE  = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+// ── State ────────────────────────────────────────────────────
+let currentUser     = null;
+let currentUserData = null;
+let lastPostDoc     = null;
+let hasMorePosts    = false;
+let unsubFeed       = null;
+let selectedImage   = null;  // File object
+let isPosting       = false;
+
 
 // ════════════════════════════════════════════════════════════
 // API
@@ -208,13 +247,149 @@ export function initFeed() {
     _startFeed();
   });
 
-  // ── Compose ────────────────────────────────────────────────
-  function _renderComposeAvatar() {
-    const av = $("compose-avatar");
-    if (!av) return;
-    const name = myData.displayName || me.displayName || "W";
-    if (myData.photoURL) {
-      av.innerHTML = `<img src="${_esc(myData.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  // Image button
+  imageBtn?.addEventListener('click', () => imageInput?.click());
+
+  // Image selected
+  imageInput?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      showToast('Dozwolone formaty: JPG, PNG, WebP, GIF', 'error');
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      showToast('Zdjęcie może mieć max. 5 MB.', 'error');
+      return;
+    }
+
+    selectedImage = file;
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = preview?.querySelector('img');
+      if (img) {
+        img.src = ev.target.result;
+        preview?.classList.remove('hidden');
+      }
+    };
+    reader.readAsDataURL(file);
+
+    imageBtn?.classList.add('active');
+    console.log(TAG, '📷 Wybrano zdjęcie:', file.name, file.size);
+  });
+
+  // Remove image
+  removeImg?.addEventListener('click', () => {
+    selectedImage = null;
+    if (imageInput) imageInput.value = '';
+    preview?.classList.add('hidden');
+    imageBtn?.classList.remove('active');
+  });
+
+  // Submit post
+  submitBtn?.addEventListener('click', submitPost);
+
+  // Ctrl+Enter / Cmd+Enter submit
+  textarea.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      submitPost();
+    }
+  });
+}
+
+
+// ════════════════════════════════════════════════════════════
+// SUBMIT POST
+// ════════════════════════════════════════════════════════════
+
+async function submitPost() {
+  const TAG = '[submitPost]';
+
+  if (isPosting) return;
+
+  const textarea  = document.getElementById('post-textarea');
+  const submitBtn = document.getElementById('post-submit-btn');
+  const content   = textarea?.value.trim() ?? '';
+
+  if (!content && !selectedImage) {
+    showToast('Napisz coś lub dodaj zdjęcie! 📝', 'info');
+    textarea?.focus();
+    return;
+  }
+
+  if (content.length > MAX_POST_LENGTH) {
+    showToast(`Post może mieć max ${MAX_POST_LENGTH} znaków.`, 'error');
+    return;
+  }
+
+  isPosting = true;
+  if (submitBtn) {
+    submitBtn.disabled   = true;
+    submitBtn.textContent = 'Publikuję...';
+  }
+
+  console.log(TAG, '📝 Publikuję post...');
+
+  try {
+    let imageUrl = '';
+    let imagePublicId = '';
+
+    // Upload zdjęcia jeśli wybrane
+    if (selectedImage) {
+      console.log(TAG, '⬆️ Upload zdjęcia...');
+      const result = await uploadImage(selectedImage);
+      imageUrl = result.url;
+      imagePublicId = result.publicId;
+      console.log(TAG, '✅ Upload OK:', imageUrl);
+    }
+
+    // Dane posta
+    const rankObj = getRank(currentUserData?.points ?? 0);
+    const postData = {
+      authorId:       currentUser.uid,
+      authorName:     currentUserData?.displayName || currentUser.displayName || 'Wojownik',
+      authorPhoto:    currentUserData?.photoURL    || currentUser.photoURL    || '',
+      authorRank:     rankObj.label,
+      authorRankEmoji:rankObj.emoji,
+      content,
+      imageUrl,
+      imagePublicId,
+      likes:          [],
+      likesCount:     0,
+      commentsCount:  0,
+      createdAt:      serverTimestamp(),
+    };
+
+    await addDoc(collection(db, COL.POSTS), postData);
+    console.log(TAG, '✅ Post dodany do Firestore');
+
+    // Reset compose
+    if (textarea) {
+      textarea.value      = '';
+      textarea.style.height = 'auto';
+    }
+    selectedImage = null;
+    if (document.getElementById('image-input'))
+      document.getElementById('image-input').value = '';
+    document.getElementById('compose-preview')?.classList.add('hidden');
+    document.getElementById('image-upload-btn')?.classList.remove('active');
+    document.getElementById('char-count') &&
+      (document.getElementById('char-count').textContent = MAX_POST_LENGTH);
+
+    showToast('Post opublikowany! ⚔️', 'success');
+
+    // Przyznaj XP za post
+    awardXP(currentUser.uid, XP_ACTIONS.POST_CREATED).catch(() => {});
+
+  } catch (err) {
+    console.error(TAG, '❌', err.code, err.message);
+    if (err.code === 'permission-denied') {
+      showToast('Brak uprawnień. Sprawdź reguły Firestore.', 'error');
     } else {
       av.textContent = name.charAt(0).toUpperCase();
     }
@@ -229,26 +404,43 @@ export function initFeed() {
     const preview = $("compose-preview");
     const removeBtn = $("remove-image-btn");
 
-    ta?.addEventListener("input", () => {
-      if (count) count.textContent = String(500 - ta.value.length);
-    });
+// ════════════════════════════════════════════════════════════
+// IMAGE UPLOAD (Cloudinary)
+// ════════════════════════════════════════════════════════════
 
-    imgBtn?.addEventListener("click", () => imgInput?.click());
-    imgInput?.addEventListener("change", () => {
-      const file = imgInput.files?.[0];
-      if (!file) return;
-      if (file.size > 8 * 1024 * 1024) { showToast("❌ Zdjęcie max 8 MB", "error"); return; }
-      pendingImage = file;
-      if (preview) {
-        preview.querySelector("img").src = URL.createObjectURL(file);
-        preview.classList.remove("hidden");
+async function uploadImage(file) {
+  const TAG = '[uploadImage]';
+  const progressEl = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('upload-progress-bar');
+
+  if (progressEl) progressEl.classList.remove('hidden');
+
+  try {
+    // Simulate progress since Cloudinary doesn't provide granular progress
+    const progressInterval = setInterval(() => {
+      const current = parseInt(progressBar?.style.width || '0');
+      if (current < 90) {
+        const next = current + Math.random() * 30;
+        if (progressBar) progressBar.style.width = Math.min(90, next).toFixed(0) + '%';
       }
-      imgInput.value = "";
-    });
-    removeBtn?.addEventListener("click", () => {
-      pendingImage = null;
-      preview?.classList.add("hidden");
-    });
+    }, 200);
+
+    // Upload to Cloudinary
+    const result = await uploadPostImage(file);
+    clearInterval(progressInterval);
+
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressEl) progressEl.classList.add('hidden');
+
+    console.log(TAG, '✅ Upload OK:', result.url);
+    return { url: result.url, publicId: result.publicId };
+
+  } catch (err) {
+    console.error(TAG, '❌', err.message);
+    if (progressEl) progressEl.classList.add('hidden');
+    throw err;
+  }
+}
 
     submitBtn?.addEventListener("click", async () => {
       const content = ta?.value.trim() || "";
@@ -654,11 +846,21 @@ function _fmtTime(ts) {
   if (h < 24) return `${h} godz. temu`;
   return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" });
 }
-function _linkify(escaped) {
-  return escaped
-    .replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" target="_blank" rel="noopener" class="mention-link">$1</a>`)
-    .replace(/(^|\s)#([\p{L}\d_]+)/gu, `$1<span class="hashtag-link">#$2</span>`)
-    .replace(/(^|\s)@([\p{L}\d_]+)/gu, `$1<span class="mention-link">@$2</span>`);
+
+async function deletePost(postId, data) {
+  const TAG = '[deletePost]';
+  console.log(TAG, '🗑️ Usuwam post:', postId);
+
+  try {
+    // Usuń dokument z Firestore (Cloudinary image cleanup jest automatyczne)
+    await deleteDoc(doc(db, COL.POSTS, postId));
+    console.log(TAG, '✅ Post usunięty');
+    showToast('Post usunięty.', 'success');
+
+  } catch (err) {
+    console.error(TAG, '❌', err.code, err.message);
+    showToast('Błąd usuwania posta.', 'error');
+  }
 }
 function _esc(s) {
   if (typeof s !== "string") return "";

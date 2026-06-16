@@ -1,63 +1,31 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
-  <title>Brama Areny — Weekend Warrior Social</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/premium-effects.css"/>
-  <style>
-    .login-bg-glow {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(ellipse, rgba(212,175,55,.08) 0%, transparent 65%);
-      pointer-events: none;
-      z-index: 0;
-      animation: orb-drift-1 8s ease-in-out infinite alternate;
-    }
-    .auth-swords {
-      font-size: 1.75rem;
-      margin-bottom: .75rem;
-      display: block;
-      text-align: center;
-      animation: glow-pulse 2.5s ease-in-out infinite;
-    }
-    .auth-divider {
-      display: flex; align-items: center; gap: .75rem;
-      font-family: var(--font-heading);
-      font-size: .5rem; letter-spacing: .14em;
-      text-transform: uppercase; color: var(--text-faint);
-      margin: .875rem 0;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: ''; flex: 1; height: 1px;
-      background: var(--border-dim);
-    }
-    .google-btn {
-      display: flex; align-items: center; justify-content: center; gap: .625rem;
-      width: 100%; padding: .75rem 1rem;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--r-md);
-      color: var(--text-parchment);
-      font-family: var(--font-heading);
-      font-size: .6rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; cursor: pointer;
-      transition: all var(--dur-fast);
-    }
-    .google-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
-    .google-icon {
-      width: 18px; height: 18px; flex-shrink: 0;
-    }
-  </style>
-  <link rel="stylesheet" href="css/reference-design.css"/>
-  <link rel="stylesheet" href="css/guide-implementation.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0B" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com; frame-src https://apis.google.com;">
+  <meta name="description" content="Weekend Warrior Social — Logowanie" />
+  <title>Logowanie — Weekend Warrior Social</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WWS Arena" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg" />
+  <!-- OG / Social -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Weekend Warrior Social" />
+  <meta property="og:description" content="Portal społecznościowy dla wojowników weekendu. Wyzwania, ranking, osiągnięcia." />
+  <meta property="og:image"       content="assets/icons/icon-512.svg" />
+  <meta name="twitter:card"       content="summary" />
+  <meta name="twitter:title"      content="Weekend Warrior Social ⚔️" />
+  <meta name="twitter:description"content="Dołącz. Walcz. Zwyciężaj." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <!-- TOP HEADER BAR -->
