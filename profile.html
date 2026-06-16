@@ -531,34 +531,76 @@
   let ME = null;
 
   checkAuth(async (user) => {
-    ME = user;
-    injectMessengerBadge(user.uid);
-    injectNotifBell(user.uid);
-    // 3s skeleton safety — Firebase może być wolny
-    const skTimer = setTimeout(() => {
-      document.getElementById('profile-skeleton').style.display = 'none';
-      document.getElementById('profile-content').classList.remove('hidden');
-    }, 3000);
-    let data = null;
-    try { 
-      data = await getCurrentUserData(user.uid, user);
-      console.log('[profile] ✅ Data loaded:', data);
-    } catch (err) {
-      console.error('[profile] ❌ Error loading data:', err.message);
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
     }
-    data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
-    clearTimeout(skTimer);
-    _renderProfile(user, data);
-    _renderAchievements(data);
-    _renderStreakCalendar(data);
-    _setupEdit(user, data);
-    _setupImageUploads(user.uid, data);
-    await Promise.allSettled([
-      _loadHistory(user.uid),
-      _loadSocialCounts(user.uid),
-      _loadFriendsPanel(user.uid, data),
-    ]);
-    _setupFriendSearch(user.uid, data);
+    ME = user;
+
+    // Set 5-second fallback timeout to show content even if loading fails
+    const skTimer = setTimeout(() => {
+      const skeleton = document.getElementById('profile-skeleton');
+      const content = document.getElementById('profile-content');
+      if (skeleton && content) {
+        skeleton.style.display = 'none';
+        content.classList.remove('hidden');
+      }
+    }, 5000);
+
+    try {
+      injectMessengerBadge(user.uid);
+      injectNotifBell(user.uid);
+
+      let data = null;
+      try {
+        data = await getCurrentUserData(user.uid);
+        console.log('[profile] ✅ Data loaded:', data);
+      } catch (err) {
+        console.error('[profile] ❌ Error loading data:', err.message);
+        data = null;
+      }
+
+      data ??= {
+        uid: user.uid,
+        displayName: user.displayName || 'Wojownik',
+        photoURL: user.photoURL || '',
+        points: 0
+      };
+
+      try {
+        _renderProfile(user, data);
+        _renderAchievements(data);
+        _renderStreakCalendar(data);
+        _setupEdit(user, data);
+        _setupImageUploads(user.uid, data);
+        await Promise.allSettled([
+          _loadHistory(user.uid),
+          _loadSocialCounts(user.uid),
+          _loadFriendsPanel(user.uid, data),
+        ]);
+        _setupFriendSearch(user.uid, data);
+      } catch (renderErr) {
+        console.error('[profile] ❌ Rendering error:', renderErr.message);
+      }
+
+      // NOW hide skeleton (after rendering or 5 seconds, whichever is first)
+      clearTimeout(skTimer);
+      const skeleton = document.getElementById('profile-skeleton');
+      const content = document.getElementById('profile-content');
+      if (skeleton && content) {
+        skeleton.style.display = 'none';
+        content.classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error('[profile] ❌ Fatal error:', err.message);
+      clearTimeout(skTimer);
+      const skeleton = document.getElementById('profile-skeleton');
+      const content = document.getElementById('profile-content');
+      if (skeleton && content) {
+        skeleton.style.display = 'none';
+        content.classList.remove('hidden');
+      }
+    }
   });
 
   // Password visibility toggles

@@ -10,32 +10,62 @@ import { collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.
 import { hideSkeletonShowContent } from './utils.js';
 
 export async function initRanking() {
+  const skeletonEl = document.getElementById('ranking-skeleton');
+  const contentEl = document.getElementById('ranking-content');
+
+  // Set 5-second fallback timeout IMMEDIATELY
+  const fallbackTimer = setTimeout(() => {
+    if (skeletonEl && contentEl) {
+      skeletonEl.classList.add('hidden');
+      contentEl.classList.remove('hidden');
+    }
+  }, 5000);
+
   try {
-    // Sprawdź autentykację
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      // Pokaż zawartość, ukryj skeleton
-      hideSkeletonShowContent('ranking-skeleton', 'ranking-content');
-
-      // Załaduj ranking
       try {
-        const q = query(collection(db, COL.USERS), orderBy('points', 'desc'), limit(50));
-        const snap = await getDocs(q);
-        const users = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log('[Ranking] ✅ Loaded', users.length, 'users');
+        clearTimeout(fallbackTimer);
+
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Pokaż zawartość, ukryj skeleton
+        if (skeletonEl && contentEl) {
+          skeletonEl.classList.add('hidden');
+          contentEl.classList.remove('hidden');
+        }
+
+        // Załaduj ranking
+        try {
+          const q = query(collection(db, COL.USERS), orderBy('points', 'desc'), limit(50));
+          const snap = await getDocs(q);
+          const users = snap.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          console.log('[Ranking] ✅ Loaded', users.length, 'users');
+        } catch (err) {
+          console.error('[Ranking] ❌ Error:', err.message);
+          if (skeletonEl && contentEl) {
+            skeletonEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+          }
+        }
       } catch (err) {
-        console.error('[Ranking] ❌ Load error:', err.message);
-        showToast('Błąd ładowania rankingu: ' + err.code, 'error');
+        console.error('[Ranking] ❌ Error:', err.message);
+        if (skeletonEl && contentEl) {
+          skeletonEl.classList.add('hidden');
+          contentEl.classList.remove('hidden');
+        }
       }
     });
   } catch (error) {
     console.error('[Ranking] Init error:', error);
+    if (skeletonEl && contentEl) {
+      skeletonEl.classList.add('hidden');
+      contentEl.classList.remove('hidden');
+    }
   }
 }

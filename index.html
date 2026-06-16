@@ -191,7 +191,11 @@
 </div>
 
 <script type="module">
+  import { auth } from './js/firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
   import { initDashboard } from './js/dashboard.js';
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
 
   // Setup navigation
   document.querySelectorAll('.nav-item').forEach(link => {
@@ -208,6 +212,14 @@
 
   document.getElementById('messages-btn').addEventListener('click', () => {
     window.location.href = 'messages.html';
+  });
+
+  // Setup notifications and messenger badges
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      injectMessengerBadge(user.uid);
+      injectNotifBell(user.uid);
+    }
   });
 
   // Load dashboard
