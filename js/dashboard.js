@@ -3,15 +3,11 @@
  * Arena home screen initialization
  */
 
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { initializeFirebase } from './firebase.js';
+import { auth, db, COL, getLevel, getRank } from './firebase.js';
+import { onAuthStateChanged, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export async function initDashboard() {
   try {
-    // Initialize Firebase
-    const { db, auth } = initializeFirebase();
-
     // Handle authentication state
     onAuthStateChanged(auth, async (user) => {
       const skeletonEl = document.getElementById('skeleton');
@@ -21,7 +17,7 @@ export async function initDashboard() {
         if (user) {
           try {
             // Load user data from Firestore
-            const userDocRef = doc(db, 'users', user.uid);
+            const userDocRef = doc(db, COL.USERS, user.uid);
             const userSnap = await getDoc(userDocRef);
 
             if (userSnap.exists()) {
@@ -58,7 +54,11 @@ function updateDashboard(userData) {
   const statLevelEl = document.getElementById('stat-level');
   const statStreakEl = document.getElementById('stat-streak');
 
-  if (statXpEl) statXpEl.textContent = userData.xp || 0;
-  if (statLevelEl) statLevelEl.textContent = userData.level || 1;
-  if (statStreakEl) statStreakEl.textContent = userData.streak || 0;
+  const points = userData.points || 0;
+  const level = getLevel(points);
+  const streak = userData.streak || 0;
+
+  if (statXpEl) statXpEl.textContent = points;
+  if (statLevelEl) statLevelEl.textContent = level;
+  if (statStreakEl) statStreakEl.textContent = streak;
 }

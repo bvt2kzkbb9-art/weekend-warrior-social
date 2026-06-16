@@ -3,22 +3,37 @@
  * Chwała/Ranking page initialization
  */
 
-import { initializeFirebase } from './firebase.js';
+import { auth, db, COL } from './firebase.js';
+import { checkAuth, getCurrentUserData, showToast } from './auth.js';
+import { onAuthStateChanged, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { hideSkeletonShowContent } from './utils.js';
 
 export async function initRanking() {
   try {
-    const { db, auth } = initializeFirebase();
+    // Sprawdź autentykację
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
 
-    // Hide skeleton, show content
-    const skeletonEl = document.getElementById('ranking-skeleton');
-    const contentEl = document.getElementById('ranking-content');
+      // Pokaż zawartość, ukryj skeleton
+      hideSkeletonShowContent('ranking-skeleton', 'ranking-content');
 
-    if (skeletonEl && contentEl) {
-      skeletonEl.classList.add('hidden');
-      contentEl.classList.remove('hidden');
-    }
-
-    console.log('[Ranking] Page initialized');
+      // Załaduj ranking
+      try {
+        const q = query(collection(db, COL.USERS), orderBy('points', 'desc'), limit(50));
+        const snap = await getDocs(q);
+        const users = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        console.log('[Ranking] ✅ Loaded', users.length, 'users');
+      } catch (err) {
+        console.error('[Ranking] ❌ Load error:', err.message);
+        showToast('Błąd ładowania rankingu: ' + err.code, 'error');
+      }
+    });
   } catch (error) {
     console.error('[Ranking] Init error:', error);
   }
