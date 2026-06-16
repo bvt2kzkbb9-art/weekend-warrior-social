@@ -1,8 +1,6 @@
 /**
- * ============================================================
- * WEEKEND WARRIOR SOCIAL — messenger.js (REFACTORED)
- * Working messenger with conversation list and chat UI
- * ============================================================
+ * WEEKEND WARRIOR SOCIAL — messenger.js
+ * Working messenger with proper event handling
  */
 
 import { auth, db, COL, uploadImage } from "./firebase.js";
@@ -13,34 +11,29 @@ import {
 import { showToast } from "./auth.js";
 import { createNotification } from "./notifications.js";
 
-// State
 let currentUser = null;
 let activeConversationId = null;
+let activeOtherUid = null;
 let allConversations = [];
 let unsubConversations = null;
 let unsubMessages = null;
 let pendingImage = null;
 
 // ════════════════════════════════════════════════════════════
-// MAIN INITIALIZATION
+// INIT
 // ════════════════════════════════════════════════════════════
 
 export function initMessenger(uid) {
-  if (!uid) return console.error('[messenger] No UID provided');
-  
+  if (!uid) return console.error('[messenger] No UID');
   currentUser = { uid };
-  
   setupEventListeners();
   loadConversations();
-  setupSearch();
 }
 
 function setupEventListeners() {
   // Back button
   const backBtn = document.getElementById('chat-back-btn');
-  if (backBtn) {
-    backBtn.addEventListener('click', goBackToConversations);
-  }
+  if (backBtn) backBtn.addEventListener('click', goBackToConversations);
 
   // Message input
   const input = document.getElementById('msg-input');
@@ -59,9 +52,7 @@ function setupEventListeners() {
 
   // Send button
   const sendBtn = document.getElementById('send-btn');
-  if (sendBtn) {
-    sendBtn.addEventListener('click', sendMessage);
-  }
+  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
 
   // Image handling
   const fileBtn = document.getElementById('file-btn');
@@ -89,23 +80,20 @@ function setupEventListeners() {
     });
   }
 
-  if (imgRemoveBtn) {
-    imgRemoveBtn.addEventListener('click', clearImagePreview);
+  if (imgRemoveBtn) imgRemoveBtn.addEventListener('click', clearImagePreview);
+
+  // Search
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      filterConversations(query);
+    });
   }
 }
 
-function setupSearch() {
-  const searchInput = document.getElementById('search-input');
-  if (!searchInput) return;
-  
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    filterConversations(query);
-  });
-}
-
 // ════════════════════════════════════════════════════════════
-// CONVERSATIONS
+// LOAD CONVERSATIONS
 // ════════════════════════════════════════════════════════════
 
 function loadConversations() {
@@ -127,7 +115,6 @@ function loadConversations() {
     renderConversations(allConversations);
   }, (err) => {
     console.error('[loadConversations]', err);
-    showToast('❌ Błąd ładowania rozmów', 'error');
   });
 }
 
@@ -136,11 +123,7 @@ async function renderConversations(conversations) {
   if (!list) return;
 
   if (conversations.length === 0) {
-    list.innerHTML = `<div class="empty-state" style="padding:2rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">
-      <div class="empty-state-icon">💬</div>
-      <div class="empty-state-title">Brak rozmów</div>
-      <p>Zacznij rozmowę z innym wojownikiem</p>
-    </div>`;
+    list.innerHTML = `<div style="padding:2rem 1rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">Brak rozmów</div>`;
     return;
   }
 
@@ -159,119 +142,39 @@ async function renderConversations(conversations) {
       
       const item = document.createElement('div');
       item.className = `conv-item${activeConversationId === conv.id ? ' active' : ''}${hasUnread ? ' unread' : ''}`;
-      item.onclick = () => openConversation(conv.id, otherUid);
+      
+      // IMPORTANT: Store convId and otherUid as data attributes for click handling
+      item.dataset.convId = conv.id;
+      item.dataset.otherUid = otherUid;
 
-      const avatarHtml = userData.photoURL 
-        ? `<img src="${escapeHtml(userData.photoURL)}" alt="" />`
-        : userData.displayName?.charAt(0).toUpperCase() || 'U';
-
+      const avatarText = userData.displayName?.charAt(0).toUpperCase() || 'U';
       const onlineClass = userData.online ? 'online' : '';
       
       item.innerHTML = `
         <div class="conv-avatar ${onlineClass}">
-          ${avatarHtml}
+          ${userData.photoURL 
+            ? `<img src="${escapeHtml(userData.photoURL)}" alt="" />` 
+            : avatarText}
         </div>
         <div class="conv-info">
           <div class="conv-name">${escapeHtml(userData.displayName || 'Wojownik')}</div>
           <div class="conv-preview">${escapeHtml((conv.lastMessage || '').substring(0, 50))}</div>
         </div>
-        ${hasUnread ? `<div class="conv-unread-badge">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
+        <div class="conv-meta">
+          <div class="conv-time">${formatTime(conv.lastMessageAt)}</div>
+          ${hasUnread ? `<div class="conv-unread-badge">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
+        </div>
       `;
+
+      // Add click listener
+      item.addEventListener('click', () => {
+        openConversation(conv.id, otherUid);
+      });
 
       list.appendChild(item);
     } catch (err) {
-      console.error('[renderConversations] error loading user:', err);
+      console.error('[renderConversations] error:', err);
     }
-  }
-}
-
-function filterConversations(query) {
-  if (!query) {
-    renderConversations(allConversations);
-    return;
-  }
-
-  const filtered = allConversations.filter(conv => {
-    const otherUid = (conv.participants || []).find(u => u !== currentUser.uid);
-    // Would need cached user data to filter properly
-    // For now, just show all
-    return true;
-  });
-
-  renderConversations(filtered);
-}
-
-// ════════════════════════════════════════════════════════════
-// OPEN CONVERSATION
-// ════════════════════════════════════════════════════════════
-
-async function openConversation(convId, otherUid) {
-  activeConversationId = convId;
-  
-  // Hide conversations list, show chat on mobile
-  const sidebar = document.getElementById('conv-sidebar');
-  const chatPanel = document.getElementById('chat-panel');
-  
-  if (window.innerWidth <= 768) {
-    if (sidebar) sidebar.classList.add('hidden');
-  }
-  if (chatPanel) chatPanel.classList.remove('hidden');
-
-  // Update active state
-  document.querySelectorAll('.conv-item').forEach(el => {
-    el.classList.remove('active');
-  });
-  event.currentTarget?.classList.add('active');
-
-  // Load and display conversation info
-  try {
-    const userSnap = await getDoc(doc(db, COL.USERS, otherUid));
-    const userData = userSnap.exists() ? userSnap.data() : {};
-    
-    updateChatHeader(userData, otherUid);
-  } catch (err) {
-    console.error('[openConversation] error:', err);
-  }
-
-  // Load and listen to messages
-  loadMessages(convId);
-
-  // Mark as read
-  markMessagesAsRead(convId);
-}
-
-function updateChatHeader(userData, otherUid) {
-  const avatar = document.getElementById('chat-avatar');
-  const name = document.getElementById('chat-name');
-  const status = document.getElementById('chat-status');
-  const profileLink = document.getElementById('chat-profile-link');
-
-  if (avatar) {
-    if (userData.photoURL) {
-      avatar.innerHTML = `<img src="${escapeHtml(userData.photoURL)}" alt="" />`;
-    } else {
-      avatar.textContent = userData.displayName?.charAt(0).toUpperCase() || 'U';
-    }
-  }
-
-  if (name) name.textContent = userData.displayName || 'Wojownik';
-
-  if (status) {
-    if (userData.online) {
-      status.innerHTML = '<span class="online-dot"></span> Online';
-    } else {
-      const lastSeen = userData.lastSeen?.toDate?.() || userData.lastSeen;
-      if (lastSeen) {
-        const time = formatTime(lastSeen);
-        status.textContent = `Aktywność: ${time}`;
-      } else {
-        status.textContent = 'Offline';
-      }
-    }
-  }
-
-  if (profileLink) {
-    profileLink.href = `user.html?uid=${encodeURIComponent(otherUid)}`;
   }
 }
 
@@ -284,13 +187,88 @@ function formatTime(timestamp) {
   const diff = now - date;
   const minutes = Math.floor(diff / 60000);
   
-  if (minutes < 1) return 'przed chwilą';
-  if (minutes < 60) return `${minutes} min. temu`;
+  if (minutes < 1) return 'teraz';
+  if (minutes < 60) return `${minutes}m`;
   
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} godz. temu`;
+  if (hours < 24) return `${hours}h`;
   
-  return date.toLocaleDateString('pl-PL');
+  return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+}
+
+function filterConversations(query) {
+  if (!query) {
+    renderConversations(allConversations);
+    return;
+  }
+
+  // TODO: Better filtering with user data cache
+  renderConversations(allConversations);
+}
+
+// ════════════════════════════════════════════════════════════
+// OPEN CONVERSATION
+// ════════════════════════════════════════════════════════════
+
+async function openConversation(convId, otherUid) {
+  activeConversationId = convId;
+  activeOtherUid = otherUid;
+  
+  // Mobile: hide list, show chat
+  const sidebar = document.getElementById('conv-sidebar');
+  const chatPanel = document.getElementById('chat-panel');
+  
+  if (window.innerWidth <= 768) {
+    if (sidebar) sidebar.classList.add('hidden');
+  }
+  if (chatPanel) chatPanel.classList.remove('hidden');
+
+  // Update active state in list
+  document.querySelectorAll('.conv-item').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.querySelector(`[data-conv-id="${convId}"]`)?.classList.add('active');
+
+  // Load user info
+  try {
+    const userSnap = await getDoc(doc(db, COL.USERS, otherUid));
+    const userData = userSnap.exists() ? userSnap.data() : {};
+    updateChatHeader(userData, otherUid);
+  } catch (err) {
+    console.error('[openConversation]', err);
+  }
+
+  // Load messages
+  loadMessages(convId);
+
+  // Mark as read
+  markMessagesAsRead(convId);
+}
+
+function updateChatHeader(userData, otherUid) {
+  const avatar = document.getElementById('chat-avatar');
+  const name = document.getElementById('chat-name');
+  const status = document.getElementById('chat-status');
+
+  const avatarText = userData.displayName?.charAt(0).toUpperCase() || 'U';
+
+  if (avatar) {
+    if (userData.photoURL) {
+      avatar.innerHTML = `<img src="${escapeHtml(userData.photoURL)}" alt="" />`;
+    } else {
+      avatar.textContent = avatarText;
+    }
+  }
+
+  if (name) name.textContent = userData.displayName || 'Wojownik';
+
+  if (status) {
+    if (userData.online) {
+      status.innerHTML = '<span class="online-dot"></span> Online';
+    } else {
+      status.textContent = 'Offline';
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -328,30 +306,20 @@ function renderMessages(messages) {
   }
 
   area.innerHTML = '';
-  let lastDay = '';
 
   messages.forEach(msg => {
     const date = msg.createdAt?.toDate?.() || new Date();
-    const dayKey = date.toLocaleDateString('pl-PL');
-
-    if (dayKey !== lastDay) {
-      lastDay = dayKey;
-      const separator = document.createElement('div');
-      separator.style.cssText = 'text-align:center;padding:0.5rem 1rem;font-size:0.75rem;color:var(--text-muted);margin:0.5rem 0;';
-      separator.textContent = dayKey === new Date().toLocaleDateString('pl-PL') ? 'Dzisiaj' : dayKey;
-      area.appendChild(separator);
-    }
-
     const isMine = msg.senderId === currentUser.uid;
 
     const group = document.createElement('div');
     group.className = `msg-group${isMine ? ' mine' : ''}`;
 
-    const avatarHtml = isMine ? '' : `
-      <div class="msg-avatar">
-        ${msg.senderName?.charAt(0).toUpperCase() || 'U'}
-      </div>
-    `;
+    if (!isMine) {
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = msg.senderName?.charAt(0).toUpperCase() || 'U';
+      group.appendChild(avatar);
+    }
 
     const wrap = document.createElement('div');
     wrap.className = 'msg-bubble-wrap';
@@ -361,7 +329,6 @@ function renderMessages(messages) {
       img.src = escapeHtml(msg.imageUrl);
       img.alt = 'Zdjęcie';
       img.className = 'msg-image';
-      img.style.cssText = 'max-width:200px;';
       img.onclick = () => window.open(msg.imageUrl, '_blank');
       wrap.appendChild(img);
     }
@@ -379,8 +346,12 @@ function renderMessages(messages) {
     timeDiv.textContent = time;
     wrap.appendChild(timeDiv);
 
-    group.innerHTML = avatarHtml;
-    group.appendChild(wrap);
+    if (isMine) {
+      group.appendChild(wrap);
+    } else {
+      group.appendChild(wrap);
+    }
+
     area.appendChild(group);
   });
 
@@ -407,21 +378,21 @@ async function sendMessage() {
     let imageUrl = '';
     
     if (pendingImage) {
-      showToast('⏳ Przesyłanie zdjęcia...', 'info', 2000);
+      showToast('⏳ Przesyłanie...', 'info', 2000);
       try {
         imageUrl = await uploadImage(pendingImage, `messages/${activeConversationId}/${currentUser.uid}_${Date.now()}.jpg`);
       } catch (err) {
-        showToast('❌ Błąd przesyłania zdjęcia', 'error');
+        showToast('❌ Błąd zdjęcia', 'error');
         console.error('[uploadImage]', err);
         throw err;
       }
     }
 
-    // Get current user data
+    // Get user data
     const userSnap = await getDoc(doc(db, COL.USERS, currentUser.uid));
     const userName = userSnap.exists() ? userSnap.data().displayName || 'Wojownik' : 'Wojownik';
 
-    // Create message
+    // Send message
     await addDoc(collection(db, COL.CONVERSATIONS, activeConversationId, COL.MESSAGES), {
       senderId: currentUser.uid,
       senderName: userName,
@@ -449,7 +420,7 @@ async function sendMessage() {
 
       await updateDoc(doc(db, COL.CONVERSATIONS, activeConversationId), updates);
 
-      // Send notification
+      // Notification
       if (otherUid) {
         try {
           createNotification(otherUid, {
@@ -465,15 +436,16 @@ async function sendMessage() {
       }
     }
 
-    // Clear input
+    // Clear
     if (input) input.value = '';
     autoResizeInput(input);
     clearImagePreview();
     updateSendBtnState();
+    showToast('✓ Wysłano', 'success', 1000);
 
   } catch (err) {
     console.error('[sendMessage]', err);
-    showToast('❌ Błąd wysyłania wiadomości', 'error');
+    showToast('❌ Błąd', 'error');
   } finally {
     if (sendBtn) sendBtn.disabled = false;
   }
@@ -483,12 +455,10 @@ async function markMessagesAsRead(convId) {
   if (!convId || !currentUser) return;
 
   try {
-    // Reset unread counter
     await updateDoc(doc(db, COL.CONVERSATIONS, convId), {
       [`unread.${currentUser.uid}`]: 0,
     });
 
-    // Mark messages as read
     const q = query(
       collection(db, COL.CONVERSATIONS, convId, COL.MESSAGES),
       where('read', '==', false)
@@ -519,6 +489,7 @@ function goBackToConversations() {
   if (chatPanel) chatPanel.classList.add('hidden');
   
   activeConversationId = null;
+  activeOtherUid = null;
   
   if (unsubMessages) {
     unsubMessages();
@@ -554,7 +525,7 @@ function clearImagePreview() {
 }
 
 // ════════════════════════════════════════════════════════════
-// PRESENCE & BADGE
+// PRESENCE
 // ════════════════════════════════════════════════════════════
 
 export async function setOnlinePresence(uid, online) {
@@ -572,7 +543,7 @@ export async function setOnlinePresence(uid, online) {
 export function injectMessengerBadge(uid) {
   if (!uid) return;
   
-  const badge = document.querySelector('[id*="msg-badge"], [id*="messenger-badge"]');
+  const badge = document.querySelector('[id*="msg-badge"]');
   if (!badge) return;
 
   const q = query(
