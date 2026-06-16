@@ -150,26 +150,55 @@
   injectLightModeCSS();
   initTheme();
 
+  let skeletonTimeout = null;
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      setOnlinePresence(user.uid, true);
-      injectMessengerBadge(user.uid);
-      injectNotifBell(user.uid);
+      try {
+        setOnlinePresence(user.uid, true);
+        injectMessengerBadge(user.uid);
+        injectNotifBell(user.uid);
 
-      // Ustaw offline przy zamknięciu
-      window.addEventListener('beforeunload', () => setOnlinePresence(user.uid, false));
-      document.addEventListener('visibilitychange', () => {
-        setOnlinePresence(user.uid, !document.hidden);
-      });
+        // Ustaw offline przy zamknięciu
+        window.addEventListener('beforeunload', () => setOnlinePresence(user.uid, false));
+        document.addEventListener('visibilitychange', () => {
+          setOnlinePresence(user.uid, !document.hidden);
+        });
+      } catch (err) {
+        console.error('[messenger] presence error:', err);
+      }
+    } else {
+      window.location.href = '/login.html';
     }
+  }, (err) => {
+    console.error('[messenger] auth error:', err.code);
+    window.location.href = '/login.html';
   });
 
-  // Usuń skeleton po załadowaniu
-  setTimeout(() => {
-    document.getElementById('conv-skeleton')?.remove();
-  }, 2000);
+  // Hide skeleton after 3s or when data loads
+  skeletonTimeout = setTimeout(() => {
+    const skeleton = document.getElementById('conv-skeleton');
+    if (skeleton) {
+      skeleton.classList.add('hidden');
+      skeleton.remove();
+    }
+  }, 3000);
 
-  initMessenger();
+  try {
+    initMessenger();
+    // Clear skeleton if messenger loaded
+    clearTimeout(skeletonTimeout);
+    const skeleton = document.getElementById('conv-skeleton');
+    if (skeleton) skeleton.remove();
+  } catch (err) {
+    console.error('[messenger] init error:', err);
+    clearTimeout(skeletonTimeout);
+    const skeleton = document.getElementById('conv-skeleton');
+    if (skeleton) {
+      skeleton.classList.add('hidden');
+      skeleton.remove();
+    }
+  }
 </script>
   <script src="js/autohide-nav.js"></script>
   <script src="js/easter-egg.js"></script>

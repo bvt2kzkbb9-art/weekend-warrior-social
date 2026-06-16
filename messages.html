@@ -237,11 +237,23 @@
 <script type="module">
   import { initMessagesPage } from './js/messages.js';
 
-  document.getElementById('profile-btn').addEventListener('click', () => {
+  document.getElementById('profile-btn')?.addEventListener('click', () => {
     window.location.href = 'profile.html';
   });
 
-  initMessagesPage();
+  try {
+    initMessagesPage();
+  } catch (err) {
+    console.error('[messages] init error:', err);
+    // Show error message
+    const content = document.querySelector('.content-area');
+    if (content) {
+      const errorEl = document.createElement('div');
+      errorEl.style.cssText = 'padding:2rem;text-align:center;color:#EF4444;font-family:var(--font-heading);';
+      errorEl.textContent = 'Błąd ładowania wiadomości. Spróbuj zaraz.';
+      content.prepend(errorEl);
+    }
+  }
 </script>
 
 <!-- Service Worker Registration -->
