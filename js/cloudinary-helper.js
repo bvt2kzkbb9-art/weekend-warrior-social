@@ -6,9 +6,9 @@
 const CLOUDINARY_CONFIG = {
   cloud: 'dxanfwb3l',
   baseUrl: 'https://res.cloudinary.com/dxanfwb3l/image/upload/',
-  
-  // Default placeholder
-  placeholder: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231a1a1a" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="16"%3ELoading...%3C/text%3E%3C/svg%3E'
+
+  // Default placeholder (solid color, no "Loading..." text to avoid permanent skeleton appearance)
+  placeholder: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231a1a1a" width="400" height="300"/%3E%3C/svg%3E'
 };
 
 const ImageHelper = {
@@ -148,6 +148,46 @@ const ImageHelper = {
       console.warn('Image validation failed:', url);
       return false;
     }
+  },
+
+  /**
+   * Safely load image with error handler and fallback
+   */
+  loadImage: (element, url, fallbackText = '?') => {
+    if (!element) return;
+    if (!url) {
+      element.textContent = fallbackText;
+      return;
+    }
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = element.alt || 'Image';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    img.loading = 'lazy';
+
+    // Timeout fallback - if image doesn't load in 5s, show text
+    const loadTimeout = setTimeout(() => {
+      if (!img.complete) {
+        console.warn('[CloudinaryHelper] Image load timeout:', url);
+        element.textContent = fallbackText;
+      }
+    }, 5000);
+
+    img.onload = () => {
+      clearTimeout(loadTimeout);
+      element.innerHTML = '';
+      element.appendChild(img);
+    };
+
+    img.onerror = () => {
+      clearTimeout(loadTimeout);
+      console.warn('[CloudinaryHelper] Image load failed:', url);
+      element.innerHTML = '';
+      element.textContent = fallbackText;
+    };
   }
 };
 

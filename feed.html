@@ -374,29 +374,53 @@
   // 2s skeleton fallback
   const skTimer = setTimeout(() => {
     const loading = document.getElementById('feed-loading');
-    if (loading) loading.style.display = 'none';
+    if (loading) loading?.classList.add('hidden');
     const empty = document.getElementById('feed-empty');
     const list  = document.getElementById('feed-list');
-    if (list && list.children.length === 0 && empty) empty.style.display = 'block';
+    if (list && list.children.length === 0 && empty) empty?.classList.remove('hidden');
   }, 2000);
 
   injectLightModeCSS();
   initTheme();
-  onAuthStateChanged(auth, u => { 
+  onAuthStateChanged(auth, u => {
     if(u) {
       injectMessengerBadge(u.uid);
       injectNotifBell(u.uid);
     }
+  }, err => {
+    console.error('[feed auth]', err.code);
+    // Show offline message
+    const loading = document.getElementById('feed-loading');
+    if (loading) loading?.classList.add('hidden');
   });
 
   window._clearFeedSkeleton = () => {
     clearTimeout(skTimer);
     const loading = document.getElementById('feed-loading');
-    if (loading) loading.style.display = 'none';
+    if (loading) loading?.classList.add('hidden');
   };
 
-  initFeed();
+  try {
+    initFeed();
+  } catch (err) {
+    console.error('[feed init]', err);
+    const loading = document.getElementById('feed-loading');
+    if (loading) loading?.classList.add('hidden');
+    const empty = document.getElementById('feed-empty');
+    if (empty) empty?.classList.remove('hidden');
+  }
 </script>
+  <script>
+    // Global error handling
+    window.addEventListener('error', (event) => {
+      console.error('[Global Error]', event.error);
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('[Unhandled Rejection]', event.reason);
+      event.preventDefault();
+    });
+  </script>
   <script src="js/autohide-nav.js"></script>
   <script src="js/easter-egg.js"></script>
 </body>
