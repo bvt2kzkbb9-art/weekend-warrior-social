@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <link rel="stylesheet" href="css/ux-improvements.css"/>
   <style>
     .profile-banner{position:relative;height:120px;border-radius:var(--r-lg) var(--r-lg) 0 0;
       background:linear-gradient(135deg,#1a1626 0%,#0d0b14 60%,#1f1a2e 100%);
@@ -72,6 +73,20 @@
   <div class="particle"></div>
 </div>
 <div id="upload-bar" class="upload-bar"></div>
+
+<!-- TOP HEADER -->
+<header class="wws-header">
+  <div class="wws-header-logo">⚔ WWS</div>
+  <div class="wws-header-search">
+    <input type="text" placeholder="Szukaj gracza..." aria-label="Wyszukiwanie"/>
+  </div>
+  <div class="wws-header-actions">
+    <button class="wws-header-icon" aria-label="Powiadomienia">
+      🔔
+      <span class="wws-header-badge" id="notif-badge" style="display:none;">0</span>
+    </button>
+  </div>
+</header>
 
 <!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">
@@ -208,6 +223,11 @@
         <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="flex:1;">⚔ Rzuć Wyzwanie</a>
         <button id="edit-profile-btn" class="rpg-btn rpg-btn-outline" style="flex:1;">✏ Edytuj Postać</button>
       </div>
+
+      <!-- ZRÓB LAGĘ Button -->
+      <button id="make-laga-btn" class="wws-make-laga-btn" style="margin:.875rem .875rem 0;">
+        ⚔️ ZRÓB LAGĘ
+      </button>
     </div>
 
     <!-- Towarzysze Broni (znajomi) -->
@@ -368,6 +388,24 @@
           <button id="edit-save" class="rpg-btn rpg-btn-gold" style="flex:1;">Zapisz</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ZRÓB LAGĘ Modal -->
+<div id="laga-modal-overlay" class="wws-modal-overlay">
+  <div class="wws-modal">
+    <div class="wws-modal-title">⚠️ UWAGA WOJOWNIKU ⚠️</div>
+    <div class="wws-modal-content">
+      Czy na pewno chcesz rzucić <strong>LAGĘ</strong>? To działanie wiąże się z wielkimi konsekwencjami na arenie. Czekają Cię niebezpieczne wyzwania!
+    </div>
+    <div class="wws-modal-actions">
+      <button id="laga-confirm" class="wws-modal-btn wws-modal-btn-primary">
+        Potwierdzam!
+      </button>
+      <button id="laga-cancel" class="wws-modal-btn wws-modal-btn-secondary">
+        Anuluj
+      </button>
     </div>
   </div>
 </div>
@@ -878,6 +916,30 @@
       if (confirm('Czy na pewno chcesz zniszczyć swoją kartę wojownika? To działanie jest nieodwracalne.')) {
         alert('Aby usunąć konto, skontaktuj się z administratorem Areny.');
       }
+    });
+
+    // ── ZRÓB LAGĘ Modal ────────────────────────────────────────
+    const lagaOverlay = document.getElementById('laga-modal-overlay');
+    const lagaBtn = document.getElementById('make-laga-btn');
+    const lagaConfirm = document.getElementById('laga-confirm');
+    const lagaCancel = document.getElementById('laga-cancel');
+
+    lagaBtn?.addEventListener('click', () => {
+      lagaOverlay?.classList.add('active');
+    });
+
+    const closeLagaModal = () => {
+      lagaOverlay?.classList.remove('active');
+    };
+
+    lagaCancel?.addEventListener('click', closeLagaModal);
+    lagaOverlay?.addEventListener('click', (e) => {
+      if (e.target === lagaOverlay) closeLagaModal();
+    });
+
+    lagaConfirm?.addEventListener('click', () => {
+      showToast('Rzuciłeś LAGĘ na arenę! ⚔️ Przygotuj się na konsekwencje!', 'success');
+      closeLagaModal();
     });
   }
 

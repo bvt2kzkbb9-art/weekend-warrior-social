@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/arena.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <link rel="stylesheet" href="css/ux-improvements.css"/>
 </head>
 <body>
 
@@ -31,6 +32,22 @@
   <div class="particle"></div><div class="particle"></div>
 </div>
 <div class="fog-layer" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════
+     TOP HEADER
+══════════════════════════════════════════ -->
+<header class="wws-header">
+  <div class="wws-header-logo">⚔ WWS</div>
+  <div class="wws-header-search">
+    <input type="text" placeholder="Szukaj wojowników..." aria-label="Wyszukiwanie"/>
+  </div>
+  <div class="wws-header-actions">
+    <button class="wws-header-icon" aria-label="Powiadomienia">
+      🔔
+      <span class="wws-header-badge" id="notif-badge" style="display:none;">0</span>
+    </button>
+  </div>
+</header>
 
 <!-- ══════════════════════════════════════════
      BOTTOM NAVIGATION

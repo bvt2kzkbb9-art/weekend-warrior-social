@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <link rel="stylesheet" href="css/ux-improvements.css"/>
   <style>
     .profile-banner{position:relative;height:120px;border-radius:var(--r-lg) var(--r-lg) 0 0;
       background:linear-gradient(135deg,#1a1626 0%,#0d0b14 60%,#1f1a2e 100%);
@@ -60,6 +61,20 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
+
+<!-- TOP HEADER -->
+<header class="wws-header">
+  <div class="wws-header-logo">⚔ WWS</div>
+  <div class="wws-header-search">
+    <input type="text" placeholder="Szukaj gracza..." aria-label="Wyszukiwanie"/>
+  </div>
+  <div class="wws-header-actions">
+    <button class="wws-header-icon" aria-label="Powiadomienia">
+      🔔
+      <span class="wws-header-badge" id="notif-badge" style="display:none;">0</span>
+    </button>
+  </div>
+</header>
 
 <!-- Nav -->
 <nav class="nav" aria-label="Główna nawigacja">

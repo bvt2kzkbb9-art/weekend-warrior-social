@@ -1,0 +1,657 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UX IMPROVEMENTS — Facebook Ergonomics with RPG/Fantasy Climate
+   Responsywność, animacje, nowe sekcje bez zmiany stylu
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────────────
+   1. GÓRNY HEADER (Nowy)
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-gold);
+  backdrop-filter: blur(8px);
+  padding: var(--sp-3) var(--sp-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  min-height: 60px;
+}
+
+.wws-header-logo {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.wws-header-search {
+  flex: 1;
+  max-width: 400px;
+}
+
+.wws-header-search input {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--r-lg);
+  color: var(--text-bright);
+  font-family: var(--font-body);
+  font-size: .75rem;
+  transition: all 200ms ease;
+}
+
+.wws-header-search input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 12px var(--gold-glow-lg);
+}
+
+.wws-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.wws-header-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--r-md);
+  color: var(--text-parchment);
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-size: 1rem;
+}
+
+.wws-header-icon:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.wws-header-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--fire);
+  border: 2px solid var(--bg-panel);
+  border-radius: 50%;
+  font-size: .5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--font-heading);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   2. DOLNA NAWIGACJA — Ulepszona Responsywność
+   ────────────────────────────────────────────────────────────────── */
+
+.nav {
+  gap: var(--sp-2) !important;
+  padding: var(--sp-2) var(--sp-1) !important;
+}
+
+.nav-item {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  padding: var(--sp-2) var(--sp-3) !important;
+  border-radius: var(--r-md);
+  position: relative;
+}
+
+.nav-item:active,
+.nav-item:hover {
+  background: rgba(212,175,55,.08);
+  transform: scale(1.05);
+}
+
+.nav-item.active {
+  background: rgba(212,175,55,.15);
+  box-shadow: inset 0 0 12px var(--gold-glow);
+}
+
+.nav-item-hero {
+  transform: scale(1.15);
+}
+
+.nav-item-hero:active,
+.nav-item-hero:hover {
+  transform: scale(1.25);
+}
+
+.nav-hero-shield {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .nav {
+    padding: var(--sp-2) var(--sp-2) !important;
+  }
+
+  .nav-item span {
+    font-size: .6875rem;
+  }
+
+  .nav-item svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   3. "CO NOWEGO, WOJOWNIKU?" SEKCJA w Kronikach
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-what-new {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  box-shadow: 0 2px 8px rgba(212,175,55,.1);
+}
+
+.wws-what-new-title {
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: .05em;
+  margin-bottom: var(--sp-3);
+  text-transform: uppercase;
+}
+
+.wws-what-new-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--sp-3);
+}
+
+.wws-what-new-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--r-md);
+  color: var(--text-bright);
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-family: var(--font-ui);
+  font-size: .75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.wws-what-new-btn:hover {
+  border-color: var(--gold);
+  background: rgba(212,175,55,.08);
+  box-shadow: 0 0 12px var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+.wws-what-new-btn:active {
+  transform: scale(0.95);
+}
+
+.wws-what-new-icon {
+  font-size: 1.5rem;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   4. PROFIL BOHATE RA — Przebudowany Layout
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-profile-header {
+  background: linear-gradient(135deg,
+    rgba(212,175,55,.15) 0%,
+    rgba(107,79,187,.1) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+}
+
+.wws-profile-avatar-box {
+  flex-shrink: 0;
+}
+
+.wws-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 0 16px var(--gold-glow-lg);
+}
+
+.wws-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wws-profile-name {
+  font-family: var(--font-heading);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: var(--sp-1);
+}
+
+.wws-profile-rank {
+  font-family: var(--font-ui);
+  font-size: .875rem;
+  color: var(--text-parchment);
+  margin-bottom: var(--sp-2);
+}
+
+.wws-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+
+.wws-profile-stat {
+  text-align: center;
+}
+
+.wws-profile-stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.wws-profile-stat-label {
+  font-size: .625rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: var(--sp-1);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   5. PRZYCISK "ZRÓB LAGĘ" w Profilu
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-make-laga-btn {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-400) 100%);
+  color: var(--bg-void);
+  border: none;
+  border-radius: var(--r-lg);
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 200ms ease;
+  box-shadow: 0 4px 16px rgba(212,175,55,.3);
+  margin-top: var(--sp-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.wws-make-laga-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,.3);
+  transition: left 300ms ease;
+}
+
+.wws-make-laga-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212,175,55,.5);
+}
+
+.wws-make-laga-btn:hover:before {
+  left: 100%;
+}
+
+.wws-make-laga-btn:active {
+  transform: scale(0.98);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   6. MODAL "ZRÓB LAGĘ"
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.wws-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wws-modal {
+  background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+  border: 2px solid var(--gold);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(212,175,55,.3), 0 0 24px rgba(212,175,55,.1);
+  animation: modalAppear 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.wws-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--fire);
+  text-align: center;
+  margin-bottom: var(--sp-3);
+  letter-spacing: .05em;
+}
+
+.wws-modal-content {
+  font-family: var(--font-body);
+  font-size: .875rem;
+  color: var(--text-bright);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: var(--sp-4);
+}
+
+.wws-modal-actions {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+}
+
+.wws-modal-btn {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-md);
+  font-family: var(--font-heading);
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 200ms ease;
+  flex: 1;
+}
+
+.wws-modal-btn-primary {
+  background: var(--gold);
+  color: var(--bg-void);
+}
+
+.wws-modal-btn-primary:hover {
+  box-shadow: 0 0 16px var(--gold-glow-lg);
+  transform: translateY(-2px);
+}
+
+.wws-modal-btn-secondary {
+  background: transparent;
+  color: var(--gold);
+}
+
+.wws-modal-btn-secondary:hover {
+  background: rgba(212,175,55,.1);
+  border-color: var(--gold);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   7. WIADOMOŚCI — Layout 2-kolumnowy
+   ────────────────────────────────────────────────────────────────── */
+
+.wws-messenger-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--sp-4);
+  height: calc(100vh - 180px);
+}
+
+.wws-messenger-list {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-lg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.wws-messenger-item {
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border-dim);
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.wws-messenger-item:hover,
+.wws-messenger-item.active {
+  background: rgba(212,175,55,.08);
+  border-bottom-color: var(--gold);
+}
+
+.wws-messenger-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-gold);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.wws-messenger-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wws-messenger-name {
+  font-family: var(--font-heading);
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wws-messenger-preview {
+  font-size: .75rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: var(--sp-1);
+}
+
+.wws-messenger-chat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   8. ANIMACJE OGÓLNE
+   ────────────────────────────────────────────────────────────────── */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   9. RESPONSYWNOŚĆ
+   ────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .wws-messenger-layout {
+    grid-template-columns: 260px 1fr;
+  }
+
+  .wws-header {
+    padding: var(--sp-2) var(--sp-3);
+    gap: var(--sp-2);
+  }
+
+  .wws-header-logo {
+    font-size: 1.125rem;
+  }
+
+  .wws-header-search {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wws-messenger-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .wws-messenger-list {
+    max-height: 300px;
+  }
+
+  .wws-header-search {
+    max-width: 150px;
+  }
+
+  .wws-profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .wws-profile-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .wws-header {
+    padding: var(--sp-2);
+  }
+
+  .wws-header-search {
+    display: none;
+  }
+
+  .wws-header-actions {
+    gap: var(--sp-2);
+  }
+
+  .wws-what-new-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wws-modal {
+    width: 95%;
+    padding: var(--sp-4);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   10. OPTYMALIZACJA WYDAJNOŚCI
+   ───────────────────────────────────────────────────────────────── */
+
+.wws-lazy-load {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.wws-lazy-load.loaded {
+  opacity: 1;
+}
+
+/* Will-change tylko dla animowanych elementów */
+.nav-item,
+.wws-what-new-btn,
+.wws-make-laga-btn {
+  will-change: transform;
+}
