@@ -8,40 +8,53 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/f
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 export async function initDashboard() {
-  try {
-    // Handle authentication state
-    onAuthStateChanged(auth, async (user) => {
-      const skeletonEl = document.getElementById('skeleton');
-      const dashboardEl = document.getElementById('dashboard');
+  const skeletonEl = document.getElementById('skeleton');
+  const dashboardEl = document.getElementById('dashboard');
 
-      if (skeletonEl && dashboardEl) {
-        if (user) {
+  // Set 5-second fallback timeout IMMEDIATELY
+  const fallbackTimer = setTimeout(() => {
+    if (skeletonEl && dashboardEl) {
+      skeletonEl.classList.add('hidden');
+      dashboardEl.classList.remove('hidden');
+    }
+  }, 5000);
+
+  try {
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        clearTimeout(fallbackTimer);
+
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        if (skeletonEl && dashboardEl) {
           try {
-            // Load user data from Firestore
             const userDocRef = doc(db, COL.USERS, user.uid);
             const userSnap = await getDoc(userDocRef);
 
             if (userSnap.exists()) {
               const userData = userSnap.data();
-
-              // Update dashboard with user data
               updateDashboard(userData);
             }
           } catch (error) {
             console.warn('[Dashboard] Error loading user data:', error);
           }
-        }
 
-        // Hide skeleton, show dashboard
-        skeletonEl.classList.add('hidden');
-        dashboardEl.classList.remove('hidden');
+          skeletonEl.classList.add('hidden');
+          dashboardEl.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('[Dashboard] Error:', error);
+        if (skeletonEl && dashboardEl) {
+          skeletonEl.classList.add('hidden');
+          dashboardEl.classList.remove('hidden');
+        }
       }
     });
   } catch (error) {
     console.error('[Dashboard] Init error:', error);
-    // Still show dashboard even if there's an error
-    const skeletonEl = document.getElementById('skeleton');
-    const dashboardEl = document.getElementById('dashboard');
     if (skeletonEl && dashboardEl) {
       skeletonEl.classList.add('hidden');
       dashboardEl.classList.remove('hidden');
