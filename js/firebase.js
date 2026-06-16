@@ -29,7 +29,6 @@ const firebaseConfig = {
   apiKey: "AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98",
   authDomain: "weekend-warrior-social-ed3d0.firebaseapp.com",
   projectId: "weekend-warrior-social-ed3d0",
-  storageBucket: "weekend-warrior-social-ed3d0.firebasestorage.app",
   messagingSenderId: "487311448505",
   appId: "1:487311448505:web:ffbe035b92efa8fc193e68",
 };
