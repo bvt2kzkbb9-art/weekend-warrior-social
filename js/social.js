@@ -156,10 +156,12 @@ export async function unfollowUser(myUid, targetUid) {
 export async function getFollowCounts(uid) {
   if (!uid) return { followers: 0, following: 0 };
   try {
-    const [followersSnap, followingSnap] = await Promise.all([
+    const results = await Promise.allSettled([
       getDocs(query(collection(db, COL_FOLLOWERS), where('followingId', '==', uid))),
       getDocs(query(collection(db, COL_FOLLOWERS), where('followerId',  '==', uid))),
     ]);
+    const followersSnap = results[0].status === 'fulfilled' ? results[0].value : { size: 0 };
+    const followingSnap = results[1].status === 'fulfilled' ? results[1].value : { size: 0 };
     return {
       followers: followersSnap.size,
       following: followingSnap.size,

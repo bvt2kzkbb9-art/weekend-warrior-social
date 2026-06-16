@@ -1,10 +1,8 @@
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc, addDoc, serverTimestamp, onSnapshot, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { formatTime, formatDate, getInitials } from './utils.js';
+import { auth, db, COL } from './firebase.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { collection, query, where, getDocs, getDoc, doc, addDoc, serverTimestamp, onSnapshot, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { formatTime, getInitials } from './utils.js';
 import { getOptimizedUrl } from './profile-service.js';
-
-const auth = getAuth();
-const db = getFirestore();
 
 let currentUser = null;
 let currentConversationId = null;
@@ -56,7 +54,7 @@ function setupEventListeners() {
 async function loadConversations() {
   if (!currentUser) return;
 
-  const conversationsRef = collection(db, 'conversations');
+  const conversationsRef = collection(db, COL.CONVERSATIONS);
   const q = query(
     conversationsRef,
     where('participants', 'array-contains', currentUser.uid),
@@ -83,23 +81,49 @@ async function loadConversations() {
   });
 }
 
-function renderConversations(conversations) {
+async function renderConversations(conversations) {
   const listEl = document.getElementById('conversations-list');
+
+  // Fetch user data for all conversations
+  const userCache = {};
+  const userIds = new Set();
+
+  conversations.forEach(conv => {
+    conv.participants?.forEach(id => {
+      if (id !== currentUser.uid) userIds.add(id);
+    });
+  });
+
+  for (const userId of userIds) {
+    try {
+      const userDoc = await getDoc(doc(db, COL.USERS, userId));
+      if (userDoc.exists()) {
+        userCache[userId] = userDoc.data();
+      } else {
+        userCache[userId] = { displayName: 'Wojownik', avatar: null };
+      }
+    } catch (err) {
+      console.error(`Error loading user ${userId}:`, err);
+      userCache[userId] = { displayName: 'Wojownik', avatar: null };
+    }
+  }
+
   listEl.innerHTML = conversations.map(conv => {
-    const otherUserId = conv.participants.find(id => id !== currentUser.uid);
+    const otherUserId = conv.participants?.find(id => id !== currentUser.uid);
+    const userData = userCache[otherUserId] || { displayName: 'Wojownik', avatar: null };
     const unreadCount = unreadCounts[conv.id] || 0;
     const isOnline = onlineUsers.has(otherUserId);
 
     return `
       <div class="conversation-item" data-id="${conv.id}" data-user="${otherUserId}">
         <div class="conversation-avatar">
-          ${renderAvatar(conv.participantNames[otherUserId], conv.participantAvatars?.[otherUserId])}
+          ${renderAvatar(userData.displayName, userData.avatar)}
           ${isOnline ? '<span class="online-indicator"></span>' : ''}
         </div>
 
         <div class="conversation-content">
           <div class="conversation-header">
-            <h3 class="conversation-name">${conv.participantNames[otherUserId]}</h3>
+            <h3 class="conversation-name">${userData.displayName || 'Wojownik'}</h3>
             <span class="conversation-time">${formatTime(conv.lastMessageAt?.toDate() || new Date())}</span>
           </div>
           <p class="conversation-message">${escapeHtml(conv.lastMessage || 'Brak wiadomości')}</p>
@@ -122,7 +146,7 @@ function renderConversations(conversations) {
 
 async function loadActiveWarriors() {
   try {
-    const usersRef = collection(db, 'users');
+    const usersRef = collection(db, COL.USERS);
     const q = query(
       usersRef,
       where('lastActive', '>', new Date(Date.now() - 5 * 60 * 1000))
@@ -132,18 +156,21 @@ async function loadActiveWarriors() {
     const warriors = snapshot.docs
       .filter(doc => doc.id !== currentUser.uid)
       .slice(0, 6)
-      .map(doc => ({
-        id: doc.id,
-        displayName: doc.data().displayName || 'Wojownik',
-        avatar: doc.data().avatar,
-      }));
+      .map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          displayName: data.displayName || 'Wojownik',
+          avatar: data.avatar,
+        };
+      });
 
     if (warriors.length > 0) {
       renderActiveWarriors(warriors);
       document.getElementById('active-warriors').classList.remove('hidden');
     }
   } catch (error) {
-    console.error('Error loading active warriors:', error);
+    console.error('[Messages] Error loading active warriors:', error);
   }
 }
 
@@ -179,13 +206,22 @@ async function openChat(conversationId, otherUserId) {
   document.getElementById('messages-list').classList.add('hidden');
   document.getElementById('chat-view').classList.remove('hidden');
 
-  // Load conversation details
-  const convDoc = await getDoc(doc(db, 'conversations', conversationId));
-  const convData = convDoc.data();
-
-  document.getElementById('chat-name').textContent = convData.participantNames[otherUserId];
-  const avatar = convData.participantAvatars?.[otherUserId];
-  document.getElementById('chat-avatar').src = avatar || getInitials(convData.participantNames[otherUserId]);
+  // Load other user's data
+  try {
+    const userDoc = await getDoc(doc(db, COL.USERS, otherUserId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      document.getElementById('chat-name').textContent = userData.displayName || 'Wojownik';
+      const avatar = userData.avatar;
+      if (avatar) {
+        document.getElementById('chat-avatar').src = getOptimizedUrl(avatar, { width: 56, height: 56 });
+      } else {
+        document.getElementById('chat-avatar').src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28" fill="#0B0D10"/><text x="50%" y="50%" dy=".3em" text-anchor="middle" fill="#B8B0A0" font-family="Arial" font-size="16" font-weight="700">${getInitials(userData.displayName || 'W')}</text></svg>`;
+      }
+    }
+  } catch (err) {
+    console.error('[Messages] Error loading chat user:', err);
+  }
 
   updateChatStatus(otherUserId);
 
@@ -198,7 +234,7 @@ async function openChat(conversationId, otherUserId) {
 }
 
 function loadMessages(conversationId) {
-  const messagesRef = collection(db, 'conversations', conversationId, 'messages');
+  const messagesRef = collection(db, COL.CONVERSATIONS, conversationId, COL.MESSAGES);
   const q = query(
     messagesRef,
     orderBy('createdAt', 'asc'),
@@ -247,7 +283,7 @@ async function sendMessage() {
   sendBtn.disabled = true;
 
   try {
-    const messagesRef = collection(db, 'conversations', currentConversationId, 'messages');
+    const messagesRef = collection(db, COL.CONVERSATIONS, currentConversationId, COL.MESSAGES);
 
     await addDoc(messagesRef, {
       senderId: currentUser.uid,
@@ -257,7 +293,7 @@ async function sendMessage() {
     });
 
     // Update conversation
-    const convRef = doc(db, 'conversations', currentConversationId);
+    const convRef = doc(db, COL.CONVERSATIONS, currentConversationId);
     await updateDoc(convRef, {
       lastMessage: text,
       lastMessageAt: serverTimestamp()
@@ -269,8 +305,7 @@ async function sendMessage() {
 
     scrollToBottom();
   } catch (error) {
-    console.error('Error sending message:', error);
-    alert('Błąd podczas wysyłania wiadomości');
+    console.error('[Messages] Error sending message:', error);
   }
 }
 
@@ -291,14 +326,14 @@ function openNewChatModal() {
 }
 
 async function handleNewChatSearch(e) {
-  const query = e.target.value.trim().toLowerCase();
-  if (!query) {
+  const searchQuery = e.target.value.trim().toLowerCase();
+  if (!searchQuery) {
     document.getElementById('new-chat-results').innerHTML = '';
     return;
   }
 
   try {
-    const usersRef = collection(db, 'users');
+    const usersRef = collection(db, COL.USERS);
     const snapshot = await getDocs(usersRef);
 
     const results = snapshot.docs
@@ -307,19 +342,22 @@ async function handleNewChatSearch(e) {
         const name = (data.displayName || '').toLowerCase();
         const email = (data.email || '').toLowerCase();
         return doc.id !== currentUser.uid && (
-          name.includes(query) || email.includes(query)
+          name.includes(searchQuery) || email.includes(searchQuery)
         );
       })
       .slice(0, 10)
-      .map(doc => ({
-        id: doc.id,
-        displayName: doc.data().displayName || 'Wojownik',
-        avatar: doc.data().avatar
-      }));
+      .map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          displayName: data.displayName || 'Wojownik',
+          avatar: data.avatar
+        };
+      });
 
     renderNewChatResults(results);
   } catch (error) {
-    console.error('Error searching users:', error);
+    console.error('[Messages] Error searching users:', error);
   }
 }
 
@@ -350,7 +388,7 @@ function renderNewChatResults(results) {
 async function startNewConversation(otherUserId) {
   try {
     // Check if conversation exists
-    const conversationsRef = collection(db, 'conversations');
+    const conversationsRef = collection(db, COL.CONVERSATIONS);
     const q = query(
       conversationsRef,
       where('participants', 'array-contains', currentUser.uid)
@@ -359,10 +397,10 @@ async function startNewConversation(otherUserId) {
     const snapshot = await getDocs(q);
     let conversationId = null;
 
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      if (data.participants.includes(otherUserId)) {
-        conversationId = doc.id;
+    snapshot.docs.forEach(convDoc => {
+      const data = convDoc.data();
+      if (data.participants?.includes(otherUserId)) {
+        conversationId = convDoc.id;
       }
     });
 
@@ -372,36 +410,22 @@ async function startNewConversation(otherUserId) {
       return;
     }
 
-    // Create new conversation
-    const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
-    const otherUserData = otherUserDoc.data();
-
-    const currentUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
-    const currentUserData = currentUserDoc.data();
-
+    // Create new conversation with standard schema (matching messenger.js)
     const newConv = await addDoc(conversationsRef, {
       participants: [currentUser.uid, otherUserId],
-      participantNames: {
-        [currentUser.uid]: currentUserData.displayName || 'Wojownik',
-        [otherUserId]: otherUserData.displayName || 'Wojownik'
-      },
-      participantAvatars: {
-        [currentUser.uid]: currentUserData.avatar,
-        [otherUserId]: otherUserData.avatar
-      },
       lastMessage: '',
       lastMessageAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-      unreadCounts: {
+      lastSenderId: '',
+      unread: {
         [currentUser.uid]: 0,
         [otherUserId]: 0
-      }
+      },
+      createdAt: serverTimestamp()
     });
 
     await openChat(newConv.id, otherUserId);
   } catch (error) {
-    console.error('Error creating conversation:', error);
-    alert('Błąd podczas tworzenia rozmowy');
+    console.error('[Messages] Error creating conversation:', error);
   }
 }
 
@@ -410,19 +434,19 @@ async function startNewConversation(otherUserId) {
 // ═══════════════════════════════════════════════════════
 
 function setupOnlineStatusListener() {
-  const usersRef = collection(db, 'users');
+  const usersRef = collection(db, COL.USERS);
   const q = query(usersRef, limit(1000));
 
   onlineUsersUnsubscribe = onSnapshot(q, (snapshot) => {
     onlineUsers.clear();
     const now = Date.now();
 
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
+    snapshot.docs.forEach(userDoc => {
+      const data = userDoc.data();
       const lastActive = data.lastActive?.toDate?.()?.getTime() || 0;
 
       if (now - lastActive < 5 * 60 * 1000) {
-        onlineUsers.add(doc.id);
+        onlineUsers.add(userDoc.id);
       }
     });
 
@@ -452,23 +476,25 @@ function setupOnlineStatusListener() {
 
 async function updateUserPresence() {
   try {
-    await updateDoc(doc(db, 'users', currentUser.uid), {
+    await updateDoc(doc(db, COL.USERS, currentUser.uid), {
       lastActive: serverTimestamp()
     });
   } catch (error) {
-    console.error('Error updating presence:', error);
+    console.error('[Messages] Error updating presence:', error);
   }
 }
 
 async function updateChatStatus(otherUserId) {
   if (!onlineUsers.has(otherUserId)) {
     try {
-      const userDoc = await getDoc(doc(db, 'users', otherUserId));
-      const lastActive = userDoc.data().lastActive?.toDate?.() || new Date();
-      document.getElementById('chat-status').textContent = `Ostatnio: ${formatTime(lastActive)}`;
+      const userDoc = await getDoc(doc(db, COL.USERS, otherUserId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const lastActive = userData.lastActive?.toDate?.() || new Date();
+        document.getElementById('chat-status').textContent = `Ostatnio: ${formatTime(lastActive)}`;
+      }
     } catch (error) {
-      console.error('Error loading user status:', error);
-      document.getElementById('chat-status').textContent = 'offline';
+      console.error('[Messages] Error loading user status:', error);
     }
   } else {
     document.getElementById('chat-status').textContent = 'online';
@@ -481,8 +507,8 @@ async function updateChatStatus(otherUserId) {
 
 async function markConversationAsRead(conversationId) {
   try {
-    const convRef = doc(db, 'conversations', conversationId);
-    const pathRef = `unreadCounts.${currentUser.uid}`;
+    const convRef = doc(db, COL.CONVERSATIONS, conversationId);
+    const pathRef = `unread.${currentUser.uid}`;
 
     await updateDoc(convRef, {
       [pathRef]: 0
@@ -491,7 +517,7 @@ async function markConversationAsRead(conversationId) {
     unreadCounts[conversationId] = 0;
     updateUnreadBadge();
   } catch (error) {
-    console.error('Error marking as read:', error);
+    console.error('[Messages] Error marking as read:', error);
   }
 }
 
