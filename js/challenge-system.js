@@ -36,7 +36,7 @@ export const CHALLENGES_DATA = [
     id: 'lowca_wezy', order: 1,
     title: 'Łowca Węży', badge: '🏹', xp: 30,
     difficulty: 'easy', category: 'Odkrycie',
-    image: 'assets/challenges/lowca-wezy.png',
+    image: 'lowca-wezy', // Cloudinary: challenges/lowca-wezy,
     desc: 'Uświadom sobie swoją główną przeszkodę.',
     task: 'Nazwij jedną rzecz, która najbardziej przeszkadza Ci w osiągnięciu celu. Zapisz ją i podziel się z wojownikami na feedzie.',
     quiz: {
@@ -59,7 +59,7 @@ export const CHALLENGES_DATA = [
     id: 'tropiciel_hydry', order: 2,
     title: 'Tropiciel Hydry', badge: '🔍', xp: 40,
     difficulty: 'easy', category: 'Planowanie',
-    image: 'assets/challenges/tropiciel-hydry.png',
+    image: 'tropiciel-hydry', // Cloudinary,
     desc: 'Stwórz plan walki z przeszkodą.',
     task: 'Zapisz plan rozwiązania jednego problemu w 3 krokach. Opublikuj go na arenie.',
     quiz: {
@@ -82,7 +82,7 @@ export const CHALLENGES_DATA = [
     id: 'zgniatacz_wezy', order: 3,
     title: 'Zgniatacz Węży', badge: '⚔️', xp: 50,
     difficulty: 'medium', category: 'Działanie',
-    image: 'assets/challenges/zgniatacz-wezy.png',
+    image: 'zgniatacz-wezy', // Cloudinary,
     desc: 'Rozwiąż jedną zaległą sprawę.',
     task: 'Rozwiąż jedną sprawę, którą odkładasz od tygodnia.',
     quiz: {
@@ -104,7 +104,7 @@ export const CHALLENGES_DATA = [
     id: 'maly_na_rozruch', order: 4,
     title: 'Mały Na Rozruch', badge: '💸', xp: 70,
     difficulty: 'medium', category: 'Działanie',
-    image: 'assets/challenges/maly-na-rozruch.png',
+    image: 'maly-na-rozruch', // Cloudinary,
     desc: 'Zacznij odkładane zadanie w 10 minut.',
     task: 'W ciągu 10 minut od otwarcia aplikacji — rozpocznij jedno odkładane zadanie.',
     quiz: {
@@ -126,7 +126,7 @@ export const CHALLENGES_DATA = [
     id: 'pogromca_krychy', order: 5,
     title: 'Pogromca Krychy', badge: '👑', xp: 150,
     difficulty: 'hard', category: 'Mądrość',
-    image: 'assets/challenges/pogromca-krychy.png',
+    image: 'pogromca-krychy', // Cloudinary,
     desc: 'Usuń iluzję blokującą Twój wzrost.',
     task: 'Usuń jedną rzecz, która pozornie pomaga, ale blokuje Twój rozwój.',
     quiz: {
@@ -148,7 +148,7 @@ export const CHALLENGES_DATA = [
     id: 'siedem_dni_chwaly', order: 6,
     title: 'Siedem Dni Chwały', badge: '🌼', xp: 60,
     difficulty: 'medium', category: 'Wytrwałość',
-    image: 'assets/challenges/siedem-dni-chwaly.png',
+    image: 'siedem-dni-chwaly', // Cloudinary,
     desc: 'Loguj się 7 dni z rzędu.',
     task: 'Zaloguj się do aplikacji przez 7 kolejnych dni.',
     quiz: {
@@ -170,7 +170,7 @@ export const CHALLENGES_DATA = [
     id: 'nagroda_wojownika', order: 7,
     title: 'Nagroda Wojownika', badge: '💎', xp: 200,
     difficulty: 'hard', category: 'Osiągnięcie',
-    image: 'assets/challenges/nagroda-wojownika.png',
+    image: 'nagroda-wojownika', // Cloudinary,
     desc: 'Zdobądź 200 XP w ciągu tygodnia.',
     task: 'Zdobądź 200 XP w ciągu jednego tygodnia.',
     quiz: {
@@ -192,7 +192,7 @@ export const CHALLENGES_DATA = [
     id: 'duch_areny', order: 8,
     title: 'Duch Areny', badge: '🐍', xp: 200,
     difficulty: 'legend', category: 'Inspiracja',
-    image: 'assets/challenges/duch-areny.png',
+    image: 'duch-areny', // Cloudinary,
     desc: 'Opublikuj post o swoim największym celu.',
     task: 'Opublikuj post o swoim największym celu lub inspiracji.',
     quiz: {
@@ -215,7 +215,7 @@ export const CHALLENGES_DATA = [
     id: 'legenda_wojownikow', order: 9,
     title: 'Legenda Wojowników', badge: '🏆', xp: 300,
     difficulty: 'legend', category: 'Specjalne',
-    image: 'assets/challenges/duch-areny.png', // fallback
+    image: 'legenda-wojownikow', // Cloudinary, // fallback
     desc: 'Zostań Legendą Areny.',
     task: 'Ukończ wszystkie poprzednie wyzwania i potwierdź swoje miejsce w legendach areny.',
     quiz: {
