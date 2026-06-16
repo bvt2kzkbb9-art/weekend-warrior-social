@@ -1,6 +1,6 @@
 /**
  * WEEKEND WARRIOR SOCIAL — messenger.js
- * Working messenger with proper event handling
+ * Complete messenger with proper event handling
  */
 
 import { auth, db, COL, uploadImage } from "./firebase.js";
@@ -14,9 +14,12 @@ import { createNotification } from "./notifications.js";
 let currentUser = null;
 let activeConversationId = null;
 let activeOtherUid = null;
+let activeOtherName = null;
 let allConversations = [];
+let onlineUsers = [];
 let unsubConversations = null;
 let unsubMessages = null;
+let unsubOnlineUsers = null;
 let pendingImage = null;
 
 // ════════════════════════════════════════════════════════════
@@ -28,12 +31,17 @@ export function initMessenger(uid) {
   currentUser = { uid };
   setupEventListeners();
   loadConversations();
+  loadOnlineUsers();
 }
 
 function setupEventListeners() {
   // Back button
-  const backBtn = document.getElementById('chat-back-btn');
-  if (backBtn) backBtn.addEventListener('click', goBackToConversations);
+  document.getElementById('back-btn')?.addEventListener('click', closeChat);
+
+  // Profile button
+  document.getElementById('profile-btn')?.addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
 
   // Message input
   const input = document.getElementById('msg-input');
@@ -51,13 +59,11 @@ function setupEventListeners() {
   }
 
   // Send button
-  const sendBtn = document.getElementById('send-btn');
-  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+  document.getElementById('send-btn')?.addEventListener('click', sendMessage);
 
-  // Image handling
+  // File handling
   const fileBtn = document.getElementById('file-btn');
   const fileInput = document.getElementById('file-input');
-  const imgRemoveBtn = document.getElementById('img-remove-btn');
 
   if (fileBtn) fileBtn.addEventListener('click', () => fileInput?.click());
   
@@ -70,26 +76,61 @@ function setupEventListeners() {
         return;
       }
       pendingImage = file;
-      const preview = document.getElementById('img-preview');
-      if (preview) {
-        preview.querySelector('img').src = URL.createObjectURL(file);
-        preview.classList.add('show');
-      }
       fileInput.value = '';
       updateSendBtnState();
     });
   }
+}
 
-  if (imgRemoveBtn) imgRemoveBtn.addEventListener('click', clearImagePreview);
+// ════════════════════════════════════════════════════════════
+// LOAD ONLINE USERS
+// ════════════════════════════════════════════════════════════
 
-  // Search
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      filterConversations(query);
-    });
+function loadOnlineUsers() {
+  if (!currentUser?.uid) return;
+
+  const q = query(
+    collection(db, COL.USERS),
+    where('online', '==', true)
+  );
+
+  unsubOnlineUsers = onSnapshot(q, (snap) => {
+    onlineUsers = snap.docs
+      .map(d => ({ uid: d.id, ...d.data() }))
+      .filter(u => u.uid !== currentUser.uid)
+      .slice(0, 10);
+    renderOnlineUsers();
+  }, (err) => {
+    console.error('[loadOnlineUsers]', err);
+  });
+}
+
+function renderOnlineUsers() {
+  const list = document.getElementById('online-list');
+  if (!list) return;
+
+  if (onlineUsers.length === 0) {
+    list.innerHTML = '<div style="padding:1rem;color:var(--text-muted);font-size:0.875rem;">Brak dostępnych</div>';
+    return;
   }
+
+  list.innerHTML = '';
+
+  onlineUsers.forEach(user => {
+    const avatar = document.createElement('div');
+    avatar.className = 'online-avatar';
+    avatar.title = user.displayName || 'Wojownik';
+    avatar.onclick = () => openOrCreateChat(user.uid, user.displayName);
+
+    const initials = user.displayName?.charAt(0).toUpperCase() || 'U';
+    if (user.photoURL) {
+      avatar.innerHTML = `<img src="${escapeHtml(user.photoURL)}" alt="" />`;
+    } else {
+      avatar.textContent = initials;
+    }
+
+    list.appendChild(avatar);
+  });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -112,24 +153,24 @@ function loadConversations() {
       id: d.id,
       ...d.data()
     }));
-    renderConversations(allConversations);
+    renderConversations();
   }, (err) => {
     console.error('[loadConversations]', err);
   });
 }
 
-async function renderConversations(conversations) {
-  const list = document.getElementById('conv-list');
+async function renderConversations() {
+  const list = document.getElementById('chats-list');
   if (!list) return;
 
-  if (conversations.length === 0) {
-    list.innerHTML = `<div style="padding:2rem 1rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">Brak rozmów</div>`;
+  if (allConversations.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div>Brak rozmów</div></div>`;
     return;
   }
 
   list.innerHTML = '';
 
-  for (const conv of conversations) {
+  for (const conv of allConversations) {
     const otherUid = (conv.participants || []).find(u => u !== currentUser.uid);
     if (!otherUid) continue;
 
@@ -139,41 +180,38 @@ async function renderConversations(conversations) {
 
       const unreadCount = conv.unread?.[currentUser.uid] || 0;
       const hasUnread = unreadCount > 0;
-      
+
       const item = document.createElement('div');
-      item.className = `conv-item${activeConversationId === conv.id ? ' active' : ''}${hasUnread ? ' unread' : ''}`;
-      
-      // IMPORTANT: Store convId and otherUid as data attributes for click handling
+      item.className = `chat-item${hasUnread ? ' unread' : ''}`;
       item.dataset.convId = conv.id;
       item.dataset.otherUid = otherUid;
+      item.dataset.otherName = userData.displayName || 'Wojownik';
 
-      const avatarText = userData.displayName?.charAt(0).toUpperCase() || 'U';
-      const onlineClass = userData.online ? 'online' : '';
-      
+      const initials = userData.displayName?.charAt(0).toUpperCase() || 'U';
+
       item.innerHTML = `
-        <div class="conv-avatar ${onlineClass}">
+        <div class="chat-avatar">
           ${userData.photoURL 
             ? `<img src="${escapeHtml(userData.photoURL)}" alt="" />` 
-            : avatarText}
+            : initials}
         </div>
-        <div class="conv-info">
-          <div class="conv-name">${escapeHtml(userData.displayName || 'Wojownik')}</div>
-          <div class="conv-preview">${escapeHtml((conv.lastMessage || '').substring(0, 50))}</div>
+        <div class="chat-info">
+          <div class="chat-name">${escapeHtml(userData.displayName || 'Wojownik')}</div>
+          <div class="chat-preview">${escapeHtml((conv.lastMessage || '').substring(0, 50))}</div>
         </div>
-        <div class="conv-meta">
-          <div class="conv-time">${formatTime(conv.lastMessageAt)}</div>
-          ${hasUnread ? `<div class="conv-unread-badge">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
+        <div>
+          <div class="chat-time">${formatTime(conv.lastMessageAt)}</div>
+          ${hasUnread ? `<div class="unread-badge" style="margin-top:0.5rem;">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
         </div>
       `;
 
-      // Add click listener
       item.addEventListener('click', () => {
-        openConversation(conv.id, otherUid);
+        openChat(conv.id, otherUid, userData.displayName);
       });
 
       list.appendChild(item);
     } catch (err) {
-      console.error('[renderConversations] error:', err);
+      console.error('[renderConversations]', err);
     }
   }
 }
@@ -196,46 +234,62 @@ function formatTime(timestamp) {
   return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
 }
 
-function filterConversations(query) {
-  if (!query) {
-    renderConversations(allConversations);
-    return;
-  }
+// ════════════════════════════════════════════════════════════
+// OPEN/CREATE CHAT
+// ════════════════════════════════════════════════════════════
 
-  // TODO: Better filtering with user data cache
-  renderConversations(allConversations);
+async function openOrCreateChat(otherUid, otherName) {
+  // Find existing conversation
+  const existing = allConversations.find(c => 
+    c.participants?.includes(otherUid) && c.participants?.includes(currentUser.uid)
+  );
+
+  if (existing) {
+    openChat(existing.id, otherUid, otherName);
+  } else {
+    // Create new conversation
+    try {
+      const sorted = [currentUser.uid, otherUid].sort();
+      const docRef = await addDoc(collection(db, COL.CONVERSATIONS), {
+        participants: sorted,
+        lastMessage: '',
+        lastMessageAt: serverTimestamp(),
+        lastSenderId: '',
+        unread: Object.fromEntries(sorted.map(u => [u, 0])),
+        createdAt: serverTimestamp(),
+      });
+      openChat(docRef.id, otherUid, otherName);
+    } catch (err) {
+      console.error('[createConversation]', err);
+      showToast('❌ Błąd', 'error');
+    }
+  }
 }
 
-// ════════════════════════════════════════════════════════════
-// OPEN CONVERSATION
-// ════════════════════════════════════════════════════════════
-
-async function openConversation(convId, otherUid) {
+async function openChat(convId, otherUid, otherName) {
   activeConversationId = convId;
   activeOtherUid = otherUid;
-  
-  // Mobile: hide list, show chat
-  const sidebar = document.getElementById('conv-sidebar');
-  const chatPanel = document.getElementById('chat-panel');
-  
-  if (window.innerWidth <= 768) {
-    if (sidebar) sidebar.classList.add('hidden');
-  }
-  if (chatPanel) chatPanel.classList.remove('hidden');
+  activeOtherName = otherName;
 
-  // Update active state in list
-  document.querySelectorAll('.conv-item').forEach(el => {
-    el.classList.remove('active');
-  });
-  document.querySelector(`[data-conv-id="${convId}"]`)?.classList.add('active');
+  // Show modal
+  const modal = document.getElementById('chat-modal');
+  if (modal) modal.classList.add('active');
 
-  // Load user info
+  // Update header
+  document.getElementById('modal-name').textContent = otherName || 'Wojownik';
+  document.getElementById('modal-status').textContent = 'Ładowanie...';
+
+  // Get user data for status
   try {
     const userSnap = await getDoc(doc(db, COL.USERS, otherUid));
-    const userData = userSnap.exists() ? userSnap.data() : {};
-    updateChatHeader(userData, otherUid);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      document.getElementById('modal-status').textContent = userData.online 
+        ? '🟢 Online' 
+        : 'Offline';
+    }
   } catch (err) {
-    console.error('[openConversation]', err);
+    console.error('[openChat]', err);
   }
 
   // Load messages
@@ -245,30 +299,22 @@ async function openConversation(convId, otherUid) {
   markMessagesAsRead(convId);
 }
 
-function updateChatHeader(userData, otherUid) {
-  const avatar = document.getElementById('chat-avatar');
-  const name = document.getElementById('chat-name');
-  const status = document.getElementById('chat-status');
-
-  const avatarText = userData.displayName?.charAt(0).toUpperCase() || 'U';
-
-  if (avatar) {
-    if (userData.photoURL) {
-      avatar.innerHTML = `<img src="${escapeHtml(userData.photoURL)}" alt="" />`;
-    } else {
-      avatar.textContent = avatarText;
-    }
+function closeChat() {
+  const modal = document.getElementById('chat-modal');
+  if (modal) modal.classList.remove('active');
+  
+  activeConversationId = null;
+  activeOtherUid = null;
+  
+  if (unsubMessages) {
+    unsubMessages();
+    unsubMessages = null;
   }
 
-  if (name) name.textContent = userData.displayName || 'Wojownik';
-
-  if (status) {
-    if (userData.online) {
-      status.innerHTML = '<span class="online-dot"></span> Online';
-    } else {
-      status.textContent = 'Offline';
-    }
-  }
+  document.getElementById('msg-input').value = '';
+  pendingImage = null;
+  autoResizeInput(document.getElementById('msg-input'));
+  updateSendBtnState();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -297,66 +343,33 @@ function loadMessages(convId) {
 }
 
 function renderMessages(messages) {
-  const area = document.getElementById('messages-area');
-  if (!area) return;
+  const container = document.getElementById('messages-container');
+  if (!container) return;
 
-  if (messages.length === 0) {
-    area.innerHTML = '<div class="messages-area-empty">Zacznij rozmowę!</div>';
-    return;
-  }
-
-  area.innerHTML = '';
+  container.innerHTML = '';
 
   messages.forEach(msg => {
-    const date = msg.createdAt?.toDate?.() || new Date();
     const isMine = msg.senderId === currentUser.uid;
 
-    const group = document.createElement('div');
-    group.className = `msg-group${isMine ? ' mine' : ''}`;
+    const msgEl = document.createElement('div');
+    msgEl.className = `message${isMine ? ' mine' : ''}`;
 
-    if (!isMine) {
-      const avatar = document.createElement('div');
-      avatar.className = 'msg-avatar';
-      avatar.textContent = msg.senderName?.charAt(0).toUpperCase() || 'U';
-      group.appendChild(avatar);
-    }
-
-    const wrap = document.createElement('div');
-    wrap.className = 'msg-bubble-wrap';
-
+    let content = '';
+    
     if (msg.imageUrl) {
-      const img = document.createElement('img');
-      img.src = escapeHtml(msg.imageUrl);
-      img.alt = 'Zdjęcie';
-      img.className = 'msg-image';
-      img.onclick = () => window.open(msg.imageUrl, '_blank');
-      wrap.appendChild(img);
+      content += `<img src="${escapeHtml(msg.imageUrl)}" alt="Zdjęcie" class="message-image" onclick="window.open('${escapeHtml(msg.imageUrl)}','_blank')">`;
     }
-
+    
     if (msg.content) {
-      const bubble = document.createElement('div');
-      bubble.className = `msg-bubble ${isMine ? 'mine' : 'other'}`;
-      bubble.innerHTML = linkify(escapeHtml(msg.content));
-      wrap.appendChild(bubble);
+      content += `<div class="message-bubble">${escapeHtml(msg.content)}</div>`;
     }
 
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'msg-time';
-    const time = date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    timeDiv.textContent = time;
-    wrap.appendChild(timeDiv);
-
-    if (isMine) {
-      group.appendChild(wrap);
-    } else {
-      group.appendChild(wrap);
-    }
-
-    area.appendChild(group);
+    msgEl.innerHTML = content;
+    container.appendChild(msgEl);
   });
 
   // Scroll to bottom
-  area.scrollTop = area.scrollHeight;
+  container.scrollTop = container.scrollHeight;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -378,12 +391,11 @@ async function sendMessage() {
     let imageUrl = '';
     
     if (pendingImage) {
-      showToast('⏳ Przesyłanie...', 'info', 2000);
+      showToast('⏳ Przesyłanie...', 'info');
       try {
         imageUrl = await uploadImage(pendingImage, `messages/${activeConversationId}/${currentUser.uid}_${Date.now()}.jpg`);
       } catch (err) {
         showToast('❌ Błąd zdjęcia', 'error');
-        console.error('[uploadImage]', err);
         throw err;
       }
     }
@@ -439,9 +451,8 @@ async function sendMessage() {
     // Clear
     if (input) input.value = '';
     autoResizeInput(input);
-    clearImagePreview();
+    pendingImage = null;
     updateSendBtnState();
-    showToast('✓ Wysłano', 'success', 1000);
 
   } catch (err) {
     console.error('[sendMessage]', err);
@@ -478,24 +489,24 @@ async function markMessagesAsRead(convId) {
 }
 
 // ════════════════════════════════════════════════════════════
-// UI HELPERS
+// PRESENCE & EXPORTS
 // ════════════════════════════════════════════════════════════
 
-function goBackToConversations() {
-  const sidebar = document.getElementById('conv-sidebar');
-  const chatPanel = document.getElementById('chat-panel');
-  
-  if (sidebar) sidebar.classList.remove('hidden');
-  if (chatPanel) chatPanel.classList.add('hidden');
-  
-  activeConversationId = null;
-  activeOtherUid = null;
-  
-  if (unsubMessages) {
-    unsubMessages();
-    unsubMessages = null;
+export async function setOnlinePresence(uid, online) {
+  if (!uid) return;
+  try {
+    await updateDoc(doc(db, COL.USERS, uid), {
+      online: !!online,
+      lastSeen: serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn('[presence]', err.code);
   }
 }
+
+// ════════════════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════════════════
 
 function autoResizeInput(input) {
   if (!input) return;
@@ -514,84 +525,6 @@ function updateSendBtnState() {
   }
 }
 
-function clearImagePreview() {
-  pendingImage = null;
-  const preview = document.getElementById('img-preview');
-  if (preview) {
-    preview.classList.remove('show');
-    preview.querySelector('img').src = '';
-  }
-  updateSendBtnState();
-}
-
-// ════════════════════════════════════════════════════════════
-// PRESENCE
-// ════════════════════════════════════════════════════════════
-
-export async function setOnlinePresence(uid, online) {
-  if (!uid) return;
-  try {
-    await updateDoc(doc(db, COL.USERS, uid), {
-      online: !!online,
-      lastSeen: serverTimestamp(),
-    });
-  } catch (err) {
-    console.warn('[presence]', err.code);
-  }
-}
-
-export function injectMessengerBadge(uid) {
-  if (!uid) return;
-  
-  const badge = document.querySelector('[id*="msg-badge"]');
-  if (!badge) return;
-
-  const q = query(
-    collection(db, COL.CONVERSATIONS),
-    where('participants', 'array-contains', uid)
-  );
-
-  onSnapshot(q, (snap) => {
-    let total = 0;
-    snap.docs.forEach(doc => {
-      const data = doc.data();
-      total += data.unread?.[uid] || 0;
-    });
-    
-    badge.textContent = total > 9 ? '9+' : String(total);
-    badge.style.display = total > 0 ? 'inline-flex' : 'none';
-  });
-}
-
-export async function createConversation(participants) {
-  try {
-    const sorted = [...participants].sort();
-    const existingQ = query(
-      collection(db, COL.CONVERSATIONS),
-      where('participants', '==', sorted)
-    );
-    const existing = await getDocs(existingQ);
-    if (!existing.empty) return existing.docs[0].id;
-
-    const docRef = await addDoc(collection(db, COL.CONVERSATIONS), {
-      participants: sorted,
-      lastMessage: '',
-      lastMessageAt: serverTimestamp(),
-      lastSenderId: '',
-      unread: Object.fromEntries(sorted.map(u => [u, 0])),
-      createdAt: serverTimestamp(),
-    });
-    return docRef.id;
-  } catch (err) {
-    console.error('[createConversation]', err);
-    return null;
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════════════════════
-
 function escapeHtml(text) {
   if (!text) return '';
   const map = {
@@ -602,11 +535,4 @@ function escapeHtml(text) {
     "'": '&#039;',
   };
   return String(text).replace(/[&<>"']/g, m => map[m]);
-}
-
-function linkify(text) {
-  return text.replace(
-    /(https?:\/\/[^\s<]+)/g,
-    '<a href="$1" target="_blank" rel="noopener" style="text-decoration:underline;color:inherit;">$1</a>'
-  );
 }
