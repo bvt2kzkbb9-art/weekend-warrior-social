@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0A0A0B"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="WWS"/>
+  <meta name="description" content="Weekend Warrior Social — Platforma społeczności i wyzwań"/>
+  <meta property="og:title" content="⚔️ Weekend Warrior Social"/>
+  <meta property="og:description" content="Przyłącz się do społeczności wojowników."/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/design-system.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* App Shell */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Home Screen */
+    .home-stories {
+      display: flex;
+      gap: var(--space-md);
+      overflow-x: auto;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .story-item {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+    }
+
+    .story-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-gold-dim);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-dark-2);
+      transition: all var(--transition-normal);
+    }
+
+    .story-item:active .story-avatar {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .story-name {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      max-width: 56px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      padding: 0 var(--space-lg) var(--space-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .quick-action {
+      background: var(--color-dark-2);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      font-size: 24px;
+    }
+
+    .quick-action:active {
+      background: var(--color-dark-1);
+      border-color: var(--color-gold);
+    }
+
+    .quick-action-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      text-align: center;
+    }
+
+    /* Feed */
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+    }
+
+    /* Challenges Grid */
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+    }
+
+    .challenge-card {
+      background: var(--color-dark-1);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .challenge-card:active {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+    }
+
+    .challenge-image {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--color-dark-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .challenge-info {
+      padding: var(--space-md);
+    }
+
+    .challenge-title {
+      font-size: var(--text-small);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .challenge-difficulty {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: var(--radius-xs);
+      background: var(--color-dark-2);
+      color: var(--color-gold);
+      margin-bottom: 4px;
+    }
+
+    .challenge-reward {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Create Modal */
+    .create-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      padding: var(--space-xl);
+    }
+
+    .create-option {
+      background: var(--color-dark-2);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-lg);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .create-option:active {
+      background: var(--color-dark-1);
+      border-color: var(--color-gold);
+    }
+
+    .create-icon {
+      font-size: 32px;
+    }
+
+    .create-label {
+      font-size: var(--text-small);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Messages List */
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-dark-2);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .message-item:active {
+      background: var(--color-dark-2);
+    }
+
+    .message-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: var(--color-dark-2);
+      border: 2px solid var(--color-gold-dim);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .message-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .message-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .message-preview {
+      font-size: var(--text-small);
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .message-time {
+      font-size: var(--text-tiny);
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      position: relative;
+      padding-bottom: var(--space-xl);
+    }
+
+    .profile-banner {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-full);
+      background: var(--color-dark-2);
+      border: 4px solid var(--color-dark-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: -40px;
+      left: var(--space-lg);
+      font-size: 32px;
+    }
+
+    .profile-info {
+      padding: 50px var(--space-lg) var(--space-xl);
+    }
+
+    .profile-name {
+      font-size: var(--text-h2);
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+
+    .profile-title {
+      color: var(--color-gold);
+      font-size: var(--text-body);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+
+    .profile-stat {
+      background: var(--color-dark-2);
+      padding: var(--space-lg);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .profile-stat-value {
+      font-size: var(--text-h2);
+      font-weight: 700;
+      color: var(--color-gold);
+      margin-bottom: var(--space-sm);
+    }
+
+    .profile-stat-label {
+      font-size: var(--text-small);
+      color: var(--color-text-secondary);
+    }
+
+    /* Tabs */
+    .tab-menu {
+      display: flex;
+      border-bottom: 1px solid var(--color-dark-2);
+      gap: var(--space-lg);
+      padding: 0 var(--space-lg);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-item {
+      padding: var(--space-lg) 0;
+      font-size: var(--text-body);
+      color: var(--color-text-secondary);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-normal);
+    }
+
+    .tab-item.active {
+      color: var(--color-gold);
+      border-bottom-color: var(--color-gold);
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      padding: var(--space-2xl) var(--space-lg);
+      text-align: center;
+      color: var(--color-text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">⚔️ WWS</div>
+    <input type="search" class="header-search" placeholder="Szukaj..." id="search-input"/>
+    <div class="header-actions">
+      <button class="btn-icon" id="notif-btn">🔔</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- HOME SCREEN -->
+    <div class="screen active" id="screen-home">
+      <!-- Stories -->
+      <div class="home-stories">
+        <div class="story-item">
+          <div class="story-avatar">+</div>
+          <div class="story-name">Historia</div>
+        </div>
+        <div class="story-item">
+          <div class="story-avatar">👥</div>
+          <div class="story-name">Przyjaciele</div>
+        </div>
+        <div class="story-item">
+          <div class="story-avatar">⚡</div>
+          <div class="story-name">Trending</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div class="quick-action" onclick="showScreen('screen-create')">
+          <span>📝</span>
+          <span class="quick-action-label">Post</span>
+        </div>
+        <div class="quick-action" onclick="showScreen('screen-create')">
+          <span>📸</span>
+          <span class="quick-action-label">Zdjęcie</span>
+        </div>
+        <div class="quick-action" onclick="showScreen('screen-challenges')">
+          <span>⚔️</span>
+          <span class="quick-action-label">Wyzwanie</span>
+        </div>
+        <div class="quick-action" onclick="showScreen('screen-messages')">
+          <span>💬</span>
+          <span class="quick-action-label">Czat</span>
+        </div>
+      </div>
+
+      <!-- Feed -->
+      <div class="feed" id="feed-container">
+        <!-- Posts rendered here by JS -->
+      </div>
+    </div>
+
+    <!-- CHALLENGES SCREEN -->
+    <div class="screen" id="screen-challenges">
+      <div style="padding: var(--space-lg);">
+        <h1 style="font-size: var(--text-h2); margin-bottom: var(--space-lg);">Wyzwania</h1>
+
+        <!-- Filters -->
+        <div style="display: flex; gap: var(--space-md); margin-bottom: var(--space-lg); overflow-x: auto;">
+          <button class="btn btn-small btn-primary" onclick="filterChallenges('all')">Wszystkie</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('trending')">Trending</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('new')">Nowe</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('easy')">Łatwe</button>
+        </div>
+      </div>
+
+      <!-- Challenges Grid -->
+      <div class="challenges-grid" id="challenges-grid">
+        <!-- Challenges rendered here by JS -->
+      </div>
+    </div>
+
+    <!-- CREATE SCREEN -->
+    <div class="screen" id="screen-create">
+      <div style="padding: var(--space-xl);">
+        <h2 style="font-size: var(--text-h2); margin-bottom: var(--space-xl);">Co chcesz zrobić?</h2>
+        <div class="create-menu">
+          <div class="create-option" onclick="createPost('text')">
+            <div class="create-icon">📝</div>
+            <div class="create-label">Napisz coś</div>
+          </div>
+          <div class="create-option" onclick="createPost('photo')">
+            <div class="create-icon">📸</div>
+            <div class="create-label">Dodaj zdjęcie</div>
+          </div>
+          <div class="create-option" onclick="createChallenge()">
+            <div class="create-icon">⚔️</div>
+            <div class="create-label">Wyzwanie</div>
+          </div>
+          <div class="create-option" onclick="createEvent()">
+            <div class="create-icon">📅</div>
+            <div class="create-label">Wydarzenie</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES SCREEN -->
+    <div class="screen" id="screen-messages">
+      <div style="padding: var(--space-lg);">
+        <h1 style="font-size: var(--text-h2); margin-bottom: var(--space-lg);">Wiadomości</h1>
+      </div>
+      <div class="messages-list" id="messages-list">
+        <!-- Messages rendered here by JS -->
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="screen" id="screen-profile">
+      <div class="profile-header">
+        <div class="profile-banner">👤</div>
+        <div class="profile-avatar" id="profile-avatar">👤</div>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-name" id="profile-name">Nowy Wojownik</div>
+        <div class="profile-title" id="profile-rank">🥉 Rookie</div>
+
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-xp">0</div>
+            <div class="profile-stat-label">XP</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-level">1</div>
+            <div class="profile-stat-label">Poziom</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-streak">0</div>
+            <div class="profile-stat-label">Pasmo</div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" style="width: 100%; margin-bottom: var(--space-lg);">Edytuj profil</button>
+        <button class="btn btn-ghost" style="width: 100%;">Wyloguj się</button>
+      </div>
+
+      <!-- Profile Tabs -->
+      <div class="tab-menu">
+        <div class="tab-item active" onclick="switchProfileTab(this, 'posts')">Posty</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'challenges')">Wyzwania</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'achievements')">Osiągnięcia</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'friends')">Znajomi</div>
+      </div>
+
+      <div id="profile-tabs-content">
+        <!-- Tab content rendered here -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAVBAR (5 ICONS) -->
+  <nav class="navbar">
+    <a class="nav-item active" onclick="showScreen('screen-home')" href="#home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>Home</span>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-challenges')" href="#challenges">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12.5 7h-1v6l5.2 3.2.8-1.3-5-3v-4.9z"/>
+      </svg>
+      <span>Wyzwania</span>
+    </a>
+
+    <a class="nav-item nav-create" onclick="showScreen('screen-create')" href="#create">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      <span>Utwórz</span>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-messages')" href="#messages">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span>Wiadomości</span>
+      <div class="nav-badge" id="msg-badge" style="display: none;">0</div>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-profile')" href="#profile">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Profil</span>
+    </a>
+  </nav>
+</div>
+
+<!-- SCRIPTS -->
+<script type="module">
+  import { auth, db } from './js/firebase.js';
+
+  // Screen Navigation
+  window.showScreen = function(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    event.target.closest('.nav-item')?.classList.add('active');
+  };
+
+  // Create functions
+  window.createPost = function(type) { alert('Create ' + type); };
+  window.createChallenge = function() { alert('Create challenge'); };
+  window.createEvent = function() { alert('Create event'); };
+  window.filterChallenges = function(type) { alert('Filter: ' + type); };
+  window.switchProfileTab = function(tab, tabName) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    alert('Switch to: ' + tabName);
+  };
+
+  // Initialize
+  console.log('App initialized');
+</script>
+</body>
+</html>
