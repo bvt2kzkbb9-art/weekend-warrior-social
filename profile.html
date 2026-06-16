@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0A0A0B" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://cloudinary.com https://res.cloudinary.com;">
   <meta name="description" content="Weekend Warrior Social — Profil" />
   <title>Profil — Weekend Warrior Social</title>
   <!-- PWA -->
@@ -293,8 +294,8 @@
                      class="form-input has-toggle"
                      placeholder="Wpisz aktualne hasło"
                      autocomplete="current-password" />
-              <button type="button" class="input-toggle"
-                      onclick="const i=document.getElementById('current-password');i.type=i.type==='password'?'text':'password';"
+              <button type="button" class="input-toggle toggle-password-btn"
+                      data-target="current-password"
                       aria-label="Pokaż hasło">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2"
@@ -318,8 +319,8 @@
                      class="form-input has-toggle"
                      placeholder="Min. 6 znaków"
                      autocomplete="new-password" />
-              <button type="button" class="input-toggle"
-                      onclick="const i=document.getElementById('new-password');i.type=i.type==='password'?'text':'password';"
+              <button type="button" class="input-toggle toggle-password-btn"
+                      data-target="new-password"
                       aria-label="Pokaż nowe hasło">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2"
@@ -343,8 +344,8 @@
                      class="form-input has-toggle"
                      placeholder="Powtórz nowe hasło"
                      autocomplete="new-password" />
-              <button type="button" class="input-toggle"
-                      onclick="const i=document.getElementById('confirm-new-password');i.type=i.type==='password'?'text':'password';"
+              <button type="button" class="input-toggle toggle-password-btn"
+                      data-target="confirm-new-password"
                       aria-label="Pokaż potwierdzenie hasła">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2"
@@ -434,6 +435,18 @@
     if (user) {
       initInviteButton(document.getElementById('profile-invite-btn'), user.uid);
     }
+  });
+
+  // Password visibility toggles
+  document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+      }
+    });
   });
 </script>
 
