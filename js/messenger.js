@@ -3,7 +3,6 @@
  * WEEKEND WARRIOR SOCIAL — messenger.js (PEŁNY MESSENGER)
  * Lista rozmów · wiadomości realtime · zdjęcia · odczytane ·
  * ostatnia aktywność · badge w nav · powiadomienia
- * Firebase SDK 10.12.2 | Firestore + Storage
  * ============================================================
  *
  * Struktura Firestore:
@@ -272,15 +271,11 @@ export function initMessenger() {
       }
 
       // Pobierz dane drugiej strony każdej rozmowy
-      const results = await Promise.allSettled(convs.map(async (c) => {
+      const enriched = await Promise.all(convs.map(async (c) => {
         const otherUid = (c.participants || []).find((u) => u !== me.uid);
         const other = otherUid ? await _getUser(otherUid) : null;
         return { ...c, other };
       }));
-
-      const enriched = results
-        .filter((r) => r.status === 'fulfilled')
-        .map((r) => r.value);
 
       list.innerHTML = "";
       enriched.forEach((c) => {

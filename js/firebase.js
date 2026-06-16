@@ -2,7 +2,6 @@
  * ============================================================
  * WEEKEND WARRIOR SOCIAL — firebase.js (CORE)
  * Firebase SDK 10.12.2 | ES Modules | App + Auth + Firestore
- * Images: Cloudinary (darmowe, bez limitów Firebase Storage)
  * ============================================================
  *
  * KONTRAKT API (używany przez WSZYSTKIE strony — nie zmieniać sygnatur):
@@ -95,7 +94,6 @@ export function getRankProgress(points = 0) {
 }
 
 // ════════════════════════════════════════════════════════════
-// FIREBASE STORAGE — upload / delete zdjęć
 // ════════════════════════════════════════════════════════════
 
 /**
@@ -128,7 +126,6 @@ export function compressImage(file, maxDim = 1280, quality = 0.85) {
 }
 
 /**
- * Upload pliku do Firebase Storage.
  * @param {File|Blob} file
  * @param {string} path        — np. `posts/${uid}/${Date.now()}.jpg`
  * @param {(pct:number)=>void} [onProgress]

@@ -1,7 +1,6 @@
 /**
  * ============================================================
  * WEEKEND WARRIOR SOCIAL — feed.js (KRONIKI ARENY)
- * Posty · zdjęcia (Storage) · lajki · komentarze + odpowiedzi ·
  * edycja · usuwanie · udostępnianie · zakładki · XP · powiadomienia
  * Firebase SDK 10.12.2 | ES Modules
  * ============================================================
@@ -19,51 +18,16 @@
  *   addComment, loadComments, deleteComment, getPost
  */
 
-import { auth, db, COL, getRank } from "./firebase.js";
-import { showToast } from './auth.js';
-import { awardXP, XP_ACTIONS } from './xp.js';
-import { uploadPostImage } from './profile-service.js';
-import { hideSkeletonShowContent } from './utils.js';
-
+import { auth, db, COL, uploadImage, deleteImageByURL, getRank } from "./firebase.js";
 import {
-  onAuthStateChanged,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-import {
-  collection,
-  doc,
-  addDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-  query,
-  orderBy,
-  limit,
-  startAfter,
-  arrayUnion,
-  arrayRemove,
-  serverTimestamp,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-
-
-// ── Constants ────────────────────────────────────────────────
-const POSTS_PER_PAGE  = 10;
-const MAX_POST_LENGTH = 500;
-const MAX_IMAGE_SIZE  = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES   = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-// ── State ────────────────────────────────────────────────────
-let currentUser     = null;
-let currentUserData = null;
-let lastPostDoc     = null;
-let hasMorePosts    = false;
-let unsubFeed       = null;
-let selectedImage   = null;  // File object
-let isPosting       = false;
-
+  collection, addDoc, query, orderBy, limit, onSnapshot, updateDoc, doc,
+  deleteDoc, getDoc, getDocs, where, startAfter, arrayUnion, arrayRemove,
+  serverTimestamp, increment,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { showToast } from "./auth.js";
+import { createNotification } from "./notifications.js";
+import { awardXP, XP_ACTIONS } from "./xp.js";
 
 // ════════════════════════════════════════════════════════════
 // API
@@ -138,7 +102,6 @@ export async function deletePost(postId, uid) {
     if (!postSnap.exists()) { showToast("❌ Post nie istnieje", "error"); return false; }
     if (postSnap.data().authorId !== uid) { showToast("❌ Nie możesz usunąć tego posta", "error"); return false; }
 
-    // Usuń zdjęcie ze Storage
     if (postSnap.data().imageUrl) deleteImageByURL(postSnap.data().imageUrl);
 
     await deleteDoc(doc(db, COL.POSTS, postId));
@@ -205,42 +168,6 @@ export async function getPost(postId) {
 }
 
 // ════════════════════════════════════════════════════════════
-// IMAGE UPLOAD (Cloudinary)
-// ════════════════════════════════════════════════════════════
-
-async function _uploadImageToCloudinary(file) {
-  const TAG = '[uploadImage]';
-  const progressEl = document.getElementById('upload-progress');
-  const progressBar = document.getElementById('upload-progress-bar');
-
-  if (progressEl) progressEl.classList.remove('hidden');
-
-  try {
-    const progressInterval = setInterval(() => {
-      const current = parseInt(progressBar?.style.width || '0');
-      if (current < 90) {
-        const next = current + Math.random() * 30;
-        if (progressBar) progressBar.style.width = Math.min(90, next).toFixed(0) + '%';
-      }
-    }, 200);
-
-    const result = await uploadPostImage(file);
-    clearInterval(progressInterval);
-
-    if (progressBar) progressBar.style.width = '100%';
-    if (progressEl) progressEl.classList.add('hidden');
-
-    console.log(TAG, '✅ Upload OK:', result.url);
-    return result;
-
-  } catch (err) {
-    console.error(TAG, '❌', err.message);
-    if (progressEl) progressEl.classList.add('hidden');
-    throw err;
-  }
-}
-
-// ════════════════════════════════════════════════════════════
 // PEŁNE UI — initFeed() (feed.html)
 // ════════════════════════════════════════════════════════════
 
@@ -253,7 +180,7 @@ export function initFeed() {
   let pendingImage = null;
   let lastVisible = null;
   const PAGE = 20;
-  const openComments = new Set();
+  const openComments = new Set();   // posty z rozwiniętymi komentarzami
   const commentUnsubs = new Map();
 
   const $ = (id) => document.getElementById(id);
@@ -262,148 +189,103 @@ export function initFeed() {
     if (!user) { window.location.href = "login.html"; return; }
     me = user;
 
+    $("logout-btn")?.addEventListener("click", async () => {
+      const { logout } = await import("./auth.js");
+      logout();
+    });
+
     try {
       const snap = await getDoc(doc(db, COL.USERS, user.uid));
       if (snap.exists()) myData = snap.data();
     } catch {}
 
+    _renderComposeAvatar();
     _wireCompose();
     _wireTabs();
     await _loadFollowing();
     _startFeed();
   });
 
+  // ── Compose ────────────────────────────────────────────────
+  function _renderComposeAvatar() {
+    const av = $("compose-avatar");
+    if (!av) return;
+    const name = myData.displayName || me.displayName || "W";
+    if (myData.photoURL) {
+      av.innerHTML = `<img src="${_esc(myData.photoURL)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+      av.textContent = name.charAt(0).toUpperCase();
+    }
+  }
+
   function _wireCompose() {
-    const textarea = $("post-textarea");
-    const imageBtn = $("image-upload-btn");
-    const imageInput = $("image-input");
+    const ta = $("post-textarea");
+    const count = $("char-count");
+    const submitBtn = $("post-submit-btn");
+    const imgBtn = $("image-upload-btn");
+    const imgInput = $("image-input");
     const preview = $("compose-preview");
     const removeBtn = $("remove-image-btn");
-    const submitBtn = $("post-submit-btn");
-    const charCount = $("char-count");
 
-    if (imageBtn) {
-      imageBtn.addEventListener('click', () => imageInput?.click());
-    }
+    ta?.addEventListener("input", () => {
+      if (count) count.textContent = String(500 - ta.value.length);
+    });
 
-    if (imageInput) {
-      imageInput.addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    imgBtn?.addEventListener("click", () => imgInput?.click());
+    imgInput?.addEventListener("change", () => {
+      const file = imgInput.files?.[0];
+      if (!file) return;
+      if (file.size > 8 * 1024 * 1024) { showToast("❌ Zdjęcie max 8 MB", "error"); return; }
+      pendingImage = file;
+      if (preview) {
+        preview.querySelector("img").src = URL.createObjectURL(file);
+        preview.classList.remove("hidden");
+      }
+      imgInput.value = "";
+    });
+    removeBtn?.addEventListener("click", () => {
+      pendingImage = null;
+      preview?.classList.add("hidden");
+    });
 
-        if (!ALLOWED_TYPES.includes(file.type)) {
-          showToast('Dozwolone formaty: JPG, PNG, WebP, GIF', 'error');
-          return;
+    submitBtn?.addEventListener("click", async () => {
+      const content = ta?.value.trim() || "";
+      if (!content && !pendingImage) { showToast("⚠️ Napisz coś lub dodaj zdjęcie", "info"); return; }
+      submitBtn.disabled = true;
+      try {
+        let imageUrl = "";
+        if (pendingImage) {
+          const progWrap = $("upload-progress");
+          const progBar = $("upload-progress-bar");
+          progWrap?.classList.remove("hidden");
+          imageUrl = await uploadImage(
+            pendingImage,
+            `posts/${me.uid}/${Date.now()}.jpg`,
+            (pct) => { if (progBar) progBar.style.width = pct + "%"; }
+          );
+          progWrap?.classList.add("hidden");
+          if (progBar) progBar.style.width = "0%";
         }
-
-        if (file.size > MAX_IMAGE_SIZE) {
-          showToast('Zdjęcie może mieć max. 5 MB.', 'error');
-          return;
-        }
-
-        pendingImage = file;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = preview?.querySelector('img');
-          if (img) {
-            img.src = ev.target.result;
-            preview?.classList.remove('hidden');
-          }
-        };
-        reader.readAsDataURL(file);
-        imageBtn?.classList.add('active');
-      });
-    }
-
-    if (removeBtn) {
-      removeBtn.addEventListener('click', () => {
-        pendingImage = null;
-        if (imageInput) imageInput.value = '';
-        preview?.classList.add('hidden');
-        imageBtn?.classList.remove('active');
-      });
-    }
-
-    if (submitBtn) {
-      submitBtn.addEventListener('click', async () => {
-        const content = textarea?.value.trim() || '';
-
-        if (!content && !pendingImage) {
-          showToast('Napisz coś lub dodaj zdjęcie! 📝', 'info');
-          textarea?.focus();
-          return;
-        }
-
-        if (content.length > MAX_POST_LENGTH) {
-          showToast(`Post może mieć max ${MAX_POST_LENGTH} znaków.`, 'error');
-          return;
-        }
-
-        isPosting = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Publikuję...';
-
-        try {
-          let imageUrl = '';
-          let imagePublicId = '';
-
-          if (pendingImage) {
-            const result = await _uploadImageToCloudinary(pendingImage);
-            imageUrl = result.url;
-            imagePublicId = result.publicId;
-          }
-
-          const rankObj = getRank(myData?.points ?? 0);
-          const postData = {
-            authorId: me.uid,
-            authorName: myData?.displayName || me.displayName || 'Wojownik',
-            authorPhoto: myData?.photoURL || '',
-            authorRank: rankObj.label,
-            authorRankEmoji: rankObj.emoji,
-            content,
-            imageUrl,
-            imagePublicId,
-            likes: [],
-            likesCount: 0,
-            commentsCount: 0,
-            createdAt: serverTimestamp(),
-          };
-
-          await addDoc(collection(db, COL.POSTS), postData);
-          console.log('[submitPost] ✅ Post dodany do Firestore');
-
-          if (textarea) {
-            textarea.value = '';
-            textarea.style.height = 'auto';
-          }
+        const id = await createPost(
+          me.uid,
+          myData.displayName || me.displayName || "Wojownik",
+          myData.photoURL || "",
+          content,
+          imageUrl
+        );
+        if (id) {
+          if (ta) { ta.value = ""; if (count) count.textContent = "500"; }
           pendingImage = null;
-          if (imageInput) imageInput.value = '';
-          preview?.classList.add('hidden');
-          imageBtn?.classList.remove('active');
-          if (charCount) charCount.textContent = MAX_POST_LENGTH;
-
-          showToast('Post opublikowany! ⚔️', 'success');
-          awardXP(me.uid, XP_ACTIONS.POST_CREATED).catch(() => {});
-
-        } catch (err) {
-          console.error('[submitPost] ❌', err.message);
-          showToast('Błąd: ' + err.message, 'error');
-        } finally {
-          isPosting = false;
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publikuj';
+          preview?.classList.add("hidden");
         }
-      });
-    }
-
-    if (textarea) {
-      textarea.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault();
-          submitBtn?.click();
-        }
-      });
-    }
+      } catch (e) {
+        console.error("[compose]", e);
+        showToast("❌ Błąd: " + (e.code || e.message), "error");
+        $("upload-progress")?.classList.add("hidden");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
   }
 
   // ── Zakładki ───────────────────────────────────────────────
@@ -448,7 +330,6 @@ export function initFeed() {
     const q = query(collection(db, COL.POSTS), orderBy("createdAt", "desc"), limit(PAGE));
     unsubFeed = onSnapshot(q, (snap) => {
       window._clearFeedSkeleton?.();
-      hideSkeletonShowContent('feed-loading', 'feed-content');
       lastVisible = snap.docs[snap.docs.length - 1] || null;
       let posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       if (currentTab === "following") {
@@ -459,7 +340,6 @@ export function initFeed() {
       if (more) more.style.display = snap.docs.length === PAGE && currentTab !== "following" ? "block" : "none";
     }, (err) => {
       window._clearFeedSkeleton?.();
-      hideSkeletonShowContent('feed-loading', 'feed-content');
       console.warn("[feed]", err.code);
       showToast("❌ Błąd ładowania kronik: " + err.code, "error");
     });
@@ -772,21 +652,11 @@ function _fmtTime(ts) {
   if (h < 24) return `${h} godz. temu`;
   return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" });
 }
-
-async function deletePost(postId, data) {
-  const TAG = '[deletePost]';
-  console.log(TAG, '🗑️ Usuwam post:', postId);
-
-  try {
-    // Usuń dokument z Firestore (Cloudinary image cleanup jest automatyczne)
-    await deleteDoc(doc(db, COL.POSTS, postId));
-    console.log(TAG, '✅ Post usunięty');
-    showToast('Post usunięty.', 'success');
-
-  } catch (err) {
-    console.error(TAG, '❌', err.code, err.message);
-    showToast('Błąd usuwania posta.', 'error');
-  }
+function _linkify(escaped) {
+  return escaped
+    .replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" target="_blank" rel="noopener" class="mention-link">$1</a>`)
+    .replace(/(^|\s)#([\p{L}\d_]+)/gu, `$1<span class="hashtag-link">#$2</span>`)
+    .replace(/(^|\s)@([\p{L}\d_]+)/gu, `$1<span class="mention-link">@$2</span>`);
 }
 function _esc(s) {
   if (typeof s !== "string") return "";

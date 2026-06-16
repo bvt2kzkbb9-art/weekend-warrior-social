@@ -183,35 +183,6 @@ export const ACHIEVEMENTS = [
     check:    (d) => (d.points ?? 0) >= 7500,
   },
 
-  // ── Quizy ────────────────────────────────────────────────
-  {
-    id:       'quiz_first',
-    category: 'Quizy',
-    emoji:    '🧠',
-    name:     'Osiedlowy Filozof',
-    desc:     'Ukończyłeś swój pierwszy quiz.',
-    secret:   false,
-    check:    (d) => (d.quizzesCompleted ?? 0) >= 1,
-  },
-  {
-    id:       'quiz_ten',
-    category: 'Quizy',
-    emoji:    '⚔️',
-    name:     'Mędrzec Areny',
-    desc:     'Ukończyłeś 10 quizów.',
-    secret:   false,
-    check:    (d) => (d.quizzesCompleted ?? 0) >= 10,
-  },
-  {
-    id:       'quiz_hundred',
-    category: 'Quizy',
-    emoji:    '👑',
-    name:     'Profesor Hydry',
-    desc:     'Odpowiedziałeś prawidłowo 100 razy.',
-    secret:   false,
-    check:    (d) => (d.quizCorrectAnswers ?? 0) >= 100,
-  },
-
   // ── Ukryte ────────────────────────────────────────────────
   {
     id:       'golden_disc',
@@ -252,7 +223,7 @@ export const ACHIEVEMENTS = [
 ];
 
 // Kategorie w kolejności
-const CATEGORIES = ['Aktywność', 'Społeczność', 'Rangi', 'Quizy', 'Specjalne', 'Tajemnicze'];
+const CATEGORIES = ['Aktywność', 'Społeczność', 'Rangi', 'Specjalne', 'Tajemnicze'];
 
 
 // ════════════════════════════════════════════════════════════
