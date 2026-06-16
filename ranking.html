@@ -168,15 +168,23 @@
     // 2s skeleton timeout safety
     const skeletonTimeout = setTimeout(() => {
       const sk = document.getElementById('podium-skeleton');
-      if (sk && sk.style.display !== 'none') {
-        sk.style.display = 'none';
-        document.getElementById('ranking-podium').classList.remove('hidden');
+      if (sk && !sk.classList.contains('hidden')) {
+        sk?.classList.add('hidden');
+        document.getElementById('ranking-podium')?.classList.remove('hidden');
       }
     }, 2000);
-    await _loadPodium();
-    clearTimeout(skeletonTimeout);
-    await _loadRankingPage(true);
-    _setupFilters();
+    try {
+      await _loadPodium();
+      clearTimeout(skeletonTimeout);
+      await _loadRankingPage(true);
+      _setupFilters();
+    } catch (err) {
+      console.error('[ranking] error:', err.code);
+      clearTimeout(skeletonTimeout);
+      // Ensure skeleton is hidden and fallback is shown
+      document.getElementById('podium-skeleton')?.classList.add('hidden');
+      document.getElementById('ranking-podium')?.classList.remove('hidden');
+    }
   });
 
   async function _loadPodium() {
@@ -185,8 +193,8 @@
       const users = []; snap.forEach(d => users.push({uid:d.id,...d.data()}));
       const podium = document.getElementById('ranking-podium');
       const skeleton = document.getElementById('podium-skeleton');
-      skeleton.style.display = 'none';
-      podium.classList.remove('hidden');
+      skeleton?.classList.add('hidden');
+      podium?.classList.remove('hidden');
 
       const slots = [
         {rank:2, i:1, users},

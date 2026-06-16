@@ -434,8 +434,8 @@
     injectNotifBell(user.uid);
     // 3s skeleton safety — Firebase może być wolny
     const skTimer = setTimeout(() => {
-      document.getElementById('profile-skeleton').style.display = 'none';
-      document.getElementById('profile-content').classList.remove('hidden');
+      document.getElementById('profile-skeleton')?.classList.add('hidden');
+      document.getElementById('profile-content')?.classList.remove('hidden');
     }, 3000);
     let data = null;
     try { 
@@ -446,22 +446,34 @@
     }
     data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
     clearTimeout(skTimer);
-    _renderProfile(user, data);
-    _renderAchievements(data);
-    _renderStreakCalendar(data);
-    _setupEdit(user, data);
-    _setupImageUploads(user.uid, data);
-    await Promise.allSettled([
-      _loadHistory(user.uid),
-      _loadSocialCounts(user.uid),
-      _loadFriendsPanel(user.uid, data),
-    ]);
-    _setupFriendSearch(user.uid, data);
+    try {
+      _renderProfile(user, data);
+      _renderAchievements(data);
+      _renderStreakCalendar(data);
+      _setupEdit(user, data);
+      _setupImageUploads(user.uid, data);
+      await Promise.allSettled([
+        _loadHistory(user.uid),
+        _loadSocialCounts(user.uid),
+        _loadFriendsPanel(user.uid, data),
+      ]);
+      _setupFriendSearch(user.uid, data);
+    } catch (err) {
+      console.error('[profile] render error:', err);
+      // Show at least partial content on error
+      const sk = document.getElementById('profile-skeleton');
+      if (sk && !sk.classList.contains('hidden')) {
+        sk.classList.add('hidden');
+        document.getElementById('profile-content')?.classList.remove('hidden');
+      }
+    }
   });
 
   function _renderProfile(user, data) {
-    document.getElementById('profile-skeleton').style.display = 'none';
-    document.getElementById('profile-content').classList.remove('hidden');
+    const skeleton = document.getElementById('profile-skeleton');
+    const content = document.getElementById('profile-content');
+    if (skeleton) skeleton.classList.add('hidden');
+    if (content) content.classList.remove('hidden');
 
     const name = data.displayName || user.displayName || 'Wojownik';
     const points = Number(data.points) || 0;

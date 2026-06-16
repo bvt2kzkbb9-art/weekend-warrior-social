@@ -225,9 +225,18 @@
     try {
       const snap = await getDoc(doc(db, COL.USERS, user.uid));
       currentUserData = snap.exists() ? snap.data() : { points: 0, displayName: user.displayName };
-    } catch {}
+    } catch (err) {
+      console.error('[challenges] user data:', err.code);
+      currentUserData = { points: 0, displayName: user.displayName, uid: user.uid };
+    }
     clearTimeout(skTimer);
-    _renderGrid();
+    try {
+      _renderGrid();
+    } catch (err) {
+      console.error('[challenges] grid render:', err);
+      const grid = document.getElementById('challenges-grid');
+      if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--fire);">Błąd ładowania misji</div>`;
+    }
   });
 
   // ── Challenge Grid ──────────────────────────────────────────────

@@ -347,7 +347,18 @@
     injectMessengerBadge(user.uid);
 
     let userData = null;
-    try { userData = await getCurrentUserData(user.uid, user); } catch {}
+    try { userData = await getCurrentUserData(user.uid, user); } catch (err) {
+      console.error('[index] userData load failed:', err.code);
+      userData = null;
+    }
+
+    // Always clear skeleton, even on error
+    clearTimeout(skTimer);
+    const skeleton = document.getElementById('char-skeleton');
+    if (skeleton && !skeleton.classList.contains('hidden')) {
+      skeleton.classList.add('hidden');
+      document.getElementById('char-card')?.classList.remove('hidden');
+    }
     userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0 };
 
     clearTimeout(skTimer);
