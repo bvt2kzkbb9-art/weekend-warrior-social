@@ -10,8 +10,8 @@
 
 .messenger-page {
   display: flex;
-  height: calc(100vh - 56px);       /* minus nav */
-  max-width: 900px;
+  height: calc(100vh - 56px);
+  max-width: 100%;
   margin: 0 auto;
   overflow: hidden;
   position: relative;
@@ -30,17 +30,42 @@
   overflow: hidden;
 }
 
-/* Mobile portrait only — landscape stays 2-column for now */
-@media (max-width: 812px) and (orientation: portrait) {
+/* Mobile layout - SINGLE COLUMN ALWAYS */
+@media (max-width: 1024px) {
+  .messenger-page {
+    display: flex;
+    flex-direction: column;
+  }
+
   .conv-sidebar {
     width: 100%;
     position: absolute;
     inset: 0;
     z-index: 10;
     transition: transform .25s ease;
+    display: flex;
+    flex-direction: column;
   }
+
   .conv-sidebar.slide-out {
     transform: translateX(-100%);
+  }
+
+  .chat-area {
+    width: 100%;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-area.hidden {
+    display: none !important;
+  }
+
+  .chat-back-btn {
+    display: flex !important;
   }
 }
 
