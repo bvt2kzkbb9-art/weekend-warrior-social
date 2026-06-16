@@ -4,7 +4,8 @@
  */
 
 import { auth, db, COL } from './firebase.js';
-import { onAuthStateChanged, collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { hideSkeletonShowContent } from './utils.js';
 import { showToast } from './auth.js';
 
