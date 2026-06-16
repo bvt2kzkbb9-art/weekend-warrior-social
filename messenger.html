@@ -131,56 +131,60 @@
     }
 
     /* ═════════════════════════════════════════════════════════════ */
-    /* ONLINE USERS */
+    /* ONLINE USERS — Carousel Like Arena Challenges */
     /* ═════════════════════════════════════════════════════════════ */
     .online-list {
       display: flex;
-      gap: 1rem;
+      gap: .75rem;
       overflow-x: auto;
-      padding-bottom: 0.75rem;
+      padding: .25rem .75rem .75rem;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
 
     .online-list::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .online-list::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .online-list::-webkit-scrollbar-thumb {
-      background: rgba(212,175,55,.2);
-      border-radius: 2px;
+      display: none;
     }
 
     .online-avatar {
-      width: 56px;
-      height: 56px;
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--gold-900, #3D3011), var(--gold-700, #8B6F00));
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--font-heading, sans-serif);
-      font-weight: 700;
-      flex-shrink: 0;
+      font-weight: 900;
       color: var(--gold-300, #FFE680);
-      font-size: 1.25rem;
-      position: relative;
+      font-size: 1.5rem;
       overflow: hidden;
       cursor: pointer;
-      transition: all var(--dur-fast, 200ms) var(--ease-out, ease-out);
+      transition: all var(--dur-base, 300ms) var(--ease-out, ease-out);
       border: 2px solid var(--border-active, rgba(212,175,55,.3));
-      box-shadow: 0 0 0 3px rgba(212,175,55,.1), 0 0 16px rgba(212,175,55,.15);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.1), 0 0 24px rgba(212,175,55,.15);
       scroll-snap-align: start;
+      animation: card-entrance .5s var(--ease-out, ease-out) both;
+      position: relative;
+    }
+
+    @keyframes card-entrance {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .online-avatar:hover {
-      border-color: rgba(212,175,55,.5);
-      box-shadow: 0 0 0 3px rgba(212,175,55,.15), 0 0 24px rgba(212,175,55,.3);
-      transform: translateY(-4px);
+      border-color: var(--border-active, rgba(212,175,55,.5));
+      box-shadow: 0 8px 32px rgba(212,175,55,.2), 0 0 0 4px rgba(212,175,55,.15);
+      transform: translateY(-4px) scale(1.08);
     }
 
     .online-avatar:active {
@@ -196,14 +200,14 @@
     .online-avatar::after {
       content: '';
       position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 16px;
-      height: 16px;
+      bottom: 0;
+      right: 0;
+      width: 18px;
+      height: 18px;
       background: #16C784;
-      border: 2px solid var(--bg-panel, #1a1c21);
+      border: 3px solid var(--bg-panel, #1a1c21);
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(22,199,132,.4);
+      box-shadow: 0 0 12px rgba(22,199,132,.5);
     }
 
     /* ═════════════════════════════════════════════════════════════ */
@@ -639,6 +643,12 @@
     }
 
     @media (max-width: 480px) {
+      .online-avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 1.25rem;
+      }
+
       .chat-card {
         padding: 0.75rem;
       }
@@ -679,7 +689,7 @@
   <!-- CONTENT -->
   <div class="content">
 
-    <!-- Online Users -->
+    <!-- Online Users Carousel -->
     <div>
       <div class="section-label">🟢 Użytkownicy Online</div>
       <div class="online-list" id="online-list">
