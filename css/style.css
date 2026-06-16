@@ -57,6 +57,7 @@
   padding: 0;
 }
 
+/* ── Page Layout System ────────────────────────────────────── */
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
@@ -72,6 +73,196 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── App Layout Wrapper ────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+/* ── Fixed Top Header ──────────────────────────────────────── */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-nav);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 62px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.app-header-logo {
+  font-family: var(--font-hd);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  transition: all var(--t) var(--ease));
+}
+
+.header-icon-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.header-icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.badge-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(200,155,60,0.5);
+}
+
+/* ── Scrollable Content ────────────────────────────────────── */
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: calc(62px + env(safe-area-inset-top) + 1rem);
+  padding-bottom: calc(80px + env(safe-area-inset-bottom) + 1rem);
+  scroll-behavior: smooth;
+}
+
+.content-area {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.page {
+  width: 100%;
+}
+
+/* ── Fixed Bottom Navigation ───────────────────────────────── */
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: var(--bg-nav);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+  min-height: 68px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.4);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all var(--t) var(--ease));
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 60px;
+  position: relative;
+  cursor: pointer;
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  flex-shrink: 0;
+  transition: all var(--t) var(--ease));
+}
+
+.nav-item:hover {
+  color: var(--gold);
+}
+
+.nav-item.active {
+  color: var(--gold);
+}
+
+.nav-item.active svg {
+  filter: drop-shadow(0 0 8px rgba(200,155,60,0.6));
+  transform: scale(1.1);
+}
+
+.nav-badge {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  background: var(--gold);
+  color: #050506;
+  font-size: 0.475rem;
+  font-weight: 700;
+  padding: 1px 3px;
+  border-radius: 50%;
+  min-width: 14px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(200,155,60,0.4);
 }
 
 /* CRITICAL: prevent SVG/img from stretching */
@@ -739,102 +930,7 @@ p  { font-size: 0.9375rem; }
 .toast-error   { border-left: 3px solid var(--error); }
 .toast-info    { border-left: 3px solid var(--blue); }
 
-/* ── Navigation ────────────────────────────────────────────── */
-.nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 100;
-  background: var(--bg-nav);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0.375rem 0 calc(0.375rem + env(safe-area-inset-bottom));
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--r-md);
-  color: var(--text-muted);
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: color var(--t) var(--ease);
-  text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-  min-width: 50px;
-}
-
-.nav-item svg {
-  width: 22px;
-  height: 22px;
-  display: block;
-  flex-shrink: 0;
-}
-
-.nav-item:hover,
-.nav-item.active { color: var(--gold); }
-
-.nav-item.active svg {
-  filter: drop-shadow(0 0 5px rgba(212,175,55,0.45));
-}
-
-@media (min-width: 768px) {
-  .nav {
-    top: 0; bottom: auto;
-    padding: 0 1.5rem;
-    height: 62px;
-    justify-content: flex-start;
-    gap: 0.125rem;
-    border-top: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-brand {
-    font-family: var(--font-hd);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--gold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-right: 1.25rem;
-    flex-shrink: 0;
-  }
-
-  .nav-item {
-    flex-direction: row;
-    font-size: 0.8125rem;
-    text-transform: none;
-    letter-spacing: 0;
-    gap: 0.375rem;
-    min-width: unset;
-  }
-
-  .nav-item svg { width: 17px; height: 17px; }
-
-  .nav-actions {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-}
-
-/* ── Content area ──────────────────────────────────────────── */
-.content-area {
-  position: relative;
-  z-index: 1;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
-}
+/* Old nav styles removed - now using app-header, app-content, app-nav system */
 
 @media (min-width: 768px) {
   .content-area { padding: calc(62px + 1.5rem) 1.5rem 2.5rem; }

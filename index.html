@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0A0B" />
+  <meta name="theme-color" content="#050506" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://firebasestorage.googleapis.com https://cloudinary.com https://res.cloudinary.com; frame-src https://apis.google.com; child-src https://apis.google.com;">
-  <meta name="description" content="Weekend Warrior Social — Dashboard" />
-  <title>Witaj — Weekend Warrior Social</title>
+  <meta name="description" content="Weekend Warrior Social — Arena" />
+  <title>Arena — Weekend Warrior Social</title>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -31,228 +31,246 @@
 
 <div class="bg-orbs" aria-hidden="true"></div>
 
-<!-- Navigation -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+<div class="app-layout">
 
-  <a href="index.html" class="nav-item active" aria-current="page">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-    <span>Start</span>
-  </a>
-
-  <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span>Feed</span>
-  </a>
-
-  <a href="ranking.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-      <polyline points="17 6 23 6 23 12"/>
-    </svg>
-    <span>Ranking</span>
-  </a>
-
-  <a href="profile.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Profil</span>
-  </a>
-
-  <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Wyloguj
-    </button>
-  </div>
-</nav>
-
-<!-- Main content -->
-<main class="content-area page">
-
-  <!-- Skeleton loader -->
-  <div id="skeleton">
-    <div style="display:flex; align-items:center; gap:1.125rem; padding:1.375rem;
-                background:var(--bg-card); border:1px solid var(--border-mid);
-                border-radius:var(--r-xl);">
-      <div class="skeleton avatar-placeholder av-xl" style="flex-shrink:0;"></div>
-      <div style="flex:1; display:flex; flex-direction:column; gap:0.5rem;">
-        <div class="skeleton" style="height:20px; width:55%; border-radius:4px;"></div>
-        <div class="skeleton" style="height:13px; width:40%; border-radius:4px;"></div>
-        <div class="skeleton" style="height:18px; width:50%; border-radius:20px; margin-top:0.25rem;"></div>
-      </div>
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- FIXED TOP HEADER -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <header class="app-header" role="banner">
+    <div class="app-header-left">
+      <span class="app-header-logo">⚔ WWS</span>
     </div>
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.125rem;">
-      <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
-      <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
-    </div>
-    <div class="skeleton" style="height:100px; border-radius:var(--r-lg); margin-top:1.125rem;"></div>
-    <div class="skeleton" style="height:130px; border-radius:var(--r-lg); margin-top:1.125rem;"></div>
-  </div>
-
-  <!-- Dashboard (hidden until data loads) -->
-  <div id="dashboard" class="hidden">
-
-    <!-- Profile hero card -->
-    <div class="profile-hero">
-      <div id="user-avatar"
-           class="avatar-placeholder av-xl avatar-ring"
-           style="font-size:2rem; font-family:var(--font-hd);"
-           aria-label="Avatar">
-      </div>
-      <div class="profile-hero-info">
-        <div id="user-name" class="profile-hero-name">—</div>
-        <div id="user-email" class="profile-hero-email">—</div>
-        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-          <span id="rank-badge" class="badge badge-gold">🥉 Rookie</span>
-          <span id="level-badge" class="badge badge-blue">Poziom 1</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div id="stat-points" class="stat-value" style="color:var(--gold);">0</div>
-        <div class="stat-label">Punkty XP</div>
-      </div>
-      <div class="stat-card">
-        <div id="stat-level" class="stat-value" style="color:var(--blue);">1</div>
-        <div class="stat-label">Poziom</div>
-      </div>
-      <div class="stat-card">
-        <div id="stat-rank-emoji" class="stat-value rank-rookie">🥉</div>
-        <div class="stat-label">Ranga</div>
-      </div>
-    </div>
-
-    <!-- XP progress -->
-    <div class="xp-section">
-      <div class="xp-row">
-        <span class="xp-label">Postęp do następnej rangi</span>
-        <span id="xp-percent" class="xp-val">0%</span>
-      </div>
-      <div class="progress-track">
-        <div id="xp-bar" class="progress-fill" style="width:0%;"
-             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-        </div>
-      </div>
-      <div class="xp-sublabels">
-        <span id="rank-current-label" class="xp-sublabel"></span>
-        <span id="rank-next-label"    class="xp-sublabel"></span>
-      </div>
-    </div>
-
-    <!-- Welcome -->
-    <div class="welcome-section">
-      <div class="welcome-header">
-        <h3 style="font-size:1rem;">Witaj w Weekend Warrior Social</h3>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="var(--gold)" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    <div class="app-header-right">
+      <button class="header-icon-btn" id="notifications-btn" aria-label="Powiadomienia">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-      </div>
-      <p class="welcome-text">
-        Twój profil jest gotowy. Zdobywaj punkty, podejmuj wyzwania
-        i wspinaj się w rankingu wojowników. Arena czeka! ⚔️
-      </p>
-      <div class="quick-actions">
-        <a href="feed.html" class="btn btn-primary btn-sm">Przejdź do Feeda</a>
-        <a href="challenges.html" class="btn btn-secondary btn-sm">Zobacz Wyzwania</a>
-      </div>
-    </div>
-
-    <!-- Quick links -->
-    <div class="quick-links">
-      <a href="achievements.html" class="quick-link-card">
-        <div class="quick-link-emoji">🏆</div>
-        <div class="quick-link-title">Osiągnięcia</div>
-        <div class="quick-link-sub">Twoje odznaki</div>
-      </a>
-      <a href="ranking.html" class="quick-link-card">
-        <div class="quick-link-emoji">📊</div>
-        <div class="quick-link-title">Ranking</div>
-        <div class="quick-link-sub">Twoja pozycja</div>
-      </a>
-    </div>
-
-    <!-- Mobile logout -->
-    <div style="margin-top:2rem; text-align:center; padding-bottom:0.5rem;">
-      <button id="logout-mobile" class="btn btn-ghost" style="color:var(--text-muted); font-size:0.875rem;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="messages-btn" aria-label="Wiadomości">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
-        Wyloguj się
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="profile-btn" aria-label="Profil">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
       </button>
     </div>
+  </header>
 
-  </div><!-- /dashboard -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SCROLLABLE CONTENT AREA -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <main class="app-content" role="main">
+    <div class="content-area page">
 
-</main>
+      <!-- Skeleton loader -->
+      <div id="skeleton">
+        <div style="display:flex; align-items:center; gap:1.125rem; padding:1.375rem;
+                    background:var(--bg-card); border:1px solid var(--border-mid);
+                    border-radius:var(--r-xl);">
+          <div class="skeleton avatar-placeholder av-xl" style="flex-shrink:0;"></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:0.5rem;">
+            <div class="skeleton" style="height:20px; width:55%; border-radius:4px;"></div>
+            <div class="skeleton" style="height:13px; width:40%; border-radius:4px;"></div>
+            <div class="skeleton" style="height:18px; width:50%; border-radius:20px; margin-top:0.25rem;"></div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.125rem;">
+          <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
+          <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
+          <div class="skeleton" style="height:78px; border-radius:var(--r-lg);"></div>
+        </div>
+        <div class="skeleton" style="height:100px; border-radius:var(--r-lg); margin-top:1.125rem;"></div>
+        <div class="skeleton" style="height:130px; border-radius:var(--r-lg); margin-top:1.125rem;"></div>
+      </div>
+
+      <!-- Dashboard (hidden until data loads) -->
+      <div id="dashboard" class="hidden">
+
+        <!-- Profile hero card -->
+        <div class="profile-hero">
+          <div id="user-avatar"
+               class="avatar-placeholder av-xl avatar-ring"
+               style="font-size:2rem; font-family:var(--font-hd);"
+               aria-label="Avatar">
+          </div>
+          <div class="profile-hero-info">
+            <div id="user-name" class="profile-hero-name">—</div>
+            <div id="user-email" class="profile-hero-email">—</div>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span id="rank-badge" class="badge badge-gold">🥉 Rookie</span>
+              <span id="level-badge" class="badge badge-blue">Poziom 1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div id="stat-points" class="stat-value" style="color:var(--gold);">0</div>
+            <div class="stat-label">Punkty XP</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-level" class="stat-value" style="color:var(--blue);">1</div>
+            <div class="stat-label">Poziom</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-rank-emoji" class="stat-value rank-rookie">🥉</div>
+            <div class="stat-label">Ranga</div>
+          </div>
+        </div>
+
+        <!-- XP progress -->
+        <div class="xp-section">
+          <div class="xp-row">
+            <span class="xp-label">Postęp do następnej rangi</span>
+            <span id="xp-percent" class="xp-val">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="xp-bar" class="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="xp-sublabels">
+            <span class="xp-sublabel"><span id="xp-current">0</span> / <span id="xp-needed">100</span> XP</span>
+          </div>
+        </div>
+
+        <!-- Welcome section -->
+        <div class="welcome-section">
+          <div class="welcome-header">
+            <div>
+              <h2 style="font-size:1rem; margin:0 0 0.25rem; color:var(--text-primary);">Witaj na Arenie!</h2>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Zacznij swoją przygodę</p>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </div>
+          <p class="welcome-text">Pnij poziomy, zdobywaj odznaki, rywalizuj z innymi wojownikami. Każdy dzień to nowa szansa na zwycięstwo!</p>
+          <div class="quick-actions">
+            <a href="feed.html" class="btn btn-secondary btn-sm">Przejdź do Kronik</a>
+            <button class="btn btn-primary btn-sm" onclick="alert('Wkrótce dostępne!')">Dołącz do Misji</button>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="quick-links">
+          <a href="feed.html" class="quick-link-card">
+            <div class="quick-link-emoji">📰</div>
+            <div class="quick-link-title">Kroniki</div>
+            <div class="quick-link-sub">Feed</div>
+          </a>
+          <a href="ranking.html" class="quick-link-card">
+            <div class="quick-link-emoji">🏆</div>
+            <div class="quick-link-title">Chwała</div>
+            <div class="quick-link-sub">Ranking</div>
+          </a>
+          <a href="quizzes.html" class="quick-link-card">
+            <div class="quick-link-emoji">🧠</div>
+            <div class="quick-link-title">Quizy</div>
+            <div class="quick-link-sub">Wiedza</div>
+          </a>
+          <a href="achievements.html" class="quick-link-card">
+            <div class="quick-link-emoji">⭐</div>
+            <div class="quick-link-title">Odznaki</div>
+            <div class="quick-link-sub">Osiągnięcia</div>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- FIXED BOTTOM NAVIGATION -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <nav class="app-nav" role="navigation" aria-label="Główna nawigacja">
+    <a href="index.html" class="nav-item active" aria-current="page" data-page="arena">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
+      </svg>
+      <span>Arena</span>
+    </a>
+    <a href="feed.html" class="nav-item" data-page="kroniki">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="challenges.html" class="nav-item" data-page="misje">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20"/>
+        <circle cx="12" cy="12" r="1"/>
+      </svg>
+      <span>Misje</span>
+    </a>
+    <a href="ranking.html" class="nav-item" data-page="chwala">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span>Chwała</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="bohater">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
+
+</div>
 
 <script type="module">
-  import { initDashboard } from './js/profile.js';
-  import { injectInviteBanner, openUserProfile } from './js/social.js';
-  import { auth } from './js/firebase.js';
-  import { onAuthStateChanged } from './js/auth.js';
+  import { initDashboard } from './js/dashboard.js';
 
-  // First-time visitor → show onboarding
-  if (!localStorage.getItem('wws_onboarded')) {
-    localStorage.setItem('wws_onboarded', '1');
-  }
-
-  initDashboard();
-
-  // Inject invite banner after dashboard loads
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return;
-    // Wait for dashboard to render
-    setTimeout(() => {
-      const dashboard = document.getElementById('dashboard');
-      if (dashboard && !document.getElementById('inject-invite-btn')) {
-        injectInviteBanner(dashboard, user.uid);
-      }
-      // Make own avatar clickable → own profile
-      const avatarEl = document.getElementById('user-avatar');
-      if (avatarEl) {
-        avatarEl.style.cursor = 'pointer';
-        avatarEl.addEventListener('click', () => window.location.href = 'profile.html');
-      }
-    }, 1200);
+  // Setup navigation
+  document.querySelectorAll('.nav-item').forEach(link => {
+    link.addEventListener('click', (e) => {
+      document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+    });
   });
+
+  // Setup header buttons
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
+
+  document.getElementById('messages-btn').addEventListener('click', () => {
+    window.location.href = 'messages.html';
+  });
+
+  // Load dashboard
+  initDashboard();
 </script>
 
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.warn('[SW] Registration failed:', err));
+    });
+  }
+</script>
 
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[SW] Registered:', reg.scope))
-          .catch(err => console.warn('[SW] Registration failed:', err));
-      });
-    }
-  </script>
 </body>
 </html>
