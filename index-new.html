@@ -590,30 +590,185 @@
 
 <!-- SCRIPTS -->
 <script type="module">
-  import { auth, db } from './js/firebase.js';
+  import { auth, db, getRank, getLevel } from './js/firebase.js';
+  import { loadFeed } from './js/feed.js';
+  import { getChallenges } from './js/challenge-system.js';
+  import { loadMessages } from './js/messenger.js';
 
-  // Screen Navigation
+  let currentUser = null;
+  let currentProfileTab = 'posts';
+  let challengeFilter = 'all';
+
+  // ═══════════════════════════════════════════════════════════
+  // SCREEN NAVIGATION
+  // ═══════════════════════════════════════════════════════════
   window.showScreen = function(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
-
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    event.target.closest('.nav-item')?.classList.add('active');
+
+    // Update active nav item based on screen ID
+    const navMap = {
+      'screen-home': 0,
+      'screen-challenges': 1,
+      'screen-create': 2,
+      'screen-messages': 3,
+      'screen-profile': 4
+    };
+    if (navMap[screenId] !== undefined) {
+      document.querySelectorAll('.nav-item')[navMap[screenId]].classList.add('active');
+    }
+
+    // Load screen-specific content
+    if (screenId === 'screen-home') window.loadHomeScreen();
+    if (screenId === 'screen-challenges') window.loadChallengesScreen();
+    if (screenId === 'screen-messages') window.loadMessagesScreen();
+    if (screenId === 'screen-profile') window.loadProfileScreen();
   };
 
-  // Create functions
-  window.createPost = function(type) { alert('Create ' + type); };
-  window.createChallenge = function() { alert('Create challenge'); };
-  window.createEvent = function() { alert('Create event'); };
-  window.filterChallenges = function(type) { alert('Filter: ' + type); };
+  // ═══════════════════════════════════════════════════════════
+  // HOME SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadHomeScreen = async function() {
+    try {
+      await loadFeed();
+    } catch (err) {
+      console.error('Error loading feed:', err);
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // CHALLENGES SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadChallengesScreen = async function() {
+    try {
+      const challenges = await getChallenges();
+      const grid = document.getElementById('challenges-grid');
+      grid.innerHTML = '';
+
+      let filtered = challenges;
+      if (challengeFilter === 'trending') {
+        filtered = challenges.sort((a, b) => (b.participants || 0) - (a.participants || 0)).slice(0, 10);
+      } else if (challengeFilter === 'new') {
+        filtered = challenges.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 10);
+      } else if (challengeFilter === 'easy') {
+        filtered = challenges.filter(c => c.difficulty === 'easy');
+      }
+
+      filtered.forEach(challenge => {
+        const card = document.createElement('div');
+        card.className = 'challenge-card';
+        card.innerHTML = `
+          <div class="challenge-image">${challenge.emoji || '⚔️'}</div>
+          <div class="challenge-info">
+            <div class="challenge-title">${challenge.title || 'Unnamed'}</div>
+            <div class="challenge-difficulty">${challenge.difficulty || 'medium'}</div>
+            <div class="challenge-reward">+${challenge.reward || 0} XP</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error loading challenges:', err);
+    }
+  };
+
+  window.filterChallenges = function(type) {
+    challengeFilter = type;
+    window.loadChallengesScreen();
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // CREATE SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.createPost = function(type) {
+    if (type === 'text') {
+      const content = prompt('Co chcesz napisać?');
+      if (content) {
+        console.log('Creating text post:', content);
+      }
+    } else if (type === 'photo') {
+      alert('Wybierz zdjęcie z urządzenia');
+    }
+  };
+
+  window.createChallenge = function() {
+    alert('Tworzenie wyzwania - formularz w rozwoju');
+  };
+
+  window.createEvent = function() {
+    alert('Tworzenie wydarzenia - formularz w rozwoju');
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // MESSAGES SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadMessagesScreen = async function() {
+    try {
+      await loadMessages();
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // PROFILE SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadProfileScreen = function() {
+    if (!currentUser) {
+      document.getElementById('profile-name').textContent = 'Zaloguj się';
+      return;
+    }
+
+    const userRank = getRank(currentUser.points || 0);
+    document.getElementById('profile-name').textContent = currentUser.displayName || 'Nowy Wojownik';
+    document.getElementById('profile-rank').textContent = userRank.emoji + ' ' + userRank.label;
+    document.getElementById('profile-xp').textContent = (currentUser.points || 0).toLocaleString();
+    document.getElementById('profile-level').textContent = getLevel(currentUser.points || 0);
+    document.getElementById('profile-streak').textContent = (currentUser.streakDays || 0);
+
+    window.switchProfileTab(document.querySelector('.tab-item.active'), 'posts');
+  };
+
   window.switchProfileTab = function(tab, tabName) {
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    alert('Switch to: ' + tabName);
+    currentProfileTab = tabName;
+
+    const content = document.getElementById('profile-tabs-content');
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>${tabName === 'posts' ? 'Brak postów' : tabName === 'challenges' ? 'Brak ukończonych wyzwań' : 'Brak osiągnięć'}</p>
+    </div>`;
   };
 
-  // Initialize
-  console.log('App initialized');
+  // ═══════════════════════════════════════════════════════════
+  // INITIALIZATION
+  // ═══════════════════════════════════════════════════════════
+  window.addEventListener('load', async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        currentUser = user;
+        console.log('✅ User authenticated:', user.email);
+        window.loadHomeScreen();
+      } else {
+        window.location.href = 'login.html';
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      window.location.href = 'login.html';
+    }
+  });
+
+  // Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      console.log('ℹ️  Service Worker not available');
+    });
+  }
+
+  console.log('✅ Weekend Warrior Social v2.0 - Design System Ready');
 </script>
 </body>
 </html>
