@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0A0B" />
+  <meta name="theme-color" content="#050506" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://res.cloudinary.com;">
-  <meta name="description" content="Weekend Warrior Social — Ranking" />
-  <title>Ranking — Weekend Warrior Social</title>
+  <meta name="description" content="Weekend Warrior Social — Chwała" />
+  <title>Chwała — Weekend Warrior Social</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="css/style.css" />
@@ -15,213 +16,251 @@
 
 <div class="bg-orbs" aria-hidden="true"></div>
 
-<!-- ── Navigation ── -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+<div class="app-layout">
 
-  <a href="index.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-    <span>Start</span>
-  </a>
+  <!-- FIXED TOP HEADER -->
+  <header class="app-header" role="banner">
+    <div class="app-header-left">
+      <span class="app-header-logo">⚔ WWS</span>
+    </div>
+    <div class="app-header-right">
+      <button class="header-icon-btn" id="notifications-btn" aria-label="Powiadomienia">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="messages-btn" aria-label="Wiadomości">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="profile-btn" aria-label="Profil">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
 
-  <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span>Feed</span>
-  </a>
-  <a href="challenges.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-    <span>Wyzwania</span>
-  </a>
+  <!-- SCROLLABLE CONTENT AREA -->
+  <main class="app-content" role="main">
+    <div class="content-area page">
 
+      <!-- Header -->
+      <div class="ranking-header">
+        <div>
+          <div class="ranking-title">🏆 Chwała</div>
+          <div class="ranking-subtitle" id="ranking-subtitle">Wszechczasy — wszyscy wojownicy</div>
+        </div>
+      </div>
 
-  <a href="ranking.html" class="nav-item active" aria-current="page">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-      <polyline points="17 6 23 6 23 12"/>
-    </svg>
-    <span>Ranking</span>
-  </a>
+      <!-- Tab switcher -->
+      <div class="tab-bar" role="tablist" aria-label="Okres rankingu">
+        <button class="tab-btn active" data-tab="all" role="tab" aria-selected="true">
+          Wszechczasy
+        </button>
+        <button class="tab-btn" data-tab="monthly" role="tab" aria-selected="false">
+          Ten miesiąc
+        </button>
+        <button class="tab-btn" data-tab="weekly" role="tab" aria-selected="false">
+          Ten tydzień
+        </button>
+      </div>
 
-  <a href="profile.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Profil</span>
-  </a>
+      <!-- My position card -->
+      <div id="my-position-card" class="my-position-card" style="display:none;">
+        <div>
+          <div class="my-position-rank" id="my-pos-number">#1</div>
+          <div class="my-position-label">Twoja pozycja</div>
+        </div>
+        <div class="my-position-info">
+          <div class="my-position-name" id="my-pos-name">Wojownik</div>
+          <div class="my-position-sub" id="my-pos-sub"></div>
+        </div>
+      </div>
 
-  <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
+      <!-- ── Skeleton ── -->
+      <div id="ranking-skeleton">
+
+        <!-- Podium skeleton -->
+        <div style="display:flex; align-items:flex-end; justify-content:center; gap:0.5rem;
+                    padding:1.25rem 0.5rem 0; margin-bottom:1.125rem;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
+            <div class="skeleton" style="width:52px;height:52px;border-radius:50%;"></div>
+            <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:48px;border-radius:8px 8px 0 0;width:100%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
+            <div class="skeleton" style="width:64px;height:64px;border-radius:50%;"></div>
+            <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:64px;border-radius:8px 8px 0 0;width:100%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
+            <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
+            <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:36px;border-radius:8px 8px 0 0;width:100%;"></div>
+          </div>
+        </div>
+
+        <!-- List skeleton -->
+        <div class="ranking-card">
+          <!-- Header row -->
+          <div class="ranking-list-header">
+            <div class="skeleton" style="height:10px;width:20px;border-radius:3px;"></div>
+            <div class="skeleton" style="height:10px;width:60px;border-radius:3px;"></div>
+            <div class="skeleton" style="height:10px;width:40px;border-radius:3px;"></div>
+            <div class="skeleton" style="height:10px;width:30px;border-radius:3px;"></div>
+          </div>
+          <!-- Skeleton rows -->
+          <div class="ranking-skeleton-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
+              <div class="skeleton" style="height:13px;width:50%;border-radius:3px;"></div>
+              <div class="skeleton" style="height:10px;width:35%;border-radius:3px;"></div>
+            </div>
+            <div class="skeleton" style="height:16px;width:48px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
+          </div>
+          <div class="ranking-skeleton-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
+              <div class="skeleton" style="height:13px;width:42%;border-radius:3px;"></div>
+              <div class="skeleton" style="height:10px;width:28%;border-radius:3px;"></div>
+            </div>
+            <div class="skeleton" style="height:16px;width:40px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
+          </div>
+          <div class="ranking-skeleton-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
+              <div class="skeleton" style="height:13px;width:55%;border-radius:3px;"></div>
+              <div class="skeleton" style="height:10px;width:38%;border-radius:3px;"></div>
+            </div>
+            <div class="skeleton" style="height:16px;width:44px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
+          </div>
+          <div class="ranking-skeleton-row">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
+              <div class="skeleton" style="height:13px;width:38%;border-radius:3px;"></div>
+              <div class="skeleton" style="height:10px;width:25%;border-radius:3px;"></div>
+            </div>
+            <div class="skeleton" style="height:16px;width:36px;border-radius:4px;"></div>
+            <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Ranking content (hidden until loaded) ── -->
+      <div id="ranking-content" class="hidden">
+
+        <!-- Podium TOP 3 -->
+        <div class="podium" id="podium">
+          <!-- 2nd place -->
+          <div class="podium-slot second" id="podium-2nd"></div>
+          <!-- 1st place -->
+          <div class="podium-slot first"  id="podium-1st"></div>
+          <!-- 3rd place -->
+          <div class="podium-slot third"  id="podium-3rd"></div>
+        </div>
+
+        <!-- Rankings table -->
+        <div class="ranking-card">
+
+          <!-- Column headers -->
+          <div class="ranking-list-header">
+            <div class="ranking-col-label">#</div>
+            <div class="ranking-col-label">Wojownik</div>
+            <div class="ranking-col-label right">Punkty</div>
+            <div class="ranking-col-label right">Level</div>
+          </div>
+
+          <!-- Rows (filled by JS) -->
+          <div id="ranking-list"></div>
+
+        </div>
+
+        <!-- Bottom padding -->
+        <div style="height:1rem;"></div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FIXED BOTTOM NAVIGATION -->
+  <nav class="app-nav" role="navigation" aria-label="Główna nawigacja">
+    <a href="index.html" class="nav-item" data-page="arena">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
       </svg>
-      Wyloguj
-    </button>
-  </div>
-</nav>
+      <span>Arena</span>
+    </a>
+    <a href="feed.html" class="nav-item" data-page="kroniki">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="challenges.html" class="nav-item" data-page="misje">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20"/>
+        <circle cx="12" cy="12" r="1"/>
+      </svg>
+      <span>Misje</span>
+    </a>
+    <a href="ranking.html" class="nav-item active" aria-current="page" data-page="chwala">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span>Chwała</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="bohater">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
 
-<!-- ── Content ── -->
-<main class="content-area page">
-
-  <!-- Header -->
-  <div class="ranking-header">
-    <div>
-      <div class="ranking-title">🏆 Ranking</div>
-      <div class="ranking-subtitle" id="ranking-subtitle">Wszechczasy — wszyscy wojownicy</div>
-    </div>
-  </div>
-
-  <!-- Tab switcher -->
-  <div class="tab-bar" role="tablist" aria-label="Okres rankingu">
-    <button class="tab-btn active" data-tab="all" role="tab" aria-selected="true">
-      Wszechczasy
-    </button>
-    <button class="tab-btn" data-tab="monthly" role="tab" aria-selected="false">
-      Ten miesiąc
-    </button>
-    <button class="tab-btn" data-tab="weekly" role="tab" aria-selected="false">
-      Ten tydzień
-    </button>
-  </div>
-
-  <!-- My position card -->
-  <div id="my-position-card" class="my-position-card" style="display:none;">
-    <div>
-      <div class="my-position-rank" id="my-pos-number">#1</div>
-      <div class="my-position-label">Twoja pozycja</div>
-    </div>
-    <div class="my-position-info">
-      <div class="my-position-name" id="my-pos-name">Wojownik</div>
-      <div class="my-position-sub" id="my-pos-sub"></div>
-    </div>
-  </div>
-
-  <!-- ── Skeleton ── -->
-  <div id="ranking-skeleton">
-
-    <!-- Podium skeleton -->
-    <div style="display:flex; align-items:flex-end; justify-content:center; gap:0.5rem;
-                padding:1.25rem 0.5rem 0; margin-bottom:1.125rem;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
-        <div class="skeleton" style="width:52px;height:52px;border-radius:50%;"></div>
-        <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:48px;border-radius:8px 8px 0 0;width:100%;"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
-        <div class="skeleton" style="width:64px;height:64px;border-radius:50%;"></div>
-        <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:64px;border-radius:8px 8px 0 0;width:100%;"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;flex:1;">
-        <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
-        <div class="skeleton" style="height:12px;width:60px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:36px;border-radius:8px 8px 0 0;width:100%;"></div>
-      </div>
-    </div>
-
-    <!-- List skeleton -->
-    <div class="ranking-card">
-      <!-- Header row -->
-      <div class="ranking-list-header">
-        <div class="skeleton" style="height:10px;width:20px;border-radius:3px;"></div>
-        <div class="skeleton" style="height:10px;width:60px;border-radius:3px;"></div>
-        <div class="skeleton" style="height:10px;width:40px;border-radius:3px;"></div>
-        <div class="skeleton" style="height:10px;width:30px;border-radius:3px;"></div>
-      </div>
-      <!-- Skeleton rows -->
-      <div class="ranking-skeleton-row">
-        <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
-          <div class="skeleton" style="height:13px;width:50%;border-radius:3px;"></div>
-          <div class="skeleton" style="height:10px;width:35%;border-radius:3px;"></div>
-        </div>
-        <div class="skeleton" style="height:16px;width:48px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
-      </div>
-      <div class="ranking-skeleton-row">
-        <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
-          <div class="skeleton" style="height:13px;width:42%;border-radius:3px;"></div>
-          <div class="skeleton" style="height:10px;width:28%;border-radius:3px;"></div>
-        </div>
-        <div class="skeleton" style="height:16px;width:40px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
-      </div>
-      <div class="ranking-skeleton-row">
-        <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
-          <div class="skeleton" style="height:13px;width:55%;border-radius:3px;"></div>
-          <div class="skeleton" style="height:10px;width:38%;border-radius:3px;"></div>
-        </div>
-        <div class="skeleton" style="height:16px;width:44px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
-      </div>
-      <div class="ranking-skeleton-row">
-        <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:0.3rem;">
-          <div class="skeleton" style="height:13px;width:38%;border-radius:3px;"></div>
-          <div class="skeleton" style="height:10px;width:25%;border-radius:3px;"></div>
-        </div>
-        <div class="skeleton" style="height:16px;width:36px;border-radius:4px;"></div>
-        <div class="skeleton" style="height:13px;width:32px;border-radius:3px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Ranking content (hidden until loaded) ── -->
-  <div id="ranking-content" class="hidden">
-
-    <!-- Podium TOP 3 -->
-    <div class="podium" id="podium">
-      <!-- 2nd place -->
-      <div class="podium-slot second" id="podium-2nd"></div>
-      <!-- 1st place -->
-      <div class="podium-slot first"  id="podium-1st"></div>
-      <!-- 3rd place -->
-      <div class="podium-slot third"  id="podium-3rd"></div>
-    </div>
-
-    <!-- Rankings table -->
-    <div class="ranking-card">
-
-      <!-- Column headers -->
-      <div class="ranking-list-header">
-        <div class="ranking-col-label">#</div>
-        <div class="ranking-col-label">Wojownik</div>
-        <div class="ranking-col-label right">Punkty</div>
-        <div class="ranking-col-label right">Level</div>
-      </div>
-
-      <!-- Rows (filled by JS) -->
-      <div id="ranking-list"></div>
-
-    </div>
-
-    <!-- Bottom padding -->
-    <div style="height:1rem;"></div>
-
-  </div>
-
-</main>
+</div>
 
 <script type="module">
   import { initRanking } from './js/ranking.js';
+
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
+
+  document.getElementById('messages-btn').addEventListener('click', () => {
+    window.location.href = 'messages.html';
+  });
+
   initRanking();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.warn('[SW] Registration failed:', err));
+    });
+  }
 </script>
 
 </body>

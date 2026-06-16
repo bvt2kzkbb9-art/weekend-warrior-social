@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0A0A0B" />
+  <meta name="theme-color" content="#050506" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://cloudinary.com https://res.cloudinary.com;">
-  <meta name="description" content="Weekend Warrior Social — Quizy Areny" />
-  <title>Quizy Areny — Weekend Warrior Social</title>
+  <meta name="description" content="Weekend Warrior Social — Quizy" />
+  <title>Quizy — Weekend Warrior Social</title>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -23,260 +23,274 @@
 
 <div class="bg-orbs" aria-hidden="true"></div>
 
-<!-- Navigation -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+<div class="app-layout">
 
-  <a href="index.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-    <span>Start</span>
-  </a>
-
-  <a href="feed.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span>Feed</span>
-  </a>
-
-  <a href="ranking.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-      <polyline points="17 6 23 6 23 12"/>
-    </svg>
-    <span>Ranking</span>
-  </a>
-
-  <a href="quizzes.html" class="nav-item active" aria-current="page">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M12 6v6l4 2"/>
-    </svg>
-    <span>Quizy</span>
-  </a>
-
-  <a href="profile.html" class="nav-item">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Profil</span>
-  </a>
-
-  <div class="nav-actions">
-    <button id="logout-btn" class="btn btn-ghost btn-sm" style="color:var(--text-muted);">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Wyloguj
-    </button>
-  </div>
-</nav>
-
-<!-- Main content -->
-<main class="content-area page">
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- QUIZ MENU -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="quiz-menu" class="quiz-menu">
-    <div class="quiz-menu-header">
-      <div class="quiz-menu-title">
-        <span class="quiz-menu-emoji">🧠</span>
-        <span>Quizy Areny</span>
-      </div>
-      <p class="quiz-menu-subtitle">Sprawdzisz swoją wiedzę o wojownikach, węższach i hydryach</p>
+  <!-- FIXED TOP HEADER -->
+  <header class="app-header" role="banner">
+    <div class="app-header-left">
+      <span class="app-header-logo">⚔ WWS</span>
     </div>
-
-    <div class="quiz-menu-content">
-      <div class="quiz-info-grid">
-        <div class="quiz-info-card">
-          <div class="quiz-info-icon">⚔️</div>
-          <div class="quiz-info-text">
-            <div class="quiz-info-label">10 Pytań</div>
-            <div class="quiz-info-desc">Losowe z 6 kategorii</div>
-          </div>
-        </div>
-        <div class="quiz-info-card">
-          <div class="quiz-info-icon">⏱️</div>
-          <div class="quiz-info-text">
-            <div class="quiz-info-label">5 Minut</div>
-            <div class="quiz-info-desc">Średni czas bitwy</div>
-          </div>
-        </div>
-        <div class="quiz-info-card">
-          <div class="quiz-info-icon">🎯</div>
-          <div class="quiz-info-text">
-            <div class="quiz-info-label">+600 XP</div>
-            <div class="quiz-info-desc">Za idealny wynik</div>
-          </div>
-        </div>
-        <div class="quiz-info-card">
-          <div class="quiz-info-icon">🏆</div>
-          <div class="quiz-info-text">
-            <div class="quiz-info-label">3 Odznaki</div>
-            <div class="quiz-info-desc">Do zdobycia</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="quiz-categories">
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">⚔️</span>
-          <span class="quiz-cat-name">Szkoła Wojownika</span>
-        </div>
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">🧮</span>
-          <span class="quiz-cat-name">Osiedlowa Matematyka</span>
-        </div>
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">🐍</span>
-          <span class="quiz-cat-name">Węże i Hydry</span>
-        </div>
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">💭</span>
-          <span class="quiz-cat-name">Mądrości Areny</span>
-        </div>
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">💪</span>
-          <span class="quiz-cat-name">Życie Wojownika</span>
-        </div>
-        <div class="quiz-category-item">
-          <span class="quiz-cat-emoji">👑</span>
-          <span class="quiz-cat-name">Legendy Weekend Warrior</span>
-        </div>
-      </div>
-
-      <button id="start-quiz-btn" class="btn btn-primary btn-full" style="margin-top: 1.5rem;">
-        ⚔️ Wstąp na Arenę
-      </button>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- QUIZ SCREEN -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="quiz-screen" class="quiz-screen hidden">
-    <!-- Progress -->
-    <div class="quiz-header">
-      <div class="quiz-progress-info">
-        <span id="quiz-progress" class="quiz-progress-text">1/10</span>
-      </div>
-      <button id="menu-quiz-btn" class="btn btn-ghost btn-sm">✕</button>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="progress-track" style="margin-bottom: 1.5rem;">
-      <div id="quiz-progress-bar" class="progress-fill quiz-progress-bar"
-           style="width: 10%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
-      </div>
-    </div>
-
-    <!-- Question content -->
-    <div class="quiz-content">
-      <div id="quiz-category" class="quiz-category-badge">⚔️ Kategoria</div>
-
-      <div class="quiz-question-container">
-        <h2 id="quiz-question" class="quiz-question">Pytanie?</h2>
-      </div>
-
-      <!-- Answers -->
-      <div id="quiz-answers" class="quiz-answers">
-        <!-- Buttons inserted by JS -->
-      </div>
-
-      <!-- Explanation (hidden until answer selected) -->
-      <div id="quiz-explanation" class="quiz-explanation hidden">
-        <!-- Text inserted by JS -->
-      </div>
-
-      <!-- Next button (hidden until answer selected) -->
-      <button id="quiz-next-btn" class="btn btn-secondary btn-full hidden" style="margin-top: 1.5rem;">
-        Następne Pytanie →
-      </button>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- RESULTS SCREEN -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="quiz-results" class="quiz-results hidden">
-    <div class="results-header">
-      <div id="result-title" class="result-title">👑 Legenda!</div>
-    </div>
-
-    <div class="results-content">
-      <!-- Score circle -->
-      <div class="result-circle">
-        <div class="result-percentage-wrapper">
-          <div id="result-percentage" class="result-percentage">100</div>
-          <span class="result-percentage-sign">%</span>
-        </div>
-      </div>
-
-      <!-- Score details -->
-      <div class="result-details">
-        <div class="result-detail-item">
-          <span class="result-detail-label">Prawidłowe odpowiedzi:</span>
-          <span id="result-score" class="result-detail-value">10/10</span>
-        </div>
-        <div class="result-detail-item">
-          <span class="result-detail-label">Zdobyte punkty:</span>
-          <span id="result-xp" class="result-detail-value">+600 XP</span>
-        </div>
-        <div id="result-bonus" class="result-detail-item hidden bonus">
-          <!-- Bonus text -->
-        </div>
-      </div>
-
-      <!-- Answer breakdown -->
-      <div class="result-breakdown">
-        <h3 style="margin-bottom: 1rem;">Przebieg bitwy</h3>
-        <div id="answer-breakdown" class="answer-breakdown">
-          <!-- Items inserted by JS -->
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="result-actions">
-        <button id="retry-quiz-btn" class="btn btn-primary btn-full">
-          🔄 Spróbuj Ponownie
-        </button>
-        <a href="index.html" class="btn btn-secondary btn-full">
-          🏠 Powrót do Start
-        </a>
-      </div>
-    </div>
-
-    <!-- Mobile logout -->
-    <div style="margin-top: 2rem; text-align: center; padding-bottom: 0.5rem;">
-      <button id="logout-mobile" class="btn btn-ghost" style="color: var(--text-muted); font-size: 0.875rem;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+    <div class="app-header-right">
+      <button class="header-icon-btn" id="notifications-btn" aria-label="Powiadomienia">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
-        Wyloguj się
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="messages-btn" aria-label="Wiadomości">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <div class="badge-dot hidden"></div>
+      </button>
+      <button class="header-icon-btn" id="profile-btn" aria-label="Profil">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
       </button>
     </div>
-  </div>
+  </header>
 
-</main>
+  <!-- SCROLLABLE CONTENT AREA -->
+  <main class="app-content" role="main">
+    <div class="content-area page">
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- QUIZ MENU -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <div id="quiz-menu" class="quiz-menu">
+        <div class="quiz-menu-header">
+          <div class="quiz-menu-title">
+            <span class="quiz-menu-emoji">🧠</span>
+            <span>Quizy Areny</span>
+          </div>
+          <p class="quiz-menu-subtitle">Sprawdzisz swoją wiedzę o wojownikach, węższach i hydryach</p>
+        </div>
+
+        <div class="quiz-menu-content">
+          <div class="quiz-info-grid">
+            <div class="quiz-info-card">
+              <div class="quiz-info-icon">⚔️</div>
+              <div class="quiz-info-text">
+                <div class="quiz-info-label">10 Pytań</div>
+                <div class="quiz-info-desc">Losowe z 6 kategorii</div>
+              </div>
+            </div>
+            <div class="quiz-info-card">
+              <div class="quiz-info-icon">⏱️</div>
+              <div class="quiz-info-text">
+                <div class="quiz-info-label">5 Minut</div>
+                <div class="quiz-info-desc">Średni czas bitwy</div>
+              </div>
+            </div>
+            <div class="quiz-info-card">
+              <div class="quiz-info-icon">🎯</div>
+              <div class="quiz-info-text">
+                <div class="quiz-info-label">+600 XP</div>
+                <div class="quiz-info-desc">Za idealny wynik</div>
+              </div>
+            </div>
+            <div class="quiz-info-card">
+              <div class="quiz-info-icon">🏆</div>
+              <div class="quiz-info-text">
+                <div class="quiz-info-label">3 Odznaki</div>
+                <div class="quiz-info-desc">Do zdobycia</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quiz-categories">
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">⚔️</span>
+              <span class="quiz-cat-name">Szkoła Wojownika</span>
+            </div>
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">🧮</span>
+              <span class="quiz-cat-name">Osiedlowa Matematyka</span>
+            </div>
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">🐍</span>
+              <span class="quiz-cat-name">Węże i Hydry</span>
+            </div>
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">💭</span>
+              <span class="quiz-cat-name">Mądrości Areny</span>
+            </div>
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">💪</span>
+              <span class="quiz-cat-name">Życie Wojownika</span>
+            </div>
+            <div class="quiz-category-item">
+              <span class="quiz-cat-emoji">👑</span>
+              <span class="quiz-cat-name">Legendy Weekend Warrior</span>
+            </div>
+          </div>
+
+          <button id="start-quiz-btn" class="btn btn-primary btn-full" style="margin-top: 1.5rem;">
+            ⚔️ Wstąp na Arenę
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- QUIZ SCREEN -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <div id="quiz-screen" class="quiz-screen hidden">
+        <!-- Progress -->
+        <div class="quiz-header">
+          <div class="quiz-progress-info">
+            <span id="quiz-progress" class="quiz-progress-text">1/10</span>
+          </div>
+          <button id="menu-quiz-btn" class="btn btn-ghost btn-sm">✕</button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-track" style="margin-bottom: 1.5rem;">
+          <div id="quiz-progress-bar" class="progress-fill quiz-progress-bar"
+               style="width: 10%;" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+          </div>
+        </div>
+
+        <!-- Question content -->
+        <div class="quiz-content">
+          <div id="quiz-category" class="quiz-category-badge">⚔️ Kategoria</div>
+
+          <div class="quiz-question-container">
+            <h2 id="quiz-question" class="quiz-question">Pytanie?</h2>
+          </div>
+
+          <!-- Answers -->
+          <div id="quiz-answers" class="quiz-answers">
+            <!-- Buttons inserted by JS -->
+          </div>
+
+          <!-- Explanation (hidden until answer selected) -->
+          <div id="quiz-explanation" class="quiz-explanation hidden">
+            <!-- Text inserted by JS -->
+          </div>
+
+          <!-- Next button (hidden until answer selected) -->
+          <button id="quiz-next-btn" class="btn btn-secondary btn-full hidden" style="margin-top: 1.5rem;">
+            Następne Pytanie →
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- RESULTS SCREEN -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <div id="quiz-results" class="quiz-results hidden">
+        <div class="results-header">
+          <div id="result-title" class="result-title">👑 Legenda!</div>
+        </div>
+
+        <div class="results-content">
+          <!-- Score circle -->
+          <div class="result-circle">
+            <div class="result-percentage-wrapper">
+              <div id="result-percentage" class="result-percentage">100</div>
+              <span class="result-percentage-sign">%</span>
+            </div>
+          </div>
+
+          <!-- Score details -->
+          <div class="result-details">
+            <div class="result-detail-item">
+              <span class="result-detail-label">Prawidłowe odpowiedzi:</span>
+              <span id="result-score" class="result-detail-value">10/10</span>
+            </div>
+            <div class="result-detail-item">
+              <span class="result-detail-label">Zdobyte punkty:</span>
+              <span id="result-xp" class="result-detail-value">+600 XP</span>
+            </div>
+            <div id="result-bonus" class="result-detail-item hidden bonus">
+              <!-- Bonus text -->
+            </div>
+          </div>
+
+          <!-- Answer breakdown -->
+          <div class="result-breakdown">
+            <h3 style="margin-bottom: 1rem;">Przebieg bitwy</h3>
+            <div id="answer-breakdown" class="answer-breakdown">
+              <!-- Items inserted by JS -->
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="result-actions">
+            <button id="retry-quiz-btn" class="btn btn-primary btn-full">
+              🔄 Spróbuj Ponownie
+            </button>
+            <a href="index.html" class="btn btn-secondary btn-full">
+              🏠 Powrót do Start
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FIXED BOTTOM NAVIGATION - Note: Quizzes not in main nav, accessible from Arena -->
+  <nav class="app-nav" role="navigation" aria-label="Główna nawigacja">
+    <a href="index.html" class="nav-item" data-page="arena">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/>
+      </svg>
+      <span>Arena</span>
+    </a>
+    <a href="feed.html" class="nav-item" data-page="kroniki">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="challenges.html" class="nav-item" data-page="misje">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20"/>
+        <circle cx="12" cy="12" r="1"/>
+      </svg>
+      <span>Misje</span>
+    </a>
+    <a href="ranking.html" class="nav-item" data-page="chwala">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span>Chwała</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="bohater">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
+
+</div>
 
 <script type="module">
   import { initQuizzesPage } from './js/quizzes.js';
+
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
+
+  document.getElementById('messages-btn').addEventListener('click', () => {
+    window.location.href = 'messages.html';
+  });
+
   initQuizzesPage();
 </script>
 
