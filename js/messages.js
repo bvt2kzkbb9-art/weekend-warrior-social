@@ -1,6 +1,5 @@
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
-import { getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc, addDoc, serverTimestamp, onSnapshot, updateDoc, orderBy, limit, startAfter } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-import { initializeFirebase } from './firebase-config.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc, addDoc, serverTimestamp, onSnapshot, updateDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { formatTime, formatDate, getInitials } from './utils.js';
 import { getOptimizedUrl } from './profile-service.js';
 
@@ -558,7 +557,7 @@ function handleMessageKeydown(e) {
 }
 
 function handleModalClose(e) {
-  if (e.target === e.currentTarget) {
+  if (e.target.id === 'new-chat-modal') {
     document.getElementById('new-chat-modal').classList.add('hidden');
   }
 }
