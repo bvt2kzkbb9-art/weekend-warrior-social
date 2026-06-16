@@ -118,11 +118,20 @@ export async function getCurrentUserData(uid) {
 export function checkAuth(callback) {
   const unsubscribe = onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const userData = await getCurrentUserData(user.uid);
-      callback(user, userData || {});
+      try {
+        const userData = await getCurrentUserData(user.uid);
+        callback(user, userData || {});
+      } catch (err) {
+        console.error('[checkAuth] data load error:', err.code);
+        // Still call callback with user but empty data
+        callback(user, {});
+      }
     } else {
       callback(null, null);
     }
+  }, (err) => {
+    console.error('[checkAuth] auth state error:', err.code);
+    window.location.href = '/login.html';
   });
   return unsubscribe;
 }

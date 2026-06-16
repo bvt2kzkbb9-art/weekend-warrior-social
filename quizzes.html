@@ -281,15 +281,19 @@
 <script type="module">
   import { initQuizzesPage } from './js/quizzes.js';
 
-  document.getElementById('profile-btn').addEventListener('click', () => {
+  document.getElementById('profile-btn')?.addEventListener('click', () => {
     window.location.href = 'profile.html';
   });
 
-  document.getElementById('messages-btn').addEventListener('click', () => {
+  document.getElementById('messages-btn')?.addEventListener('click', () => {
     window.location.href = 'messages.html';
   });
 
-  initQuizzesPage();
+  try {
+    initQuizzesPage();
+  } catch (err) {
+    console.error('[quizzes] init error:', err);
+  }
 </script>
 
 <!-- Service Worker Registration -->
