@@ -104,3 +104,19 @@ export function throttle(func, limit) {
     }
   };
 }
+
+/**
+ * Hide skeleton loader and show content after data loads
+ */
+export function hideSkeletonShowContent(skeletonId, contentId) {
+  const skeleton = document.getElementById(skeletonId);
+  const content = document.getElementById(contentId);
+
+  if (skeleton) {
+    skeleton.classList.add('hidden');
+  }
+
+  if (content) {
+    content.classList.remove('hidden');
+  }
+}

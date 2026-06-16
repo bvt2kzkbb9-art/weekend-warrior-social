@@ -31,6 +31,7 @@ import {
 import { awardXP, checkDailyLogin, XP_ACTIONS } from './xp.js';
 import { makeAvatarsClickable, openUserProfile } from './social.js';
 import { uploadPostImage } from './profile-service.js';
+import { hideSkeletonShowContent } from './utils.js';
 
 import {
   collection,
@@ -524,6 +525,7 @@ async function uploadImage(file) {
     const q = query(collection(db, COL.POSTS), orderBy("createdAt", "desc"), limit(PAGE));
     unsubFeed = onSnapshot(q, (snap) => {
       window._clearFeedSkeleton?.();
+      hideSkeletonShowContent('feed-loading', 'feed-content');
       lastVisible = snap.docs[snap.docs.length - 1] || null;
       let posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       if (currentTab === "following") {
@@ -534,6 +536,7 @@ async function uploadImage(file) {
       if (more) more.style.display = snap.docs.length === PAGE && currentTab !== "following" ? "block" : "none";
     }, (err) => {
       window._clearFeedSkeleton?.();
+      hideSkeletonShowContent('feed-loading', 'feed-content');
       console.warn("[feed]", err.code);
       showToast("❌ Błąd ładowania kronik: " + err.code, "error");
     });
