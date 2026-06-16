@@ -100,6 +100,9 @@ export async function ensureUserDoc(user) {
       level: 1,
       rank: "Rookie",
       streak: 0,
+      challengesCompleted: 0,
+      challengesSent: 0,
+      postsCount: 0,
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
     };

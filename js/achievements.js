@@ -324,9 +324,9 @@ export function initAchievementsPage() {
 
     let data;
     try {
-      data = await getCurrentUserData(user.uid, user);
+      data = await getCurrentUserData(user.uid);
     } catch (err) {
-      console.error(TAG, '❌', err);
+      console.error(TAG, '❌ Data load failed:', err);
       data = null;
     }
 

@@ -48,6 +48,12 @@ export async function createPost(authorId, authorName, authorAvatar, content, im
       createdAt: serverTimestamp(),
     });
     showToast("✅ Post opublikowany", "success");
+    // Increment post counter
+    try {
+      await updateDoc(doc(db, COL.USERS, authorId), {
+        postsCount: increment(1),
+      });
+    } catch (e) { console.warn('[post-counter]', e); }
     awardXP(authorId, XP_ACTIONS.POST_CREATED).catch(err => {
       console.warn("XP award failed (non-critical):", err.code);
     });

@@ -23,7 +23,7 @@ import { createNotification } from './notifications.js';
 import {
   collection, doc, addDoc, getDoc, getDocs,
   updateDoc, onSnapshot, query, where,
-  serverTimestamp, Timestamp,
+  serverTimestamp, Timestamp, increment,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 
@@ -570,6 +570,13 @@ async function _sendInvite(ch, targetUser) {
   };
   const ref = await addDoc(collection(db, 'challenge_invites'), data);
 
+  // Aktualizuj licznik wysłanych wyzwań dla nadawcy
+  try {
+    await updateDoc(doc(db, 'users', _user.uid), {
+      challengesSent: increment(1),
+    });
+  } catch (e) { console.warn('[update-sent-counter]', e); }
+
   // Powiadomienie in-app
   createNotification(targetUser.uid, {
     type:  'duel',
@@ -930,6 +937,13 @@ async function _completeChallenge(inv) {
   await updateDoc(doc(db, 'challenge_invites', inv.id), {
     status: 'completed', completedAt: serverTimestamp(),
   });
+
+  // Aktualizuj licznik wyzwań dla odbiorcy
+  try {
+    await updateDoc(doc(db, 'users', _user.uid), {
+      challengesCompleted: increment(1),
+    });
+  } catch (e) { console.warn('[update-counter]', e); }
 
   // XP dla odbiorcy (wykonującego)
   await awardXP(_user.uid, {

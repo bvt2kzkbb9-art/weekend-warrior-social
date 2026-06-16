@@ -342,8 +342,8 @@
     injectMessengerBadge(user.uid);
 
     let userData = null;
-    try { userData = await getCurrentUserData(user.uid, user); } catch {}
-    userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0 };
+    try { userData = await getCurrentUserData(user.uid); } catch (err) { console.error('[arena-data]', err); }
+    userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0, streak: 0 };
 
     clearTimeout(skTimer);
     _renderCharCard(user, userData);

@@ -458,8 +458,8 @@
       document.getElementById('profile-content').classList.remove('hidden');
     }, 2000);
     let data = null;
-    try { data = await getCurrentUserData(user.uid, user); } catch {}
-    data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
+    try { data = await getCurrentUserData(user.uid); } catch (err) { console.error('[profile-data]', err); }
+    data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0, streak: 0, challengesCompleted: 0, challengesSent: 0, postsCount: 0 };
     clearTimeout(skTimer);
     _renderProfile(user, data);
     _renderAchievements(data);
@@ -554,7 +554,13 @@
       document.getElementById('psc-following').textContent = String(fc.following ?? 0);
       document.getElementById('psc-friends').textContent = String(friends ?? 0);
       document.getElementById('friends-count-label').textContent = String(friends ?? 0);
-    } catch (e) { console.warn('[social-counts]', e); }
+    } catch (e) {
+      console.error('[social-counts-error]', e);
+      document.getElementById('psc-followers').textContent = '0';
+      document.getElementById('psc-following').textContent = '0';
+      document.getElementById('psc-friends').textContent = '0';
+      document.getElementById('friends-count-label').textContent = '0';
+    }
   }
 
   // ── Upload avatara i bannera (Firebase Storage) ───────────────────────────────
@@ -814,10 +820,10 @@
     if (!list) return;
     try {
       const snap = await getDocs(query(
-        collection(db, 'challenge_invites'),
+        collection(db, COL.CHALLENGE_INVITES),
         where('targetId', '==', uid),
         where('status', 'in', ['completed','rejected']),
-        orderBy('updatedAt','desc'), limit(20)
+        orderBy('createdAt','desc'), limit(20)
       ));
       if (snap.empty) {
         list.innerHTML = `<div style="text-align:center;padding:1.5rem;font-family:var(--font-heading);
@@ -843,7 +849,10 @@
           <div class="ch-history-result">${won ? '✅' : '❌'}</div>`;
         list.appendChild(item);
       });
-    } catch (e) { console.warn('[history]', e); }
+    } catch (e) {
+      console.error('[history-error]', e);
+      list.innerHTML = `<div style="text-align:center;padding:1.5rem;font-family:var(--font-heading);font-size:.65rem;color:var(--text-muted);"><div style="margin-bottom:.5rem;">⚠️ Błąd ładowania misji</div><div style="font-size:.6rem;color:var(--text-faint);">${e.message || 'Spróbuj ponownie'}</div></div>`;
+    }
   }
 
   function _renderStreakCalendar(data) {
