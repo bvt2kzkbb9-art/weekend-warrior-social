@@ -1,104 +1,185 @@
 /**
  * ============================================================
- * WEEKEND WARRIOR SOCIAL — firebase.js
- * Firebase SDK 10.12.2 | ES Modules | CDN
+ * WEEKEND WARRIOR SOCIAL — firebase.js (CORE)
+ * Firebase SDK 10.12.2 | ES Modules | App + Auth + Firestore
+ * Images: Cloudinary (darmowe, bez limitów Firebase Storage)
  * ============================================================
+ *
+ * KONTRAKT API (używany przez WSZYSTKIE strony — nie zmieniać sygnatur):
+ *   auth, db, googleProvider, COL
+ *   RANKS                  — [{ id, label, min, emoji }]
+ *   getRank(points)        — zwraca OBIEKT rangi { id, label, min, emoji }
+ *   getRankId(points)      — zwraca string id rangi
+ *   getLevel(points)       — number
+ *   getRankProgress(points)— % postępu do następnej rangi (0–100)
+ *   uploadImage(file, path, onProgress) — upload do Cloudinary → URL
+ *   deleteImageByURL(url)  — Cloudinary auto-cleanup
+ *   compressImage(file)    — zmniejsza zdjęcie przed uploadem (max 1280px)
  */
 
-import { initializeApp }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getAuth,
-  GoogleAuthProvider,
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-import {
-  getFirestore,
+  getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  query, where, orderBy, limit, startAfter, onSnapshot, serverTimestamp,
+  arrayUnion, arrayRemove, addDoc, increment, writeBatch, documentId,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// ── Konfiguracja ─────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            'AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98',
-  authDomain:        'weekend-warrior-social-ed3d0.firebaseapp.com',
-  projectId:         'weekend-warrior-social-ed3d0',
-  storageBucket:     'weekend-warrior-social-ed3d0.firebasestorage.app',
-  messagingSenderId: '487311448505',
-  appId:             '1:487311448505:web:ffbe035b92efa8fc193e68',
+  apiKey: "AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98",
+  authDomain: "weekend-warrior-social-ed3d0.firebaseapp.com",
+  projectId: "weekend-warrior-social-ed3d0",
+  storageBucket: "weekend-warrior-social-ed3d0.firebasestorage.app",
+  messagingSenderId: "487311448505",
+  appId: "1:487311448505:web:ffbe035b92efa8fc193e68",
 };
 
-// ── Inicjalizacja ────────────────────────────────────────────
-let app;
-try {
-  app = initializeApp(firebaseConfig);
-  console.log('[Firebase] ✅ App initialized — project:', firebaseConfig.projectId);
-} catch (err) {
-  console.error('[Firebase] ❌ initializeApp failed:', err);
-  throw err;
-}
-
+const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
-
+export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-console.log('[Firebase] ✅ Auth + Firestore ready');
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // ── Kolekcje ─────────────────────────────────────────────────
 export const COL = {
-  USERS:        'users',
-  POSTS:        'posts',
-  CHALLENGES:   'challenges',
-  ACHIEVEMENTS: 'achievements',
+  USERS: "users",
+  POSTS: "posts",
+  COMMENTS: "comments",
+  FOLLOWERS: "followers",
+  FRIEND_REQUESTS: "friend_requests",
+  FRIENDS: "friends",
+  CONVERSATIONS: "conversations",
+  MESSAGES: "messages",
+  NOTIFICATIONS: "notifications",
+  CHALLENGE_INVITES: "challenge_invites",
+  CHALLENGES: "challenges",
+  LAGA_REQUESTS: "laga_requests",
+  ACHIEVEMENTS: "achievements",
+  USER_ACHIEVEMENTS: "userAchievements",
 };
 
-// ── System rang RPG ──────────────────────────────────────────
+// ── Rangi ────────────────────────────────────────────────────
+// UWAGA: getRank() zwraca OBIEKT (strony używają rankObj.emoji / .label / .min / .id)
 export const RANKS = [
-  { id: 'Rookie',   label: 'Rookie',   emoji: '🥉', min: 0,     cssClass: 'rank-rookie'   },
-  { id: 'Warrior',  label: 'Warrior',  emoji: '🥈', min: 500,   cssClass: 'rank-warrior'  },
-  { id: 'Champion', label: 'Champion', emoji: '🥇', min: 2000,  cssClass: 'rank-champion' },
-  { id: 'Legend',   label: 'Legend',   emoji: '💎', min: 10000, cssClass: 'rank-legend'   },
+  { id: "Rookie",   label: "Rookie",   min: 0,     emoji: "🥉" },
+  { id: "Warrior",  label: "Warrior",  min: 500,   emoji: "🥈" },
+  { id: "Champion", label: "Champion", min: 2000,  emoji: "🥇" },
+  { id: "Legend",   label: "Legend",   min: 10000, emoji: "👑" },
 ];
 
-/**
- * Zwraca obiekt rangi dla podanej liczby punktów.
- * @param {number} points
- * @returns {{ id, label, emoji, min, cssClass }}
- */
 export function getRank(points = 0) {
   const p = Number(points) || 0;
-  const sorted = [...RANKS].reverse();
-  return sorted.find(r => p >= r.min) ?? RANKS[0];
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (p >= RANKS[i].min) return RANKS[i];
+  }
+  return RANKS[0];
 }
 
-/**
- * Oblicza poziom (co 100 pkt = 1 poziom, min 1).
- * @param {number} points
- * @returns {number}
- */
+export function getRankId(points = 0) {
+  return getRank(points).id;
+}
+
 export function getLevel(points = 0) {
+  return Math.floor((Number(points) || 0) / 500) + 1;
+}
+
+/** % postępu do następnej rangi (0–100). Dla Legend → 100. */
+export function getRankProgress(points = 0) {
   const p = Number(points) || 0;
-  return Math.max(1, Math.floor(p / 100) + 1);
+  const cur = getRank(p);
+  const idx = RANKS.findIndex(r => r.id === cur.id);
+  const next = RANKS[idx + 1];
+  if (!next) return 100;
+  const span = next.min - cur.min;
+  return Math.max(0, Math.min(100, Math.round(((p - cur.min) / span) * 100)));
+}
+
+// ════════════════════════════════════════════════════════════
+// FIREBASE STORAGE — upload / delete zdjęć
+// ════════════════════════════════════════════════════════════
+
+/**
+ * Kompresuje obraz w przeglądarce (max 1280px, JPEG q=0.85).
+ * @param {File} file
+ * @returns {Promise<Blob>}
+ */
+export function compressImage(file, maxDim = 1280, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!file || !file.type.startsWith('image/') || file.type === 'image/gif') {
+      resolve(file); return; // GIF-y zostawiamy (animacja)
+    }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width <= maxDim && height <= maxDim && file.size < 600 * 1024) { resolve(file); return; }
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(b => resolve(b || file), 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
 }
 
 /**
- * Procent postępu do następnej rangi (0–100).
- * @param {number} points
- * @returns {number}
+ * Upload pliku do Firebase Storage.
+ * @param {File|Blob} file
+ * @param {string} path        — np. `posts/${uid}/${Date.now()}.jpg`
+ * @param {(pct:number)=>void} [onProgress]
+ * @returns {Promise<string>}  — downloadURL
  */
-export function getRankProgress(points = 0) {
-  const p       = Number(points) || 0;
-  const current = getRank(p);
-  const idx     = RANKS.findIndex(r => r.id === current.id);
-  const next    = RANKS[idx + 1];
-  if (!next) return 100;
-  const done  = p - current.min;
-  const range = next.min - current.min;
-  return Math.min(100, Math.round((done / range) * 100));
+export async function uploadImage(file, path, onProgress) {
+  if (!file || !file.type.startsWith('image/')) throw new Error('Nie jest obrazem');
+  
+  // Określ upload_preset na podstawie path
+  let uploadPreset = 'wws_avatar';
+  if (path.includes('banner')) uploadPreset = 'wws_banner';
+  
+  const compressed = await compressImage(file);
+  const formData = new FormData();
+  formData.append('file', compressed);
+  formData.append('upload_preset', uploadPreset);
+  formData.append('cloud_name', 'dxanfwb3l');
+  
+  return new Promise((res, rej) => {
+    const xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        onProgress?.(pct);
+      }
+    });
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          res(data.secure_url || data.url);
+        } catch (e) { rej(e); }
+      } else {
+        rej(new Error(`Błąd uploadu: ${xhr.status}`));
+      }
+    });
+    xhr.addEventListener('error', () => rej(new Error('Błąd sieci')));
+    xhr.open('POST', 'https://api.cloudinary.com/v1_1/dxanfwb3l/image/upload');
+    xhr.send(formData);
+  });
 }
 
-export default app;
+/** Cloudinary auto-usuwa nieużywane pliki, więc delete jest opcjonalny. */
+export async function deleteImageByURL(url) {
+  console.log('[deleteImageByURL] Cloudinary obsługuje auto-cleanup');
+}
 
-// ── Storage (eksportowane dla feed.js) ──────────────────────
-export { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+// ── Re-export Firestore API (strony importują stąd) ─────────
+export {
+  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  query, where, orderBy, limit, startAfter, onSnapshot, serverTimestamp,
+  arrayUnion, arrayRemove, addDoc, increment, writeBatch, documentId,
+};

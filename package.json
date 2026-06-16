@@ -1,0 +1,7 @@
+{
+  "name": "weekend-warrior-social",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx live-server --port=5500 --host=0.0.0.0"
+  }
+}

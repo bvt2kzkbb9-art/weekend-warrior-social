@@ -5,10 +5,11 @@
  * ============================================================
  */
 
-const CACHE_NAME  = 'wws-v1';
-const CACHE_PAGES = 'wws-pages-v1';
+const CACHE_NAME  = 'wws-v2';
+const CACHE_PAGES = 'wws-pages-v2';
 
 // Assets to cache immediately on install
+// (lista zweryfikowana — tylko pliki istniejące w repo)
 const PRECACHE = [
   './',
   './index.html',
@@ -23,7 +24,9 @@ const PRECACHE = [
   './quizzes.html',
   './onboarding.html',
   './css/style.css',
-  './css/challenges.css',
+  './css/rpg-theme.css',
+  './css/arena.css',
+  './css/messenger.css',
   './js/firebase.js',
   './js/auth.js',
   './js/feed.js',
@@ -45,9 +48,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Precaching app shell');
-      return cache.addAll(PRECACHE).catch(err => {
-        console.warn('[SW] Precache partial fail (ok):', err.message);
-      });
+      // cache.addAll przerywa się na pierwszym 404 — cache'ujemy per plik
+      return Promise.allSettled(
+        PRECACHE.map((url) => cache.add(url).catch((err) =>
+          console.warn('[SW] Skip:', url, err.message)))
+      );
     })
   );
   self.skipWaiting();

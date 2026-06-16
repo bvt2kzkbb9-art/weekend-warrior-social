@@ -1,20 +1,25 @@
 /**
  * ============================================================
- * WEEKEND WARRIOR SOCIAL — feed.js
+ * WEEKEND WARRIOR SOCIAL — feed.js (KRONIKI ARENY)
+ * Posty · zdjęcia (Storage) · lajki · komentarze + odpowiedzi ·
+ * edycja · usuwanie · udostępnianie · zakładki · XP · powiadomienia
  * Firebase SDK 10.12.2 | ES Modules
  * ============================================================
  *
- * Funkcje:
- *   initFeed()          — inicjalizuje stronę feed.html
+ * Struktura Firestore:
+ *   posts/{postId}
+ *     { authorId, authorName, authorAvatar, content, imageUrl,
+ *       likes:[uid], commentsCount, edited, createdAt }
+ *   posts/{postId}/comments/{commentId}
+ *     { authorId, authorName, content, parentId, createdAt }
  *
- * Architektura:
- *   - Real-time stream postów przez onSnapshot
- *   - Lazy-load komentarzy (tylko gdy otwarte)
- *   - Optimistic UI dla lajków
- *   - Upload zdjęcia przez Firebase Storage CDN
- *   - Paginacja (10 postów, "Załaduj więcej")
+ * Eksporty:
+ *   initFeed()  — pełne UI feed.html
+ *   createPost, loadFeed, likePost, unlikePost, deletePost, updatePost,
+ *   addComment, loadComments, deleteComment, getPost
  */
 
+import { auth, db, COL, uploadImage, deleteImageByURL, getRank } from "./firebase.js";
 import {
   auth, db, COL, getRank,
 } from './firebase.js';
@@ -65,79 +70,181 @@ let isPosting       = false;
 
 
 // ════════════════════════════════════════════════════════════
-// INIT
+// API
+// ════════════════════════════════════════════════════════════
+
+export async function createPost(authorId, authorName, authorAvatar, content, imageUrl = "") {
+  try {
+    const docRef = await addDoc(collection(db, COL.POSTS), {
+      authorId,
+      authorName,
+      authorAvatar: authorAvatar || "",
+      content: content || "",
+      imageUrl: imageUrl || "",
+      likes: [],
+      commentsCount: 0,
+      edited: false,
+      createdAt: serverTimestamp(),
+    });
+    showToast("✅ Post opublikowany", "success");
+    awardXP(authorId, XP_ACTIONS.POST_CREATED).catch(() => {});
+    return docRef.id;
+  } catch (err) {
+    showToast("❌ Błąd publikacji: " + (err.code || ""), "error");
+    console.error("Create post error:", err);
+    return null;
+  }
+}
+
+export function loadFeed(callback) {
+  const q = query(collection(db, COL.POSTS), orderBy("createdAt", "desc"), limit(50));
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }, (err) => console.warn("[loadFeed]", err.code));
+}
+
+export async function likePost(postId, uid) {
+  try {
+    await updateDoc(doc(db, COL.POSTS, postId), { likes: arrayUnion(uid) });
+  } catch (err) {
+    console.error("Like post error:", err);
+  }
+}
+
+export async function unlikePost(postId, uid) {
+  try {
+    await updateDoc(doc(db, COL.POSTS, postId), { likes: arrayRemove(uid) });
+  } catch (err) {
+    console.error("Unlike post error:", err);
+  }
+}
+
+export async function updatePost(postId, uid, newContent) {
+  try {
+    const snap = await getDoc(doc(db, COL.POSTS, postId));
+    if (!snap.exists() || snap.data().authorId !== uid) {
+      showToast("❌ Nie możesz edytować tego posta", "error");
+      return false;
+    }
+    await updateDoc(doc(db, COL.POSTS, postId), { content: newContent, edited: true });
+    showToast("✅ Post zaktualizowany", "success");
+    return true;
+  } catch (err) {
+    showToast("❌ Błąd edycji", "error");
+    console.error("Update post error:", err);
+    return false;
+  }
+}
+
+export async function deletePost(postId, uid) {
+  try {
+    const postSnap = await getDoc(doc(db, COL.POSTS, postId));
+    if (!postSnap.exists()) { showToast("❌ Post nie istnieje", "error"); return false; }
+    if (postSnap.data().authorId !== uid) { showToast("❌ Nie możesz usunąć tego posta", "error"); return false; }
+
+    // Usuń zdjęcie ze Storage
+    if (postSnap.data().imageUrl) deleteImageByURL(postSnap.data().imageUrl);
+
+    await deleteDoc(doc(db, COL.POSTS, postId));
+    showToast("✅ Post usunięty", "success");
+    return true;
+  } catch (err) {
+    showToast("❌ Błąd usuwania", "error");
+    console.error("Delete post error:", err);
+    return false;
+  }
+}
+
+export async function addComment(postId, authorId, authorName, content, parentId = "") {
+  try {
+    const commentRef = await addDoc(collection(db, COL.POSTS, postId, COL.COMMENTS), {
+      authorId,
+      authorName,
+      content,
+      parentId: parentId || "",
+      createdAt: serverTimestamp(),
+    });
+    await updateDoc(doc(db, COL.POSTS, postId), { commentsCount: increment(1) });
+    awardXP(authorId, XP_ACTIONS.COMMENT_ADDED).catch(() => {});
+    return commentRef.id;
+  } catch (err) {
+    showToast("❌ Błąd dodawania komentarza", "error");
+    console.error("Add comment error:", err);
+    return null;
+  }
+}
+
+export function loadComments(postId, callback) {
+  const q = query(collection(db, COL.POSTS, postId, COL.COMMENTS), orderBy("createdAt", "asc"));
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }, (err) => console.warn("[loadComments]", err.code));
+}
+
+export async function deleteComment(postId, commentId, uid) {
+  try {
+    const snap = await getDoc(doc(db, COL.POSTS, postId, COL.COMMENTS, commentId));
+    if (!snap.exists() || snap.data().authorId !== uid) {
+      showToast("❌ Nie możesz usunąć tego komentarza", "error");
+      return false;
+    }
+    await deleteDoc(doc(db, COL.POSTS, postId, COL.COMMENTS, commentId));
+    await updateDoc(doc(db, COL.POSTS, postId), { commentsCount: increment(-1) });
+    return true;
+  } catch (err) {
+    showToast("❌ Błąd usuwania", "error");
+    console.error("Delete comment error:", err);
+    return false;
+  }
+}
+
+export async function getPost(postId) {
+  try {
+    const snap = await getDoc(doc(db, COL.POSTS, postId));
+    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  } catch (err) {
+    console.error("Get post error:", err);
+    return null;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// PEŁNE UI — initFeed() (feed.html)
 // ════════════════════════════════════════════════════════════
 
 export function initFeed() {
-  const TAG = '[initFeed]';
-  console.log(TAG, '🚀 Start');
+  let me = null;
+  let myData = { displayName: "Wojownik", photoURL: "" };
+  let currentTab = "forYou";
+  let followingIds = [];
+  let unsubFeed = null;
+  let pendingImage = null;
+  let lastVisible = null;
+  const PAGE = 20;
+  const openComments = new Set();   // posty z rozwiniętymi komentarzami
+  const commentUnsubs = new Map();
 
-  checkAuth(async (user) => {
-    currentUser = user;
-    console.log(TAG, '✅ User:', user.uid);
+  const $ = (id) => document.getElementById(id);
 
-    // Pobierz dane profilu
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    me = user;
+
+    $("logout-btn")?.addEventListener("click", async () => {
+      const { logout } = await import("./auth.js");
+      logout();
+    });
+
     try {
-      currentUserData = await getCurrentUserData(user.uid, user);
-    } catch {
-      currentUserData = null;
-    }
+      const snap = await getDoc(doc(db, COL.USERS, user.uid));
+      if (snap.exists()) myData = snap.data();
+    } catch {}
 
-    if (!currentUserData) {
-      currentUserData = {
-        uid:         user.uid,
-        displayName: user.displayName || 'Wojownik',
-        photoURL:    user.photoURL    || '',
-        rank:        'Rookie',
-        points:      0,
-      };
-    }
-
-    setupComposeBox();
-    startFeedStream();
-
-    // Sprawdź dzienny bonus XP
-    checkDailyLogin(user.uid).catch(() => {});
-
-    // Logout
-    document.getElementById('logout-btn')?.addEventListener('click', logout);
-  });
-}
-
-
-// ════════════════════════════════════════════════════════════
-// COMPOSE BOX
-// ════════════════════════════════════════════════════════════
-
-function setupComposeBox() {
-  const TAG = '[setupComposeBox]';
-
-  // Render avatar w compose
-  const composeAvatar = document.getElementById('compose-avatar');
-  renderSmallAvatar(composeAvatar, currentUser, currentUserData);
-
-  const textarea    = document.getElementById('post-textarea');
-  const charCount   = document.getElementById('char-count');
-  const submitBtn   = document.getElementById('post-submit-btn');
-  const imageBtn    = document.getElementById('image-upload-btn');
-  const imageInput  = document.getElementById('image-input');
-  const preview     = document.getElementById('compose-preview');
-  const removeImg   = document.getElementById('remove-image-btn');
-
-  if (!textarea) { console.warn(TAG, '⚠️ textarea nie znaleziony'); return; }
-
-  // Char counter
-  textarea.addEventListener('input', () => {
-    const len  = textarea.value.length;
-    const left = MAX_POST_LENGTH - len;
-    if (charCount) {
-      charCount.textContent = left;
-      charCount.className   = 'char-count' +
-        (left < 20 ? ' danger' : left < 60 ? ' warn' : '');
-    }
-    // Auto-resize
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 240) + 'px';
+    _renderComposeAvatar();
+    _wireCompose();
+    _wireTabs();
+    await _loadFollowing();
+    _startFeed();
   });
 
   // Image button
@@ -284,17 +391,18 @@ async function submitPost() {
     if (err.code === 'permission-denied') {
       showToast('Brak uprawnień. Sprawdź reguły Firestore.', 'error');
     } else {
-      showToast('Błąd publikowania. Spróbuj ponownie.', 'error');
-    }
-  } finally {
-    isPosting = false;
-    if (submitBtn) {
-      submitBtn.disabled    = false;
-      submitBtn.textContent = 'Publikuj';
+      av.textContent = name.charAt(0).toUpperCase();
     }
   }
-}
 
+  function _wireCompose() {
+    const ta = $("post-textarea");
+    const count = $("char-count");
+    const submitBtn = $("post-submit-btn");
+    const imgBtn = $("image-upload-btn");
+    const imgInput = $("image-input");
+    const preview = $("compose-preview");
+    const removeBtn = $("remove-image-btn");
 
 // ════════════════════════════════════════════════════════════
 // IMAGE UPLOAD (Cloudinary)
@@ -334,539 +442,409 @@ async function uploadImage(file) {
   }
 }
 
-
-// ════════════════════════════════════════════════════════════
-// FEED STREAM (real-time)
-// ════════════════════════════════════════════════════════════
-
-function startFeedStream() {
-  const TAG = '[startFeedStream]';
-  console.log(TAG, '🔄 Uruchamiam stream...');
-
-  const feedList    = document.getElementById('feed-list');
-  const feedEmpty   = document.getElementById('feed-empty');
-  const feedLoading = document.getElementById('feed-loading');
-
-  // Skeleton podczas ładowania
-  if (feedLoading) feedLoading.classList.remove('hidden');
-
-  const q = query(
-    collection(db, COL.POSTS),
-    orderBy('createdAt', 'desc'),
-    limit(POSTS_PER_PAGE),
-  );
-
-  // Unsubscribe poprzedni stream
-  if (unsubFeed) { unsubFeed(); unsubFeed = null; }
-
-  unsubFeed = onSnapshot(q, (snapshot) => {
-    console.log(TAG, `✅ Snapshot: ${snapshot.size} postów`);
-
-    if (feedLoading) feedLoading.classList.add('hidden');
-
-    if (snapshot.empty) {
-      if (feedList)  feedList.innerHTML = '';
-      if (feedEmpty) feedEmpty.classList.add('show');
-      return;
-    }
-
-    if (feedEmpty) feedEmpty.classList.remove('show');
-
-    // Zachowaj otwarte komentarze
-    const openComments = new Set();
-    feedList?.querySelectorAll('.comments-section.open').forEach(el => {
-      openComments.add(el.dataset.postId);
+    submitBtn?.addEventListener("click", async () => {
+      const content = ta?.value.trim() || "";
+      if (!content && !pendingImage) { showToast("⚠️ Napisz coś lub dodaj zdjęcie", "info"); return; }
+      submitBtn.disabled = true;
+      try {
+        let imageUrl = "";
+        if (pendingImage) {
+          const progWrap = $("upload-progress");
+          const progBar = $("upload-progress-bar");
+          progWrap?.classList.remove("hidden");
+          imageUrl = await uploadImage(
+            pendingImage,
+            `posts/${me.uid}/${Date.now()}.jpg`,
+            (pct) => { if (progBar) progBar.style.width = pct + "%"; }
+          );
+          progWrap?.classList.add("hidden");
+          if (progBar) progBar.style.width = "0%";
+        }
+        const id = await createPost(
+          me.uid,
+          myData.displayName || me.displayName || "Wojownik",
+          myData.photoURL || "",
+          content,
+          imageUrl
+        );
+        if (id) {
+          if (ta) { ta.value = ""; if (count) count.textContent = "500"; }
+          pendingImage = null;
+          preview?.classList.add("hidden");
+        }
+      } catch (e) {
+        console.error("[compose]", e);
+        showToast("❌ Błąd: " + (e.code || e.message), "error");
+        $("upload-progress")?.classList.add("hidden");
+      } finally {
+        submitBtn.disabled = false;
+      }
     });
+  }
 
-    // Render postów
-    if (feedList) feedList.innerHTML = '';
-    snapshot.forEach((docSnap) => {
-      const postEl = createPostElement(docSnap.id, docSnap.data());
-      feedList?.appendChild(postEl);
+  // ── Zakładki ───────────────────────────────────────────────
+  function _wireTabs() {
+    document.querySelectorAll(".feed-tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".feed-tab-btn").forEach((b) => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        currentTab = btn.dataset.tab || "forYou";
+        _startFeed();
+      });
     });
+  }
 
-    // Przywróć otwarte komentarze
-    openComments.forEach(pid => {
-      const sec = feedList?.querySelector(`[data-post-id="${pid}"]`);
-      if (sec) sec.classList.add('open');
-    });
-
-    // Zapamiętaj ostatni dokument dla paginacji
-    lastPostDoc  = snapshot.docs[snapshot.docs.length - 1];
-    hasMorePosts = snapshot.size === POSTS_PER_PAGE;
-
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    if (loadMoreBtn) loadMoreBtn.style.display = hasMorePosts ? 'block' : 'none';
-
-    // Make avatars clickable
-    makeAvatarsClickable(feedList);
-
-    // Animacje
-    feedList?.querySelectorAll('.post-card').forEach((el, i) => {
-      el.style.animationDelay = (i * 0.04) + 's';
-    });
-
-  }, (err) => {
-    console.error(TAG, '❌ onSnapshot error:', err.code, err.message);
-    if (feedLoading) feedLoading.classList.add('hidden');
-
-    if (err.code === 'permission-denied') {
-      showToast('Brak dostępu do postów. Sprawdź reguły Firestore.', 'error');
-    } else {
-      showToast('Błąd ładowania feedu.', 'error');
-    }
-  });
-
-  // "Załaduj więcej" button
-  document.getElementById('load-more-btn')?.addEventListener('click', loadMorePosts);
-}
-
-
-// ════════════════════════════════════════════════════════════
-// LOAD MORE POSTS (pagination)
-// ════════════════════════════════════════════════════════════
-
-async function loadMorePosts() {
-  const TAG = '[loadMorePosts]';
-  if (!lastPostDoc || !hasMorePosts) return;
-
-  const btn = document.getElementById('load-more-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Ładowanie...'; }
-
-  console.log(TAG, 'Ładuję więcej postów...');
-
-  try {
-    const q    = query(
-      collection(db, COL.POSTS),
-      orderBy('createdAt', 'desc'),
-      startAfter(lastPostDoc),
-      limit(POSTS_PER_PAGE),
-    );
-
-    const snap = await getDocs(q);
-    console.log(TAG, `✅ ${snap.size} dodatkowych postów`);
-
-    const feedList = document.getElementById('feed-list');
-    snap.forEach((docSnap) => {
-      const postEl = createPostElement(docSnap.id, docSnap.data());
-      feedList?.appendChild(postEl);
-    });
-
-    lastPostDoc  = snap.docs[snap.docs.length - 1] ?? lastPostDoc;
-    hasMorePosts = snap.size === POSTS_PER_PAGE;
-
-  } catch (err) {
-    console.error(TAG, '❌', err);
-    showToast('Błąd ładowania postów.', 'error');
-  } finally {
-    if (btn) {
-      btn.disabled    = false;
-      btn.textContent = 'Załaduj więcej';
-      if (!hasMorePosts) btn.style.display = 'none';
+  async function _loadFollowing() {
+    try {
+      const snap = await getDocs(query(
+        collection(db, COL.FOLLOWERS), where("followerId", "==", me.uid)
+      ));
+      followingIds = snap.docs.map((d) => d.data().followingId);
+    } catch (e) {
+      console.warn("[following]", e.code);
+      followingIds = [];
     }
   }
-}
 
+  // ── Feed realtime ──────────────────────────────────────────
+  function _startFeed() {
+    if (unsubFeed) { unsubFeed(); unsubFeed = null; }
+    commentUnsubs.forEach((u) => u());
+    commentUnsubs.clear();
 
-// ════════════════════════════════════════════════════════════
-// CREATE POST ELEMENT
-// ════════════════════════════════════════════════════════════
+    const list = $("feed-list");
+    if (list) list.innerHTML = "";
+    $("feed-empty") && ($("feed-empty").style.display = "none");
+    $("load-more-btn") && ($("load-more-btn").style.display = "none");
 
-function createPostElement(postId, data) {
-  const isOwner  = data.authorId === currentUser?.uid;
-  const isLiked  = Array.isArray(data.likes) && data.likes.includes(currentUser?.uid);
-  const likesCount    = data.likesCount    ?? data.likes?.length ?? 0;
-  const commentsCount = data.commentsCount ?? 0;
+    const q = query(collection(db, COL.POSTS), orderBy("createdAt", "desc"), limit(PAGE));
+    unsubFeed = onSnapshot(q, (snap) => {
+      window._clearFeedSkeleton?.();
+      lastVisible = snap.docs[snap.docs.length - 1] || null;
+      let posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      if (currentTab === "following") {
+        posts = posts.filter((p) => followingIds.includes(p.authorId) || p.authorId === me.uid);
+      }
+      _renderPosts(posts, false);
+      const more = $("load-more-btn");
+      if (more) more.style.display = snap.docs.length === PAGE && currentTab !== "following" ? "block" : "none";
+    }, (err) => {
+      window._clearFeedSkeleton?.();
+      console.warn("[feed]", err.code);
+      showToast("❌ Błąd ładowania kronik: " + err.code, "error");
+    });
 
-  const el = document.createElement('article');
-  el.className    = 'post-card';
-  el.dataset.postId = postId;
+    $("load-more-btn")?.addEventListener("click", _loadMore, { once: false });
+  }
 
-  // Time formatting
-  const timeStr = formatTime(data.createdAt);
+  let _loadingMore = false;
+  async function _loadMore() {
+    if (_loadingMore || !lastVisible) return;
+    _loadingMore = true;
+    try {
+      const snap = await getDocs(query(
+        collection(db, COL.POSTS), orderBy("createdAt", "desc"),
+        startAfter(lastVisible), limit(PAGE)
+      ));
+      lastVisible = snap.docs[snap.docs.length - 1] || lastVisible;
+      const posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      _renderPosts(posts, true);
+      const more = $("load-more-btn");
+      if (more && snap.docs.length < PAGE) more.style.display = "none";
+    } catch (e) { console.warn("[loadMore]", e.code); }
+    _loadingMore = false;
+  }
 
-  // Author avatar initials
-  const initials = (data.authorName || 'W')
-    .split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase();
+  // ── Render ─────────────────────────────────────────────────
+  function _renderPosts(posts, append) {
+    const list = $("feed-list");
+    const empty = $("feed-empty");
+    if (!list) return;
+    if (!append) list.innerHTML = "";
 
-  // Avatar HTML
-  const avatarHTML = data.authorPhoto
-    ? `<img src="${escHtml(data.authorPhoto)}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.textContent='${escHtml(initials)}'">`
-    : escHtml(initials);
+    if (!posts.length && !append) {
+      if (empty) empty.style.display = "block";
+      return;
+    }
+    if (empty) empty.style.display = "none";
 
-  // Image HTML
-  const imageHTML = data.imageUrl
-    ? `<img src="${escHtml(data.imageUrl)}" alt="Zdjęcie posta" class="post-image" loading="lazy">`
-    : '';
+    posts.forEach((p) => {
+      const existing = document.getElementById("post-" + p.id);
+      const card = _buildPostCard(p);
+      if (existing && !append) existing.replaceWith(card);
+      else list.appendChild(card);
+      if (openComments.has(p.id)) _toggleComments(p, card, true);
+    });
+  }
 
-  // Rank badge
-  const rankBadge = data.authorRankEmoji && data.authorRank
-    ? `<span class="post-rank-badge">${escHtml(data.authorRankEmoji)} ${escHtml(data.authorRank)}</span>`
-    : '';
+  function _buildPostCard(p) {
+    const card = document.createElement("article");
+    card.className = "post-card";
+    card.id = "post-" + p.id;
+    const mine = p.authorId === me.uid;
+    const liked = (p.likes || []).includes(me.uid);
+    const ini = (p.authorName || "?").charAt(0).toUpperCase();
+    const rank = getRank(0); // ranga autora nieznana w dokumencie posta — neutralnie
 
-  // Delete button (only owner)
-  const deleteBtn = isOwner
-    ? `<button class="post-menu-btn delete-post-btn" aria-label="Usuń post" title="Usuń post">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
-        </svg>
-      </button>`
-    : '';
-
-  el.innerHTML = `
-    <!-- Header -->
-    <div class="post-header">
-      <div class="post-avatar" data-user-uid="${data.authorId}" style="cursor:pointer;">${avatarHTML}</div>
-      <div class="post-meta">
-        <div class="post-author">${escHtml(data.authorName || 'Wojownik')}</div>
-        <div class="post-time">${timeStr}</div>
-      </div>
-      ${rankBadge}
-      ${deleteBtn}
-    </div>
-
-    <!-- Content -->
-    ${data.content
-      ? `<div class="post-content">${escHtml(data.content)}</div>`
-      : ''}
-
-    <!-- Image -->
-    ${imageHTML}
-
-    <!-- Actions -->
-    <div class="post-actions">
-      <button class="post-action-btn like-btn ${isLiked ? 'liked' : ''}" data-post-id="${postId}">
-        <svg viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-        </svg>
-        <span class="likes-count">${likesCount > 0 ? likesCount : ''}</span>
-      </button>
-
-      <button class="post-action-btn comment-btn" data-post-id="${postId}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>
-        <span class="comments-count">${commentsCount > 0 ? commentsCount : ''}</span>
-      </button>
-
-      <div class="post-action-sep"></div>
-
-      <button class="post-action-btn share-btn" data-post-id="${postId}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Comments section -->
-    <div class="comments-section" data-post-id="${postId}">
-      <div class="comments-list" id="comments-list-${postId}"></div>
-      <div class="comment-compose">
-        <div class="comment-avatar" id="comment-avatar-${postId}"></div>
-        <div class="comment-input-wrap">
-          <textarea
-            class="comment-input"
-            placeholder="Dodaj komentarz..."
-            rows="1"
-            maxlength="300"
-            id="comment-input-${postId}"
-          ></textarea>
+    card.innerHTML = `
+      <div class="post-header">
+        <div class="post-avatar" data-user-uid="${_esc(p.authorId)}" style="cursor:pointer;">
+          ${p.authorAvatar
+            ? `<img src="${_esc(p.authorAvatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.replaceWith(document.createTextNode('${ini}'))">`
+            : ini}
         </div>
-        <button class="comment-send-btn" id="comment-send-${postId}" aria-label="Wyślij komentarz">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
+        <div class="post-meta" style="flex:1;min-width:0;">
+          <div class="post-name" data-user-uid="${_esc(p.authorId)}" style="cursor:pointer;">${_esc(p.authorName || "Wojownik")}</div>
+          <div class="post-time">${_fmtTime(p.createdAt)}${p.edited ? " · edytowano" : ""}</div>
+        </div>
+        ${mine ? `
+        <button class="post-menu-btn" data-act="menu" aria-label="Opcje posta"
+          style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:.375rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>` : ""}
+      </div>
+
+      ${p.content ? `<div class="post-body" data-role="content">${_linkify(_esc(p.content))}</div>` : ""}
+      <div data-role="edit-area" style="display:none;padding:.25rem .875rem .625rem;">
+        <textarea class="compose-textarea" data-role="edit-ta" maxlength="500" rows="3"
+          style="width:100%;">${_esc(p.content || "")}</textarea>
+        <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.375rem;">
+          <button class="btn btn-outline btn-sm" data-act="edit-cancel">Anuluj</button>
+          <button class="btn btn-primary btn-sm" data-act="edit-save">Zapisz</button>
+        </div>
+      </div>
+
+      ${p.imageUrl ? `<div class="post-image-wrap"><img src="${_esc(p.imageUrl)}" alt="Zdjęcie posta" loading="lazy"
+        style="width:100%;display:block;cursor:pointer;" onclick="window.open('${_esc(p.imageUrl)}','_blank')"></div>` : ""}
+
+      <div class="post-actions">
+        <button class="post-action-btn reaction-btn ${liked ? "reacted" : ""}" data-act="like">
+          <span class="reaction-emoji">${liked ? "⚔️" : "🗡"}</span>
+          <span data-role="like-count">${(p.likes || []).length || ""}</span>
+          <span class="reaction-label">${liked ? "Uznane" : "Uznaj"}</span>
+        </button>
+        <button class="post-action-btn" data-act="comments">
+          💬 <span data-role="comment-count">${p.commentsCount || ""}</span>
+          <span class="reaction-label">Komentarze</span>
+        </button>
+        <button class="post-action-btn share-btn" data-act="share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg><span>Udostępnij</span>
         </button>
       </div>
-    </div>
-  `;
 
-  // ── Event listeners ──────────────────────────────────────
+      <div class="post-comments" data-role="comments" style="display:none;"></div>`;
 
-  // Like
-  el.querySelector('.like-btn')?.addEventListener('click', () => toggleLike(postId, data, el));
-
-  // Comment toggle
-  el.querySelector('.comment-btn')?.addEventListener('click', () => toggleComments(postId, el));
-
-  // Share
-  el.querySelector('.share-btn')?.addEventListener('click', () => sharePost(postId, data));
-
-  // Delete
-  el.querySelector('.delete-post-btn')?.addEventListener('click', () => confirmDeletePost(postId, data));
-
-  // Image lightbox
-  el.querySelector('.post-image')?.addEventListener('click', (e) => openLightbox(e.target.src));
-
-  // Comment send
-  const commentInput = el.querySelector(`#comment-input-${postId}`);
-  const commentSend  = el.querySelector(`#comment-send-${postId}`);
-
-  commentInput?.addEventListener('input', () => {
-    // Auto-resize
-    commentInput.style.height = 'auto';
-    commentInput.style.height = Math.min(commentInput.scrollHeight, 120) + 'px';
-  });
-
-  commentInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      submitComment(postId, el);
-    }
-  });
-
-  commentSend?.addEventListener('click', () => submitComment(postId, el));
-
-  // Render avatar w comment compose
-  const commentAvatarEl = el.querySelector(`#comment-avatar-${postId}`);
-  renderSmallAvatar(commentAvatarEl, currentUser, currentUserData, 30);
-
-  return el;
-}
-
-
-// ════════════════════════════════════════════════════════════
-// LIKE
-// ════════════════════════════════════════════════════════════
-
-async function toggleLike(postId, data, postEl) {
-  const TAG = '[toggleLike]';
-  if (!currentUser) return;
-
-  const uid        = currentUser.uid;
-  const likes      = Array.isArray(data.likes) ? data.likes : [];
-  const isLiked    = likes.includes(uid);
-  const postRef    = doc(db, COL.POSTS, postId);
-  const likeBtn    = postEl.querySelector('.like-btn');
-  const countEl    = postEl.querySelector('.likes-count');
-  const newCount   = isLiked ? Math.max(0, (data.likesCount ?? likes.length) - 1) : (data.likesCount ?? likes.length) + 1;
-
-  // Optimistic UI
-  if (likeBtn) {
-    likeBtn.classList.toggle('liked', !isLiked);
-    const svgPath = likeBtn.querySelector('path');
-    if (svgPath) svgPath.setAttribute('fill', !isLiked ? 'currentColor' : 'none');
-  }
-  if (countEl) countEl.textContent = newCount > 0 ? newCount : '';
-
-  // Aktualizuj lokalny obiekt data
-  data.likes      = isLiked ? likes.filter(id => id !== uid) : [...likes, uid];
-  data.likesCount = newCount;
-
-  console.log(TAG, isLiked ? '💔 Unlike' : '❤️ Like', postId);
-
-  // Przyznaj XP autorowi posta za otrzymany lajk
-  if (!isLiked && data.authorId && data.authorId !== currentUser?.uid) {
-    awardXP(data.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(() => {});
-  }
-
-  try {
-    await updateDoc(postRef, {
-      likes:      isLiked ? arrayRemove(uid) : arrayUnion(uid),
-      likesCount: newCount,
+    // Avatar / nazwa → profil
+    card.querySelectorAll("[data-user-uid]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const uid = el.dataset.userUid;
+        window.location.href = uid === me.uid ? "profile.html" : `user.html?uid=${encodeURIComponent(uid)}`;
+      });
     });
-  } catch (err) {
-    console.error(TAG, '❌', err.code, err.message);
-    // Rollback
-    if (likeBtn) likeBtn.classList.toggle('liked', isLiked);
-    if (countEl) countEl.textContent = (data.likesCount ?? 0) > 0 ? (data.likesCount ?? 0) : '';
-    if (err.code !== 'permission-denied') {
-      showToast('Błąd. Spróbuj ponownie.', 'error');
+
+    // Lajk
+    card.querySelector('[data-act="like"]').addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      const wasLiked = btn.classList.contains("reacted");
+      try {
+        if (wasLiked) {
+          await unlikePost(p.id, me.uid);
+        } else {
+          await likePost(p.id, me.uid);
+          if (p.authorId !== me.uid) {
+            awardXP(p.authorId, XP_ACTIONS.LIKE_RECEIVED).catch(() => {});
+            createNotification(p.authorId, {
+              type: "like",
+              title: `${myData.displayName || "Wojownik"} uznał Twój wpis ⚔️`,
+              body: (p.content || "📷 Zdjęcie").substring(0, 50),
+              url: "feed.html",
+              relatedUid: me.uid,
+            }).catch(() => {});
+          }
+        }
+      } finally { btn.disabled = false; }
+    });
+
+    // Komentarze
+    card.querySelector('[data-act="comments"]').addEventListener("click", () => _toggleComments(p, card));
+
+    // Udostępnianie
+    card.querySelector('[data-act="share"]').addEventListener("click", async () => {
+      const url = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, "")}feed.html?post=${p.id}`;
+      const text = `⚔️ ${p.authorName}: ${(p.content || "").substring(0, 80)}`;
+      if (navigator.share) {
+        try { await navigator.share({ title: "Weekend Warrior Social", text, url }); return; } catch {}
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("🔗 Link do posta skopiowany!", "success");
+      } catch { prompt("Skopiuj link:", url); }
+    });
+
+    // Menu właściciela (edytuj / usuń)
+    if (mine) {
+      card.querySelector('[data-act="menu"]').addEventListener("click", () => {
+        const choice = confirm("OK = Edytuj post\nAnuluj = pokaż opcję usunięcia");
+        if (choice) {
+          card.querySelector('[data-role="content"]')?.style.setProperty("display", "none");
+          card.querySelector('[data-role="edit-area"]').style.display = "block";
+        } else if (confirm("Usunąć ten post bezpowrotnie?")) {
+          deletePost(p.id, me.uid);
+        }
+      });
+      card.querySelector('[data-act="edit-cancel"]')?.addEventListener("click", () => {
+        card.querySelector('[data-role="edit-area"]').style.display = "none";
+        card.querySelector('[data-role="content"]')?.style.removeProperty("display");
+      });
+      card.querySelector('[data-act="edit-save"]')?.addEventListener("click", async () => {
+        const ta = card.querySelector('[data-role="edit-ta"]');
+        const val = ta.value.trim();
+        if (!val && !p.imageUrl) { showToast("⚠️ Post nie może być pusty", "info"); return; }
+        await updatePost(p.id, me.uid, val);
+      });
     }
+
+    return card;
   }
-}
 
-
-// ════════════════════════════════════════════════════════════
-// COMMENTS
-// ════════════════════════════════════════════════════════════
-
-function toggleComments(postId, postEl) {
-  const section = postEl.querySelector('.comments-section');
-  if (!section) return;
-
-  const isOpen = section.classList.toggle('open');
-  console.log('[toggleComments]', isOpen ? 'open' : 'close', postId);
-
-  if (isOpen) {
-    loadComments(postId, postEl);
-    // Focus input
-    setTimeout(() => {
-      postEl.querySelector(`#comment-input-${postId}`)?.focus();
-    }, 150);
-  }
-}
-
-async function loadComments(postId, postEl) {
-  const TAG = '[loadComments]';
-  const listEl = postEl.querySelector(`#comments-list-${postId}`);
-  if (!listEl) return;
-
-  listEl.innerHTML = `<div style="text-align:center;padding:0.5rem;font-size:0.8rem;color:var(--text-muted);">Ładowanie komentarzy...</div>`;
-
-  try {
-    const q    = query(
-      collection(db, COL.POSTS, postId, 'comments'),
-      orderBy('createdAt', 'asc'),
-      limit(20),
-    );
-    const snap = await getDocs(q);
-    console.log(TAG, `✅ ${snap.size} komentarzy dla`, postId);
-
-    listEl.innerHTML = '';
-
-    if (snap.empty) {
-      listEl.innerHTML = `<p style="font-size:0.8125rem;color:var(--text-muted);text-align:center;padding:0.25rem 0 0.5rem;">Bądź pierwszy! Dodaj komentarz.</p>`;
+  // ── Komentarze + odpowiedzi ────────────────────────────────
+  function _toggleComments(p, card, forceOpen = false) {
+    const box = card.querySelector('[data-role="comments"]');
+    if (!box) return;
+    const isOpen = box.style.display !== "none";
+    if (isOpen && !forceOpen) {
+      box.style.display = "none";
+      openComments.delete(p.id);
+      commentUnsubs.get(p.id)?.();
+      commentUnsubs.delete(p.id);
       return;
     }
+    box.style.display = "block";
+    openComments.add(p.id);
+    if (commentUnsubs.has(p.id)) return;
 
-    snap.forEach((docSnap) => {
-      listEl.appendChild(createCommentElement(docSnap.id, docSnap.data()));
-    });
+    box.innerHTML = `<div style="padding:.625rem .875rem;font-family:var(--font-heading);
+      font-size:.55rem;color:var(--text-faint);font-style:italic;">Ładowanie głosów...</div>`;
 
-  } catch (err) {
-    console.error(TAG, '❌', err.code, err.message);
-    listEl.innerHTML = `<p style="font-size:0.8125rem;color:var(--error);padding:0.25rem 0;">Błąd ładowania komentarzy.</p>`;
-  }
-}
-
-function createCommentElement(commentId, data) {
-  const el       = document.createElement('div');
-  el.className   = 'comment-item';
-  el.dataset.commentId = commentId;
-
-  const initials = (data.authorName || 'W')
-    .split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase();
-
-  const avatarHTML = data.authorPhoto
-    ? `<img src="${escHtml(data.authorPhoto)}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.textContent='${escHtml(initials)}'">`
-    : escHtml(initials);
-
-  el.innerHTML = `
-    <div class="comment-avatar">${avatarHTML}</div>
-    <div class="comment-bubble">
-      <div class="comment-author">${escHtml(data.authorName || 'Wojownik')}</div>
-      <div class="comment-text">${escHtml(data.content)}</div>
-      <div class="comment-time">${formatTime(data.createdAt)}</div>
-    </div>
-  `;
-
-  return el;
-}
-
-async function submitComment(postId, postEl) {
-  const TAG = '[submitComment]';
-
-  const input   = postEl.querySelector(`#comment-input-${postId}`);
-  const sendBtn = postEl.querySelector(`#comment-send-${postId}`);
-  const content = input?.value.trim() ?? '';
-
-  if (!content) return;
-  if (content.length > 300) {
-    showToast('Komentarz może mieć max 300 znaków.', 'error');
-    return;
+    const unsub = loadComments(p.id, (comments) => _renderComments(p, box, comments));
+    commentUnsubs.set(p.id, unsub);
   }
 
-  if (sendBtn) sendBtn.disabled = true;
-  console.log(TAG, '💬 Dodaję komentarz do', postId);
+  function _renderComments(p, box, comments) {
+    const roots = comments.filter((c) => !c.parentId);
+    const repliesOf = (id) => comments.filter((c) => c.parentId === id);
 
-  try {
-    const rankObj = getRank(currentUserData?.points ?? 0);
-    const commentData = {
-      authorId:    currentUser.uid,
-      authorName:  currentUserData?.displayName || currentUser.displayName || 'Wojownik',
-      authorPhoto: currentUserData?.photoURL    || currentUser.photoURL    || '',
-      authorRank:  rankObj.label,
-      content,
-      createdAt:   serverTimestamp(),
+    box.innerHTML = "";
+
+    const renderOne = (c, depth) => {
+      const ini = (c.authorName || "?").charAt(0).toUpperCase();
+      const mine = c.authorId === me.uid;
+      const item = document.createElement("div");
+      item.className = "comment-item";
+      item.style.cssText = `display:flex;gap:.5rem;padding:.45rem .875rem;${depth ? `padding-left:${0.875 + depth * 1.75}rem;` : ""}`;
+      item.innerHTML = `
+        <div class="comment-avatar" style="cursor:pointer;" data-user-uid="${_esc(c.authorId)}">${ini}</div>
+        <div class="comment-body" style="flex:1;min-width:0;">
+          <span class="comment-name">${_esc(c.authorName || "Wojownik")}</span>
+          <span class="comment-text">${_esc(c.content)}</span>
+          <div style="display:flex;gap:.75rem;margin-top:.125rem;">
+            <span style="font-size:.575rem;color:var(--text-faint);">${_fmtTime(c.createdAt)}</span>
+            ${depth === 0 ? `<button data-act="reply" style="background:none;border:none;cursor:pointer;
+              font-family:var(--font-heading);font-size:.5rem;letter-spacing:.06em;
+              color:var(--gold-500,#D4AF37);text-transform:uppercase;">Odpowiedz</button>` : ""}
+            ${mine ? `<button data-act="del" style="background:none;border:none;cursor:pointer;
+              font-family:var(--font-heading);font-size:.5rem;letter-spacing:.06em;
+              color:#EF4444;text-transform:uppercase;">Usuń</button>` : ""}
+          </div>
+          <div data-role="reply-box" style="display:none;margin-top:.375rem;"></div>
+        </div>`;
+
+      item.querySelector("[data-user-uid]").addEventListener("click", () => {
+        const uid = c.authorId;
+        window.location.href = uid === me.uid ? "profile.html" : `user.html?uid=${encodeURIComponent(uid)}`;
+      });
+      item.querySelector('[data-act="del"]')?.addEventListener("click", () => {
+        if (confirm("Usunąć komentarz?")) deleteComment(p.id, c.id, me.uid);
+      });
+      item.querySelector('[data-act="reply"]')?.addEventListener("click", () => {
+        const rb = item.querySelector('[data-role="reply-box"]');
+        if (rb.style.display === "none") {
+          rb.style.display = "block";
+          rb.innerHTML = `<div class="comment-compose" style="display:flex;gap:.5rem;">
+            <input class="comment-input" type="text" maxlength="300" placeholder="Odpowiedz wojownikowi..." style="flex:1;"/>
+            <button class="btn btn-primary btn-sm">➤</button></div>`;
+          const input = rb.querySelector("input");
+          const send = async () => {
+            const v = input.value.trim();
+            if (!v) return;
+            input.value = "";
+            await addComment(p.id, me.uid, myData.displayName || "Wojownik", v, c.id);
+            _notifyComment(p, v, c.authorId);
+          };
+          rb.querySelector("button").addEventListener("click", send);
+          input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+          input.focus();
+        } else rb.style.display = "none";
+      });
+
+      box.appendChild(item);
+      repliesOf(c.id).forEach((r) => renderOne(r, depth + 1));
     };
 
-    await addDoc(collection(db, COL.POSTS, postId, 'comments'), commentData);
+    roots.forEach((c) => renderOne(c, 0));
 
-    // Increment counter
-    await updateDoc(doc(db, COL.POSTS, postId), {
-      commentsCount: (postEl.querySelector('.comments-count')?.textContent
-        ? parseInt(postEl.querySelector('.comments-count').textContent) + 1
-        : 1),
-    });
+    // Compose głównego komentarza
+    const compose = document.createElement("div");
+    compose.className = "comment-compose";
+    compose.style.cssText = "display:flex;gap:.5rem;padding:.5rem .875rem .75rem;";
+    compose.innerHTML = `
+      <input class="comment-input" type="text" maxlength="300" placeholder="Zabierz głos w kronikach..." style="flex:1;"/>
+      <button class="btn btn-primary btn-sm">➤</button>`;
+    const input = compose.querySelector("input");
+    const send = async () => {
+      const v = input.value.trim();
+      if (!v) return;
+      input.value = "";
+      await addComment(p.id, me.uid, myData.displayName || "Wojownik", v);
+      _notifyComment(p, v, p.authorId);
+    };
+    compose.querySelector("button").addEventListener("click", send);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+    box.appendChild(compose);
+  }
 
-    // Aktualizuj counter w UI
-    const countEl = postEl.querySelector('.comments-count');
-    if (countEl) {
-      const prev = parseInt(countEl.textContent) || 0;
-      countEl.textContent = prev + 1;
-    }
-
-    // Dodaj komentarz do listy
-    const listEl = postEl.querySelector(`#comments-list-${postId}`);
-    if (listEl) {
-      const emptyMsg = listEl.querySelector('p');
-      if (emptyMsg) emptyMsg.remove();
-
-      // Fake timestamp dla natychmiastowego wyświetlenia
-      const fakeData = { ...commentData, createdAt: { toDate: () => new Date() } };
-      listEl.appendChild(createCommentElement('temp_' + Date.now(), fakeData));
-      listEl.lastChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    // Reset input
-    if (input) {
-      input.value       = '';
-      input.style.height = 'auto';
-    }
-
-    console.log(TAG, '✅ Komentarz dodany');
-
-    // XP za komentarz (komentujący)
-    awardXP(currentUser.uid, XP_ACTIONS.COMMENT_ADDED).catch(() => {});
-
-  } catch (err) {
-    console.error(TAG, '❌', err.code, err.message);
-    showToast(
-      err.code === 'permission-denied'
-        ? 'Brak uprawnień do komentowania.'
-        : 'Błąd dodawania komentarza.',
-      'error',
-    );
-  } finally {
-    if (sendBtn) sendBtn.disabled = false;
+  function _notifyComment(p, text, targetUid) {
+    if (!targetUid || targetUid === me.uid) return;
+    awardXP(targetUid, XP_ACTIONS.COMMENT_RECEIVED).catch(() => {});
+    createNotification(targetUid, {
+      type: "comment",
+      title: `${myData.displayName || "Wojownik"} komentuje 💬`,
+      body: text.substring(0, 60),
+      url: "feed.html",
+      relatedUid: me.uid,
+    }).catch(() => {});
   }
 }
 
-
-// ════════════════════════════════════════════════════════════
-// DELETE POST
-// ════════════════════════════════════════════════════════════
-
-function confirmDeletePost(postId, data) {
-  // Pokaż modal potwierdzenia
-  const backdrop = document.createElement('div');
-  backdrop.className = 'modal-backdrop';
-  backdrop.innerHTML = `
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-handle"></div>
-      <h3 class="modal-title">Usuń post</h3>
-      <p class="modal-text">Czy na pewno chcesz usunąć ten post? Tej operacji nie można cofnąć.</p>
-      <div class="modal-actions">
-        <button class="btn btn-secondary btn-full" id="modal-cancel">Anuluj</button>
-        <button class="btn btn-danger btn-full" id="modal-confirm">Usuń post</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(backdrop);
-
-  backdrop.querySelector('#modal-cancel')?.addEventListener('click', () => backdrop.remove());
-  backdrop.querySelector('#modal-confirm')?.addEventListener('click', async () => {
-    backdrop.remove();
-    await deletePost(postId, data);
-  });
-
-  // Zamknij klikając w tło
-  backdrop.addEventListener('click', (e) => {
-    if (e.target === backdrop) backdrop.remove();
-  });
+// ── Helpers ──────────────────────────────────────────────────
+function _fmtTime(ts) {
+  if (!ts) return "przed chwilą";
+  const d = ts?.toDate?.() ?? (ts?.seconds ? new Date(ts.seconds * 1000) : new Date(ts));
+  if (isNaN(d)) return "";
+  const m = Math.floor((Date.now() - d) / 60000);
+  if (m < 1) return "przed chwilą";
+  if (m < 60) return `${m} min. temu`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} godz. temu`;
+  return d.toLocaleDateString("pl-PL", { day: "2-digit", month: "short" });
 }
 
 async function deletePost(postId, data) {
@@ -884,112 +862,7 @@ async function deletePost(postId, data) {
     showToast('Błąd usuwania posta.', 'error');
   }
 }
-
-
-// ════════════════════════════════════════════════════════════
-// SHARE
-// ════════════════════════════════════════════════════════════
-
-function sharePost(postId, data) {
-  const url   = `${window.location.origin}${window.location.pathname}?post=${postId}`;
-  const title = `${data.authorName} na Weekend Warrior Social`;
-  const text  = data.content?.slice(0, 100) ?? '';
-
-  if (navigator.share) {
-    navigator.share({ title, text, url }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(url)
-      .then(() => showToast('Link skopiowany do schowka! 📋', 'success'))
-      .catch(() => showToast('Nie można skopiować linku.', 'error'));
-  }
-}
-
-
-// ════════════════════════════════════════════════════════════
-// LIGHTBOX
-// ════════════════════════════════════════════════════════════
-
-function openLightbox(src) {
-  const lb = document.createElement('div');
-  lb.className = 'lightbox';
-  lb.innerHTML = `
-    <button class="lightbox-close" aria-label="Zamknij">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <img src="${escHtml(src)}" alt="Powiększone zdjęcie" />
-  `;
-
-  lb.addEventListener('click', (e) => {
-    if (e.target === lb || e.target.closest('.lightbox-close')) lb.remove();
-  });
-
-  document.body.appendChild(lb);
-
-  // Zamknij Escape
-  const onKey = (e) => { if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', onKey); } };
-  document.addEventListener('keydown', onKey);
-}
-
-
-// ════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════
-
-function renderSmallAvatar(el, user, data, size = 40) {
-  if (!el) return;
-  const photoURL = data?.photoURL || user?.photoURL || '';
-  const name     = data?.displayName || user?.displayName || 'W';
-  const initials = name.split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase();
-
-  el.style.width  = size + 'px';
-  el.style.height = size + 'px';
-
-  if (photoURL) {
-    el.innerHTML = '';
-    const img     = document.createElement('img');
-    img.src       = photoURL;
-    img.alt       = 'Avatar';
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-    img.onerror   = () => { el.innerHTML = ''; el.textContent = initials; };
-    el.appendChild(img);
-  } else {
-    el.textContent = initials;
-  }
-}
-
-function formatTime(ts) {
-  if (!ts) return '';
-  const date = ts instanceof Timestamp ? ts.toDate()
-    : ts?.toDate?.() ? ts.toDate()
-    : ts?.seconds    ? new Date(ts.seconds * 1000)
-    : new Date(ts);
-
-  if (isNaN(date.getTime())) return '';
-
-  const now    = new Date();
-  const diffMs = now - date;
-  const diffS  = Math.floor(diffMs / 1000);
-  const diffM  = Math.floor(diffS / 60);
-  const diffH  = Math.floor(diffM / 60);
-  const diffD  = Math.floor(diffH / 24);
-
-  if (diffS < 30)  return 'przed chwilą';
-  if (diffS < 60)  return `${diffS} sek. temu`;
-  if (diffM < 60)  return `${diffM} min. temu`;
-  if (diffH < 24)  return `${diffH} godz. temu`;
-  if (diffD < 7)   return `${diffD} dni temu`;
-
-  return date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-function escHtml(str) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+function _esc(s) {
+  if (typeof s !== "string") return "";
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

@@ -1,0 +1,302 @@
+/**
+ * ════════════════════════════════════════════════════════════════════════════════
+ * WEEKEND WARRIOR SOCIAL — UNIFIED LAYOUT SYSTEM v4.0
+ * 
+ * Mobile-First Grid System
+ * Consistent spacing, alignment, and responsive behavior
+ * ════════════════════════════════════════════════════════════════════════════════
+ */
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   SPACING SYSTEM (Global)
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Margins */
+  --margin-xl: 24px;
+  --margin-lg: 16px;
+  --margin-md: 12px;
+  --margin-sm: 8px;
+  --margin-xs: 4px;
+  
+  /* Padding */
+  --padding-xl: 24px;
+  --padding-lg: 16px;
+  --padding-md: 12px;
+  --padding-sm: 8px;
+  --padding-xs: 4px;
+  
+  /* Gaps */
+  --gap-xl: 16px;
+  --gap-lg: 12px;
+  --gap-md: 8px;
+  --gap-sm: 4px;
+  
+  /* Grid */
+  --max-width: 100%;
+  --container-padding: 12px;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   MAIN CONTENT AREA
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+main.content-area {
+  width: 100%;
+  padding: var(--container-padding);
+  padding-top: var(--header-height, 60px);
+  padding-bottom: var(--nav-height, 60px);
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   SECTION CONTAINERS
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+section, .section, .page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   PANEL / CARD SYSTEM
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.panel, .card, .rpg-panel, [class*="panel"] {
+  width: 100%;
+  background: var(--bg-secondary, #1a1a1a);
+  border: 1px solid var(--border, rgba(212, 175, 55, 0.15));
+  border-radius: 12px;
+  padding: var(--padding-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  margin-bottom: var(--margin-lg);
+}
+
+.panel:last-child, .card:last-child, .rpg-panel:last-child {
+  margin-bottom: 0;
+}
+
+.panel:hover, .card:hover, .rpg-panel:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   GRID LAYOUTS (Mobile-First)
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+/* Single Column (Default) */
+.grid-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Two Column */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Three Column */
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Responsive: Stack on small screens */
+@media (max-width: 430px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive: Two columns on medium+ */
+@media (min-width: 431px) {
+  .grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   FLEX LAYOUTS
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap-md);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   SECTIONS & HEADERS
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.section-header {
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold, #D4AF37);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--margin-lg);
+  padding-bottom: var(--padding-md);
+  border-bottom: 1px solid var(--border, rgba(212, 175, 55, 0.15));
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   CONTENT BLOCKS (Standardized Heights)
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.block-small {
+  min-height: 80px;
+  padding: var(--padding-lg);
+}
+
+.block-medium {
+  min-height: 120px;
+  padding: var(--padding-lg);
+}
+
+.block-large {
+  min-height: 160px;
+  padding: var(--padding-lg);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+/* Extra Small: 320px */
+@media (max-width: 320px) {
+  :root {
+    --container-padding: 10px;
+    --margin-xl: 20px;
+    --padding-lg: 12px;
+  }
+  
+  main.content-area {
+    padding: 8px;
+  }
+}
+
+/* Small: 375px */
+@media (min-width: 321px) and (max-width: 390px) {
+  :root {
+    --container-padding: 12px;
+  }
+}
+
+/* Medium: 390-430px */
+@media (min-width: 391px) and (max-width: 430px) {
+  :root {
+    --container-padding: 12px;
+  }
+}
+
+/* Large: 431px+ */
+@media (min-width: 431px) {
+  :root {
+    --container-padding: 16px;
+    --margin-xl: 24px;
+    --padding-xl: 24px;
+  }
+  
+  main.content-area {
+    max-width: 768px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   ALIGNMENT UTILITIES
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.align-top { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-bottom { align-items: flex-end; }
+.align-stretch { align-items: stretch; }
+
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   SPACING UTILITIES
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--margin-sm); }
+.mt-2 { margin-top: var(--margin-md); }
+.mt-3 { margin-top: var(--margin-lg); }
+.mt-4 { margin-top: var(--margin-xl); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--margin-sm); }
+.mb-2 { margin-bottom: var(--margin-md); }
+.mb-3 { margin-bottom: var(--margin-lg); }
+.mb-4 { margin-bottom: var(--margin-xl); }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--padding-sm); }
+.p-2 { padding: var(--padding-md); }
+.p-3 { padding: var(--padding-lg); }
+.p-4 { padding: var(--padding-xl); }
+
+.gap-1 { gap: var(--gap-sm); }
+.gap-2 { gap: var(--gap-md); }
+.gap-3 { gap: var(--gap-lg); }
+.gap-4 { gap: var(--gap-xl); }
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   VISIBILITY UTILITIES
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+.hidden { display: none !important; }
+.visible { display: block !important; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   ANTIALIASING & TEXT RENDERING
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

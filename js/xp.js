@@ -19,6 +19,7 @@
  */
 
 import { auth, db, COL, getRank, getLevel } from './firebase.js';
+import { createNotification } from './notifications.js';
 
 import {
   doc,
@@ -26,7 +27,6 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
-  Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 import { checkAndUnlockAchievements } from './achievements.js';
@@ -95,6 +95,19 @@ export async function awardXP(uid, action, meta = {}) {
     await updateDoc(userRef, updateData);
 
     console.log(TAG, `✅ ${uid}: ${oldPoints} → ${newPoints} pkt | Lvl ${newLevel} | ${newRank.label}`);
+
+    // Notif dla właściciela
+    if (uid === auth.currentUser?.uid) {
+      // Self notification handled by XP toast
+    } else if (action.xp >= 10) {
+      // Notify other user they got XP
+      createNotification(uid, {
+        type:  'xp',
+        title: `+${action.xp} XP zdobyte! ⭐`,
+        body:  action.label,
+        url:   'index.html',
+      }).catch(() => {});
+    }
 
     // Sprawdź awans rangi
     const oldRank = getRank(oldPoints);
@@ -178,16 +191,21 @@ export async function checkDailyLogin(uid) {
 // ════════════════════════════════════════════════════════════
 
 function showXpGainToast(xp, label) {
-  // Usuń poprzedni jeśli istnieje
-  document.querySelector('.xp-gain-toast')?.remove();
-
-  const el = document.createElement('div');
-  el.className   = 'xp-gain-toast';
-  el.textContent = `+${xp} XP`;
-  el.title       = label;
-  document.body.appendChild(el);
-
-  setTimeout(() => el.remove(), 2600);
+  import('./arena.js').then(({ spawnXPFloat }) => {
+    const xpEl = document.getElementById('user-xp') ||
+                 document.getElementById('xp-bar') ||
+                 document.querySelector('.progress-fill') ||
+                 document.querySelector('.xp-section');
+    if (spawnXPFloat) spawnXPFloat(xpEl, xp);
+  }).catch(() => {
+    document.querySelector('.xp-gain-toast')?.remove();
+    const el = document.createElement('div');
+    el.className='xp-gain-toast';
+    el.textContent=`+${xp} XP`;
+    el.title=label;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  });
 }
 
 
@@ -196,30 +214,34 @@ function showXpGainToast(xp, label) {
 // ════════════════════════════════════════════════════════════
 
 function showRankUpNotification(rankObj) {
-  // Usuń poprzedni backdrop jeśli istnieje
-  document.querySelector('.unlock-backdrop')?.remove();
-  document.querySelector('.unlock-popup')?.remove();
+  // Arena ceremony — fallback legacy tylko gdy arena.js się nie załaduje
+  import('./arena.js').then(({ showRankUp }) => {
+    showRankUp(rankObj.id);
+  }).catch(() => {
+    document.querySelector('.unlock-backdrop')?.remove();
+    document.querySelector('.unlock-popup')?.remove();
 
-  const backdrop = document.createElement('div');
-  backdrop.className = 'unlock-backdrop';
+    const backdrop = document.createElement('div');
+    backdrop.className = 'unlock-backdrop';
 
-  const popup = document.createElement('div');
-  popup.className = 'unlock-popup';
-  popup.innerHTML = `
+    const popup = document.createElement('div');
+    popup.className = 'unlock-popup';
+    popup.innerHTML = `
     <div class="unlock-popup-icon">${rankObj.emoji}</div>
     <div class="unlock-popup-label">Awans rangi!</div>
     <div class="unlock-popup-name">${rankObj.label}</div>
     <div class="unlock-popup-desc">Gratulacje wojowniku!<br>Osiągnąłeś nową rangę.</div>
   `;
 
-  document.body.appendChild(backdrop);
-  document.body.appendChild(popup);
+    document.body.appendChild(backdrop);
+    document.body.appendChild(popup);
 
-  const dismiss = () => {
-    backdrop.remove();
-    popup.remove();
-  };
+    const dismiss = () => {
+      backdrop.remove();
+      popup.remove();
+    };
 
-  backdrop.addEventListener('click', dismiss);
-  setTimeout(dismiss, 4000);
+    backdrop.addEventListener('click', dismiss);
+    setTimeout(dismiss, 4000);
+  });
 }

@@ -1,0 +1,789 @@
+/**
+ * ════════════════════════════════════════════════════════════════════════════════
+ * WEEKEND WARRIOR SOCIAL - UI/UX GUIDE IMPLEMENTATION
+ * 
+ * Implementation of official 8-screen UI/UX guide
+ * 100% compliance with reference design
+ * ════════════════════════════════════════════════════════════════════════════════
+ */
+
+/* Import reference design (minimal overrides) */
+@import url('./reference-design.css');
+
+/* ═════════════════════════════════════════════════════════════════════════════════
+   SCREEN-SPECIFIC STYLES
+   ═════════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   ARENA PAGE (Screen 1)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.arena-page,
+.challenges-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.arena-header {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.arena-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #D4AF37;
+  text-transform: uppercase;
+  margin: 0;
+  font-family: 'Traian Pro', serif;
+}
+
+.arena-subtitle {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  margin: 8px 0 0 0;
+  letter-spacing: 0.08em;
+}
+
+/* CTA buttons */
+.arena-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.arena-buttons button {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(139, 117, 0, 0.2));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arena-buttons button:hover {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.5), rgba(139, 117, 0, 0.3));
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+/* Active challenges section */
+.active-challenges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.challenge-item {
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.65rem;
+  color: #999;
+}
+
+.challenge-item-icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.challenge-item-title {
+  font-weight: 600;
+  color: #ccc;
+  font-size: 0.65rem;
+}
+
+.challenge-item-xp {
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 0.7rem;
+  margin-top: 4px;
+}
+
+@media (max-width: 430px) {
+  .active-challenges {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   RANKING PAGE (Screen 2)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.ranking-page {
+  width: 100%;
+}
+
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  margin-bottom: 16px;
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  color: #D4AF37;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ranking-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #D4AF37;
+  text-transform: uppercase;
+  margin: 0;
+  flex: 1;
+  font-family: 'Traian Pro', serif;
+}
+
+/* Podium section */
+.podium-section {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.podium-place {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  gap: 8px;
+  text-align: center;
+}
+
+.podium-place.center {
+  transform: scale(1.15);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 117, 0, 0.1));
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.podium-rank {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #D4AF37;
+}
+
+.podium-name {
+  font-size: 0.7rem;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.podium-xp {
+  font-size: 0.75rem;
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+/* Tables section */
+.tables-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.table-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.table-title {
+  font-size: 0.85rem;
+  color: #D4AF37;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.view-button {
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Stat buttons */
+.stat-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-button {
+  padding: 10px 8px;
+  font-size: 0.7rem;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 117, 0, 0.15));
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.stat-button:hover {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(139, 117, 0, 0.2));
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #D4AF37;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   MISSIONS PAGE (Screen 3)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.missions-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.mission-tab {
+  padding: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  background: transparent;
+  color: #999;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-tab.active {
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mission-item {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mission-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.mission-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mission-title {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mission-reward {
+  font-size: 0.7rem;
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+.mission-status {
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(139, 117, 0, 0.2));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.mission-in-progress {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #999;
+  cursor: default;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   PROFILE PAGE (Screen 4)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.profile-page {
+  width: 100%;
+}
+
+.profile-badge {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(139, 117, 0, 0.1));
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.profile-info {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.profile-name {
+  font-size: 1rem;
+  color: #ccc;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 8px 0;
+}
+
+.profile-rank {
+  font-size: 0.8rem;
+  color: #D4AF37;
+  margin: 4px 0;
+}
+
+.profile-position {
+  font-size: 0.75rem;
+  color: #999;
+  margin: 4px 0;
+}
+
+.profile-xp {
+  font-size: 0.75rem;
+  color: #D4AF37;
+  margin: 4px 0;
+  font-weight: 600;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   FEED PAGE (Screen 5)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.feed-page {
+  width: 100%;
+}
+
+.post {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.post-header {
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.post-author {
+  flex: 1;
+}
+
+.post-name {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.post-time {
+  font-size: 0.65rem;
+  color: #999;
+}
+
+.post-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #0A0A0A;
+}
+
+.post-content {
+  padding: 12px;
+}
+
+.post-engagement {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.post-text {
+  font-size: 0.8rem;
+  color: #ccc;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(212, 175, 55, 0.05);
+}
+
+.post-action {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.7rem;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #999;
+  cursor: pointer;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.post-action:hover {
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   MESSENGER (Screen 6-7)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.online-users {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  scrollbar-width: none;
+}
+
+.online-users::-webkit-scrollbar {
+  display: none;
+}
+
+.online-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.online-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  position: relative;
+}
+
+.online-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: #4ade80;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+}
+
+.online-name {
+  font-size: 0.65rem;
+  color: #999;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.conversations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conversation {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.conversation:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.conversation-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  flex-shrink: 0;
+}
+
+.conversation-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.conversation-name {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.conversation-preview {
+  font-size: 0.75rem;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation-time {
+  font-size: 0.7rem;
+  color: #999;
+  flex-shrink: 0;
+}
+
+/* Chat view */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+
+.message {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.message.sent {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.message-bubble.received {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  color: #ccc;
+}
+
+.message-bubble.sent {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(139, 117, 0, 0.15));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+}
+
+.message-time {
+  font-size: 0.65rem;
+  color: #999;
+  margin-top: 2px;
+}
+
+/* Chat input */
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(26, 26, 26, 0.9);
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  position: fixed;
+  bottom: 58px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px 12px;
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.chat-input input::placeholder {
+  color: #666;
+}
+
+.chat-input button {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(139, 117, 0, 0.2));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #D4AF37;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   SETTINGS/PROFILE (Screen 8)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.settings-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-item {
+  padding: 14px 12px;
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 0;
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.settings-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.settings-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.settings-item:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+  background: rgba(26, 26, 26, 0.95);
+}
+
+.settings-item.logout {
+  color: #ff4444;
+}
+
+.settings-arrow {
+  color: #999;
+  font-size: 0.8rem;
+}
+

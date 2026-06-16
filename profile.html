@@ -28,8 +28,32 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
+<!-- TOP HEADER BAR -->
+<header class="top-bar">
+  <div class="top-bar-logo">⚔ WWS</div>
+  <div class="top-bar-actions">
+    <button class="top-bar-btn" id="notif-btn" aria-label="Powiadomienia">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span id="notif-badge"></span>
+    </button>
+    <button class="top-bar-btn" aria-label="Profil" onclick="window.location.href='profile.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </button>
+  </div>
+</header>
 <div class="bg-orbs" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
+<div id="upload-bar" class="upload-bar"></div>
 
 <div class="app-layout">
 
@@ -441,19 +465,126 @@
 
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="edit-modal" class="ch-modal-backdrop hidden">
+  <div class="ch-modal" style="max-width:420px;">
+    <div class="ch-modal-body" style="max-height:80vh;overflow-y:auto;">
+      <div class="ch-modal-badge">✏️</div>
+      <div class="ch-modal-title">Edytuj Postać</div>
+      <div style="display:flex;flex-direction:column;gap:.875rem;margin-top:1rem;">
+        <div class="form-group">
+          <label class="form-label">Imię Wojownika</label>
+          <input type="text" id="edit-name" class="form-input" placeholder="Twoje imię" maxlength="40"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (opowieść o Tobie)</label>
+          <textarea id="edit-bio" class="form-input" rows="3" maxlength="200"
+            placeholder="Kim jesteś na tej arenie?" style="resize:vertical;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lokalizacja</label>
+          <input type="text" id="edit-location" class="form-input" placeholder="np. Warszawa" maxlength="60"/>
+        </div>
+        <div style="display:flex;gap:.625rem;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Wiek</label>
+            <input type="number" id="edit-age" class="form-input" placeholder="—" min="13" max="120"/>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Wzrost (cm)</label>
+            <input type="number" id="edit-height" class="form-input" placeholder="—" min="100" max="250"/>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Waga (kg)</label>
+            <input type="number" id="edit-weight" class="form-input" placeholder="—" min="30" max="300"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ulubiona dyscyplina</label>
+          <input type="text" id="edit-discipline" class="form-input"
+            placeholder="np. Siłownia, Bieganie, MMA" maxlength="40"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Portretu (opcjonalne)</label>
+          <input type="url" id="edit-photo" class="form-input" placeholder="https://..."/>
+        </div>
+        <div id="edit-error" class="form-error" style="display:none;"></div>
+        <div style="display:flex;gap:.625rem;">
+          <button id="edit-cancel" class="rpg-btn rpg-btn-outline" style="flex:1;">Anuluj</button>
+          <button id="edit-save" class="rpg-btn rpg-btn-gold" style="flex:1;">Zapisz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-  import { initProfilePage } from './js/profile.js';
-  import { initInviteButton } from './js/social.js';
-  import { auth } from './js/firebase.js';
-  import { onAuthStateChanged } from './js/auth.js';
+  import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
+  import {
+    db, COL, getRank, getLevel, getRankProgress, RANKS,
+    uploadImage, compressImage,
+  } from './js/firebase.js';
+  import {
+    collection, query, where, orderBy, limit, getDocs, doc, updateDoc,
+  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { injectMessengerBadge, openChatWith } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
+  import {
+    getFollowCounts, getFriendCount, getFriends, getPendingRequests,
+    acceptFriendRequest, rejectFriendRequest, searchUsers,
+    sendFriendRequest, getFriendshipStatus, removeFriend, openUserProfile,
+  } from './js/social.js';
+  import { initTheme, injectLightModeCSS, toggleDarkMode } from './js/weekly-ranking.js';
 
-  initProfilePage();
+  // ── Tryb wyświetlania — wywołaj PRZED wszystkim, żeby nie mignął ciemny ekran ──
+  injectLightModeCSS();
+  initTheme();
 
-  // Wire invite button
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      initInviteButton(document.getElementById('profile-invite-btn'), user.uid);
+  document.getElementById('logout-btn').addEventListener('click', logout);
+  document.getElementById('logout-btn-2')?.addEventListener('click', logout);
+
+  // ── Przycisk dark/light mode ───────────────────────────────────────────────────
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) {
+    themeBtn.textContent = document.documentElement.classList.contains('light-mode')
+      ? '☀️ Jasny' : '🌙 Ciemny';
+    themeBtn.addEventListener('click', () => {
+      const isLight = toggleDarkMode();
+      themeBtn.textContent = isLight ? '☀️ Jasny' : '🌙 Ciemny';
+    });
+  }
+
+  let ME = null;
+
+  checkAuth(async (user) => {
+    ME = user;
+    injectMessengerBadge(user.uid);
+    injectNotifBell(user.uid);
+    // 3s skeleton safety — Firebase może być wolny
+    const skTimer = setTimeout(() => {
+      document.getElementById('profile-skeleton').style.display = 'none';
+      document.getElementById('profile-content').classList.remove('hidden');
+    }, 3000);
+    let data = null;
+    try { 
+      data = await getCurrentUserData(user.uid, user);
+      console.log('[profile] ✅ Data loaded:', data);
+    } catch (err) {
+      console.error('[profile] ❌ Error loading data:', err.message);
     }
+    data ??= { uid: user.uid, displayName: user.displayName||'Wojownik', photoURL: user.photoURL||'', points: 0 };
+    clearTimeout(skTimer);
+    _renderProfile(user, data);
+    _renderAchievements(data);
+    _renderStreakCalendar(data);
+    _setupEdit(user, data);
+    _setupImageUploads(user.uid, data);
+    await Promise.allSettled([
+      _loadHistory(user.uid),
+      _loadSocialCounts(user.uid),
+      _loadFriendsPanel(user.uid, data),
+    ]);
+    _setupFriendSearch(user.uid, data);
   });
 
   // Password visibility toggles
