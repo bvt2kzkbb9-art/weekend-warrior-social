@@ -3,659 +3,772 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <meta name="theme-color" content="#06050A"/>
+  <meta name="theme-color" content="#0A0A0B"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="WWS Arena"/>
-  <meta name="description" content="Weekend Warrior Social — Arena Wojowników"/>
+  <meta name="apple-mobile-web-app-title" content="WWS"/>
+  <meta name="description" content="Weekend Warrior Social — Platforma społeczności i wyzwań"/>
   <meta property="og:title" content="⚔️ Weekend Warrior Social"/>
-  <meta property="og:description" content="Dołącz. Walcz. Zwyciężaj."/>
+  <meta property="og:description" content="Przyłącz się do społeczności wojowników."/>
   <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
   <link rel="manifest" href="manifest.json"/>
-  <title>Arena Wojowników — Weekend Warrior Social</title>
+  <title>Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/design-system.css"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/arena.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    /* App Shell */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Home Screen */
+    .home-stories {
+      display: flex;
+      gap: var(--space-md);
+      overflow-x: auto;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .story-item {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+    }
+
+    .story-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-gold-dim);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-dark-2);
+      transition: all var(--transition-normal);
+    }
+
+    .story-item:active .story-avatar {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .story-name {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      max-width: 56px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      padding: 0 var(--space-lg) var(--space-lg);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .quick-action {
+      background: var(--color-dark-2);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      font-size: 24px;
+    }
+
+    .quick-action:active {
+      background: var(--color-dark-1);
+      border-color: var(--color-gold);
+    }
+
+    .quick-action-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      text-align: center;
+    }
+
+    /* Feed */
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+    }
+
+    /* Challenges Grid */
+    .challenges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+    }
+
+    .challenge-card {
+      background: var(--color-dark-1);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .challenge-card:active {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+    }
+
+    .challenge-image {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--color-dark-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .challenge-info {
+      padding: var(--space-md);
+    }
+
+    .challenge-title {
+      font-size: var(--text-small);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .challenge-difficulty {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: var(--radius-xs);
+      background: var(--color-dark-2);
+      color: var(--color-gold);
+      margin-bottom: 4px;
+    }
+
+    .challenge-reward {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Create Modal */
+    .create-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      padding: var(--space-xl);
+    }
+
+    .create-option {
+      background: var(--color-dark-2);
+      border: 1px solid var(--color-dark-2);
+      border-radius: var(--radius-md);
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-lg);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .create-option:active {
+      background: var(--color-dark-1);
+      border-color: var(--color-gold);
+    }
+
+    .create-icon {
+      font-size: 32px;
+    }
+
+    .create-label {
+      font-size: var(--text-small);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Messages List */
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-dark-2);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .message-item:active {
+      background: var(--color-dark-2);
+    }
+
+    .message-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: var(--color-dark-2);
+      border: 2px solid var(--color-gold-dim);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .message-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .message-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .message-preview {
+      font-size: var(--text-small);
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .message-time {
+      font-size: var(--text-tiny);
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      position: relative;
+      padding-bottom: var(--space-xl);
+    }
+
+    .profile-banner {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-full);
+      background: var(--color-dark-2);
+      border: 4px solid var(--color-dark-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: -40px;
+      left: var(--space-lg);
+      font-size: 32px;
+    }
+
+    .profile-info {
+      padding: 50px var(--space-lg) var(--space-xl);
+    }
+
+    .profile-name {
+      font-size: var(--text-h2);
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+
+    .profile-title {
+      color: var(--color-gold);
+      font-size: var(--text-body);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+
+    .profile-stat {
+      background: var(--color-dark-2);
+      padding: var(--space-lg);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .profile-stat-value {
+      font-size: var(--text-h2);
+      font-weight: 700;
+      color: var(--color-gold);
+      margin-bottom: var(--space-sm);
+    }
+
+    .profile-stat-label {
+      font-size: var(--text-small);
+      color: var(--color-text-secondary);
+    }
+
+    /* Tabs */
+    .tab-menu {
+      display: flex;
+      border-bottom: 1px solid var(--color-dark-2);
+      gap: var(--space-lg);
+      padding: 0 var(--space-lg);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-item {
+      padding: var(--space-lg) 0;
+      font-size: var(--text-body);
+      color: var(--color-text-secondary);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-normal);
+    }
+
+    .tab-item.active {
+      color: var(--color-gold);
+      border-bottom-color: var(--color-gold);
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      padding: var(--space-2xl) var(--space-lg);
+      text-align: center;
+      color: var(--color-text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Atmospheric layers -->
-<div class="bg-orbs" aria-hidden="true"></div>
-<div class="particles" aria-hidden="true">
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
-</div>
-<div class="fog-layer" aria-hidden="true"></div>
+<div id="app">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">⚔️ WWS</div>
+    <input type="search" class="header-search" placeholder="Szukaj..." id="search-input"/>
+    <div class="header-actions">
+      <button class="btn-icon" id="notif-btn">🔔</button>
+    </div>
+  </header>
 
-<!-- ══════════════════════════════════════════
-     BOTTOM NAVIGATION
-══════════════════════════════════════════ -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
 
-  <a href="index.html" class="nav-item active" aria-current="page">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-      <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-    </svg>
-    <span>Arena</span>
-  </a>
-
-  <a href="feed.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
-    </svg>
-    <span>Kroniki</span>
-  </a>
-
-  <a href="challenges.html" class="nav-item-hero nav-item">
-    <div class="nav-hero-shield">⚔</div>
-    <span>Misje</span>
-  </a>
-
-  <a href="ranking.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="8" r="6"/>
-      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-    </svg>
-    <span>Chwała</span>
-  </a>
-
-  <a href="profile.html" class="nav-item">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span>Bohater</span>
-  </a>
-
-  <a href="messenger.html" class="nav-item" style="position:relative;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
-    <span>Wiadomości</span>
-  </a>
-  <div class="nav-actions" id="nav-notif-anchor"></div>
-</nav>
-
-<!-- ══════════════════════════════════════════
-     MAIN CONTENT
-══════════════════════════════════════════ -->
-<div class="content-area" style="padding-top:.5rem;">
-
-  <!-- Mobile hero strip (shown only on mobile, filled by JS) -->
-  <div id="mobile-hero"></div>
-
-  <!-- RPG 3-col layout -->
-  <div class="rpg-layout">
-
-    <!-- ═══ LEFT SIDEBAR — CHARACTER CARD ═══ -->
-    <aside class="rpg-sidebar-left">
-      <div class="rpg-panel">
-        <!-- Skeleton -->
-        <div id="char-skeleton" style="padding:1rem .875rem;">
-          <div class="skeleton" style="width:80px;height:80px;border-radius:50%;margin:0 auto .875rem;"></div>
-          <div class="skeleton" style="height:14px;width:65%;border-radius:4px;margin:0 auto .375rem;"></div>
-          <div class="skeleton" style="height:10px;width:45%;border-radius:4px;margin:0 auto .875rem;"></div>
-          <div class="skeleton" style="height:7px;border-radius:4px;margin-bottom:.875rem;"></div>
-          <div class="skeleton" style="height:72px;border-radius:8px;margin-bottom:.75rem;"></div>
-          <div class="skeleton" style="height:120px;border-radius:8px;"></div>
+    <!-- HOME SCREEN -->
+    <div class="screen active" id="screen-home">
+      <!-- Stories -->
+      <div class="home-stories">
+        <div class="story-item">
+          <div class="story-avatar">+</div>
+          <div class="story-name">Historia</div>
         </div>
-
-        <!-- Char card content -->
-        <div id="char-card" class="rpg-char-card hidden">
-          <div class="rpg-char-avatar-wrap">
-            <div id="char-avatar" class="rpg-char-avatar"></div>
-            <div class="rpg-level-badge" id="char-level">Poz. 1</div>
-          </div>
-
-          <div class="rpg-char-name" id="char-name">—</div>
-          <div class="rpg-char-rank" id="char-rank">Rookie</div>
-
-          <div class="rpg-xp-label">Doświadczenie</div>
-          <div class="rpg-xp-track">
-            <div class="rpg-xp-fill" id="char-xp-fill" style="width:0%;"></div>
-          </div>
-          <div class="rpg-xp-text" id="char-xp-text">0 / 500 XP</div>
-
-          <div class="rpg-achievement-badge" style="margin:.75rem 0;">
-            <div class="rpg-badge-icon">🌼</div>
-            <div class="rpg-badge-label" id="char-badge-name">Inicjacja</div>
-          </div>
-
-          <div class="rpg-divider"><span>◆</span></div>
-
-          <div style="font-family:var(--font-heading);font-size:.45rem;font-weight:700;
-               letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);
-               text-align:center;margin:.375rem 0 .25rem;">Statystyki</div>
-
-          <table class="rpg-stats-table">
-            <tr><td>Wygrane wyzwania</td><td id="cs-wins">0</td></tr>
-            <tr><td>Rzucone wyzwania</td><td id="cs-sent-c">0</td></tr>
-            <tr><td>Posty</td><td id="cs-posts">0</td></tr>
-            <tr><td>Zdobyte XP</td><td id="cs-xp">0</td></tr>
-            <tr><td>Aktywna seria</td><td id="cs-streak" class="fire">0 🔥</td></tr>
-          </table>
-
-          <div style="margin-top:.875rem;">
-            <a href="profile.html" class="rpg-btn rpg-btn-outline" style="width:100%;padding:.5rem;">
-              🛡 Karta Bohatera
-            </a>
-          </div>
+        <div class="story-item">
+          <div class="story-avatar">👥</div>
+          <div class="story-name">Przyjaciele</div>
         </div>
-      </div>
-    </aside>
-
-    <!-- ═══ CENTER — ARENA ═══ -->
-    <main class="rpg-main" style="min-width:0;">
-
-      <!-- Arena header -->
-      <div class="rpg-arena-header">
-        <div class="rpg-brand-title">Weekend Warrior</div>
-        <div class="rpg-brand-sub">Social</div>
-        <div class="rpg-swords" style="margin:.375rem 0;"></div>
-        <div class="rpg-section-title">Arena Wojowników</div>
-        <div style="font-size:.6875rem;color:var(--text-faint);margin-top:.25rem;
-             font-family:var(--font-heading);font-style:italic;letter-spacing:.06em;">
-          Podejmij wyzwania, pokonaj Węże i wspinaj się w rankingu
-        </div>
-        <div style="margin:.875rem 0 .375rem;display:flex;gap:.625rem;justify-content:center;flex-wrap:wrap;">
-          <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="gap:.5rem;padding:.5625rem 1.375rem;">
-            ⚔ Rzuć Wyzwanie
-          </a>
-          <a href="feed.html" class="rpg-btn rpg-btn-outline" style="padding:.5rem 1rem;">
-            📜 Kroniki
-          </a>
+        <div class="story-item">
+          <div class="story-avatar">⚡</div>
+          <div class="story-name">Trending</div>
         </div>
       </div>
 
-      <!-- Challenge Cards -->
-      <div style="padding:.125rem 0 .25rem;">
-        <div class="rpg-divider" style="padding:0 .875rem;margin-bottom:.5rem;">
-          <span>Wyzwania Areny</span>
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div class="quick-action" onclick="showScreen('screen-create')">
+          <span>📝</span>
+          <span class="quick-action-label">Post</span>
         </div>
-        <div class="rpg-cards-scroll" id="rpg-cards-scroll">
-          <!-- skeleton card -->
-          <div class="rpg-ch-card" style="animation:none;">
-            <div class="rpg-ch-img-wrap" style="background:var(--bg-card);">
-              <div class="skeleton" style="width:100%;height:100%;border-radius:0;"></div>
-            </div>
-            <div class="rpg-ch-body">
-              <div class="skeleton" style="height:9px;border-radius:3px;margin-bottom:.375rem;"></div>
-              <div class="skeleton" style="height:11px;width:55%;border-radius:3px;margin:0 auto;"></div>
-            </div>
-          </div>
+        <div class="quick-action" onclick="showScreen('screen-create')">
+          <span>📸</span>
+          <span class="quick-action-label">Zdjęcie</span>
         </div>
-        <div style="padding:0 .875rem .25rem;">
-          <a href="challenges.html" class="rpg-see-all">Zobacz wszystkie wyzwania</a>
+        <div class="quick-action" onclick="showScreen('screen-challenges')">
+          <span>⚔️</span>
+          <span class="quick-action-label">Wyzwanie</span>
+        </div>
+        <div class="quick-action" onclick="showScreen('screen-messages')">
+          <span>💬</span>
+          <span class="quick-action-label">Czat</span>
         </div>
       </div>
 
-      <!-- Bottom grid -->
-      <div style="display:grid;grid-template-columns:1fr;gap:.75rem;padding:0 .5rem .875rem;">
-        <div id="rpg-bottom-grid" style="display:grid;grid-template-columns:1fr;gap:.75rem;">
+      <!-- Feed -->
+      <div class="feed" id="feed-container">
+        <!-- Posts rendered here by JS -->
+      </div>
+    </div>
 
-          <!-- Odebrane wyzwania -->
-          <div class="rpg-panel">
-            <div class="rpg-panel-header">
-              <div class="rpg-panel-title">
-                📥 Odebrane Wyzwania
-                <span class="rpg-count-badge" id="received-count" style="display:none;">0</span>
-              </div>
-              <a href="challenges.html" class="rpg-panel-link">Wszystkie</a>
-            </div>
-            <div id="received-list" style="padding:.375rem 0;">
-              <div style="text-align:center;padding:1.5rem .75rem;">
-                <div style="font-size:1.25rem;margin-bottom:.375rem;">📭</div>
-                <div class="label-caps">Ładowanie...</div>
-              </div>
-            </div>
-          </div>
+    <!-- CHALLENGES SCREEN -->
+    <div class="screen" id="screen-challenges">
+      <div style="padding: var(--space-lg);">
+        <h1 style="font-size: var(--text-h2); margin-bottom: var(--space-lg);">Wyzwania</h1>
 
-          <!-- Aktywne + Seria -->
-          <div style="display:flex;flex-direction:column;gap:.75rem;">
-            <div class="rpg-panel">
-              <div class="rpg-panel-header">
-                <div class="rpg-panel-title">⚔️ Aktywne Wyzwania</div>
-              </div>
-              <div id="active-ch-content" style="padding:.75rem .875rem;">
-                <div style="text-align:center;padding:.75rem;font-family:var(--font-heading);
-                     font-size:.6rem;color:var(--text-faint);letter-spacing:.1em;font-style:italic;">
-                  Brak aktywnych
-                </div>
-              </div>
-            </div>
-
-            <div class="rpg-panel">
-              <div class="rpg-panel-header">
-                <div class="rpg-panel-title">🔥 Twoja Seria</div>
-              </div>
-              <div class="rpg-streak-card">
-                <div class="rpg-streak-ring">
-                  <div class="rpg-streak-num" id="streak-num">0</div>
-                  <div class="rpg-streak-unit">DNI</div>
-                </div>
-                <div class="rpg-streak-label" id="streak-label">⚔️ Zacznij serię!</div>
-                <div class="rpg-streak-sub" id="streak-sub">Zaloguj się każdego dnia</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mini ranking -->
-        <div class="rpg-panel" id="mini-ranking-panel">
-          <div class="rpg-panel-header">
-            <div class="rpg-panel-title">👑 Ranking Wojowników</div>
-            <a href="ranking.html" class="rpg-panel-link">Pełny</a>
-          </div>
-          <div class="rpg-mini-podium" id="mini-podium"></div>
-          <div id="mini-rank-list"></div>
-          <a href="ranking.html" class="rpg-see-all">Zobacz pełny ranking</a>
+        <!-- Filters -->
+        <div style="display: flex; gap: var(--space-md); margin-bottom: var(--space-lg); overflow-x: auto;">
+          <button class="btn btn-small btn-primary" onclick="filterChallenges('all')">Wszystkie</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('trending')">Trending</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('new')">Nowe</button>
+          <button class="btn btn-small btn-secondary" onclick="filterChallenges('easy')">Łatwe</button>
         </div>
       </div>
-    </main>
 
-    <!-- ═══ RIGHT SIDEBAR — KOMNATA POSŁAŃCÓW ═══ -->
-    <aside class="rpg-sidebar-right">
-      <div class="rpg-panel" style="max-height:calc(100vh - 110px);display:flex;flex-direction:column;overflow:hidden;">
-        <div class="rpg-panel-header" style="flex-shrink:0;">
-          <div class="rpg-panel-title">
-            💌 Komnata Posłańców
-            <span class="rpg-count-badge notif-badge" style="display:none;">0</span>
-          </div>
-        </div>
-        <div id="right-notif-list" style="flex:1;overflow-y:auto;">
-          <div style="text-align:center;padding:2rem .75rem;font-family:var(--font-heading);
-               font-size:.6rem;color:var(--text-faint);font-style:italic;">
-            Ładowanie posłańców...
-          </div>
-        </div>
-        <a href="#" id="see-all-notifs" class="rpg-see-all" style="flex-shrink:0;">
-          Zobacz wszystkie
-        </a>
+      <!-- Challenges Grid -->
+      <div class="challenges-grid" id="challenges-grid">
+        <!-- Challenges rendered here by JS -->
       </div>
-    </aside>
-  </div>
+    </div>
+
+    <!-- CREATE SCREEN -->
+    <div class="screen" id="screen-create">
+      <div style="padding: var(--space-xl);">
+        <h2 style="font-size: var(--text-h2); margin-bottom: var(--space-xl);">Co chcesz zrobić?</h2>
+        <div class="create-menu">
+          <div class="create-option" onclick="createPost('text')">
+            <div class="create-icon">📝</div>
+            <div class="create-label">Napisz coś</div>
+          </div>
+          <div class="create-option" onclick="createPost('photo')">
+            <div class="create-icon">📸</div>
+            <div class="create-label">Dodaj zdjęcie</div>
+          </div>
+          <div class="create-option" onclick="createChallenge()">
+            <div class="create-icon">⚔️</div>
+            <div class="create-label">Wyzwanie</div>
+          </div>
+          <div class="create-option" onclick="createEvent()">
+            <div class="create-icon">📅</div>
+            <div class="create-label">Wydarzenie</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES SCREEN -->
+    <div class="screen" id="screen-messages">
+      <div style="padding: var(--space-lg);">
+        <h1 style="font-size: var(--text-h2); margin-bottom: var(--space-lg);">Wiadomości</h1>
+      </div>
+      <div class="messages-list" id="messages-list">
+        <!-- Messages rendered here by JS -->
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="screen" id="screen-profile">
+      <div class="profile-header">
+        <div class="profile-banner">👤</div>
+        <div class="profile-avatar" id="profile-avatar">👤</div>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-name" id="profile-name">Nowy Wojownik</div>
+        <div class="profile-title" id="profile-rank">🥉 Rookie</div>
+
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-xp">0</div>
+            <div class="profile-stat-label">XP</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-level">1</div>
+            <div class="profile-stat-label">Poziom</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-streak">0</div>
+            <div class="profile-stat-label">Pasmo</div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" style="width: 100%; margin-bottom: var(--space-lg);">Edytuj profil</button>
+        <button class="btn btn-ghost" style="width: 100%;">Wyloguj się</button>
+      </div>
+
+      <!-- Profile Tabs -->
+      <div class="tab-menu">
+        <div class="tab-item active" onclick="switchProfileTab(this, 'posts')">Posty</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'challenges')">Wyzwania</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'achievements')">Osiągnięcia</div>
+        <div class="tab-item" onclick="switchProfileTab(this, 'friends')">Znajomi</div>
+      </div>
+
+      <div id="profile-tabs-content">
+        <!-- Tab content rendered here -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAVBAR (5 ICONS) -->
+  <nav class="navbar">
+    <a class="nav-item active" onclick="showScreen('screen-home')" href="#home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>Home</span>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-challenges')" href="#challenges">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12.5 7h-1v6l5.2 3.2.8-1.3-5-3v-4.9z"/>
+      </svg>
+      <span>Wyzwania</span>
+    </a>
+
+    <a class="nav-item nav-create" onclick="showScreen('screen-create')" href="#create">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      <span>Utwórz</span>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-messages')" href="#messages">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      </svg>
+      <span>Wiadomości</span>
+      <div class="nav-badge" id="msg-badge" style="display: none;">0</div>
+    </a>
+
+    <a class="nav-item" onclick="showScreen('screen-profile')" href="#profile">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Profil</span>
+    </a>
+  </nav>
 </div>
 
+<!-- SCRIPTS -->
 <script type="module">
-  import { checkAuth, logout, getCurrentUserData, showToast } from './js/auth.js';
-  import { injectNotifBell } from './js/notifications.js';
-  import { auth, db, COL, getRank, getLevel, getRankProgress, RANKS } from './js/firebase.js';
-  import { initArena } from './js/arena.js';
-  import { injectMessengerBadge } from './js/messenger.js';
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
-  import { CHALLENGES_DATA } from './js/challenge-system.js';
-  import {
-    collection, query, where, orderBy, limit,
-    onSnapshot, getDocs, doc, getDoc,
-  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { auth, db, getRank, getLevel } from './js/firebase.js';
+  import { loadFeed } from './js/feed.js';
+  import { getChallenges } from './js/challenge-system.js';
+  import { loadMessages } from './js/messenger.js';
 
-  injectLightModeCSS();
-  initTheme();
-  initArena();
+  let currentUser = null;
+  let currentProfileTab = 'posts';
+  let challengeFilter = 'all';
 
-  checkAuth(async (user) => {
-    const anchor = document.getElementById('nav-notif-anchor');
-    if (anchor) {
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'btn btn-ghost btn-sm';
-      logoutBtn.style.cssText = 'padding:.5rem;color:var(--text-faint);';
-      logoutBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`;
-      anchor.appendChild(logoutBtn);
-      logoutBtn.addEventListener('click', logout);
+  // ═══════════════════════════════════════════════════════════
+  // SCREEN NAVIGATION
+  // ═══════════════════════════════════════════════════════════
+  window.showScreen = function(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+    // Update active nav item based on screen ID
+    const navMap = {
+      'screen-home': 0,
+      'screen-challenges': 1,
+      'screen-create': 2,
+      'screen-messages': 3,
+      'screen-profile': 4
+    };
+    if (navMap[screenId] !== undefined) {
+      document.querySelectorAll('.nav-item')[navMap[screenId]].classList.add('active');
     }
 
-    // 2s skeleton safety timeout
-    const skTimer = setTimeout(() => {
-      document.getElementById('char-skeleton')?.classList.add('hidden');
-      document.getElementById('char-card')?.classList.remove('hidden');
-    }, 2000);
+    // Load screen-specific content
+    if (screenId === 'screen-home') window.loadHomeScreen();
+    if (screenId === 'screen-challenges') window.loadChallengesScreen();
+    if (screenId === 'screen-messages') window.loadMessagesScreen();
+    if (screenId === 'screen-profile') window.loadProfileScreen();
+  };
 
-    injectNotifBell(user.uid);
-    injectMessengerBadge(user.uid);
+  // ═══════════════════════════════════════════════════════════
+  // HOME SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadHomeScreen = async function() {
+    try {
+      await loadFeed();
+    } catch (err) {
+      console.error('Error loading feed:', err);
+    }
+  };
 
-    let userData = null;
-    try { userData = await getCurrentUserData(user.uid, user); } catch {}
-    userData ??= { uid: user.uid, displayName: user.displayName || 'Wojownik', photoURL: user.photoURL || '', points: 0 };
+  // ═══════════════════════════════════════════════════════════
+  // CHALLENGES SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadChallengesScreen = async function() {
+    try {
+      const challenges = await getChallenges();
+      const grid = document.getElementById('challenges-grid');
+      grid.innerHTML = '';
 
-    clearTimeout(skTimer);
-    _renderCharCard(user, userData);
-    _renderMobileHero(user, userData);
-    _renderChallengeCards();
-    _listenReceived(user.uid);
-    _listenActive(user.uid);
-    _listenStreak(user.uid, userData);
-    _loadMiniRanking(user.uid);
-    _loadRightNotifs(user.uid);
+      let filtered = challenges;
+      if (challengeFilter === 'trending') {
+        filtered = challenges.sort((a, b) => (b.participants || 0) - (a.participants || 0)).slice(0, 10);
+      } else if (challengeFilter === 'new') {
+        filtered = challenges.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 10);
+      } else if (challengeFilter === 'easy') {
+        filtered = challenges.filter(c => c.difficulty === 'easy');
+      }
+
+      filtered.forEach(challenge => {
+        const card = document.createElement('div');
+        card.className = 'challenge-card';
+        card.innerHTML = `
+          <div class="challenge-image">${challenge.emoji || '⚔️'}</div>
+          <div class="challenge-info">
+            <div class="challenge-title">${challenge.title || 'Unnamed'}</div>
+            <div class="challenge-difficulty">${challenge.difficulty || 'medium'}</div>
+            <div class="challenge-reward">+${challenge.reward || 0} XP</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error loading challenges:', err);
+    }
+  };
+
+  window.filterChallenges = function(type) {
+    challengeFilter = type;
+    window.loadChallengesScreen();
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // CREATE SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.createPost = function(type) {
+    if (type === 'text') {
+      const content = prompt('Co chcesz napisać?');
+      if (content) {
+        console.log('Creating text post:', content);
+      }
+    } else if (type === 'photo') {
+      alert('Wybierz zdjęcie z urządzenia');
+    }
+  };
+
+  window.createChallenge = function() {
+    alert('Tworzenie wyzwania - formularz w rozwoju');
+  };
+
+  window.createEvent = function() {
+    alert('Tworzenie wydarzenia - formularz w rozwoju');
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // MESSAGES SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadMessagesScreen = async function() {
+    try {
+      await loadMessages();
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // PROFILE SCREEN
+  // ═══════════════════════════════════════════════════════════
+  window.loadProfileScreen = function() {
+    if (!currentUser) {
+      document.getElementById('profile-name').textContent = 'Zaloguj się';
+      return;
+    }
+
+    const userRank = getRank(currentUser.points || 0);
+    document.getElementById('profile-name').textContent = currentUser.displayName || 'Nowy Wojownik';
+    document.getElementById('profile-rank').textContent = userRank.emoji + ' ' + userRank.label;
+    document.getElementById('profile-xp').textContent = (currentUser.points || 0).toLocaleString();
+    document.getElementById('profile-level').textContent = getLevel(currentUser.points || 0);
+    document.getElementById('profile-streak').textContent = (currentUser.streakDays || 0);
+
+    window.switchProfileTab(document.querySelector('.tab-item.active'), 'posts');
+  };
+
+  window.switchProfileTab = function(tab, tabName) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentProfileTab = tabName;
+
+    const content = document.getElementById('profile-tabs-content');
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>${tabName === 'posts' ? 'Brak postów' : tabName === 'challenges' ? 'Brak ukończonych wyzwań' : 'Brak osiągnięć'}</p>
+    </div>`;
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // INITIALIZATION
+  // ═══════════════════════════════════════════════════════════
+  window.addEventListener('load', async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        currentUser = user;
+        console.log('✅ User authenticated:', user.email);
+        window.loadHomeScreen();
+      } else {
+        window.location.href = 'login.html';
+      }
+    } catch (err) {
+      console.error('Auth error:', err);
+      window.location.href = 'login.html';
+    }
   });
 
-  // ── Character Card ──────────────────────────────────────────────
-  function _renderCharCard(user, data) {
-    document.getElementById('char-skeleton')?.classList.add('hidden');
-    const card = document.getElementById('char-card');
-    if (!card) return;
-    card.classList.remove('hidden');
-
-    const name = data.displayName || user.displayName || 'Wojownik';
-    const points = Number(data.points) || 0;
-    const level = getLevel(points);
-    const rankObj = getRank(points);
-    const progress = getRankProgress(points);
-    const rankIdx = Array.isArray(RANKS) ? RANKS.findIndex(r => r.id === rankObj.id) : -1;
-    const nextRank = Array.isArray(RANKS) ? RANKS[rankIdx + 1] : null;
-    const nextMin = nextRank?.min ?? rankObj.min;
-    const xpInLevel = Math.max(0, points - rankObj.min);
-    const xpNeeded = Math.max(1, nextMin - rankObj.min);
-
-    const avEl = document.getElementById('char-avatar');
-    const init = name.split(' ').map(w=>w[0]??'').join('').slice(0,2).toUpperCase();
-    if (avEl) {
-      if (data.photoURL) {
-        avEl.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = data.photoURL; img.alt = 'Avatar';
-        img.onerror = () => { avEl.textContent = init; };
-        avEl.appendChild(img);
-      } else { avEl.textContent = init; }
-    }
-
-    const s = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    s('char-level', `Poz. ${level}`);
-    s('char-name', name);
-    s('char-rank', `${rankObj.emoji} ${rankObj.label}`);
-    s('char-xp-text', `${xpInLevel.toLocaleString('pl-PL')} / ${xpNeeded.toLocaleString('pl-PL')} XP`);
-    const fill = document.getElementById('char-xp-fill');
-    if (fill) setTimeout(() => { fill.style.width = progress + '%'; }, 400);
-    s('cs-wins', String(data.challengesCompleted || 0));
-    s('cs-sent-c', String(data.challengesSent || 0));
-    s('cs-posts', String(data.postsCount || 0));
-    s('cs-xp', (points).toLocaleString('pl-PL'));
-    const badgeNames = ['Inicjacja','Łowca','Wojownik','Champion','Legenda'];
-    s('char-badge-name', badgeNames[Math.min(level-1, badgeNames.length-1)]);
-  }
-
-  // ── Mobile hero strip ───────────────────────────────────────────
-  function _renderMobileHero(user, data) {
-    const hero = document.getElementById('mobile-hero');
-    if (!hero) return;
-    const name = data.displayName || user.displayName || 'Wojownik';
-    const points = Number(data.points) || 0;
-    const level = getLevel(points);
-    const rankObj = getRank(points);
-    const progress = getRankProgress(points);
-    const init = name.split(' ').map(w=>w[0]??'').join('').slice(0,2).toUpperCase();
-    const avatarHTML = data.photoURL
-      ? `<img src="${_esc(data.photoURL)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent='${init}'">`
-      : init;
-    hero.innerHTML = `
-      <div class="mobile-char-strip">
-        <div class="mobile-char-avatar">${avatarHTML}</div>
-        <div class="mobile-char-info">
-          <div class="mobile-char-name">${_esc(name)}</div>
-          <div class="mobile-char-rank">${rankObj.emoji} ${rankObj.label}</div>
-          <div class="mobile-xp-track">
-            <div class="mobile-xp-fill" style="width:0%;" id="mobile-xp-fill"></div>
-          </div>
-        </div>
-        <div class="mobile-char-level">Poz. ${level}</div>
-      </div>`;
-    setTimeout(() => {
-      const f = document.getElementById('mobile-xp-fill');
-      if (f) f.style.width = progress + '%';
-    }, 400);
-  }
-
-  // ── Challenge cards ─────────────────────────────────────────────
-  function _renderChallengeCards() {
-    const scroll = document.getElementById('rpg-cards-scroll');
-    if (!scroll) return;
-    scroll.innerHTML = '';
-    CHALLENGES_DATA.forEach((ch, idx) => {
-      const card = document.createElement('div');
-      card.className = 'rpg-ch-card';
-      card.style.animationDelay = (idx * 0.07) + 's';
-      card.innerHTML = `
-        <div class="rpg-ch-num">${ch.order}</div>
-        <div class="rpg-ch-img-wrap">
-          <img src="${ch.image}" alt="${_esc(ch.title)}" class="rpg-ch-img" loading="lazy"
-            onerror="this.style.display='none';this.parentElement.style.background='#1A150E'"/>
-        </div>
-        <div class="rpg-ch-body">
-          <div class="rpg-ch-orn">◆</div>
-          <div class="rpg-ch-title">${_esc(ch.title)}</div>
-          <div class="rpg-ch-xp">+${ch.xp} XP</div>
-          <div class="rpg-ch-actions">
-            <div class="rpg-ch-action-btn primary" title="Quiz">🎯</div>
-            <div class="rpg-ch-action-btn" title="Wyzwanie">⚔️</div>
-          </div>
-        </div>`;
-      card.addEventListener('click', () => { window.location.href = 'challenges.html'; });
-      scroll.appendChild(card);
+  // Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {
+      console.log('ℹ️  Service Worker not available');
     });
   }
 
-  // ── Received challenges ─────────────────────────────────────────
-  function _listenReceived(uid) {
-    const el = document.getElementById('received-list');
-    const countEl = document.getElementById('received-count');
-    if (!el) return;
-    const q = query(
-      collection(db,'challenge_invites'),
-      where('targetId','==',uid),
-      where('status','in',['pending','quiz_pending','active']),
-    );
-    onSnapshot(q, snap => {
-      const items = [];
-      snap.forEach(d => items.push({id:d.id,...d.data()}));
-      items.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-      if (countEl) { countEl.textContent=items.length; countEl.style.display=items.length>0?'inline-flex':'none'; }
-      el.innerHTML = '';
-      if (!items.length) {
-        el.innerHTML = `<div style="text-align:center;padding:1.25rem .75rem;">
-          <div style="font-size:1.125rem;margin-bottom:.3rem;">📭</div>
-          <div class="label-caps" style="font-size:.45rem;">Brak odebranych</div></div>`;
-        return;
-      }
-      items.slice(0, 3).forEach(inv => {
-        const ini = (inv.challengerName||'?')[0].toUpperCase();
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'padding:.375rem .75rem;';
-        wrap.innerHTML = `
-          <div class="rpg-scroll-card">
-            <div class="rpg-scroll-header">
-              <div class="rpg-scroll-avatar">${inv.challengerPhoto
-                ? `<img src="${_esc(inv.challengerPhoto)}" onerror="this.parentElement.textContent='${ini}'">`
-                : ini}</div>
-              <div>
-                <div class="rpg-scroll-from"><strong>${_esc(inv.challengerName||'Wojownik')}</strong><br>rzucił Ci wyzwanie</div>
-                <div class="rpg-scroll-ch-name">${inv.challengeBadge??'⚔️'} ${_esc(inv.challengeTitle)}</div>
-                <div class="rpg-scroll-xp">+${inv.challengeXP} XP</div>
-              </div>
-            </div>
-            ${inv.status === 'pending' ? `
-            <div class="rpg-scroll-actions">
-              <button class="btn-accept" data-id="${inv.id}">PRZYJMIJ</button>
-              <button class="btn-reject" data-id="${inv.id}">ODRZUĆ</button>
-            </div>` : `
-            <div style="font-size:.55rem;font-weight:700;color:#4F8CFF;
-              font-family:var(--font-heading);letter-spacing:.08em;text-transform:uppercase;margin-top:.375rem;">
-              ${inv.status==='quiz_pending'?'🧠 Quiz do wykonania':'⚔️ W realizacji'}
-            </div>`}
-          </div>`;
-        wrap.querySelector('.btn-accept')?.addEventListener('click', async e => {
-          e.stopPropagation();
-          const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          try { await updateDoc(_doc(db,'challenge_invites',inv.id),{status:'quiz_pending'}); showToast('Wyzwanie zaakceptowane! 🧠','success',4000); }
-          catch(err) { showToast('Błąd: '+err.code,'error'); }
-        });
-        wrap.querySelector('.btn-reject')?.addEventListener('click', async e => {
-          e.stopPropagation();
-          const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          try { await updateDoc(_doc(db,'challenge_invites',inv.id),{status:'rejected'}); showToast('Odrzucono.','info'); }
-          catch(err) { showToast('Błąd: '+err.code,'error'); }
-        });
-        el.appendChild(wrap);
-      });
-      if (items.length > 3) {
-        el.innerHTML += `<a href="challenges.html" class="rpg-see-all">+${items.length-3} więcej</a>`;
-      }
-    }, err => console.warn('[received]', err.code));
-  }
-
-  // ── Active challenge ────────────────────────────────────────────
-  function _listenActive(uid) {
-    const el = document.getElementById('active-ch-content');
-    if (!el) return;
-    const q = query(collection(db,'challenge_invites'),where('targetId','==',uid),where('status','==','active'),limit(1));
-    onSnapshot(q, snap => {
-      if (snap.empty) {
-        el.innerHTML = `<div style="text-align:center;padding:.75rem;font-family:var(--font-heading);
-          font-size:.6rem;color:var(--text-faint);letter-spacing:.08em;font-style:italic;">Brak aktywnych</div>`;
-        return;
-      }
-      const inv = {id:snap.docs[0].id,...snap.docs[0].data()};
-      const ch = CHALLENGES_DATA.find(c=>c.id===inv.challengeId);
-      el.innerHTML = `
-        <div class="rpg-active-ch">
-          ${ch?.image
-            ? `<img src="${ch.image}" class="rpg-active-thumb" alt="${_esc(inv.challengeTitle)}" onerror="this.style.display='none'">`
-            : `<div class="rpg-active-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg-card);border-radius:var(--r-md);border:1px solid var(--border-dim);">${inv.challengeBadge??'⚔️'}</div>`}
-          <div class="rpg-active-info">
-            <div class="rpg-active-title">${_esc(inv.challengeTitle)}</div>
-            <div class="rpg-active-from">Od: ${_esc(inv.challengerName||'?')}</div>
-            <div style="display:flex;align-items:center;gap:.25rem;margin-top:.5rem;">
-              <div class="rpg-step done"><div class="rpg-step-icon">✓</div><div class="rpg-step-label">Quiz</div></div>
-              <div class="rpg-step-line"></div>
-              <div class="rpg-step current"><div class="rpg-step-icon">⚔</div><div class="rpg-step-label">Zadanie</div></div>
-              <div class="rpg-step-line"></div>
-              <div class="rpg-step locked"><div class="rpg-step-icon" style="font-size:.75rem;">🔒</div><div class="rpg-step-label">Ukończ</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="rpg-active-xp">+${inv.challengeXP} XP</div>
-        <div style="margin-top:.625rem;">
-          <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="width:100%;padding:.5rem;">⚔️ Realizuj wyzwanie</a>
-        </div>`;
-    }, err => console.warn('[active]', err.code));
-  }
-
-  // ── Streak ──────────────────────────────────────────────────────
-  function _listenStreak(uid, userData) {
-    const days = Number(userData.streak || userData.loginStreak || 0);
-    const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    s('streak-num', days);
-    const label = document.getElementById('streak-label');
-    if (label) {
-      label.style.color = days>=7 ? 'var(--fire)' : 'var(--text-muted)';
-      label.textContent = days>=30?'🏆 LEGENDARNA SERIA!':days>=14?'🔥 NIESAMOWITE!':days>=7?'🔥 Świetna robota!':days>=1?'🔥 Trzymaj rytm!':'⚔️ Zacznij serię!';
-    }
-    s('streak-sub', days>=1?'Zaloguj się jutro, Wojowniku.':'Zaloguj się każdego dnia.');
-    s('cs-streak', `${days} 🔥`);
-  }
-
-  // ── Mini Ranking ────────────────────────────────────────────────
-  async function _loadMiniRanking(myUid) {
-    const podiumEl = document.getElementById('mini-podium');
-    const listEl = document.getElementById('mini-rank-list');
-    if (!podiumEl||!listEl) return;
-    try {
-      const snap = await getDocs(query(collection(db,COL.USERS),orderBy('points','desc'),limit(5)));
-      const users = [];
-      snap.forEach(d=>users.push({uid:d.id,...d.data()}));
-      const pc=['p1','p2','p3'], crowns=['👑','🥈','🥉'];
-      podiumEl.innerHTML = '';
-      users.slice(0,3).forEach((u,i) => {
-        const ini=(u.displayName||'?')[0].toUpperCase();
-        const div=document.createElement('div');
-        div.className=`rpg-podium-item ${pc[i]}`;
-        div.innerHTML=`
-          <div class="rpg-podium-crown" style="color:${i===0?'var(--podium-1)':i===1?'var(--podium-2)':'var(--podium-3)'};">${crowns[i]}</div>
-          <div class="rpg-podium-avatar">
-            ${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            :ini}
-            ${u.uid===myUid?'<div style="position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold-400);"></div>':''}
-          </div>
-          <div class="rpg-podium-name">${_esc((u.displayName||'?').split(' ')[0])}</div>
-          <div class="rpg-podium-xp">${(u.points||0).toLocaleString('pl-PL')} XP</div>`;
-        podiumEl.appendChild(div);
-      });
-      listEl.innerHTML='';
-      users.slice(3,5).forEach((u,i)=>{
-        const ini=(u.displayName||'?')[0].toUpperCase();
-        const row=document.createElement('div');
-        row.className='rpg-rank-row';
-        row.innerHTML=`
-          <div class="rpg-rank-pos">${i+4}</div>
-          <div class="rpg-rank-mini-av">${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
-            :ini}</div>
-          <div class="rpg-rank-name">${_esc(u.displayName||'Wojownik')}</div>
-          <div class="rpg-rank-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>`;
-        listEl.appendChild(row);
-      });
-    } catch(err) { console.warn('[miniRanking]',err.code); }
-  }
-
-  // ── Right notifications ─────────────────────────────────────────
-  function _loadRightNotifs(uid) {
-    const el=document.getElementById('right-notif-list');
-    if(!el) return;
-    onSnapshot(
-      query(collection(db,'notifications',uid,'items'),orderBy('createdAt','desc'),limit(8)),
-      snap => {
-        const items=[]; snap.forEach(d=>items.push({id:d.id,...d.data()}));
-        el.innerHTML='';
-        if(!items.length){
-          el.innerHTML=`<div style="text-align:center;padding:2rem .75rem;font-family:var(--font-heading);
-            font-size:.6rem;color:var(--text-faint);font-style:italic;">Brak posłańców</div>`;
-          return;
-        }
-        const iconMap={like:'❤️',comment:'💬',duel:'⚔️',achievement:'🏆',xp:'⭐',system:'📣'};
-        items.forEach(n=>{
-          const item=document.createElement('div');
-          item.className='rpg-notif-item';
-          item.innerHTML=`
-            <div class="rpg-notif-av">${iconMap[n.type]??'📣'}</div>
-            <div class="rpg-notif-body">
-              <div class="rpg-notif-name">${_esc(n.title||'')}</div>
-              <div class="rpg-notif-action">${_esc(n.body||'')}</div>
-              <div class="rpg-notif-time">${_fmtTime(n.createdAt)}</div>
-            </div>
-            ${!n.read?'<div class="rpg-notif-dot"></div>':''}`;
-          if(n.url){item.style.cursor='pointer';item.addEventListener('click',()=>window.location.href=n.url);}
-          el.appendChild(item);
-        });
-      }, err=>console.warn('[rightNotifs]',err.code)
-    );
-  }
-
-  function _fmtTime(ts) {
-    if(!ts) return '';
-    const d=ts?.toDate?.()??( ts?.seconds?new Date(ts.seconds*1000):new Date(ts) );
-    if(isNaN(d)) return '';
-    const m=Math.floor((Date.now()-d)/60000);
-    if(m<1) return 'przed chwilą';
-    if(m<60) return `${m} min. temu`;
-    const h=Math.floor(m/60);
-    if(h<24) return `${h} godz. temu`;
-    return `${Math.floor(h/24)} dni temu`;
-  }
-  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
-  }
+  console.log('✅ Weekend Warrior Social v2.0 - Design System Ready');
 </script>
 </body>
 </html>
