@@ -14,11 +14,30 @@
 </head>
 <body>
 
+<!-- TOP HEADER BAR -->
+<header class="top-bar">
+  <div class="top-bar-logo">⚔ WWS</div>
+  <div class="top-bar-actions">
+    <button class="top-bar-btn" id="notif-btn" aria-label="Powiadomienia">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span id="notif-badge"></span>
+    </button>
+    <button class="top-bar-btn" aria-label="Profil" onclick="window.location.href='profile.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
 <div class="bg-orbs" aria-hidden="true"></div>
 
 <!-- Nav -->
-<nav class="nav" aria-label="Główna nawigacja">
-  <span class="nav-brand">⚔ WWS</span>
+<nav class="bottom-nav" aria-label="Główna nawigacja">
   <a href="index.html" class="nav-item">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
     <span>Arena</span>
@@ -53,68 +72,45 @@
 </nav>
 
 <!-- Messenger Layout -->
-<main style="height:calc(100vh - 56px);position:relative;z-index:1;overflow:hidden;">
-  <div class="messenger-page" id="msg-content">
+<main style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 56px - 60px);">
+  <div class="messenger-page" id="msg-content" style="display:flex;flex-direction:column;height:100%;">
 
-    <!-- Conversations sidebar -->
-    <div class="conv-sidebar" id="conv-sidebar">
+    <!-- SCREEN 1: Conversations List -->
+    <div class="messenger-screen screen-conversations active" id="screen-conversations" style="display:flex;flex-direction:column;height:100%;width:100%;overflow:hidden;">
       <div class="conv-header">
         <span class="conv-header-title">💬 Wiadomości</span>
       </div>
-      <div class="conv-list" id="conv-list">
-        <!-- Skeleton -->
-        <div id="conv-skeleton">
-          <div style="padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border);">
-            <div class="skeleton" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;"></div>
-            <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
-              <div class="skeleton" style="height:13px;width:55%;border-radius:4px;"></div>
-              <div class="skeleton" style="height:10px;width:80%;border-radius:4px;"></div>
-            </div>
-          </div>
-          <div style="padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;">
-            <div class="skeleton" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;"></div>
-            <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
-              <div class="skeleton" style="height:13px;width:42%;border-radius:4px;"></div>
-              <div class="skeleton" style="height:10px;width:65%;border-radius:4px;"></div>
-            </div>
-          </div>
-        </div>
+      
+      <!-- Conversations list -->
+      <div class="conv-list" id="conv-list" style="flex:1;overflow-y:auto;">
+        <div id="conv-skeleton"></div>
       </div>
     </div>
 
-    <!-- Empty chat state -->
-    <div class="chat-area" id="chat-empty">
-      <div class="chat-empty-state">
-        <div style="font-size:3rem;">⚔️</div>
-        <div style="font-family:var(--font-hd);font-size:1.125rem;font-weight:700;color:var(--text-primary);">
-          Wybierz rozmowę
-        </div>
-        <div style="font-size:.875rem;color:var(--text-muted);text-align:center;max-width:240px;">
-          Wybierz konwersację z listy lub wejdź na profil wojownika i kliknij „Napisz".
-        </div>
-      </div>
-    </div>
-
-    <!-- Chat panel (hidden until conv selected) -->
-    <div class="chat-area hidden" id="chat-panel">
-
-      <!-- Header dynamically rendered -->
-      <div id="chat-header" style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--border);background:var(--bg-card);flex-shrink:0;">
-        <!-- Rendered by JS -->
+    <!-- SCREEN 2: Chat (fullscreen) -->
+    <div class="messenger-screen screen-chat" id="screen-chat" style="display:none;flex-direction:column;height:100%;width:100%;overflow:hidden;">
+      
+      <!-- Chat header with back button -->
+      <div class="chat-header-full" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:var(--bg-card);flex-shrink:0;">
+        <button class="chat-back-btn" id="chat-back" aria-label="Wróć" style="background:none;border:none;color:var(--text-primary);cursor:pointer;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div id="chat-header-info" style="flex:1;"></div>
       </div>
 
       <!-- Messages -->
-      <div id="msg-list" role="log" aria-live="polite" aria-label="Wiadomości">
-        <!-- Rendered by JS -->
+      <div id="msg-list" role="log" aria-live="polite" aria-label="Wiadomości" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:1rem;gap:0.5rem;">
       </div>
 
       <!-- Compose -->
-      <div class="msg-compose">
+      <div class="msg-compose" style="flex-shrink:0;border-top:1px solid var(--border);padding:0.75rem 1rem;background:var(--bg-card);">
         <!-- Image preview -->
-        <div class="msg-img-preview-wrap" id="msg-img-preview">
-          <img src="" alt="Podgląd zdjęcia"/>
+        <div class="msg-img-preview-wrap" id="msg-img-preview" style="display:none;padding:0.5rem;margin-bottom:0.75rem;border:1px solid var(--border);border-radius:8px;">
+          <img src="" alt="Podgląd zdjęcia" style="width:40px;height:40px;border-radius:4px;object-fit:cover;"/>
           <span style="font-size:.8125rem;color:var(--text-muted);flex:1;">Zdjęcie gotowe do wysłania</span>
-          <button class="msg-img-remove" id="msg-img-remove" aria-label="Usuń zdjęcie">
+          <button class="msg-img-remove" id="msg-img-remove" aria-label="Usuń zdjęcie" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -123,26 +119,15 @@
 
         <!-- Input row -->
         <div class="msg-input-row">
-          <!-- Image button -->
-          <button class="msg-action-btn" id="msg-img-btn" aria-label="Wyślij zdjęcie" title="Wyślij zdjęcie">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="msg-action-btn" id="msg-img-btn" aria-label="Wyślij zdjęcie" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0.5rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
               <circle cx="8.5" cy="8.5" r="1.5"/>
               <polyline points="21 15 16 10 5 21"/>
             </svg>
           </button>
-
-          <!-- Text input -->
-          <textarea
-            id="msg-input"
-            placeholder="Napisz wiadomość... @nick #tag lub link YouTube"
-            rows="1"
-            maxlength="1000"
-            aria-label="Treść wiadomości"
-          ></textarea>
-
-          <!-- Send button -->
-          <button class="msg-send-btn" id="msg-send" aria-label="Wyślij">
+          <textarea id="msg-input" placeholder="Napisz wiadomość..." rows="1" maxlength="1000" style="flex:1;background:rgba(212,175,55,0.05);border:1px solid rgba(212,175,55,0.1);border-radius:6px;padding:0.5rem 0.75rem;color:var(--text-primary);resize:none;"></textarea>
+          <button class="msg-send-btn" id="msg-send" aria-label="Wyślij" style="background:linear-gradient(180deg,rgba(212,175,55,1) 0%,rgba(184,134,11,0.9) 100%);border:none;color:white;cursor:pointer;padding:0.5rem;border-radius:6px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"/>
               <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -155,7 +140,7 @@
       <input type="file" id="msg-img-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;"/>
     </div>
 
-  </div><!-- /.messenger-page -->
+  </div>
 </main>
 
 <script type="module">
@@ -190,5 +175,6 @@
 
   initMessenger();
 </script>
+  <script src="js/autohide-nav.js"></script>
 </body>
 </html>
