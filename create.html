@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <meta name="apple-mobile-web-app-title" content="Create"/>
+  <title>Create — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    body { padding-bottom: 70px; }
+
+    /* ─── TABS ────────────────────────────────────────────── */
+    .create-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .create-tab {
+      flex: 1;
+      padding: 1rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--t);
+    }
+    .create-tab:hover { color: var(--text-primary); }
+    .create-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ─── FORM SECTION ────────────────────────────────────── */
+    .create-section {
+      display: none;
+      padding: 2rem 1rem;
+    }
+    .create-section.active { display: block; }
+
+    /* ─── INPUT FIELDS ────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-label {
+      display: block;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-md);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      transition: all var(--t);
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* ─── FILE UPLOAD ─────────────────────────────────────── */
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(212, 175, 55, 0.06));
+      border: 2px dashed var(--gold-border);
+      border-radius: var(--r-lg);
+      cursor: pointer;
+      transition: all var(--t);
+    }
+    .file-input-label:hover {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(212, 175, 55, 0.12));
+    }
+    input[type="file"] { display: none; }
+
+    /* ─── PREVIEW ─────────────────────────────────────────── */
+    .preview-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-remove {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 24px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    /* ─── BUTTONS ─────────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      background: var(--gold);
+      border: none;
+      border-radius: var(--r-lg);
+      color: #000;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--t);
+    }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 1rem;
+      background: none;
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-lg);
+      color: var(--text-primary);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--t);
+      margin-top: 0.75rem;
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── HEADER ──────────────────────────────────────────── */
+    .create-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+    }
+    .create-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-orbs" aria-hidden="true"></div>
+
+<!-- ════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════ -->
+<div class="create-header">
+  <div class="create-title">⚡ Utwórz</div>
+  <button class="close-btn" onclick="window.history.back()">✕</button>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TABS
+════════════════════════════════════════════ -->
+<div class="create-tabs">
+  <button class="create-tab active" data-tab="post">📝 Post</button>
+  <button class="create-tab" data-tab="photo">📷 Zdjęcie</button>
+  <button class="create-tab" data-tab="challenge">⚔️ Wyzwanie</button>
+  <button class="create-tab" data-tab="event">🎉 Event</button>
+</div>
+
+<!-- ════════════════════════════════════════════
+     FORMS
+════════════════════════════════════════════ -->
+
+<!-- POST TAB -->
+<div class="create-section active" id="post-tab">
+  <form id="post-form">
+    <div class="form-group">
+      <label class="form-label">Co Cię interesuje?</label>
+      <textarea id="post-content" placeholder="Napisz swoją myśl..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Widoczność</label>
+      <select id="post-visibility">
+        <option value="public">Publiczny</option>
+        <option value="friends">Tylko dla znajomych</option>
+        <option value="private">Prywatny</option>
+      </select>
+    </div>
+    <button type="submit" class="btn-primary">Opublikuj post</button>
+  </form>
+</div>
+
+<!-- PHOTO TAB -->
+<div class="create-section" id="photo-tab">
+  <form id="photo-form">
+    <div class="form-group">
+      <div class="file-input-wrapper">
+        <label class="file-input-label" for="photo-input">
+          📸 Kliknij aby wybrać zdjęcie
+        </label>
+        <input type="file" id="photo-input" accept="image/*" multiple/>
+      </div>
+    </div>
+    <div class="preview-container" id="photo-preview"></div>
+    <div class="form-group">
+      <label class="form-label">Opis (opcjonalnie)</label>
+      <textarea id="photo-caption" placeholder="Dodaj opis do zdjęcia..."></textarea>
+    </div>
+    <button type="submit" class="btn-primary">Udostępnij zdjęcie</button>
+  </form>
+</div>
+
+<!-- CHALLENGE TAB -->
+<div class="create-section" id="challenge-tab">
+  <form id="challenge-form">
+    <div class="form-group">
+      <label class="form-label">Nazwa wyzwania</label>
+      <input type="text" id="challenge-name" placeholder="np. 100 pompek"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Opis</label>
+      <textarea id="challenge-desc" placeholder="Opisz wyzwanie..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Trudność</label>
+      <select id="challenge-difficulty">
+        <option value="easy">Łatwe 🟢</option>
+        <option value="medium">Średnie 🟡</option>
+        <option value="hard">Trudne 🔴</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nagroda (XP)</label>
+      <input type="number" id="challenge-reward" value="100" min="10" max="1000"/>
+    </div>
+    <button type="submit" class="btn-primary">Utwórz wyzwanie</button>
+  </form>
+</div>
+
+<!-- EVENT TAB -->
+<div class="create-section" id="event-tab">
+  <form id="event-form">
+    <div class="form-group">
+      <label class="form-label">Nazwa eventu</label>
+      <input type="text" id="event-name" placeholder="np. Trening grupowy"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Data</label>
+      <input type="datetime-local" id="event-date"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lokalizacja</label>
+      <input type="text" id="event-location" placeholder="Gdzie się odbędzie?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Opis</label>
+      <textarea id="event-desc" placeholder="Opisz event..."></textarea>
+    </div>
+    <button type="submit" class="btn-primary">Utwórz event</button>
+  </form>
+</div>
+
+<!-- ════════════════════════════════════════════
+     BOTTOM NAVIGATION
+════════════════════════════════════════════ -->
+<nav style="position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--bg-card);border-top:1px solid var(--border);display:flex;justify-content:space-around;z-index:100;">
+  <a href="home.html" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;text-decoration:none;color:var(--text-muted);font-size:0.6rem;font-family:var(--font-heading);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="explore.html" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;text-decoration:none;color:var(--text-muted);font-size:0.6rem;font-family:var(--font-heading);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><circle cx="12" cy="12" r="9"/></svg>
+    <span>Explore</span>
+  </a>
+  <a href="create.html" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;text-decoration:none;color:var(--gold);font-size:0.6rem;font-family:var(--font-heading);">
+    <svg viewBox="0 0 24 24" fill="var(--gold)" style="width:24px;height:24px;"><circle cx="12" cy="12" r="10"/></svg>
+    <span>Create</span>
+  </a>
+  <a href="messages.html" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;text-decoration:none;color:var(--text-muted);font-size:0.6rem;font-family:var(--font-heading);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>Messages</span>
+  </a>
+  <a href="profile.html" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;text-decoration:none;color:var(--text-muted);font-size:0.6rem;font-family:var(--font-heading);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+    <span>Profile</span>
+  </a>
+</nav>
+
+<!-- SCRIPTS -->
+<script type="module">
+  import { auth, db } from './js/firebase.js';
+  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
+
+  injectLightModeCSS();
+  initTheme();
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Tab switching
+    document.querySelectorAll('.create-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.create-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.create-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+      });
+    });
+
+    // Post form
+    document.getElementById('post-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, 'posts'), {
+          authorId: user.uid,
+          authorName: user.displayName || 'User',
+          content: document.getElementById('post-content').value,
+          visibility: document.getElementById('post-visibility').value,
+          createdAt: serverTimestamp(),
+          likes: [],
+          comments: []
+        });
+        alert('Post opublikowany!');
+        window.location.href = 'home.html';
+      } catch (err) {
+        console.error(err);
+        alert('Błąd przy publikowaniu posta');
+      }
+    });
+
+    // Photo upload preview
+    document.getElementById('photo-input').addEventListener('change', (e) => {
+      const preview = document.getElementById('photo-preview');
+      preview.innerHTML = '';
+      Array.from(e.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+          const item = document.createElement('div');
+          item.className = 'preview-item';
+          item.appendChild(img);
+          preview.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  });
+</script>
+</body>
+</html>
