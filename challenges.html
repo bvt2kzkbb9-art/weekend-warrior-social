@@ -11,6 +11,10 @@
   <link rel="stylesheet" href="css/arena.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
   <link rel="stylesheet" href="css/premium-effects.css"/>
+  <link rel="stylesheet" href="css/challenge-artwork.css"/>
+  <script src="js/cloudinary-helper.js" defer></script>
+  <script src="js/mission-renderer.js" defer></script>
+  <script src="js/challenge-artwork-renderer.js" defer></script>
 </head>
 <body>
 <!-- TOP HEADER BAR -->
@@ -229,13 +233,23 @@
     if (!grid) return;
     grid.innerHTML = '';
     CHALLENGES_DATA.forEach((ch, idx) => {
+      // Build Cloudinary URL for challenge image
+      const cloudinaryUrl = ImageHelper.challenge(ch.image);
+      const srcset = ImageHelper.challengeSrcset(ch.image);
+      
       const card = document.createElement('div');
       card.className = 'ch-full-card';
       card.style.animationDelay = (idx * 0.06) + 's';
       card.innerHTML = `
         <div class="rpg-ch-num">${ch.order}</div>
         <div class="ch-full-img-wrap">
-          <img src="${ch.image}" alt="${_esc(ch.title)}" class="ch-full-img" loading="lazy"
+          <img 
+            src="${cloudinaryUrl}" 
+            srcset="${srcset}"
+            sizes="(max-width: 390px) 130px, (max-width: 768px) 160px, 200px"
+            alt="${_esc(ch.title)}" 
+            class="ch-full-img" 
+            loading="lazy"
             onerror="this.style.display='none';this.parentElement.style.background='#1A150E'"/>
         </div>
         <div class="ch-full-body">
@@ -268,7 +282,10 @@
     document.getElementById('modal-diff').textContent = ch.difficulty || 'Średni';
     document.getElementById('modal-cat').textContent = ch.category || 'Ogólne';
     const img = document.getElementById('modal-img');
-    if (ch.image) { img.src = ch.image; img.style.display = 'block'; } else img.style.display = 'none';
+    if (ch.image) { 
+      img.src = ImageHelper.challenge(ch.image); 
+      img.style.display = 'block'; 
+    } else img.style.display = 'none';
     document.getElementById('ch-modal-backdrop').classList.remove('hidden');
   }
 
