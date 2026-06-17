@@ -301,16 +301,22 @@ function _initTilt() {
     e.currentTarget.style.transition = 'transform 0.5s ease';
   };
 
-  // Bind to challenge cards when they appear
-  const observer = new MutationObserver(() => {
+  const bindTiltCards = () => {
     document.querySelectorAll('.ch-card:not([data-tilt])').forEach(card => {
       card.dataset.tilt = '1';
       card.addEventListener('mousemove',  handler, { passive: true });
       card.addEventListener('mouseleave', reset,   { passive: true });
     });
-  });
+  };
 
-  observer.observe(document.body, { childList: true, subtree: true });
+  bindTiltCards();
+
+  const container = document.querySelector('[data-role="challenges-container"]') || document.querySelector('.challenges-grid');
+  if (container) {
+    const observer = new MutationObserver(bindTiltCards);
+    observer.observe(container, { childList: true, subtree: true });
+    window.__tiltObserver = observer;
+  }
 }
 
 
