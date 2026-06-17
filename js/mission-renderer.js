@@ -11,66 +11,74 @@ const MissionRenderer = {
     const card = document.createElement('div');
     card.className = 'mission-card';
     card.id = `mission-${mission.id}`;
-    
-    // Progress (default 0/steps)
+
     const progress = mission.progress || 0;
     const total = mission.steps || 3;
     const percent = (progress / total) * 100;
-    
-    // Difficulty badge
+
     const difficultyClass = `mission-difficulty ${mission.difficulty || 'easy'}`;
     const difficultyLabel = {
       easy: 'Łatwy',
       medium: 'Średni',
       hard: 'Trudny'
     }[mission.difficulty] || 'Łatwy';
-    
-    // Image
-    let imageHTML = '';
+
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'mission-card-image';
+
     if (mission.image) {
-      imageHTML = `
-        <div class="mission-card-image">
-          <img 
-            src="${MissionRenderer.getImageUrl(mission.image)}"
-            alt="${mission.title}"
-            loading="lazy"
-            onerror="this.style.display='none'; this.parentElement.innerHTML += '<div class=\"mission-card-image-placeholder\">${mission.badge || '⚔️'}</div>'"
-          />
-        </div>
-      `;
+      const img = document.createElement('img');
+      img.src = MissionRenderer.getImageUrl(mission.image);
+      img.alt = mission.title;
+      img.loading = 'lazy';
+
+      img.addEventListener('error', function() {
+        this.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'mission-card-image-placeholder';
+        placeholder.textContent = mission.badge || '⚔️';
+        this.parentElement.appendChild(placeholder);
+      });
+
+      imageContainer.appendChild(img);
     } else {
-      imageHTML = `
-        <div class="mission-card-image">
-          <div class="mission-card-image-placeholder">${mission.badge || '⚔️'}</div>
-        </div>
-      `;
+      const placeholder = document.createElement('div');
+      placeholder.className = 'mission-card-image-placeholder';
+      placeholder.textContent = mission.badge || '⚔️';
+      imageContainer.appendChild(placeholder);
     }
-    
-    card.innerHTML = `
-      ${imageHTML}
-      <div class="mission-card-content">
-        <div class="mission-card-header">
-          <div class="mission-card-title">${mission.title}</div>
-          <div class="mission-card-desc">${mission.desc}</div>
-        </div>
-        
-        <div class="mission-progress">
-          <div class="mission-progress-bar">
-            <div class="mission-progress-fill" style="width: ${percent}%"></div>
-          </div>
-        </div>
-        
-        <div class="mission-stats">
-          <span class="${difficultyClass}">${difficultyLabel}</span>
-          <span class="mission-xp">+${mission.xp || 20} XP</span>
-        </div>
-        
-        <button class="mission-card-action" onclick="handleMissionClick('${mission.id}')">
-          ${progress >= total ? 'Odbierz' : 'Przejmij'}
-        </button>
+
+    card.appendChild(imageContainer);
+
+    const content = document.createElement('div');
+    content.className = 'mission-card-content';
+    content.innerHTML = `
+      <div class="mission-card-header">
+        <div class="mission-card-title">${mission.title}</div>
+        <div class="mission-card-desc">${mission.desc}</div>
       </div>
+
+      <div class="mission-progress">
+        <div class="mission-progress-bar">
+          <div class="mission-progress-fill" style="width: ${percent}%"></div>
+        </div>
+      </div>
+
+      <div class="mission-stats">
+        <span class="${difficultyClass}">${difficultyLabel}</span>
+        <span class="mission-xp">+${mission.xp || 20} XP</span>
+      </div>
+
+      <button class="mission-card-action" data-mission-id="${mission.id}">
+        ${progress >= total ? 'Odbierz' : 'Przejmij'}
+      </button>
     `;
-    
+
+    card.appendChild(content);
+
+    const actionBtn = content.querySelector('.mission-card-action');
+    actionBtn.addEventListener('click', () => handleMissionClick(mission.id));
+
     return card;
   },
   
