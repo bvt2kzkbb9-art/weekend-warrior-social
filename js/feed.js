@@ -344,7 +344,11 @@ export function initFeed() {
       showToast("❌ Błąd ładowania kronik: " + err.code, "error");
     });
 
-    $("load-more-btn")?.addEventListener("click", _loadMore, { once: false });
+    const loadMoreBtn = $("load-more-btn");
+    if (loadMoreBtn) {
+      loadMoreBtn.removeEventListener("click", _loadMore);
+      loadMoreBtn.addEventListener("click", _loadMore);
+    }
   }
 
   let _loadingMore = false;
