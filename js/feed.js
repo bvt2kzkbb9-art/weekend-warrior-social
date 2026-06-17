@@ -179,6 +179,7 @@ export function initFeed() {
   let unsubFeed = null;
   let pendingImage = null;
   let lastVisible = null;
+  let feedGeneration = 0;
   const PAGE = 20;
   const openComments = new Set();   // posty z rozwiniętymi komentarzami
   const commentUnsubs = new Map();
@@ -327,8 +328,12 @@ export function initFeed() {
     $("feed-empty") && ($("feed-empty").style.display = "none");
     $("load-more-btn") && ($("load-more-btn").style.display = "none");
 
+    feedGeneration++;
+    const gen = feedGeneration;
+
     const q = query(collection(db, COL.POSTS), orderBy("createdAt", "desc"), limit(PAGE));
     unsubFeed = onSnapshot(q, (snap) => {
+      if (gen !== feedGeneration) return;
       window._clearFeedSkeleton?.();
       lastVisible = snap.docs[snap.docs.length - 1] || null;
       let posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -339,6 +344,7 @@ export function initFeed() {
       const more = $("load-more-btn");
       if (more) more.style.display = snap.docs.length === PAGE && currentTab !== "following" ? "block" : "none";
     }, (err) => {
+      if (gen !== feedGeneration) return;
       window._clearFeedSkeleton?.();
       console.warn("[feed]", err.code);
       showToast("❌ Błąd ładowania kronik: " + err.code, "error");
@@ -354,12 +360,14 @@ export function initFeed() {
   let _loadingMore = false;
   async function _loadMore() {
     if (_loadingMore || !lastVisible) return;
+    const currentGen = feedGeneration;
     _loadingMore = true;
     try {
       const snap = await getDocs(query(
         collection(db, COL.POSTS), orderBy("createdAt", "desc"),
         startAfter(lastVisible), limit(PAGE)
       ));
+      if (currentGen !== feedGeneration) return;
       lastVisible = snap.docs[snap.docs.length - 1] || lastVisible;
       const posts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       _renderPosts(posts, true);
