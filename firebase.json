@@ -1,61 +1,21 @@
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
   "hosting": {
     "public": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "config.js",
-      "PATCH_NOTES.txt",
+      ".git",
+      ".gitignore",
       "README.md",
-      "README.txt",
-      "seed.html",
-      "admin.html",
-      "irestore.indexes.json"
+      "PHASE_2_STATUS.md",
+      "*.md"
     ],
-    "cleanUrls": false,
-    "trailingSlash": false,
     "rewrites": [
-      {
-        "source": "/search",
-        "destination": "/search.html"
-      },
-      {
-        "source": "/pajac",
-        "destination": "/pajac.html"
-      },
-      {
-        "source": "/messenger",
-        "destination": "/messenger.html"
-      },
-      {
-        "source": "/feed",
-        "destination": "/feed.html"
-      },
-      {
-        "source": "/ranking",
-        "destination": "/ranking.html"
-      },
-      {
-        "source": "/challenges",
-        "destination": "/challenges.html"
-      },
-      {
-        "source": "/achievements",
-        "destination": "/achievements.html"
-      },
-      {
-        "source": "/profile",
-        "destination": "/profile.html"
-      },
-      {
-        "source": "/login",
-        "destination": "/login.html"
-      },
-      {
-        "source": "/register",
-        "destination": "/register.html"
-      },
       {
         "source": "**",
         "destination": "/index.html"
@@ -63,51 +23,23 @@
     ],
     "headers": [
       {
-        "source": "**/*.@(js|mjs)",
+        "source": "**/*.@(js|css)",
         "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=3600" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" }
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000,immutable"
+          }
         ]
       },
       {
-        "source": "**/*.@(css)",
+        "source": "**/*.@(html|json|xml|txt)",
         "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=3600" }
-        ]
-      },
-      {
-        "source": "**/*.@(png|jpg|jpeg|gif|svg|ico|webp)",
-        "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=86400" }
-        ]
-      },
-      {
-        "source": "**/*.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache" },
-          { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-        ]
-      },
-      {
-        "source": "sw.js",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-          { "key": "Service-Worker-Allowed", "value": "/" }
-        ]
-      },
-      {
-        "source": "manifest.json",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache" },
-          { "key": "Content-Type", "value": "application/manifest+json" }
+          {
+            "key": "Cache-Control",
+            "value": "max-age=3600,must-revalidate"
+          }
         ]
       }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
   }
 }

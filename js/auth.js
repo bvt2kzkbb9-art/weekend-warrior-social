@@ -1,3 +1,10 @@
+/**
+ * ============================================================
+ * WEEKEND WARRIOR SOCIAL — auth.js (PRODUCTION)
+ * Complete Firebase Authentication System
+ * ============================================================
+ */
+
 import { auth, db, COL, googleProvider } from "./firebase.js";
 import {
   createUserWithEmailAndPassword,
@@ -7,6 +14,10 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  setPersistence,
+  browserLocalPersistence,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   doc,
@@ -16,44 +27,82 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ════════════════════════════════════════════════════════════
+// ERROR MESSAGES & VALIDATION
+// ════════════════════════════════════════════════════════════
+
+const AUTH_ERRORS = {
+  "auth/email-already-in-use": "Email już jest zarejestrowany",
+  "auth/weak-password": "Hasło musi mieć min. 8 znaków",
+  "auth/invalid-email": "Niepoprawny adres email",
+  "auth/user-not-found": "Użytkownik nie istnieje",
+  "auth/wrong-password": "Niepoprawne hasło",
+  "auth/invalid-password": "Niepoprawne hasło",
+  "auth/invalid-credential": "Niepoprawny email lub hasło",
+  "auth/too-many-requests": "Za dużo nieudanych prób. Spróbuj za 15 minut",
+  "auth/operation-not-allowed": "Logowanie email/hasło jest wyłączone",
+  "auth/popup-closed-by-user": "Okno logowania zostało zamknięte",
+  "auth/cancelled-popup-request": "Logowanie zostało anulowane",
+  "auth/unauthorized-domain": "Domena nie jest zautoryzowana",
+  "auth/network-request-failed": "Brak połączenia z siecią. Sprawdź internet",
+  "auth/internal-error": "Błąd wewnętrzny. Spróbuj ponownie",
+};
+
+// ════════════════════════════════════════════════════════════
+// TOAST SYSTEM
+// ════════════════════════════════════════════════════════════
+
 export function showToast(message, type = "info", duration = 4000) {
   let container = document.getElementById("wws-toasts");
   if (!container) {
     container = document.createElement("div");
     container.id = "wws-toasts";
     container.className = "toast-container";
+    container.style.cssText = `
+      position: fixed; top: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px;
+    `;
     document.body.appendChild(container);
   }
 
   const ICON = {
-    success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16C784" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-    error: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-    info: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F8CFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+    success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16C784" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    warning: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    info: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F8CFF" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
   };
 
   const el = document.createElement("div");
   el.className = `toast toast-${type}`;
+  el.style.cssText = `
+    padding: 12px 16px; border-radius: 8px; display: flex; gap: 10px;
+    align-items: center; background: #1a1a1a; border: 1px solid #333;
+    color: #eee; font-size: 14px; animation: slideInRight 0.3s ease;
+  `;
   el.innerHTML = `${ICON[type] || ICON.info}<span>${message}</span>`;
   container.appendChild(el);
 
   const dismiss = () => {
-    el.style.transition = "opacity 0.25s ease, transform 0.25s ease";
-    el.style.opacity = "0";
-    el.style.transform = "translateY(6px)";
-    setTimeout(() => el.remove(), 280);
+    el.style.animation = "slideOutRight 0.3s ease";
+    setTimeout(() => el.remove(), 300);
   };
 
-  const t = setTimeout(dismiss, duration);
+  const timeoutId = setTimeout(dismiss, duration);
   el.addEventListener("click", () => {
-    clearTimeout(t);
+    clearTimeout(timeoutId);
     dismiss();
   });
 }
+
+// ════════════════════════════════════════════════════════════
+// FORM HELPERS
+// ════════════════════════════════════════════════════════════
 
 function setLoading(btn, state) {
   if (!btn) return;
   btn.disabled = state;
   btn.classList.toggle("loading", state);
+  btn.style.opacity = state ? "0.6" : "1";
 }
 
 function setFieldError(input, msg) {
@@ -62,25 +111,51 @@ function setFieldError(input, msg) {
   input.setAttribute("aria-invalid", "true");
   const group = input.closest(".form-group");
   if (!group) return;
-  let el = group.querySelector(".form-error-msg");
+  let el = group.querySelector(".form-error");
   if (!el) {
-    el = document.createElement("p");
-    el.className = "form-error-msg";
+    el = document.createElement("span");
+    el.className = "form-error";
     el.setAttribute("role", "alert");
     group.appendChild(el);
   }
   el.textContent = msg;
+  el.style.display = "block";
 }
 
 function clearFieldError(input) {
   if (!input) return;
-  input.classList.remove("error", "valid");
+  input.classList.remove("error");
   input.removeAttribute("aria-invalid");
   const group = input.closest(".form-group");
   if (!group) return;
-  const el = group.querySelector(".form-error-msg");
-  if (el) el.textContent = "";
+  const el = group.querySelector(".form-error");
+  if (el) el.style.display = "none";
 }
+
+function clearAllFieldErrors(fields) {
+  fields.forEach(clearFieldError);
+}
+
+// ════════════════════════════════════════════════════════════
+// VALIDATION
+// ════════════════════════════════════════════════════════════
+
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+  return password && password.length >= 8;
+}
+
+function getErrorMessage(code) {
+  return AUTH_ERRORS[code] || "Błąd: " + (code || "nieznany");
+}
+
+// ════════════════════════════════════════════════════════════
+// FIRESTORE USER MANAGEMENT
+// ════════════════════════════════════════════════════════════
 
 export async function ensureUserDoc(user) {
   if (!user) return null;
@@ -90,18 +165,28 @@ export async function ensureUserDoc(user) {
   if (!snap || !snap.exists()) {
     const userData = {
       uid: user.uid,
-      email: user.email,
+      email: user.email || "",
       displayName: user.displayName || "Wojownik",
       photoURL: user.photoURL || "",
       bannerURL: "",
-      username: user.email.split("@")[0],
+      username: (user.displayName || "warrior").toLowerCase().replace(/\s+/g, "_"),
       bio: "",
       points: 0,
       level: 1,
       rank: "Rookie",
       streak: 0,
+      postsCount: 0,
+      commentsCount: 0,
+      likesReceived: 0,
+      quizzesCompleted: 0,
+      challengesCompleted: 0,
+      challengesSent: 0,
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      lastDailyLogin: null,
+      achievements: [],
+      badges: [],
     };
     await setDoc(ref, userData);
     return userData;
@@ -111,308 +196,442 @@ export async function ensureUserDoc(user) {
 
 export async function getCurrentUserData(uid) {
   if (!uid) return null;
-  const snap = await getDoc(doc(db, COL.USERS, uid)).catch(() => null);
-  return snap && snap.exists() ? snap.data() : null;
+  try {
+    const snap = await getDoc(doc(db, COL.USERS, uid));
+    return snap && snap.exists() ? snap.data() : null;
+  } catch (err) {
+    console.error("[getCurrentUserData] Error:", err.code);
+    return null;
+  }
 }
 
-export function checkAuth(callback) {
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      try {
-        const userData = await getCurrentUserData(user.uid);
-        callback(user, userData || {});
-      } catch (err) {
-        console.error('[checkAuth] data load error:', err.code);
-        // Still call callback with user but empty data
-        callback(user, {});
-      }
-    } else {
-      callback(null, null);
-    }
-  }, (err) => {
-    console.error('[checkAuth] auth state error:', err.code);
-    window.location.href = '/login.html';
-  });
-  return unsubscribe;
+export async function updateLastActive(uid) {
+  if (!uid) return;
+  try {
+    await updateDoc(doc(db, COL.USERS, uid), {
+      lastActive: serverTimestamp(),
+    });
+  } catch (err) {
+    console.error("[updateLastActive] Error:", err.code);
+  }
 }
+
+// ════════════════════════════════════════════════════════════
+// AUTHENTICATION FUNCTIONS
+// ════════════════════════════════════════════════════════════
 
 export async function registerWithEmail(email, password, displayName) {
+  if (!validateEmail(email)) throw new Error("auth/invalid-email");
+  if (!validatePassword(password)) throw new Error("auth/weak-password");
+  if (!displayName || displayName.trim().length === 0) throw new Error("auth/invalid-display-name");
+
+  const { user } = await createUserWithEmailAndPassword(auth, email, password);
+
   try {
-    const { user } = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(user, { displayName });
-    await ensureUserDoc(user);
-    showToast("✅ Konto utworzone!", "success");
-    return user;
+    await updateProfile(user, { displayName: displayName.trim() });
   } catch (err) {
-    let msg = "Błąd rejestracji";
-    if (err.code === "auth/email-already-in-use") msg = "Email już w użyciu";
-    else if (err.code === "auth/weak-password") msg = "Hasło za słabe (min. 6 znaków)";
-    else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
-    showToast(`❌ ${msg}`, "error");
-    throw err;
+    console.error("[registerWithEmail] updateProfile error:", err.code);
   }
+
+  const userData = await ensureUserDoc(user);
+  showToast("✅ Konto utworzone pomyślnie!", "success");
+  return { user, userData };
 }
 
 export async function loginWithEmail(email, password) {
+  if (!validateEmail(email)) throw new Error("auth/invalid-email");
+  if (!password) throw new Error("auth/invalid-password");
+
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
+
   try {
-    const { user } = await signInWithEmailAndPassword(auth, email, password);
-    await updateDoc(doc(db, COL.USERS, user.uid), { lastLoginAt: serverTimestamp() });
-    showToast("✅ Zalogowano!", "success");
-    return user;
+    await updateDoc(doc(db, COL.USERS, user.uid), {
+      lastLoginAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+    });
   } catch (err) {
-    let msg = "Błąd logowania";
-    if (err.code === "auth/user-not-found") msg = "Użytkownik nie istnieje";
-    else if (err.code === "auth/wrong-password") msg = "Niepoprawne hasło";
-    else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
-    showToast(`❌ ${msg}`, "error");
-    throw err;
+    console.error("[loginWithEmail] updateDoc error:", err.code);
   }
+
+  const userData = await getCurrentUserData(user.uid);
+  showToast("✅ Zalogowano pomyślnie!", "success");
+  return { user, userData };
 }
 
 export async function loginWithGoogle() {
+  const { user } = await signInWithPopup(auth, googleProvider);
+
+  const userData = await ensureUserDoc(user);
+
   try {
-    const { user } = await signInWithPopup(auth, googleProvider);
-    await ensureUserDoc(user);
-    await updateDoc(doc(db, COL.USERS, user.uid), { lastLoginAt: serverTimestamp() });
-    showToast("✅ Zalogowano przez Google!", "success");
-    return user;
+    await updateDoc(doc(db, COL.USERS, user.uid), {
+      lastLoginAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+    });
   } catch (err) {
-    let msg = "Błąd logowania Google";
-    if (err.code === "auth/popup-closed-by-user") msg = "Okno logowania zostało zamknięte";
-    showToast(`❌ ${msg}`, "error");
-    throw err;
+    console.error("[loginWithGoogle] updateDoc error:", err.code);
   }
+
+  showToast("✅ Zalogowano przez Google!", "success");
+  return { user, userData };
 }
 
 export async function resetPassword(email) {
-  try {
-    await sendPasswordResetEmail(auth, email);
-    showToast("✅ Link resetowania wysłany na email!", "success");
-  } catch (err) {
-    let msg = "Błąd resetowania";
-    if (err.code === "auth/user-not-found") msg = "Użytkownik nie istnieje";
-    showToast(`❌ ${msg}`, "error");
-    throw err;
-  }
+  if (!validateEmail(email)) throw new Error("auth/invalid-email");
+  await sendPasswordResetEmail(auth, email, {
+    url: `${window.location.origin}/login.html`,
+  });
+  showToast("✅ Link resetowania wysłany na email!", "success");
 }
 
 export async function logout() {
   try {
-    await signOut(auth);
-    window.location.href = "login.html";
+    const user = auth.currentUser;
+    if (user) {
+      await updateLastActive(user.uid);
+    }
   } catch (err) {
-    showToast("❌ Błąd wylogowania", "error");
-    throw err;
+    console.error("[logout] updateLastActive error:", err.code);
   }
-}
 
-export function handleAuthUI(user, userData) {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-  const userNameEl = document.getElementById("user-name");
-  const userAvatarEl = document.getElementById("user-avatar");
-  const userLevelEl = document.getElementById("user-level");
-  const userRankEl = document.getElementById("user-rank");
-  const userXpEl = document.getElementById("user-xp");
-
-  if (userNameEl) userNameEl.textContent = userData.displayName || "Wojownik";
-  if (userAvatarEl) userAvatarEl.textContent = (userData.displayName || "W").charAt(0).toUpperCase();
-  if (userLevelEl) userLevelEl.textContent = userData.level || 1;
-  if (userRankEl) userRankEl.textContent = userData.rank || "Rookie";
-  if (userXpEl) userXpEl.textContent = userData.points || 0;
+  await signOut(auth);
+  window.location.href = "login.html";
 }
 
 // ════════════════════════════════════════════════════════════
-// PRZEKIEROWANIE ZALOGOWANYCH (login.html / register.html)
+// SESSION MANAGEMENT
 // ════════════════════════════════════════════════════════════
+
+export function enableSessionPersistence() {
+  return setPersistence(auth, browserLocalPersistence);
+}
+
+export function checkAuth(callback) {
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    async (user) => {
+      if (user) {
+        try {
+          await updateLastActive(user.uid);
+          const userData = await getCurrentUserData(user.uid);
+          callback(user, userData || {});
+        } catch (err) {
+          console.error("[checkAuth] Error:", err.code);
+          callback(user, {});
+        }
+      } else {
+        callback(null, null);
+      }
+    },
+    (err) => {
+      console.error("[checkAuth] Auth state error:", err.code);
+      window.location.href = "/login.html";
+    }
+  );
+  return unsubscribe;
+}
 
 export function redirectIfLogged() {
-  onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = "index.html";
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "index.html";
+      }
+      resolve(unsubscribe);
+    });
   });
 }
 
 // ════════════════════════════════════════════════════════════
-// FORMULARZ LOGOWANIA — login.html
+// LOGIN FORM INITIALIZATION
 // ════════════════════════════════════════════════════════════
 
 export function initLoginForm() {
   const form = document.getElementById("login-form");
-  const emailIn = document.getElementById("email");
-  const passIn = document.getElementById("password");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
   const loginBtn = document.getElementById("login-btn");
   const googleBtn = document.getElementById("google-btn");
-  const forgotLink = document.getElementById("forgot-link");
-  const errEl = document.getElementById("error-msg");
+  const errorMsg = document.getElementById("error-msg");
 
-  const showErr = (msg) => {
-    if (!errEl) return;
-    errEl.textContent = msg;
-    errEl.style.display = msg ? "block" : "none";
-  };
-
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      showErr("");
-      const email = emailIn?.value.trim();
-      const password = passIn?.value;
-      if (!email || !password) { showErr("Podaj email i hasło."); return; }
-      setLoading(loginBtn, true);
-      try {
-        await loginWithEmail(email, password);
-        window.location.href = "index.html";
-      } catch (err) {
-        const map = {
-          "auth/user-not-found": "Nie znaleziono wojownika o tym adresie.",
-          "auth/wrong-password": "Niepoprawne słowo mocy.",
-          "auth/invalid-credential": "Niepoprawny email lub hasło.",
-          "auth/invalid-email": "Niepoprawny adres email.",
-          "auth/too-many-requests": "Za dużo prób. Odczekaj chwilę.",
-          "auth/network-request-failed": "Brak połączenia z siecią.",
-        };
-        showErr(map[err.code] || "Błąd logowania: " + (err.code || err.message));
-      } finally {
-        setLoading(loginBtn, false);
-      }
-    });
+  if (!form || !emailInput || !passwordInput || !loginBtn) {
+    console.warn("[initLoginForm] Missing form elements");
+    return;
   }
 
+  // Email/password login
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    // Validate
+    clearAllFieldErrors([emailInput, passwordInput]);
+    let valid = true;
+
+    if (!email) {
+      setFieldError(emailInput, "Podaj email");
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setFieldError(emailInput, "Niepoprawny email");
+      valid = false;
+    }
+
+    if (!password) {
+      setFieldError(passwordInput, "Podaj hasło");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    setLoading(loginBtn, true);
+    if (errorMsg) errorMsg.textContent = "";
+
+    try {
+      await loginWithEmail(email, password);
+      window.location.href = "index.html";
+    } catch (err) {
+      const msg = getErrorMessage(err.code);
+      if (errorMsg) errorMsg.textContent = msg;
+      else showToast(`❌ ${msg}`, "error");
+      console.error("[loginForm] Error:", err.code, err.message);
+    } finally {
+      setLoading(loginBtn, false);
+    }
+  });
+
+  // Google login
   if (googleBtn) {
     googleBtn.addEventListener("click", async (e) => {
-      e.preventDefault(); // przycisk bez type="button" w <form> domyślnie submituje
-      showErr("");
+      e.preventDefault();
+      setLoading(googleBtn, true);
+      if (errorMsg) errorMsg.textContent = "";
+
       try {
         await loginWithGoogle();
         window.location.href = "index.html";
       } catch (err) {
-        if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
-          showErr("Błąd logowania Google: " + (err.code || err.message));
+        if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(err.code)) {
+          const msg = getErrorMessage(err.code);
+          if (errorMsg) errorMsg.textContent = msg;
+          else showToast(`❌ ${msg}`, "error");
         }
+        console.error("[loginForm] Google error:", err.code);
+      } finally {
+        setLoading(googleBtn, false);
       }
     });
   }
 
+  // Password reset
+  const forgotLink = document.getElementById("forgot-link");
   if (forgotLink) {
     forgotLink.addEventListener("click", async (e) => {
       e.preventDefault();
-      const email = emailIn?.value.trim() || prompt("Podaj adres email do resetu słowa mocy:");
+      const email = emailInput.value.trim() || prompt("Podaj adres email:");
       if (!email) return;
-      try { await resetPassword(email); } catch { /* toast pokazany */ }
+
+      try {
+        await resetPassword(email);
+      } catch (err) {
+        const msg = getErrorMessage(err.code);
+        showToast(`❌ ${msg}`, "error");
+        console.error("[resetPassword] Error:", err.code);
+      }
     });
   }
 }
 
 // ════════════════════════════════════════════════════════════
-// FORMULARZ REJESTRACJI — register.html
+// REGISTER FORM INITIALIZATION
 // ════════════════════════════════════════════════════════════
 
 export function initRegisterForm() {
   const form = document.getElementById("register-form");
-  const nameIn = document.getElementById("display-name");
-  const emailIn = document.getElementById("email");
-  const passIn = document.getElementById("password");
-  const confirmIn = document.getElementById("confirm-password");
-  const termsIn = document.getElementById("terms");
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const confirmInput = document.getElementById("password-confirm");
+  const termsInput = document.getElementById("terms");
   const registerBtn = document.getElementById("register-btn");
   const googleBtn = document.getElementById("google-btn");
+  const strengthIndicator = document.getElementById("strength-indicator");
   const strengthLabel = document.getElementById("strength-label");
-  const bars = Array.from(document.querySelectorAll(".strength-bar"));
 
-  // ── Pokaż/ukryj hasło ──────────────────────────────────────
-  const wireToggle = (btnId, input) => {
-    const btn = document.getElementById(btnId);
-    if (!btn || !input) return;
-    btn.addEventListener("click", () => {
-      input.type = input.type === "password" ? "text" : "password";
-    });
-  };
-  wireToggle("toggle-password", passIn);
-  wireToggle("toggle-confirm", confirmIn);
-
-  // ── Siła hasła ─────────────────────────────────────────────
-  const scorePassword = (pw) => {
-    let s = 0;
-    if (pw.length >= 6) s++;
-    if (pw.length >= 10) s++;
-    if (/[A-ZĄĆĘŁŃÓŚŹŻ]/.test(pw) && /[0-9]/.test(pw)) s++;
-    if (/[^A-Za-z0-9]/.test(pw)) s = Math.min(3, s + 1);
-    return Math.min(3, s); // 0–3
-  };
-
-  if (passIn) {
-    passIn.addEventListener("input", () => {
-      const pw = passIn.value;
-      const score = pw ? scorePassword(pw) : 0;
-      const cls = ["", "weak", "medium", "strong"][score] || "";
-      bars.forEach((b, i) => {
-        b.classList.remove("weak", "medium", "strong");
-        if (pw && i < score) b.classList.add(cls || "weak");
-      });
-      if (strengthLabel) {
-        strengthLabel.textContent = !pw ? "" :
-          score <= 1 ? "Słabe słowo mocy" :
-          score === 2 ? "Przyzwoite słowo mocy" : "Potężne słowo mocy ⚔️";
-        strengthLabel.style.color = score <= 1 ? "#EF4444" : score === 2 ? "#F59E0B" : "#16C784";
-      }
-    });
+  if (!form || !emailInput || !passwordInput || !registerBtn) {
+    console.warn("[initRegisterForm] Missing form elements");
+    return;
   }
 
-  // ── Walidacja na żywo potwierdzenia ────────────────────────
-  if (confirmIn) {
-    confirmIn.addEventListener("input", () => {
-      clearFieldError(confirmIn);
-      if (confirmIn.value && passIn?.value !== confirmIn.value) {
-        setFieldError(confirmIn, "Słowa mocy nie są zgodne.");
-      }
-    });
-  }
-
-  // ── Submit ─────────────────────────────────────────────────
-  if (form) {
-    form.addEventListener("submit", async (e) => {
+  // Password visibility toggles
+  const toggleButtons = document.querySelectorAll(".toggle-pw-btn");
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
       e.preventDefault();
-      [nameIn, emailIn, passIn, confirmIn].forEach(clearFieldError);
-
-      const name = nameIn?.value.trim();
-      const email = emailIn?.value.trim();
-      const pass = passIn?.value;
-      const confirm = confirmIn?.value;
-
-      let ok = true;
-      if (!name) { setFieldError(nameIn, "Podaj imię wojownika."); ok = false; }
-      if (!email) { setFieldError(emailIn, "Podaj adres email."); ok = false; }
-      if (!pass || pass.length < 6) { setFieldError(passIn, "Min. 6 znaków."); ok = false; }
-      if (pass !== confirm) { setFieldError(confirmIn, "Słowa mocy nie są zgodne."); ok = false; }
-      if (termsIn && !termsIn.checked) {
-        showToast("⚠️ Musisz zaakceptować Regulamin Areny.", "error");
-        ok = false;
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (input) {
+        input.type = input.type === "password" ? "text" : "password";
+        btn.textContent = input.type === "password" ? "👁" : "👁‍🗨";
       }
-      if (!ok) return;
+    });
+  });
 
-      setLoading(registerBtn, true);
-      try {
-        await registerWithEmail(email, pass, name);
-        window.location.href = "index.html";
-      } catch (err) {
-        if (err.code === "auth/email-already-in-use") setFieldError(emailIn, "Email już w użyciu.");
-        else if (err.code === "auth/invalid-email") setFieldError(emailIn, "Niepoprawny email.");
-        else if (err.code === "auth/weak-password") setFieldError(passIn, "Hasło za słabe.");
-      } finally {
-        setLoading(registerBtn, false);
+  // Password strength indicator
+  if (passwordInput) {
+    passwordInput.addEventListener("input", () => {
+      const pwd = passwordInput.value;
+      let strength = 0;
+
+      if (pwd.length >= 8) strength++;
+      if (pwd.length >= 12) strength++;
+      if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) strength++;
+      if (/[0-9]/.test(pwd)) strength++;
+      if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
+
+      strength = Math.min(3, Math.ceil(strength / 2));
+
+      if (strengthIndicator) {
+        strengthIndicator.className = "strength-fill";
+        if (strength === 0) {
+          strengthIndicator.classList.add("weak");
+        } else if (strength <= 1) {
+          strengthIndicator.classList.add("weak");
+        } else if (strength === 2) {
+          strengthIndicator.classList.add("medium");
+        } else {
+          strengthIndicator.classList.add("strong");
+        }
+      }
+
+      if (strengthLabel) {
+        if (pwd.length === 0) {
+          strengthLabel.textContent = "";
+        } else if (strength <= 1) {
+          strengthLabel.textContent = "Słabe hasło";
+        } else if (strength === 2) {
+          strengthLabel.textContent = "Dobre hasło";
+        } else {
+          strengthLabel.textContent = "Silne hasło ⚔️";
+        }
+      }
+
+      clearFieldError(passwordInput);
+    });
+  }
+
+  // Confirm password validation
+  if (confirmInput) {
+    confirmInput.addEventListener("input", () => {
+      clearFieldError(confirmInput);
+      if (confirmInput.value && passwordInput.value !== confirmInput.value) {
+        setFieldError(confirmInput, "Hasła nie są zgodne");
       }
     });
   }
 
+  // Form submit
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = usernameInput?.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const confirm = confirmInput?.value;
+
+    // Validate
+    clearAllFieldErrors([usernameInput, emailInput, passwordInput, confirmInput]);
+    let valid = true;
+
+    if (!username || username.length < 3) {
+      if (usernameInput) setFieldError(usernameInput, "Min. 3 znaki");
+      valid = false;
+    }
+
+    if (!email) {
+      setFieldError(emailInput, "Podaj email");
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setFieldError(emailInput, "Niepoprawny email");
+      valid = false;
+    }
+
+    if (!password) {
+      setFieldError(passwordInput, "Podaj hasło");
+      valid = false;
+    } else if (!validatePassword(password)) {
+      setFieldError(passwordInput, "Min. 8 znaków");
+      valid = false;
+    }
+
+    if (!confirm) {
+      setFieldError(confirmInput, "Potwierdź hasło");
+      valid = false;
+    } else if (password !== confirm) {
+      setFieldError(confirmInput, "Hasła nie są zgodne");
+      valid = false;
+    }
+
+    if (termsInput && !termsInput.checked) {
+      showToast("⚠️ Musisz zaakceptować Regulamin", "warning");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    setLoading(registerBtn, true);
+
+    try {
+      const { user } = await registerWithEmail(email, password, username);
+      // Auto-login after successful registration
+      window.location.href = "index.html";
+    } catch (err) {
+      const msg = getErrorMessage(err.code);
+      showToast(`❌ ${msg}`, "error");
+
+      // Set field-specific errors
+      if (err.code === "auth/email-already-in-use") {
+        setFieldError(emailInput, "Email już w użyciu");
+      } else if (err.code === "auth/invalid-email") {
+        setFieldError(emailInput, "Niepoprawny email");
+      } else if (err.code === "auth/weak-password") {
+        setFieldError(passwordInput, "Hasło za słabe");
+      }
+
+      console.error("[registerForm] Error:", err.code, err.message);
+    } finally {
+      setLoading(registerBtn, false);
+    }
+  });
+
+  // Google login
   if (googleBtn) {
     googleBtn.addEventListener("click", async (e) => {
       e.preventDefault();
+      setLoading(googleBtn, true);
+
       try {
         await loginWithGoogle();
         window.location.href = "index.html";
-      } catch { /* toast pokazany */ }
+      } catch (err) {
+        if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(err.code)) {
+          const msg = getErrorMessage(err.code);
+          showToast(`❌ ${msg}`, "error");
+        }
+        console.error("[registerForm] Google error:", err.code);
+      } finally {
+        setLoading(googleBtn, false);
+      }
     });
   }
 }
+
+// ════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ════════════════════════════════════════════════════════════
+
+// Enable session persistence on app load
+enableSessionPersistence().catch((err) => {
+  console.error("[enableSessionPersistence] Error:", err.code);
+});
