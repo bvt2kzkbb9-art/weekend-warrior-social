@@ -116,6 +116,7 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  -webkit-touch-callout: none;
 }
 
 body {
@@ -127,6 +128,9 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ── REMOVE DECORATIVE ELEMENTS ────────────────────────────────────── */
@@ -297,6 +301,7 @@ main[role="main"] {
   margin-top: var(--header-height);
   margin-bottom: var(--nav-height);
   padding: 0;
+  contain: layout style paint;
 }
 
 .page,
@@ -435,6 +440,8 @@ select {
   font-family: var(--font-ui);
   font-size: var(--text-base);
   transition: all var(--duration-base) var(--ease-smooth);
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 input:focus,
