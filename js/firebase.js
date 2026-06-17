@@ -125,6 +125,22 @@ export function compressImage(file, maxDim = 1280, quality = 0.85) {
   });
 }
 
+async function _retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
+  let lastErr;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < maxAttempts - 1) {
+        const delay = baseDelay * Math.pow(2, attempt);
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 /**
  * @param {File|Blob} file
  * @param {string} path        — np. `posts/${uid}/${Date.now()}.jpg`
@@ -133,39 +149,42 @@ export function compressImage(file, maxDim = 1280, quality = 0.85) {
  */
 export async function uploadImage(file, path, onProgress) {
   if (!file || !file.type.startsWith('image/')) throw new Error('Nie jest obrazem');
-  
-  // Określ upload_preset na podstawie path
+
   let uploadPreset = 'wws_avatar';
   if (path.includes('banner')) uploadPreset = 'wws_banner';
-  
+
   const compressed = await compressImage(file);
-  const formData = new FormData();
-  formData.append('file', compressed);
-  formData.append('upload_preset', uploadPreset);
-  formData.append('cloud_name', 'dxanfwb3l');
-  
-  return new Promise((res, rej) => {
-    const xhr = new XMLHttpRequest();
-    xhr.upload.addEventListener('progress', (e) => {
-      if (e.lengthComputable) {
-        const pct = Math.round((e.loaded / e.total) * 100);
-        onProgress?.(pct);
-      }
+
+  return _retryWithBackoff(async () => {
+    const formData = new FormData();
+    formData.append('file', compressed);
+    formData.append('upload_preset', uploadPreset);
+    formData.append('cloud_name', 'dxanfwb3l');
+
+    return new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          onProgress?.(pct);
+        }
+      });
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            res(data.secure_url || data.url);
+          } catch (e) { rej(e); }
+        } else {
+          rej(new Error(`Błąd uploadu: ${xhr.status}`));
+        }
+      });
+      xhr.addEventListener('error', () => rej(new Error('Błąd sieci')));
+      xhr.addEventListener('abort', () => rej(new Error('Upload przerwany')));
+      xhr.open('POST', 'https://api.cloudinary.com/v1_1/dxanfwb3l/image/upload');
+      xhr.send(formData);
     });
-    xhr.addEventListener('load', () => {
-      if (xhr.status === 200) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          res(data.secure_url || data.url);
-        } catch (e) { rej(e); }
-      } else {
-        rej(new Error(`Błąd uploadu: ${xhr.status}`));
-      }
-    });
-    xhr.addEventListener('error', () => rej(new Error('Błąd sieci')));
-    xhr.open('POST', 'https://api.cloudinary.com/v1_1/dxanfwb3l/image/upload');
-    xhr.send(formData);
-  });
+  }, 3, 1000);
 }
 
 /** Cloudinary auto-usuwa nieużywane pliki, więc delete jest opcjonalny. */
