@@ -1,452 +1,360 @@
-# RAPORT GOTOWOŚCI PRODUKCYJNEJ
-## Weekend Warrior Social — 2026-06-09
+# Production Readiness Verification Report
+
+**Date:** 2026-06-17  
+**Assessment Status:** ⚠️ BLOCKERS IDENTIFIED
 
 ---
 
-## EXECUTIVE SUMMARY
+## 1. FIRESTORE SECURITY RULES STATUS
 
-✅ **STATUS: PRODUCTION READY**
+### Overall: ✅ IMPLEMENTED
 
-Weekend Warrior Social jest w pełni funkcjonalną aplikacją PWA opartą na Firebase. Wszystkie kluczowe komponenty zostały zweryfikowane i są gotowe do publikacji.
+**Rules file:** `firestore.rules` (222 lines)  
+**Deployment:** CI/CD workflow configured (`.github/workflows/deploy-firestore-rules.yml`)
 
-- ✅ 8 stron HTML (170 KB)
-- ✅ 11 modułów JavaScript (160 KB)  
-- ✅ 4 arkusze CSS (124 KB)
-- ✅ Firebase Auth + Firestore skonfigurowany
-- ✅ PWA manifest + service worker
-- ✅ Zero błędów w loadowaniu zasobów
-- ✅ Responsive design (mobile-first)
+#### Implementation Coverage:
+- ✅ Users collection: Proper owner + cross-user field restrictions
+- ✅ Posts & Comments: Author-only write, public read (authenticated)
+- ✅ Followers: Follow-only actions, no updates
+- ✅ Friend Requests: Bidirectional access control
+- ✅ Conversations & Messages: Participant verification required
+- ✅ Challenge Invites: Challenger/target bidirectional
+- ✅ Challenge Completions: Write protected
+- ✅ Challenge Quizzes: Owner-only access
+- ✅ Notifications: Owner-only read/write
+- ✅ Reports: Create-only (read disabled for non-admins)
+- ✅ Pokes, Blocks, Shares: Proper creator validation
+- ✅ Weekly Scores: Owner can write, all can read
 
-**Total bundle: ~454 KB (nieminifikowany, bez gzip)**
-**Po gzip: ~120-140 KB (szacunek)**
+#### Authentication Enforcement:
+- ✅ **All read operations require `isAuth()` check** (except public pages)
+- ✅ **All write operations require `isAuth()` + ownership/membership check**
+- ✅ No unauthenticated writes allowed anywhere
+- ✅ No unguarded read operations (reports properly restricted)
 
----
-
-## 1. STRUKTURA PROJEKTU
-
-### HTML Pages (8 stron)
-```
-index.html           32 KB    Arena główna (hub aplikacji)
-profile.html         24 KB    Profil wojownika
-challenges.html      24 KB    Droga wyzwań (Misje)
-ranking.html         16 KB    Sala chwały (leaderboard)
-feed.html            16 KB    Kroniki (społeczność)
-register.html        12 KB    Zaprzysiężenie
-messenger.html       12 KB    Wiadomości
-login.html            8 KB    Brama Areny
-terms.html            8 KB    Warunki użytkowania
-─────────────────────────────
-TOTAL HTML          152 KB
-```
-
-### JavaScript Modules (11 modułów)
-```
-challenge-system.js  52 KB    Definicje wyzwań + logika quizu
-weekly-ranking.js    16 KB    Ranking tygodniowy + theme
-social.js            16 KB    Funkcje społeczne (like, follow)
-achievements.js      16 KB    System osiągnięć
-xp.js                12 KB    System XP i progresji
-arena.js             12 KB    Logika areny głównej
-feed.js               8 KB    Funkcje feeda
-auth.js               8 KB    Autentykacja
-notifications.js      4 KB    System powiadomień
-messenger.js          4 KB    Funkcje messengera
-firebase.js           4 KB    Konfiguracja Firebase
-─────────────────────────────
-TOTAL JS            160 KB
-```
-
-### CSS Stylesheets (4 pliki)
-```
-style.css            44 KB    Design system + komponenty
-rpg-theme.css        40 KB    RPG visual identity
-arena.css            24 KB    Layout system
-messenger.css        16 KB    Messenger UI
-─────────────────────────────
-TOTAL CSS           124 KB
-```
-
-### Configuration Files
-```
-manifest.json                  PWA configuration
-firebase.js                    Firebase SDK initialization
-.gitignore                     Git configuration
-package.json                   Project metadata
-```
-
-### Assets
-```
-assets/icons/
-  - icon-192.png              PWA icon (192x192)
-  - icon-512.png              PWA icon (512x512)
-  - icon-512.svg              PWA icon (SVG, scalable)
+#### Helper Functions Implemented:
+```firestore
+isAuth() — validates request.auth != null
+isOwner(uid) — validates isAuth() && request.auth.uid == uid
 ```
 
 ---
 
-## 2. FIREBASE CONFIGURATION
+## 2. FIREBASE STORAGE RULES STATUS
 
-### Authentication
+### Overall: ✅ IMPLEMENTED
+
+**Rules file:** `storage.rules` (31 lines)
+
+#### Implementation:
+- ✅ Posts folder: Owner-only write + read (authenticated)
+- ✅ Profiles folder: Owner-only write + read (authenticated)
+- ✅ Messages folder: Authenticated user writes only (filename validation for UID)
+- ✅ Image type validation: `image/*` content type, max 8MB
+- ✅ No anonymous uploads
+
+---
+
+## 3. CLOUDINARY SECURITY STATUS
+
+### Overall: ⚠️ PARTIAL - REQUIRES VERIFICATION IN CLOUDINARY CONSOLE
+
+#### Code Implementation:
+- ✅ **API Secret**: NOT exposed in repository ✅
+- ✅ **Cloud Name**: `dxanfwb3l` (exposed, required for client SDK)
+- ✅ **Upload Presets Used**: `wws_avatar`, `wws_banner` (hardcoded in code)
+- ✅ **Retry Logic**: Implemented - 3 attempts with exponential backoff
+- ✅ **Image Validation**: File type checked, size limited to 8MB
+- ✅ **HTTPS Only**: All Cloudinary API calls use HTTPS
+
+#### ⚠️ UNVERIFIED - Requires Cloudinary Console Verification:
+1. **Upload Preset Type**: Configuration must verify presets are **SIGNED** not UNSIGNED
+   - If UNSIGNED: Anonymous users can upload via preset without authentication
+   - **Status**: UNKNOWN - Cannot verify from code
+   
+2. **Preset Restrictions**:
+   - `wws_avatar` should restrict to `avatars/` folder only
+   - `wws_banner` should restrict to `banners/` folder only
+   - **Status**: Documented in CLOUDINARY_SETUP.md but unverified in Console
+
+3. **Anonymous Upload Risk**: 
+   - Client requires Firebase auth, but Cloudinary accepts unsigned presets
+   - **Risk if unsigned**: Anyone with cloud name + preset can upload files
+   - **Mitigation**: Firebase auth check in client prevents most abuse
+
+---
+
+## 4. API KEY RESTRICTIONS
+
+### Current State: ⚠️ NOT CONFIGURED (Needs Google Cloud Console)
+
+**Exposed API Key:** `AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98` (in js/firebase.js line 28)
+
+#### Required Configuration (NOT DONE):
+- ❌ API Key restrictions NOT set in Google Cloud Console
+- ❌ Key allows access to ANY Google API (not restricted)
+- ❌ Key accepts requests from ANY origin (not restricted to domain)
+
+#### Needed Setup:
+1. Go to Google Cloud Console → APIs & Services → Credentials
+2. Find API Key: `AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98`
+3. Set Application restrictions:
+   - **Type**: HTTP referrers (websites)
+   - **Add**: `https://your-domain.com`
+   - **Add for dev**: `http://localhost:*`
+4. Set API restrictions:
+   - **Allow**: Cloud Firestore API ONLY
+   - **Deny**: Cloud Storage, Cloud Functions, all other APIs
+
+---
+
+## 5. AUTHENTICATION COVERAGE
+
+### Pages with Authentication Enforcement: ✅ IMPLEMENTED
+
+**Using `checkAuth()` function (defined in js/auth.js):**
+- ✅ `feed.html` — calls checkAuth()
+- ✅ `create.html` — calls checkAuth()
+- ✅ `explore.html` — calls checkAuth()
+- ✅ `home.html` — calls checkAuth()
+- ✅ `messenger.html` — calls checkAuth()
+- ✅ `profile.html` — calls checkAuth()
+- ✅ `challenges.html` — calls checkAuth()
+- ✅ `ranking.html` — calls checkAuth()
+- ✅ `messages.html` — calls checkAuth()
+- ✅ `quizzes.html` — calls checkAuth()
+- ✅ `achievements.html` — calls checkAuth()
+
+**Public Pages (No Auth Check - Acceptable):**
+- ✅ `index.html` — Landing page (no auth needed)
+- ✅ `login.html` — Auth page (no auth needed)
+- ✅ `register.html` — Registration page (no auth needed)
+- ✅ `terms.html` — Legal page (no auth needed)
+- ✅ `offline.html` — Service Worker fallback (no auth needed)
+- ⚠️ `user.html` — Public profile view (should allow unauthenticated)
+
+#### checkAuth() Implementation Issue:
 ```javascript
-apiKey: "AIzaSyA9I-uUmWLLjq8WNrAgnlmXQxiAgRR1U98"
-authDomain: "weekend-warrior-social-ed3d0.firebaseapp.com"
-projectId: "weekend-warrior-social-ed3d0"
+// Current implementation:
+export function checkAuth(callback) {
+  onAuthStateChanged(auth, (user) => {
+    if (user) callback(user, userData);
+    else callback(null, null);  // ← Calls with null
+  });
+}
 
-Supported Methods:
-✅ Email/Password (custom)
-✅ Google OAuth
-✅ Password Reset (sendPasswordResetEmail)
-```
-
-### Firestore Collections (8)
-```
-users/{uid}                    User profiles, XP, level, rank
-posts/{postId}                 Social posts with engagement
-conversations/{convId}         Direct messages
-challenge_invites/{docId}      Challenge invitations
-notifications/{notifId}        User notifications
-comments/{commentId}           Post comments (subcollection)
-achievements_unlocked/{id}     User achievements
-weekly_rankings/{weekId}       Leaderboard data
+// Usage (example from profile.html):
+checkAuth(async (user) => {
+  injectMessengerBadge(user.uid);  // ← Would crash if user null
+});
 ```
 
-### Storage
-```
-gs://weekend-warrior-social-ed3d0.firebasestorage.app/
-  avatars/{userId}/photo.jpg           User profile pictures
-  posts/{userId}/{timestamp}.jpg       User post images
-  messages/{convId}/{timestamp}        Chat media files
-```
+#### ⚠️ Potential Issue:
+- If user is not authenticated, callback receives `null`
+- Pages like `profile.html` and `challenges.html` access `user.uid` directly without null check
+- Would crash with "Cannot read property 'uid' of null"
+- **Mitigation**: Firebase auth errors redirect to login (line in checkAuth), but null case is not handled
 
-### Security Rules
-```
-Version: 2
-Rules enforce:
-- User data: Authenticated users only
-- Public posts: Read by anyone authenticated
-- Conversations: Participants only
-- Admin operations: Owner/admin only
-```
+#### Firestore Write Protection:
+- ✅ All `createPost()`, `addComment()` operations require auth
+- ✅ `likePost()`, `unlikePost()` protected by Firestore Rules
+- ✅ No unprotected database writes
+- ✅ Firebase SDK enforces authentication before operations
 
 ---
 
-## 3. DEPLOYMENT CHECKLIST
+## 6. RATE LIMITING STATUS
 
-### Pre-Launch (Ready)
-- [x] Firebase project created and configured
-- [x] Firestore database initialized with collections
-- [x] Firebase Auth enabled (Email, Google)
-- [x] Storage bucket configured
-- [x] All API keys properly configured
-- [x] Service worker registered (PWA)
-- [x] Manifest.json configured for app installation
-- [x] Responsive design verified (mobile-first)
-- [x] Zero console errors on main pages
-- [x] All imports resolving correctly
-- [x] No circular dependencies detected
+### Current: ⚠️ CLIENT-SIDE ONLY
 
-### Immediate Tasks
-- [ ] Minify CSS (estimated 30% reduction)
-- [ ] Minify JavaScript (estimated 25% reduction)
-- [ ] Enable gzip compression on Firebase Hosting
-- [ ] Set up CDN caching headers
-- [ ] Test on actual Firebase Hosting
-- [ ] Verify PWA installation on mobile
-- [ ] Set up error tracking (Sentry)
+**Implemented:**
+- ✅ `throttle()` function in js/utils.js
+- ✅ Image upload retry with exponential backoff
+- ✅ Feed load-more duplicate listener prevention
 
-### Before Public Launch
-- [ ] Analytics configuration (Google Analytics 4)
-- [ ] Email templates (welcome, password reset, notifications)
-- [ ] Privacy policy and terms review
-- [ ] Security audit (penetration testing)
-- [ ] Load testing (simulate 1000 concurrent users)
-- [ ] Database backup strategy
-- [ ] Monitoring and alerting setup
-- [ ] Logo and branding finalization
-- [ ] Social media presence setup
+**NOT Implemented:**
+- ❌ Backend rate limiting (Cloud Functions/API)
+- ❌ Per-user limits on posts/messages
+- ❌ DDoS protection (Cloud Armor)
+- ❌ Firestore write rate limiting
+
+**Documented in:** `FIREBASE-SECURITY-CHECKLIST.md`
 
 ---
 
-## 4. PERFORMANCE ANALYSIS
+## 7. DEPLOYMENT BLOCKERS
 
-### Current Metrics (Unminified)
-```
-Bundle Size Breakdown:
-├─ HTML:       152 KB  (33%)
-├─ JavaScript: 160 KB  (35%)
-├─ CSS:        124 KB  (27%)
-└─ Manifest:     2 KB  (< 1%)
-Total:         438 KB
+### BLOCKER #1: Service Worker Cache Out of Sync ⚠️ CRITICAL
 
-Load Time Simulation:
-4G connection (1.6 Mbps):     ~2.2 seconds
-3G connection (400 Kbps):     ~9 seconds
-LTE connection (10 Mbps):     ~0.4 seconds
-```
+**File:** `sw.js` lines 25-28  
+**Problem**: Service Worker precaches OLD CSS files, not the new unified design system
 
-### After Minification + Gzip (Projected)
-```
-Estimated:
-├─ HTML:       35-40 KB
-├─ JavaScript: 35-40 KB
-├─ CSS:        25-30 KB
-└─ Total:      95-110 KB
-
-Performance targets:
-- LCP (Largest Contentful Paint):  <2.5s ✅
-- FID (First Input Delay):        <100ms ✅
-- CLS (Cumulative Layout Shift):  <0.1 ✅
-```
-
-### Optimization Opportunities
-```
-1. Challenge System (52 KB)
-   - Currently: All 20+ challenges loaded on every page
-   - Opportunity: Lazy load challenge data on demand
-   - Savings: ~15-20 KB
-
-2. Weekly Ranking (16 KB)
-   - Currently: Full ranking data always loaded
-   - Opportunity: Paginate and load on scroll
-   - Savings: ~5-8 KB
-
-3. CSS
-   - Opportunity: Unused utility classes
-   - Opportunity: Consolidate rpg-theme.css + style.css
-   - Savings: ~10-15 KB combined
-```
-
----
-
-## 5. VERIFICATION RESULTS
-
-### Page Load Tests
-```
-✅ login.html          → HTTP 200 ✓
-✅ register.html       → HTTP 200 ✓
-✅ index.html          → HTTP 200 ✓
-✅ feed.html           → HTTP 200 ✓
-✅ challenges.html     → HTTP 200 ✓
-✅ ranking.html        → HTTP 200 ✓
-✅ profile.html        → HTTP 200 ✓
-✅ messenger.html      → HTTP 200 ✓
-✅ terms.html          → HTTP 200 ✓
-```
-
-### Module Import Verification
-```
-✅ firebase.js imported by: 8+ pages
-✅ auth.js imports: firebase.js ✓
-✅ challenge-system.js imports: firebase.js, notifications.js, xp.js ✓
-✅ arena.js imports: firebase.js, challenge-system.js ✓
-✅ feed.js imports: firebase.js, social.js ✓
-✅ notifications.js imports: firebase.js ✓
-✅ weekly-ranking.js imports: firebase.js ✓
-✅ messenger.js imports: firebase.js ✓
-✅ social.js imports: firebase.js ✓
-✅ achievements.js imports: firebase.js, xp.js ✓
-✅ xp.js imports: firebase.js ✓
-
-All modules load correctly. No circular dependencies detected.
-```
-
-### Firebase Connectivity
-```
-✅ Firebase SDK v10.12.2 loaded
-✅ API keys configured
-✅ Project ID: weekend-warrior-social-ed3d0
-✅ Auth domain: weekend-warrior-social-ed3d0.firebaseapp.com
-✅ Storage bucket: weekend-warrior-social-ed3d0.firebasestorage.app
-✅ Ready for Firestore queries and authentication
-```
-
----
-
-## 6. USER FLOWS IMPLEMENTED
-
-### Flow 1: Rejestracja → Autentykacja
-```
-register.html
-  ↓ submitForm
-  ↓ auth.js → registerWithEmail()
-  ↓ Firebase Auth → createUserWithEmailAndPassword()
-  ↓ ensureUserDoc() → Firestore users/{uid} NEW DOCUMENT
-  ↓ Redirect to index.html
-  ↓ checkAuth() → handleAuthUI()
-  ✅ User logged in, profile loaded
-```
-
-### Flow 2: Przejmij Wyzwanie → Quiz → XP
-```
-challenges.html
-  ↓ User clicks "Przejmij wyzwanie"
-  ↓ challenge-system.js loadChallenge()
-  ↓ Display quiz questions from CHALLENGES_DATA
-  ↓ User submits answers
-  ↓ Validate against answer key
-  ↓ xp.js → addXP() → updateDoc user points
-  ↓ Check level up: calculateLevel()
-  ↓ achievements.js → checkUnlocks()
-  ↓ weekly_rankings.js → update leaderboard
-  ✅ Challenge completed, XP awarded, rank updated
-```
-
-### Flow 3: Wrzuć Post → Feed
-```
-feed.html
-  ↓ User types post in textarea
-  ↓ Click "Wrzuć"
-  ↓ feed.js → createPost(content, image?)
-  ↓ Firebase Storage (if image) → gs://...
-  ↓ Firestore posts/{docId} → NEW POST
-  ↓ real-time listener (onSnapshot)
-  ↓ Post appears in feed for all users
-  ✅ Post published, visible to community
-```
-
-### Flow 4: Zaproś do Rozmowy
-```
-profile.html
-  ↓ Click user avatar → messenger.html
-  ↓ findOrCreateConversation(userId1, userId2)
-  ↓ conversations/{docId} → NEW CONVERSATION
-  ↓ Type message
-  ↓ Click send
-  ↓ Firestore messages subcollection
-  ↓ real-time listener updates both sides
-  ✅ Direct message delivered, conversation active
-```
-
----
-
-## 7. DEPLOYMENT INSTRUCTIONS
-
-### Option 1: Firebase Hosting (Recommended)
-```bash
-# 1. Install Firebase CLI
-npm install -g firebase-tools
-
-# 2. Login to Firebase
-firebase login
-
-# 3. Initialize Firebase in project
-firebase init hosting
-
-# 4. Deploy
-firebase deploy --only hosting
-```
-
-### Option 2: Static Host (Any CDN)
-```bash
-# Application is static HTML/CSS/JS + Firebase backend
-# Can be deployed to:
-# - Netlify
-# - Vercel
-# - AWS S3 + CloudFront
-# - Azure Static Web Apps
-# - Any static host with HTTPS
-
-# Just upload the entire project directory
-```
-
-### Environment Setup
+**Current Precache:**
 ```javascript
-// No environment variables needed
-// Firebase config is embedded in js/firebase.js
-// API keys are scoped to web domain
+'./css/style.css',         // OLD - not used by any page
+'./css/rpg-theme.css',     // OLD - not used by any page
+'./css/arena.css',         // OK
+'./css/messenger.css',     // OK
+```
+
+**Actual CSS Files Being Loaded (from HTML):**
+```
+index.html: css/unified-design-system.css, css/arena-minimal.css
+feed.html: css/unified-design-system.css, css/feed-minimal.css
+profile.html: css/unified-design-system.css, css/profile-minimal.css
+challenges.html: css/unified-design-system.css, css/challenges-minimal.css
+ranking.html: css/unified-design-system.css, css/ranking-minimal.css
+messenger.html: css/unified-design-system.css, css/messenger-minimal.css
+```
+
+**Missing from Precache:**
+- `./css/unified-design-system.css` (CRITICAL)
+- `./css/arena-minimal.css`
+- `./css/feed-minimal.css`
+- `./css/messenger-minimal.css`
+- `./css/profile-minimal.css`
+- `./css/challenges-minimal.css`
+- `./css/ranking-minimal.css`
+
+**Impact**: New users get old styling, visual breakage, potential unusable interface
+
+**Fix Required**: Update sw.js PRECACHE array with current CSS files
+
+---
+
+### BLOCKER #2: Firebase Composite Indexes Missing ⚠️ CRITICAL
+
+**File:** `firestore.indexes.json`  
+**Issue**: Only 11 indexes defined, missing indexes for challenge system
+
+**Currently Defined Indexes (OK):**
+- posts (createdAt)
+- posts (authorId, createdAt)
+- users (points)
+- followers (followerId, followingId)
+- followers (followingId)
+- conversations (participants, lastMessageAt)
+- conversations (participants)
+- messages (createdAt)
+- notifications (createdAt)
+- weeklyScores (xpThisWeek)
+- pokes (targetId, createdAt)
+
+**Missing Composite Indexes** (from `js/challenge-system.js`):
+1. `challenge_invites` (targetId, status)
+2. `challenge_invites` (challengerId, status)
+
+**Affected Queries** (will fail at runtime):
+- Line 596-597: `where('targetId', '==', uid), where('status', 'in', [...])`
+- Line 1076-1077: `where('targetId', '==', uid), where('status', '==', 'active')`
+- Line 1148: `where('targetId', '==', uid), where('status', 'in', [...])`
+- Line 1149: `where('challengerId', '==', uid), where('status', 'in', [...])`
+
+**Error When Missing**: 
+```
+Error: "failed-precondition: The query requires an index" (with Firebase Console link)
+```
+
+**Status**: Documented in `FIREBASE-INDEXES-REQUIRED.md` but NOT created  
+**Fix Required**: Create indexes in Firebase Console before deploying challenges feature
+
+---
+
+### BLOCKER #3: Null User Not Handled in Auth Callbacks ⚠️ MEDIUM
+
+**Files Affected:**
+- `profile.html` line 389
+- `challenges.html` line 196
+
+**Current Code:**
+```javascript
+checkAuth(async (user) => {
+  injectMessengerBadge(user.uid);  // Crashes if user is null
+  injectNotifBell(user.uid);       // Crashes if user is null
+});
+```
+
+**Issue**: `checkAuth()` calls callback with `null` if user not authenticated  
+**Result**: "Cannot read property 'uid' of null" runtime error
+
+**Mitigation Currently In Place**:
+- checkAuth error handler redirects to `/login.html` on auth failure
+- But null user case (no error, just no user) not handled
+
+**Fix Required**: Add null check in callbacks:
+```javascript
+checkAuth(async (user) => {
+  if (!user) return; // or redirect
+  injectMessengerBadge(user.uid);
+});
 ```
 
 ---
 
-## 8. MAINTENANCE & MONITORING
+### BLOCKER #4: Cloudinary Preset Security Unverified ⚠️ MEDIUM
 
-### Recommended Tools
-```
-1. Sentry.io - Error tracking and performance monitoring
-2. Google Analytics 4 - User behavior and conversion tracking
-3. Firebase Console - Database, auth, and storage monitoring
-4. CloudFlare - DDoS protection and caching
-```
+**Issue**: Cannot verify from code if presets are signed/unsigned  
+**Risk**: If unsigned, anonymous users can upload files
 
-### Health Checks
-```
-Daily:
-- Firebase Auth uptime
-- Firestore query performance
-- Storage bucket accessibility
+**Verification Required** (in Cloudinary Console):
+1. Login to Cloudinary Console
+2. Go to Settings → Upload → Upload Presets
+3. Verify `wws_avatar` is SIGNED (not UNSIGNED)
+4. Verify `wws_banner` is SIGNED (not UNSIGNED)
+5. Verify presets restrict to correct folders
+6. Verify signing key is configured
 
-Weekly:
-- Error rate monitoring
-- User engagement metrics
-- Database size growth
+**Current Code Cannot Check**: Uses `upload_preset` name only (signing happens server-side in Cloudinary)
 
-Monthly:
-- Performance benchmarks
-- Security audit logs
-- Cost analysis
-```
+**Risk If Unsigned**:
+- Anyone with `dxanfwb3l` cloud name + preset name can upload
+- Client-side Firebase auth doesn't prevent Cloudinary upload
+- **Mitigation**: Cloudinary signed presets prevent abuse
 
 ---
 
-## 9. FEATURE COMPLETENESS
+## IMPLEMENTATION STATUS SUMMARY
 
-### Core Features (Implemented)
-- [x] User authentication (Email + Google)
-- [x] User profiles with stats
-- [x] Challenge system with quiz
-- [x] XP and leveling system
-- [x] Ranking/leaderboard
-- [x] Social feed (posts)
-- [x] Direct messaging
-- [x] Notifications
-- [x] Achievements
-- [x] Responsive design
-- [x] PWA installable
-
-### Future Features (Planned)
-- [ ] Push notifications (FCM)
-- [ ] Real-time typing indicators
-- [ ] Voice/video chat
-- [ ] Weekly rewards system
-- [ ] Clan/team functionality
-- [ ] Mobile app (React Native)
-- [ ] Dark mode toggle
-- [ ] Multiple language support
+| Component | IMPLEMENTED | DOCUMENTED | REQUIRES CONSOLE CONFIG |
+|-----------|-------------|------------|------------------------|
+| Firestore Rules | ✅ YES | ✅ YES | ✅ (Deployed) |
+| Storage Rules | ✅ YES | ✅ YES | ✅ (Deployed) |
+| Authentication Checks | ✅ YES | ✅ YES | ❌ (Code only) |
+| Composite Indexes | ❌ NO | ✅ YES | ❌ MISSING |
+| API Key Restrictions | ❌ NO | ✅ YES | ❌ NOT DONE |
+| Cloudinary Signing | ❌ UNKNOWN | ✅ YES | ❌ UNVERIFIED |
+| Service Worker Cache | ⚠️ OUTDATED | ❌ NO | ❌ Needs Update |
+| Rate Limiting | ⚠️ PARTIAL | ✅ YES | ❌ NOT IMPLEMENTED |
+| Error Handling | ⚠️ PARTIAL | ❌ NO | ❌ Code Issue |
 
 ---
 
-## 10. PRODUCTION READINESS VERDICT
+## PRODUCTION DEPLOYMENT CHECKLIST
 
-| Aspect | Status | Evidence |
-|--------|--------|----------|
-| **Code Quality** | ✅ Ready | Zero circular dependencies, all modules load correctly |
-| **Performance** | ✅ Ready | ~450KB unminified, <2.5s LCP (projected) |
-| **Firebase Config** | ✅ Ready | All collections, auth, storage configured |
-| **Security** | ⚠️ Ready* | Firestore rules v2 implemented; recommend security audit before public launch |
-| **Testing** | ✅ Ready | All 9 pages load, all imports verified, flows tested |
-| **Documentation** | ✅ Ready | Complete user flows, deployment instructions, monitoring guide |
-| **PWA** | ✅ Ready | Manifest configured, installable on mobile |
+**Must Complete Before Production:**
 
-**Status: ✅ APPROVED FOR PRODUCTION DEPLOYMENT**
+- [ ] **CRITICAL**: Update Service Worker precache list in `sw.js`
+- [ ] **CRITICAL**: Create missing Firebase composite indexes in Console
+- [ ] **CRITICAL**: Verify Cloudinary upload presets are SIGNED
+- [ ] **HIGH**: Configure API Key restrictions in Google Cloud Console
+- [ ] **HIGH**: Add null user checks in profile.html and challenges.html
+- [ ] **MEDIUM**: Implement backend rate limiting (Cloud Functions)
+- [ ] **MEDIUM**: Test image upload retry logic under poor network
 
-*Next step: Deploy to Firebase Hosting and monitor for 48 hours before public announcement*
+**Recommended Before Production:**
 
----
-
-## COMMIT INFORMATION
-```
-Branch: claude/weekend-warrior-audit-gt6uzx
-Optimizations Applied:
-- Removed 27 unnecessary files (duplicates, old code, dev-only)
-- Verified all remaining 31 files are production-ready
-- 100% import resolution verified
-- Zero configuration changes needed
-- Firebase credentials secured in code
-
-Total Reduction: 27 files removed, 100% functionality maintained
-```
+- [ ] Run Firebase Rules simulator to validate all rules
+- [ ] Test challenges feature with real data
+- [ ] Load test with multiple concurrent uploads
+- [ ] Verify Service Worker works with new CSS precache
 
 ---
 
-Generated: 2026-06-09 by Claude Code Audit System
-Report Version: 1.0 FINAL
+## CRITICAL FINDINGS
+
+1. **Service Worker will serve old CSS to new users** — Styling will be broken
+2. **Challenge system queries will fail** — No composite indexes exist
+3. **Upload presets may allow anonymous uploads** — Unverified in Cloudinary
+4. **API key is unrestricted** — Can access any Google API
+5. **Auth callbacks don't handle null user** — Potential crashes
+
