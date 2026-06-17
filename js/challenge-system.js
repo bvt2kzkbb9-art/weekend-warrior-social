@@ -243,6 +243,18 @@ const DIFF_MAP = {
   legend: { label: 'Legendarne', cls: 'diff-legend'  },
 };
 
+function _getErrorMessage(err) {
+  if (err.code === 'failed-precondition' && err.message.includes('index')) {
+    return '🔧 System wyzwań wymaga indeksów Firebase. Skontaktuj się z administracją.';
+  }
+  if (err.code === 'permission-denied') {
+    return '🔐 Brak dostępu do wyzwań.';
+  }
+  if (err.code === 'unavailable') {
+    return '⚠️ Serwer niedostępny. Spróbuj za chwilę.';
+  }
+  return `⚠️ Błąd: ${err.code || 'nieznany'}`;
+}
 
 // ════════════════════════════════════════════════════════════
 // STATE
@@ -610,7 +622,7 @@ function _listenReceived() {
       card.style.animationDelay = (i * 0.06) + 's';
       el.appendChild(card);
     });
-  }, err => { el.innerHTML = _emptyHTML('⚠️', 'Błąd', err.code); });
+  }, err => { el.innerHTML = _emptyHTML('⚠️', 'Błąd', _getErrorMessage(err)); });
   _unsubs.push(unsub);
 }
 
@@ -1057,7 +1069,7 @@ function _listenSent() {
         </div>`;
       el.appendChild(row);
     });
-  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',err.code); });
+  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',_getErrorMessage(err)); });
   _unsubs.push(unsub);
 }
 
@@ -1130,7 +1142,7 @@ function _listenActive() {
       });
       el.appendChild(card);
     });
-  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',err.code); });
+  }, err => { el.innerHTML = _emptyHTML('⚠️','Błąd',_getErrorMessage(err)); });
   _unsubs.push(unsub);
 }
 
