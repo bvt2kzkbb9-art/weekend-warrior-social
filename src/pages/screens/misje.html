@@ -11,26 +11,26 @@
     .ekran { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
     .pasek-górny { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .logo-aplikacji { font-size: 1.5rem; font-weight: 700; color: var(--gold-primary); }
-    .akcje-górne { display: flex; gap: var(--spacing-md); }
+    .akcje-górne { display: flex; gap: var(--space-md); }
     .przycisk-akcja { width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
     .przycisk-akcja svg { width: 20px; height: 20px; }
     .sekcja { padding: var(--spacing-lg); }
     .karty { display: flex; flex-direction: column; gap: var(--spacing-lg); }
     .misja-karta { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: var(--spacing-lg); }
-    .misja-nagłówek { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md); }
+    .misja-nagłówek { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-md); }
     .misja-nazwa { font-size: 1.1rem; font-weight: 600; }
     .misja-trudność { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .trudność-łatwa { background: rgba(22, 199, 132, 0.2); color: var(--success); }
     .trudność-średnia { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
     .trudność-trudna { background: rgba(239, 68, 68, 0.2); color: var(--error); }
-    .misja-opis { color: var(--text-secondary); margin-bottom: var(--spacing-md); }
-    .misja-postęp { margin-bottom: var(--spacing-md); }
+    .misja-opis { color: var(--text-secondary); margin-bottom: var(--space-md); }
+    .misja-postęp { margin-bottom: var(--space-md); }
     .postęp-label { font-size: 0.9rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
     .postęp-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
     .postęp-fill { height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--gold-accent)); }
     .misja-xp { font-size: 0.9rem; font-weight: 600; color: var(--gold-primary); }
-    .przyciski-misji { display: flex; gap: var(--spacing-md); }
-    .btn-start { padding: var(--spacing-md) var(--spacing-lg); background: var(--gold-primary); color: #000; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; flex: 1; transition: all 0.2s; }
+    .przyciski-misji { display: flex; gap: var(--space-md); }
+    .btn-start { padding: var(--space-md) var(--spacing-lg); background: var(--gold-primary); color: #000; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; flex: 1; transition: all 0.2s; }
     .btn-start:hover { background: var(--gold-accent); }
     .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
@@ -66,7 +66,7 @@
             <div class="postęp-label"><span>Postęp</span><span>12/20 min</span></div>
             <div class="postęp-bar"><div class="postęp-fill" style="width: 60%;"></div></div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
             <div class="misja-xp">+50 XP</div>
           </div>
           <div class="przyciski-misji">
@@ -84,7 +84,7 @@
             <div class="postęp-label"><span>Postęp</span><span>0/30 min</span></div>
             <div class="postęp-bar"><div class="postęp-fill" style="width: 0%;"></div></div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
             <div class="misja-xp">+75 XP</div>
           </div>
           <div class="przyciski-misji">
@@ -102,7 +102,7 @@
             <div class="postęp-label"><span>Postęp</span><span>0/5 km</span></div>
             <div class="postęp-bar"><div class="postęp-fill" style="width: 0%;"></div></div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
             <div class="misja-xp">+100 XP</div>
           </div>
           <div class="przyciski-misji">

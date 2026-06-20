@@ -9,23 +9,23 @@
   <link rel="stylesheet" href="../../css/main.css"/>
   <style>
     .ekran { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
-    .pasek-górny { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-    .sekcja { padding: var(--spacing-lg); }
-    .banner { width: 100%; height: 120px; background: linear-gradient(135deg, var(--gold-primary), var(--gold-accent)); border-radius: 12px; margin-bottom: var(--spacing-lg); position: relative; }
-    .profil-karta { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: var(--spacing-xl); text-align: center; margin-bottom: var(--spacing-xl); }
-    .awatar-duży { width: 100px; height: 100px; border-radius: 50%; background: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto var(--spacing-lg) auto; border: 3px solid var(--gold-accent); }
-    .profil-nazwa { font-size: 1.3rem; font-weight: 600; margin-bottom: var(--spacing-sm); }
-    .profil-username { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--spacing-lg); }
-    .statystyki-siatka { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
-    .stat-karta { background: var(--bg-secondary); padding: var(--spacing-md); border-radius: 8px; }
+    .pasek-górny { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--space-lg); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .sekcja { padding: var(--space-lg); }
+    .banner { width: 100%; height: 120px; background: linear-gradient(135deg, var(--gold-primary), var(--gold-accent)); border-radius: 12px; margin-bottom: var(--space-lg); position: relative; }
+    .profil-karta { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: var(--space-xl); text-align: center; margin-bottom: var(--space-xl); }
+    .awatar-duży { width: 100px; height: 100px; border-radius: 50%; background: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto var(--space-lg) auto; border: 3px solid var(--gold-accent); }
+    .profil-nazwa { font-size: 1.3rem; font-weight: 600; margin-bottom: var(--space-sm); }
+    .profil-username { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-lg); }
+    .statystyki-siatka { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .stat-karta { background: var(--bg-secondary); padding: var(--space-md); border-radius: 8px; }
     .stat-wartosc { font-size: 1.5rem; font-weight: 700; color: var(--gold-primary); }
     .stat-etykieta { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-    .bio { color: var(--text-secondary); margin: var(--spacing-lg) 0; line-height: 1.6; }
-    .przycisk-akcja { width: 100%; padding: var(--spacing-md); margin-bottom: var(--spacing-md); background: var(--gold-primary); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .bio { color: var(--text-secondary); margin: var(--space-lg) 0; line-height: 1.6; }
+    .przycisk-akcja { width: 100%; padding: var(--space-md); margin-bottom: var(--space-md); background: var(--gold-primary); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .przycisk-akcja:hover { background: var(--gold-accent); }
-    .sekcja-podtytył { color: var(--gold-primary); font-weight: 600; margin-bottom: var(--spacing-lg); font-size: 1.1rem; }
-    .lista-elementów { display: flex; flex-direction: column; gap: var(--spacing-md); }
-    .element-listy { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); }
+    .sekcja-podtytył { color: var(--gold-primary); font-weight: 600; margin-bottom: var(--space-lg); font-size: 1.1rem; }
+    .lista-elementów { display: flex; flex-direction: column; gap: var(--space-md); }
+    .element-listy { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); }
     .element-awatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-primary); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 600; }
   </style>
 </head>
@@ -43,7 +43,7 @@
         <div class="profil-nazwa">Twoja Nazwa</div>
         <div class="profil-username">@twojanazwa</div>
 
-        <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin: var(--spacing-lg) 0;"></div>
+        <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin: var(--space-lg) 0;"></div>
 
         <div class="statystyki-siatka">
           <div class="stat-karta">
@@ -60,7 +60,7 @@
           </div>
         </div>
 
-        <div style="width: 100%; padding: var(--spacing-lg); background: var(--bg-secondary); border-radius: 8px; margin-bottom: var(--spacing-lg);">
+        <div style="width: 100%; padding: var(--space-lg); background: var(--bg-secondary); border-radius: 8px; margin-bottom: var(--space-lg);">
           <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Postęp do następnego poziomu</div>
           <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
             <div style="width: 65%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--gold-accent));"></div>
@@ -78,16 +78,16 @@
 
     <section class="sekcja">
       <h3 class="sekcja-podtytył">Osiągnięcia</h3>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md);">
-        <div style="text-align: center; padding: var(--spacing-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border);">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md);">
+        <div style="text-align: center; padding: var(--space-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border);">
           <div style="font-size: 2rem; margin-bottom: 4px;">🎯</div>
           <div style="font-size: 0.8rem; font-weight: 600;">Cel Osiągnięty</div>
         </div>
-        <div style="text-align: center; padding: var(--spacing-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); opacity: 0.5;">
+        <div style="text-align: center; padding: var(--space-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); opacity: 0.5;">
           <div style="font-size: 2rem; margin-bottom: 4px;">🔒</div>
           <div style="font-size: 0.8rem; font-weight: 600;">Zablokowane</div>
         </div>
-        <div style="text-align: center; padding: var(--spacing-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border);">
+        <div style="text-align: center; padding: var(--space-lg); background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border);">
           <div style="font-size: 2rem; margin-bottom: 4px;">🔥</div>
           <div style="font-size: 0.8rem; font-weight: 600;">Seria 7 dni</div>
         </div>
