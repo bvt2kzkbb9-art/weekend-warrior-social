@@ -1,3 +1,2 @@
 # weekend-warrior-social
-
-Project initialized
+weekend-warrior-social
