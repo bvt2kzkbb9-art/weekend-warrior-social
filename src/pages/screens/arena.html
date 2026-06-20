@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Arena — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="manifest" href="../../manifest.json"/>
+  <link rel="stylesheet" href="../../css/main.css"/>
+  <style>
+    .ekran {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 80px;
+    }
+
+    .arena-hero {
+      background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-accent) 100%);
+      color: #000;
+      padding: var(--space-2xl);
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+    }
+
+    .arena-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: var(--space-md);
+      font-weight: 700;
+    }
+
+    .arena-hero p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .sekcja {
+      padding: var(--spacing-lg);
+    }
+
+    .sekcja-tytuł {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-lg);
+      color: var(--gold-primary);
+      padding-left: var(--spacing-lg);
+      border-left: 3px solid var(--gold-primary);
+    }
+
+    .karty-siatka {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .karta-wyzwania {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: var(--spacing-lg);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .karta-wyzwania:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-primary);
+      box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .karta-emoji {
+      font-size: 3rem;
+      margin-bottom: var(--space-md);
+    }
+
+    .karta-nazwa {
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      font-size: 0.95rem;
+    }
+
+    .karta-xp {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .przyciski-szybkie {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .przycisk-główny {
+      background: var(--gold-primary);
+      color: #000;
+      padding: var(--space-xl) var(--spacing-lg);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+    }
+
+    .przycisk-główny:hover {
+      background: var(--gold-accent);
+      transform: translateY(-2px);
+    }
+
+    .ranking-górny {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .pozycja-ranking {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md) var(--spacing-lg);
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .pozycja-numer {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+      min-width: 40px;
+    }
+
+    .pozycja-info {
+      flex: 1;
+      margin-left: var(--spacing-lg);
+    }
+
+    .pozycja-nazwa {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .pozycja-punkty {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .pozycja-ilość {
+      text-align: right;
+      font-weight: 600;
+      color: var(--gold-primary);
+    }
+
+    .pasek-górny {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: var(--spacing-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo-aplikacji {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+    }
+
+    .akcje-górne {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .przycisk-akcja {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .przycisk-akcja:hover {
+      border-color: var(--gold-primary);
+    }
+
+    .przycisk-akcja svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .arena-hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .przyciski-szybkie {
+        grid-template-columns: 1fr;
+      }
+
+      .karty-siatka {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Pasek Górny -->
+  <header class="pasek-górny">
+    <div class="logo-aplikacji">⚔ WWS</div>
+    <div class="akcje-górne">
+      <button class="przycisk-akcja" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+      <button class="przycisk-akcja" aria-label="Profil" onclick="window.location.href='bohater.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Główna Zawartość -->
+  <main class="ekran">
+    <!-- Hero Section -->
+    <section class="arena-hero">
+      <h1>Arena Wojowników</h1>
+      <p>Dołącz. Walcz. Zwyciężaj.</p>
+    </section>
+
+    <!-- Twoja Seria -->
+    <section class="sekcja">
+      <h2 class="sekcja-tytuł">Twoja Seria</h2>
+      <div class="karta-wyzwania" style="text-align: left; padding: var(--space-xl);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 600; margin-bottom: var(--space-sm);">🔥 Seria aktywności</div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">14 dni z rzędu</div>
+          </div>
+          <div style="font-size: 2.5rem; color: var(--gold-primary); font-weight: 700;">14</div>
+        </div>
+        <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; margin-top: var(--spacing-lg); overflow: hidden;">
+          <div style="width: 70%; height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--gold-accent));"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Aktywne Wyzwania -->
+    <section class="sekcja">
+      <h2 class="sekcja-tytuł">Aktywne Wyzwania</h2>
+      <div class="karty-siatka">
+        <div class="karta-wyzwania">
+          <div class="karta-emoji">💪</div>
+          <div class="karta-nazwa">Ćwiczenia</div>
+          <div class="karta-xp">+50 XP</div>
+        </div>
+        <div class="karta-wyzwania">
+          <div class="karta-emoji">📚</div>
+          <div class="karta-nazwa">Nauka</div>
+          <div class="karta-xp">+75 XP</div>
+        </div>
+        <div class="karta-wyzwania">
+          <div class="karta-emoji">🏃</div>
+          <div class="karta-nazwa">Bieganie</div>
+          <div class="karta-xp">+40 XP</div>
+        </div>
+        <div class="karta-wyzwania">
+          <div class="karta-emoji">🎵</div>
+          <div class="karta-nazwa">Muzyka</div>
+          <div class="karta-xp">+30 XP</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ranking Górnych Wojowników -->
+    <section class="sekcja">
+      <h2 class="sekcja-tytuł">Ranking Górnych Wojowników</h2>
+      <div class="ranking-górny">
+        <div class="pozycja-ranking">
+          <div class="pozycja-numer">🥇</div>
+          <div class="pozycja-info">
+            <div class="pozycja-nazwa">LegendaryWolf</div>
+            <div class="pozycja-punkty">Legenda • Poziom 45</div>
+          </div>
+          <div class="pozycja-ilość">28500 pkt</div>
+        </div>
+        <div class="pozycja-ranking">
+          <div class="pozycja-numer">🥈</div>
+          <div class="pozycja-info">
+            <div class="pozycja-nazwa">IcebreakKing</div>
+            <div class="pozycja-punkty">Mistrz • Poziom 42</div>
+          </div>
+          <div class="pozycja-ilość">26200 pkt</div>
+        </div>
+        <div class="pozycja-ranking">
+          <div class="pozycja-numer">🥉</div>
+          <div class="pozycja-info">
+            <div class="pozycja-nazwa">PhoenixRising</div>
+            <div class="pozycja-punkty">Mistrz • Poziom 39</div>
+          </div>
+          <div class="pozycja-ilość">24100 pkt</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Nawigacja Dolna -->
+  <nav class="bottom-nav" aria-label="Główna nawigacja">
+    <a href="arena.html" class="nav-item aktywny" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+      </svg>
+      <span>Arena</span>
+    </a>
+    <a href="kroniki.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="misje.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+      </svg>
+      <span>Misje</span>
+    </a>
+    <a href="sala-chwaly.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 9H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V11a2 2 0 00-2-2h-2"/>
+        <path d="M6 9V7a2 2 0 012-2h8a2 2 0 012 2v2"/>
+        <line x1="6" y1="13" x2="18" y2="13"/>
+        <line x1="9" y1="17" x2="9" y2="21"/>
+        <line x1="15" y1="17" x2="15" y2="21"/>
+      </svg>
+      <span>Sala Chwały</span>
+    </a>
+    <a href="bohater.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+
+    // Inicjalizacja aplikacji
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('✅ Ekran Arena załadowany');
+    });
+  </script>
+</body>
+</html>

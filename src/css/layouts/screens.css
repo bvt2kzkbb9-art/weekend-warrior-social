@@ -1,0 +1,18 @@
+/* Screen Layout Styles */
+
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+}
+
+.screen-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}

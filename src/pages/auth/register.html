@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Rejestracja — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="../../css/main.css"/>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-form-wrap">
+      <div class="auth-card">
+        <!-- Nagłówek -->
+        <div class="auth-header">
+          <div class="auth-logo">⚔️</div>
+          <h1 class="auth-title">Dołącz do Areny</h1>
+          <p class="auth-subtitle">Stwórz konto wojownika</p>
+        </div>
+
+        <!-- Formularz Rejestracji -->
+        <form class="auth-form" id="register-form">
+          <!-- Wiadomość o błędzie -->
+          <div id="error-msg" class="auth-error"></div>
+
+          <!-- Pole Imienia Wojownika -->
+          <div class="form-group">
+            <label class="form-label" for="display-name">Imię Wojownika</label>
+            <input
+              type="text"
+              id="display-name"
+              class="form-input"
+              placeholder="Twoje imię wojownika"
+              autocomplete="off"
+              minlength="3"
+              maxlength="20"
+              required
+            />
+            <span class="form-error"></span>
+          </div>
+
+          <!-- Pole Email -->
+          <div class="form-group">
+            <label class="form-label" for="email">Adres Email</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              placeholder="wojownik@arena.com"
+              autocomplete="email"
+              required
+            />
+            <span class="form-error"></span>
+          </div>
+
+          <!-- Pole Hasła -->
+          <div class="form-group">
+            <label class="form-label" for="password">Hasło</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="password"
+                class="form-input"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                minlength="6"
+                required
+              />
+              <button type="button" class="toggle-pw-btn" id="toggle-password" aria-label="Pokaż hasło">
+                👁
+              </button>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
+              <span class="strength-text" id="strength-label"></span>
+            </div>
+            <span class="form-error"></span>
+          </div>
+
+          <!-- Potwierdzenie Hasła -->
+          <div class="form-group">
+            <label class="form-label" for="confirm-password">Potwierdź Hasło</label>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="confirm-password"
+                class="form-input"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                required
+              />
+              <button type="button" class="toggle-pw-btn" id="toggle-confirm" aria-label="Pokaż hasło">
+                👁
+              </button>
+            </div>
+            <span class="form-error"></span>
+          </div>
+
+          <!-- Checkbox Regulaminu -->
+          <div class="form-checkbox">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">
+              Zgadzam się z
+              <a href="#regulamin" target="_blank">Regulaminem Areny</a>
+              i
+              <a href="#prywatnosc" target="_blank">Polityką Prywatności</a>
+            </label>
+          </div>
+
+          <!-- Przycisk Rejestracji -->
+          <button type="submit" id="register-btn" class="auth-submit">
+            Stwórz Konto
+          </button>
+
+          <!-- Separator -->
+          <div class="auth-divider">
+            <span>lub zarejestruj się przez</span>
+          </div>
+
+          <!-- Social Auth -->
+          <div class="social-auth">
+            <button type="button" class="social-btn" id="google-btn" title="Zarejestruj się przez Google">
+              <span class="social-icon">G</span>
+              <span>Google</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Link Stopki -->
+        <div class="auth-footer">
+          Masz już konto?
+          <a href="login.html">Zaloguj się tutaj</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skrypty -->
+  <script type="module">
+    import { initRegisterForm, redirectIfLogged } from '../../js/core/auth.js';
+
+    redirectIfLogged();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initRegisterForm();
+    });
+  </script>
+</body>
+</html>
