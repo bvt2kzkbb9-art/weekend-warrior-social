@@ -23,7 +23,7 @@
  *   injectNotifBell(uid)   — dzwonek + dropdown w nawigacji (index.html)
  */
 
-import { db, COL, serverTimestamp } from "./firebase.js";
+import { db, COL, serverTimestamp } from "../core/firebase.js";
 import {
   collection, addDoc, query, where, getDocs, updateDoc, doc,
   onSnapshot, orderBy, limit, deleteDoc, writeBatch,
