@@ -2,128 +2,98 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Weekend Warrior Social - Challenge yourself and conquer the arena">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekend Warrior Social</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="src/styles/base.css">
-  <link rel="stylesheet" href="src/styles/theme.css">
-  <link rel="stylesheet" href="src/styles/layout.css">
-  <link rel="stylesheet" href="src/styles/components.css">
-  <link rel="stylesheet" href="src/styles/pages.css">
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-  </style>
+  <link rel="stylesheet" href="src/styles/wireframe.css">
 </head>
 <body>
   <div class="app-layout">
-    <!-- Top Navigation -->
+    <!-- Top bar -->
     <header class="topbar">
-      <div class="topbar-logo">⚔ WWS</div>
+      <div class="topbar-logo">WWS</div>
       <div class="topbar-actions">
-        <button class="topbar-action-btn" aria-label="Notifications" onclick="navigateTo('#notifications')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-        </button>
-        <button class="topbar-action-btn" aria-label="Settings" onclick="navigateTo('#settings')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
-          </svg>
-        </button>
+        <button class="topbar-action-btn" aria-label="Notifications"></button>
+        <button class="topbar-action-btn" aria-label="Settings"></button>
       </div>
     </header>
 
-    <!-- Main Content Area -->
+    <!-- Main content -->
     <main class="main"></main>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav" aria-label="Main navigation">
+    <!-- Bottom navigation -->
+    <nav class="bottom-nav">
       <a href="#/" class="nav-item" data-route="/">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"></path>
-        </svg>
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/></svg>
         <span>Arena</span>
       </a>
-      <a href="#/chronicles" class="nav-item" data-route="/chronicles">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
+      <a href="#/kroniki" class="nav-item" data-route="/kroniki">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="20"/></svg>
         <span>Kroniki</span>
       </a>
-      <a href="#/missions" class="nav-item" data-route="/missions">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
-        </svg>
+      <a href="#/misje" class="nav-item" data-route="/misje">
+        <svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="14"/></svg>
         <span>Misje</span>
       </a>
-      <a href="#/leaderboard" class="nav-item" data-route="/leaderboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 9H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V11a2 2 0 00-2-2h-2"></path>
-          <path d="M6 9V7a2 2 0 012-2h8a2 2 0 012 2v2"></path>
-          <line x1="6" y1="13" x2="18" y2="13"></line>
-          <line x1="9" y1="17" x2="9" y2="21"></line>
-          <line x1="15" y1="17" x2="15" y2="21"></line>
-        </svg>
+      <a href="#/chwala" class="nav-item" data-route="/chwala">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg>
         <span>Chwała</span>
       </a>
-      <a href="#/profile" class="nav-item" data-route="/profile">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
+      <a href="#/bohater" class="nav-item" data-route="/bohater">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><rect x="4" y="14" width="16" height="8"/></svg>
         <span>Bohater</span>
+      </a>
+      <a href="#/wiadomosci" class="nav-item" data-route="/wiadomosci">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16"/></svg>
+        <span>Wiadomości</span>
+      </a>
+      <a href="#/czat" class="nav-item" data-route="/czat">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="10" height="10"/><rect x="12" y="12" width="10" height="10"/></svg>
+        <span>Czat</span>
+      </a>
+      <a href="#/ustawienia" class="nav-item" data-route="/ustawienia">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><rect x="10" y="2" width="4" height="4"/></svg>
+        <span>Ustawienia</span>
       </a>
     </nav>
   </div>
 
   <script type="module">
-    import { checkAuth, logout } from './src/js/core/auth.js';
+    import { checkAuth } from './src/js/core/auth.js';
     import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
-    import { renderArena } from './src/js/pages/arena.js';
-    import { renderChronicles } from './src/js/pages/chronicles.js';
-    import { renderMissions } from './src/js/pages/missions.js';
-    import { renderLeaderboard } from './src/js/pages/leaderboard.js';
-    import { renderProfile } from './src/js/pages/profile.js';
-    import { renderSettings } from './src/js/pages/settings.js';
-    import { renderNotifications } from './src/js/pages/notifications.js';
+    import { renderArena } from './src/arena/arena.js';
+    import { renderKroniki } from './src/kroniki/kroniki.js';
+    import { renderMisje } from './src/misje/misje.js';
+    import { renderChwala } from './src/chwala/chwala.js';
+    import { renderBohater } from './src/bohater/bohater.js';
+    import { renderWiadomosci } from './src/wiadomosci/wiadomosci.js';
+    import { renderCzat } from './src/wiadomosci/czat.js';
+    import { renderUstawienia } from './src/ustawienia/ustawienia.js';
 
-    // Make navigateTo global
     window.navigateTo = navigateTo;
 
     // Define routes
     defineRoute('/', renderArena);
-    defineRoute('/chronicles', renderChronicles);
-    defineRoute('/missions', renderMissions);
-    defineRoute('/leaderboard', renderLeaderboard);
-    defineRoute('/profile', renderProfile);
-    defineRoute('/settings', renderSettings);
-    defineRoute('/notifications', renderNotifications);
+    defineRoute('/kroniki', renderKroniki);
+    defineRoute('/misje', renderMisje);
+    defineRoute('/chwala', renderChwala);
+    defineRoute('/bohater', renderBohater);
+    defineRoute('/wiadomosci', renderWiadomosci);
+    defineRoute('/czat', renderCzat);
+    defineRoute('/ustawienia', renderUstawienia);
 
-    // Check authentication
+    // Check auth
     checkAuth((user, userData) => {
       if (!user) {
         window.location.href = '/login.html';
         return;
       }
 
-      // Initialize router after auth check
-      initRouter();
-
-      // Set up logout button
       window.logout = async () => {
+        const { logout } = await import('./src/js/core/auth.js');
         await logout();
       };
+
+      initRouter();
     });
   </script>
 </body>

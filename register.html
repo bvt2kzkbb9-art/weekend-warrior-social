@@ -2,81 +2,64 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <title>Rejestracja — Weekend Warrior Social</title>
-  <link rel="stylesheet" href="src/styles/base.css">
-  <link rel="stylesheet" href="src/styles/theme.css">
-  <link rel="stylesheet" href="src/styles/pages.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rejestracja</title>
+  <link rel="stylesheet" href="src/styles/wireframe.css">
 </head>
 <body>
   <div class="auth-container">
     <div class="auth-card">
-      <h1>Stwórz konto</h1>
-      <p>Dołącz do Areny Wojowników</p>
+      <h1>Rejestracja</h1>
+      <p>Stwórz nowe konto</p>
 
       <form class="auth-form" id="register-form">
         <div class="form-group">
-          <label for="display-name">Imię Wojownika</label>
-          <input type="text" id="display-name" placeholder="Twoja nazwa" required>
+          <label>Imię</label>
+          <input type="text" id="display-name" required>
         </div>
 
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="twoj@email.com" required>
+          <label>Email</label>
+          <input type="email" id="email" required>
         </div>
 
         <div class="form-group">
-          <label for="password">Hasło</label>
-          <div style="position: relative;">
-            <input type="password" id="password" placeholder="Min. 6 znaków" required>
-            <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 10px; background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 0;">
-              👁️
-            </button>
+          <label>Hasło (min 6 znaków)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="password" required style="flex: 1;">
+            <button type="button" id="toggle-password" class="btn" style="width: auto;">👁️</button>
           </div>
-          <div class="strength-bars">
-            <div class="strength-bar"></div>
-            <div class="strength-bar"></div>
-            <div class="strength-bar"></div>
+          <div style="display: flex; gap: 4px; margin-top: 4px;">
+            <div class="strength-bar" style="flex: 1;"></div>
+            <div class="strength-bar" style="flex: 1;"></div>
+            <div class="strength-bar" style="flex: 1;"></div>
           </div>
-          <div class="strength-label"></div>
+          <div id="strength-label" style="font-size: 11px; color: #666; margin-top: 4px;"></div>
         </div>
 
         <div class="form-group">
-          <label for="confirm-password">Potwierdź hasło</label>
-          <div style="position: relative;">
-            <input type="password" id="confirm-password" placeholder="Powtórz hasło" required>
-            <button type="button" id="toggle-confirm" style="position: absolute; right: 10px; top: 10px; background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 0;">
-              👁️
-            </button>
+          <label>Potwierdź hasło</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="confirm-password" required style="flex: 1;">
+            <button type="button" id="toggle-confirm" class="btn" style="width: auto;">👁️</button>
           </div>
         </div>
 
         <div class="form-group">
-          <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer;">
+          <label>
             <input type="checkbox" id="terms" required>
-            <span>Akceptuję <a href="#" style="color: var(--primary);">Regulamin</a></span>
+            Akceptuję warunki
           </label>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-full" id="register-btn">
-          Stwórz konto
-        </button>
+        <button type="submit" class="btn" id="register-btn">Stwórz konto</button>
       </form>
 
-      <div class="auth-divider">LUB</div>
+      <div style="margin-top: 12px; border-top: 1px solid #000; padding-top: 12px;">
+        <button class="btn" style="width: 100%; margin-bottom: 8px;" id="google-btn">Zaloguj przez Google</button>
+      </div>
 
-      <button class="btn btn-secondary btn-full" id="google-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path>
-        </svg>
-        Stwórz konto przez Google
-      </button>
-
-      <div class="auth-links">
+      <div style="margin-top: 12px; text-align: center; font-size: 12px;">
         <a href="login.html">Masz już konto? Zaloguj się</a>
       </div>
     </div>
@@ -84,7 +67,6 @@
 
   <script type="module">
     import { initRegisterForm, redirectIfLogged } from './src/js/core/auth.js';
-
     redirectIfLogged();
     initRegisterForm();
   </script>
