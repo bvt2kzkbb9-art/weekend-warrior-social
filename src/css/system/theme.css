@@ -250,6 +250,7 @@ nav.bottom-nav {
 
 .nav-item.active,
 .nav-item[aria-current="page"],
+.nav-item.aktywny,
 .nav-item-hero.active {
   color: var(--gold-primary);
 }
