@@ -209,7 +209,7 @@ export function checkAuth(callback) {
     }
   }, (err) => {
     console.error('[checkAuth] auth state error:', err.code);
-    window.location.href = '/login.html';
+    window.location.href = 'login.html';
   });
   return unsubscribe;
 }
@@ -217,7 +217,7 @@ export function checkAuth(callback) {
 export function redirectIfNotLogged(callback) {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      window.location.href = '/login.html';
+      window.location.href = 'login.html';
       return;
     }
 
@@ -226,7 +226,7 @@ export function redirectIfNotLogged(callback) {
       .then(userData => callback(user, userData || {}))
       .catch(err => {
         console.error('[redirectIfNotLogged] error:', err.code);
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
       });
   });
 }
@@ -421,7 +421,7 @@ export async function resetPassword(email) {
 export async function logout() {
   try {
     await signOut(auth);
-    window.location.href = "/login.html";
+    window.location.href = "login.html";
   } catch (err) {
     showToast("❌ Błąd wylogowania", "error");
     throw err;
@@ -430,7 +430,7 @@ export async function logout() {
 
 export function handleAuthUI(user, userData) {
   if (!user) {
-    window.location.href = "/login.html";
+    window.location.href = "login.html";
     return;
   }
   const userNameEl = document.getElementById("user-name");
@@ -452,7 +452,7 @@ export function handleAuthUI(user, userData) {
 
 export function redirectIfLogged() {
   onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = "/";
+    if (user) window.location.href = "index.html";
   });
 }
 
@@ -508,7 +508,7 @@ export function initLoginForm() {
         console.log('[initLoginForm] Calling loginWithEmail...');
         await loginWithEmail(email, password);
         console.log('[initLoginForm] Login successful, redirecting to home...');
-        window.location.href = "/";
+        window.location.href = "index.html";
       } catch (err) {
         console.error('[initLoginForm] Caught error in form submit:', err);
         const map = {
@@ -663,7 +663,7 @@ export function initRegisterForm() {
         console.log('[initRegisterForm] Calling registerWithEmail...', { email, name });
         await registerWithEmail(email, pass, name);
         console.log('[initRegisterForm] Registration successful, redirecting to home...');
-        window.location.href = "/";
+        window.location.href = "index.html";
       } catch (err) {
         console.error('[initRegisterForm] Caught error in form submit:', err);
         console.error('[initRegisterForm] Error Code:', err.code);
