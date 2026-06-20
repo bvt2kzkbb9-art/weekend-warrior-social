@@ -74,13 +74,15 @@ export async function ensureUserDoc(user) {
   if (!snap || !snap.exists()) {
     console.log('[ensureUserDoc] Creating new user doc...');
     const username = user.displayName || user.email.split("@")[0];
+
+    // Create clean document with ONLY new field names (no old fields)
     const userData = {
       uid: user.uid,
       email: user.email,
       username: username,
       xp: 0,
       level: 1,
-      rank: "Nowicjusz",
+      rank: "Rookie",
       streak: 0,
       online: true,
       createdAt: serverTimestamp(),
@@ -88,16 +90,21 @@ export async function ensureUserDoc(user) {
       lastSeen: serverTimestamp(),
     };
 
+    // Explicitly avoid old field names to prevent data corruption
+    // DO NOT INCLUDE: points, displayName, photoURL, bannerURL, bio, lastLoginAt, avatar
+
     console.log('[ensureUserDoc] User data prepared:', {
       uid: userData.uid,
       email: userData.email,
       username: userData.username,
-      xp: userData.xp
+      xp: userData.xp,
+      level: userData.level,
+      rank: userData.rank
     });
 
     try {
       await setDoc(ref, userData);
-      console.log('[ensureUserDoc] User doc created successfully in Firestore');
+      console.log('[ensureUserDoc] User doc created successfully in Firestore (new structure)');
       return userData;
     } catch (err) {
       console.error('[ensureUserDoc] Error creating user doc:', err);
@@ -121,29 +128,47 @@ export async function migrateUserDoc(user) {
   }
 
   const data = snap.data();
-  const needsMigration = data.photoURL !== undefined || data.points !== undefined || !data.avatar || !data.xp;
+  const needsMigration = data.photoURL !== undefined || data.points !== undefined || !data.avatar || !data.xp || data.displayName !== undefined;
 
   if (needsMigration) {
+    console.log('[migrateUserDoc] Detected migration needed for uid:', user.uid);
+
+    // Convert points to xp if needed
+    const xpValue = data.xp !== undefined ? data.xp : (data.points || 0);
+
+    // Convert displayName to username if needed
+    const usernameValue = data.username || data.displayName || user.displayName || user.email.split("@")[0];
+
     const migratedData = {
-      ...data,
-      xp: data.xp !== undefined ? data.xp : (data.points || 0),
-      rank: data.rank || "Nowicjusz",
+      uid: data.uid || user.uid,
+      email: data.email || user.email,
+      username: usernameValue,
+      xp: xpValue,
+      level: Math.floor(xpValue / 500) + 1,
+      rank: data.rank || (xpValue >= 10000 ? "Legend" : xpValue >= 2000 ? "Champion" : xpValue >= 500 ? "Warrior" : "Rookie"),
       streak: data.streak !== undefined ? data.streak : 0,
       online: data.online !== undefined ? data.online : true,
-      updatedAt: data.updatedAt ? data.updatedAt : serverTimestamp(),
-      lastSeen: data.lastSeen ? data.lastSeen : serverTimestamp(),
+      createdAt: data.createdAt || serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      lastSeen: data.lastSeen || serverTimestamp(),
     };
 
-    delete migratedData.photoURL;
-    delete migratedData.points;
-    delete migratedData.displayName;
-    delete migratedData.bannerURL;
-    delete migratedData.bio;
-    delete migratedData.lastLoginAt;
-    delete migratedData.avatar;
+    console.log('[migrateUserDoc] Clean data prepared:', {
+      uid: migratedData.uid,
+      username: migratedData.username,
+      xp: migratedData.xp,
+      level: migratedData.level,
+      rank: migratedData.rank
+    });
 
-    await updateDoc(ref, migratedData);
-    return migratedData;
+    try {
+      await updateDoc(ref, migratedData);
+      console.log('[migrateUserDoc] Migration completed successfully');
+      return migratedData;
+    } catch (err) {
+      console.error('[migrateUserDoc] Migration failed:', err.code, err.message);
+      return data;
+    }
   }
 
   return data;
