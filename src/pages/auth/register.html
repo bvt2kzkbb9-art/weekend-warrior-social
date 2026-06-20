@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#080808"/>
-  <title>Register — Weekend Warrior Social</title>
+  <title>Rejestracja — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="../../css/main.css"/>
@@ -13,27 +13,27 @@
   <div class="auth-container">
     <div class="auth-form-wrap">
       <div class="auth-card">
-        <!-- Header -->
+        <!-- Nagłówek -->
         <div class="auth-header">
-          <div class="auth-logo">⚔</div>
-          <h1 class="auth-title">Join the Arena</h1>
-          <p class="auth-subtitle">Create your warrior account</p>
+          <div class="auth-logo">⚔️</div>
+          <h1 class="auth-title">Dołącz do Areny</h1>
+          <p class="auth-subtitle">Stwórz konto wojownika</p>
         </div>
 
-        <!-- Register Form -->
+        <!-- Formularz Rejestracji -->
         <form class="auth-form" id="register-form">
-          <!-- Error Message -->
+          <!-- Wiadomość o błędzie -->
           <div id="error-msg" class="auth-error"></div>
 
-          <!-- Username Field -->
+          <!-- Pole Imienia Wojownika -->
           <div class="form-group">
-            <label class="form-label" for="username">Warrior Name</label>
+            <label class="form-label" for="display-name">Imię Wojownika</label>
             <input
               type="text"
-              id="username"
+              id="display-name"
               class="form-input"
-              placeholder="Your warrior name"
-              autocomplete="username"
+              placeholder="Twoje imię wojownika"
+              autocomplete="off"
               minlength="3"
               maxlength="20"
               required
@@ -41,23 +41,23 @@
             <span class="form-error"></span>
           </div>
 
-          <!-- Email Field -->
+          <!-- Pole Email -->
           <div class="form-group">
-            <label class="form-label" for="email">Email Address</label>
+            <label class="form-label" for="email">Adres Email</label>
             <input
               type="email"
               id="email"
               class="form-input"
-              placeholder="warrior@arena.com"
+              placeholder="wojownik@arena.com"
               autocomplete="email"
               required
             />
             <span class="form-error"></span>
           </div>
 
-          <!-- Password Field -->
+          <!-- Pole Hasła -->
           <div class="form-group">
-            <label class="form-label" for="password">Password</label>
+            <label class="form-label" for="password">Hasło</label>
             <div class="input-wrap">
               <input
                 type="password"
@@ -65,85 +65,81 @@
                 class="form-input"
                 placeholder="••••••••"
                 autocomplete="new-password"
-                minlength="8"
+                minlength="6"
                 required
               />
-              <button type="button" class="toggle-pw-btn" data-target="password" aria-label="Show password">
+              <button type="button" class="toggle-pw-btn" id="toggle-password" aria-label="Pokaż hasło">
                 👁
               </button>
             </div>
             <div class="password-strength">
-              <div class="strength-bar">
-                <div class="strength-fill" id="strength-indicator"></div>
-              </div>
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
               <span class="strength-text" id="strength-label"></span>
             </div>
             <span class="form-error"></span>
           </div>
 
-          <!-- Confirm Password -->
+          <!-- Potwierdzenie Hasła -->
           <div class="form-group">
-            <label class="form-label" for="password-confirm">Confirm Password</label>
+            <label class="form-label" for="confirm-password">Potwierdź Hasło</label>
             <div class="input-wrap">
               <input
                 type="password"
-                id="password-confirm"
+                id="confirm-password"
                 class="form-input"
                 placeholder="••••••••"
                 autocomplete="new-password"
                 required
               />
-              <button type="button" class="toggle-pw-btn" data-target="password-confirm" aria-label="Show password">
+              <button type="button" class="toggle-pw-btn" id="toggle-confirm" aria-label="Pokaż hasło">
                 👁
               </button>
             </div>
             <span class="form-error"></span>
           </div>
 
-          <!-- Terms Checkbox -->
+          <!-- Checkbox Regulaminu -->
           <div class="form-checkbox">
             <input type="checkbox" id="terms" name="terms" required>
             <label for="terms">
-              I agree to the
-              <a href="terms.html" target="_blank">Terms of Service</a>
-              and
-              <a href="#privacy" target="_blank">Privacy Policy</a>
+              Zgadzam się z
+              <a href="#regulamin" target="_blank">Regulaminem Areny</a>
+              i
+              <a href="#prywatnosc" target="_blank">Polityką Prywatności</a>
             </label>
           </div>
 
-          <!-- Submit Button -->
+          <!-- Przycisk Rejestracji -->
           <button type="submit" id="register-btn" class="auth-submit">
-            Create Account
+            Stwórz Konto
           </button>
 
-          <!-- Divider -->
+          <!-- Separator -->
           <div class="auth-divider">
-            <span>or sign up with</span>
+            <span>lub zarejestruj się przez</span>
           </div>
 
           <!-- Social Auth -->
           <div class="social-auth">
-            <button type="button" class="social-btn" id="google-btn" title="Sign up with Google">
+            <button type="button" class="social-btn" id="google-btn" title="Zarejestruj się przez Google">
               <span class="social-icon">G</span>
               <span>Google</span>
-            </button>
-            <button type="button" class="social-btn" id="discord-btn" title="Sign up with Discord">
-              <span class="social-icon">💬</span>
-              <span>Discord</span>
             </button>
           </div>
         </form>
 
-        <!-- Footer Link -->
+        <!-- Link Stopki -->
         <div class="auth-footer">
-          Already have an account?
-          <a href="login.html">Sign in here</a>
+          Masz już konto?
+          <a href="login.html">Zaloguj się tutaj</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Skrypty -->
   <script type="module">
     import { initRegisterForm, redirectIfLogged } from '../../js/core/auth.js';
 
@@ -151,49 +147,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initRegisterForm();
-
-      // Password strength indicator
-      const passwordInput = document.getElementById('password');
-      const strengthIndicator = document.getElementById('strength-indicator');
-      const strengthLabel = document.getElementById('strength-label');
-
-      function updateStrength() {
-        const pwd = passwordInput.value;
-        let strength = 0;
-
-        if (pwd.length >= 8) strength++;
-        if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
-        if (/[0-9]/.test(pwd)) strength++;
-        if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
-
-        strengthIndicator.className = 'strength-fill';
-        if (strength === 0) {
-          strengthIndicator.classList.add('weak');
-          strengthLabel.textContent = '';
-        } else if (strength <= 2) {
-          strengthIndicator.classList.add('weak');
-          strengthLabel.textContent = 'Weak password';
-        } else if (strength === 3) {
-          strengthIndicator.classList.add('medium');
-          strengthLabel.textContent = 'Good password';
-        } else {
-          strengthIndicator.classList.add('strong');
-          strengthLabel.textContent = 'Strong password';
-        }
-      }
-
-      passwordInput.addEventListener('input', updateStrength);
-
-      // Password toggle buttons
-      document.querySelectorAll('.toggle-pw-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const targetId = btn.dataset.target;
-          const input = document.getElementById(targetId);
-          input.type = input.type === 'password' ? 'text' : 'password';
-          btn.textContent = input.type === 'password' ? '👁' : '👁‍🗨';
-        });
-      });
     });
   </script>
 </body>
