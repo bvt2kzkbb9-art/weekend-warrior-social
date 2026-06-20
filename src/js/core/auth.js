@@ -52,11 +52,27 @@ function clearFieldError(input) {
 }
 
 export async function ensureUserDoc(user) {
-  if (!user) return null;
+  if (!user) {
+    console.error('[ensureUserDoc] User is null or undefined');
+    return null;
+  }
+
+  console.log('[ensureUserDoc] START:', { uid: user.uid, email: user.email });
+
   const ref = doc(db, COL.USERS, user.uid);
-  const snap = await getDoc(ref).catch(() => null);
+  console.log('[ensureUserDoc] Firestore ref created:', { collection: COL.USERS, docId: user.uid });
+
+  let snap = null;
+  try {
+    snap = await getDoc(ref);
+    console.log('[ensureUserDoc] User doc found:', { exists: snap.exists() });
+  } catch (err) {
+    console.error('[ensureUserDoc] Error reading user doc:', err);
+    snap = null;
+  }
 
   if (!snap || !snap.exists()) {
+    console.log('[ensureUserDoc] Creating new user doc...');
     const username = user.displayName || user.email.split("@")[0];
     const userData = {
       uid: user.uid,
@@ -71,9 +87,27 @@ export async function ensureUserDoc(user) {
       updatedAt: serverTimestamp(),
       lastSeen: serverTimestamp(),
     };
-    await setDoc(ref, userData);
-    return userData;
+
+    console.log('[ensureUserDoc] User data prepared:', {
+      uid: userData.uid,
+      email: userData.email,
+      username: userData.username,
+      xp: userData.xp
+    });
+
+    try {
+      await setDoc(ref, userData);
+      console.log('[ensureUserDoc] User doc created successfully in Firestore');
+      return userData;
+    } catch (err) {
+      console.error('[ensureUserDoc] Error creating user doc:', err);
+      console.error('[ensureUserDoc] Error Code:', err.code);
+      console.error('[ensureUserDoc] Error Message:', err.message);
+      throw err;
+    }
   }
+
+  console.log('[ensureUserDoc] User doc already exists, returning existing data');
   return snap.data();
 }
 
@@ -174,16 +208,35 @@ export function redirectIfNotLogged(callback) {
 
 export async function registerWithEmail(email, password, displayName) {
   try {
+    console.log('[registerWithEmail] START:', { email, displayName });
+    console.log('[registerWithEmail] Firebase Auth instance:', { authDomain: auth.config.authDomain, projectId: auth.config.projectId });
+
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
+    console.log('[registerWithEmail] User created:', { uid: user.uid, email: user.email });
+
     await updateProfile(user, { displayName });
+    console.log('[registerWithEmail] Profile updated:', { uid: user.uid, displayName });
+
     await ensureUserDoc(user);
+    console.log('[registerWithEmail] User doc created in Firestore:', { uid: user.uid });
+
     showToast("✅ Konto utworzone!", "success");
     return user;
   } catch (err) {
+    console.error('[registerWithEmail] FULL ERROR:', err);
+    console.error('[registerWithEmail] Error Code:', err.code);
+    console.error('[registerWithEmail] Error Message:', err.message);
+    console.error('[registerWithEmail] Error Stack:', err.stack);
+
     let msg = "Błąd rejestracji";
     if (err.code === "auth/email-already-in-use") msg = "Email już w użyciu";
     else if (err.code === "auth/weak-password") msg = "Hasło za słabe (min. 6 znaków)";
     else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
+    else if (err.code === "auth/network-request-failed") msg = "Brak połączenia z siecią";
+    else if (err.code === "auth/operation-not-allowed") msg = "Rejestracja wyłączona w Firebase";
+    else if (err.code === "auth/operation-not-supported-in-this-environment") msg = "Operacja nie wspierana w tym środowisku";
+
+    console.error('[registerWithEmail] Mapped error message:', msg);
     showToast(`❌ ${msg}`, "error");
     throw err;
   }
@@ -191,16 +244,36 @@ export async function registerWithEmail(email, password, displayName) {
 
 export async function loginWithEmail(email, password) {
   try {
+    console.log('[loginWithEmail] START:', { email });
+    console.log('[loginWithEmail] Firebase Auth instance:', { authDomain: auth.config.authDomain, projectId: auth.config.projectId });
+
     const { user } = await signInWithEmailAndPassword(auth, email, password);
+    console.log('[loginWithEmail] User signed in:', { uid: user.uid, email: user.email });
+
     await migrateUserDoc(user);
+    console.log('[loginWithEmail] User doc migrated:', { uid: user.uid });
+
     await updateLastSeen(user.uid);
+    console.log('[loginWithEmail] Last seen updated:', { uid: user.uid });
+
     showToast("✅ Zalogowano!", "success");
     return user;
   } catch (err) {
+    console.error('[loginWithEmail] FULL ERROR:', err);
+    console.error('[loginWithEmail] Error Code:', err.code);
+    console.error('[loginWithEmail] Error Message:', err.message);
+    console.error('[loginWithEmail] Error Stack:', err.stack);
+
     let msg = "Błąd logowania";
     if (err.code === "auth/user-not-found") msg = "Użytkownik nie istnieje";
     else if (err.code === "auth/wrong-password") msg = "Niepoprawne hasło";
     else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
+    else if (err.code === "auth/network-request-failed") msg = "Brak połączenia z siecią";
+    else if (err.code === "auth/too-many-requests") msg = "Za dużo prób logowania. Spróbuj później.";
+    else if (err.code === "auth/invalid-credential") msg = "Niepoprawny email lub hasło";
+    else if (err.code === "auth/operation-not-allowed") msg = "Logowanie wyłączone w Firebase";
+
+    console.error('[loginWithEmail] Mapped error message:', msg);
     showToast(`❌ ${msg}`, "error");
     throw err;
   }
@@ -262,6 +335,8 @@ export function redirectIfLogged() {
 // ════════════════════════════════════════════════════════════
 
 export function initLoginForm() {
+  console.log('[initLoginForm] Initializing login form...');
+
   const form = document.getElementById("login-form");
   const emailIn = document.getElementById("email");
   const passIn = document.getElementById("password");
@@ -270,24 +345,46 @@ export function initLoginForm() {
   const forgotLink = document.getElementById("forgot-link");
   const errEl = document.getElementById("error-msg");
 
+  console.log('[initLoginForm] Form elements found:', {
+    form: !!form,
+    emailInput: !!emailIn,
+    passwordInput: !!passIn,
+    loginButton: !!loginBtn,
+    errorElement: !!errEl
+  });
+
   const showErr = (msg) => {
     if (!errEl) return;
     errEl.textContent = msg;
     errEl.style.display = msg ? "block" : "none";
+    console.log('[initLoginForm] Error displayed:', msg);
   };
 
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      console.log('[initLoginForm] Form submitted');
+
       showErr("");
       const email = emailIn?.value.trim();
       const password = passIn?.value;
-      if (!email || !password) { showErr("Podaj email i hasło."); return; }
+
+      console.log('[initLoginForm] Input values:', { email: !!email, password: !!password });
+
+      if (!email || !password) {
+        showErr("Podaj email i hasło.");
+        console.log('[initLoginForm] Validation failed: missing email or password');
+        return;
+      }
+
       setLoading(loginBtn, true);
       try {
+        console.log('[initLoginForm] Calling loginWithEmail...');
         await loginWithEmail(email, password);
+        console.log('[initLoginForm] Login successful, redirecting to home...');
         window.location.href = "/";
       } catch (err) {
+        console.error('[initLoginForm] Caught error in form submit:', err);
         const map = {
           "auth/user-not-found": "Nie znaleziono wojownika o tym adresie.",
           "auth/wrong-password": "Niepoprawne słowo mocy.",
@@ -296,20 +393,25 @@ export function initLoginForm() {
           "auth/too-many-requests": "Za dużo prób. Odczekaj chwilę.",
           "auth/network-request-failed": "Brak połączenia z siecią.",
         };
-        showErr(map[err.code] || "Błąd logowania: " + (err.code || err.message));
+        const displayMsg = map[err.code] || "Błąd logowania: " + (err.code || err.message);
+        showErr(displayMsg);
       } finally {
         setLoading(loginBtn, false);
       }
     });
   }
 
-
   if (forgotLink) {
     forgotLink.addEventListener("click", async (e) => {
       e.preventDefault();
       const email = emailIn?.value.trim() || prompt("Podaj adres email do resetu słowa mocy:");
       if (!email) return;
-      try { await resetPassword(email); } catch { /* toast pokazany */ }
+      try {
+        console.log('[initLoginForm] Resetting password for:', email);
+        await resetPassword(email);
+      } catch (err) {
+        console.error('[initLoginForm] Password reset error:', err);
+      }
     });
   }
 }
@@ -319,6 +421,8 @@ export function initLoginForm() {
 // ════════════════════════════════════════════════════════════
 
 export function initRegisterForm() {
+  console.log('[initRegisterForm] Initializing register form...');
+
   const form = document.getElementById("register-form");
   const nameIn = document.getElementById("display-name");
   const emailIn = document.getElementById("email");
@@ -329,6 +433,16 @@ export function initRegisterForm() {
   const googleBtn = document.getElementById("google-btn");
   const strengthLabel = document.getElementById("strength-label");
   const bars = Array.from(document.querySelectorAll(".strength-bar"));
+
+  console.log('[initRegisterForm] Form elements found:', {
+    form: !!form,
+    nameInput: !!nameIn,
+    emailInput: !!emailIn,
+    passwordInput: !!passIn,
+    confirmInput: !!confirmIn,
+    termsCheckbox: !!termsIn,
+    registerButton: !!registerBtn
+  });
 
   // ── Pokaż/ukryj hasło ──────────────────────────────────────
   const wireToggle = (btnId, input) => {
@@ -383,12 +497,23 @@ export function initRegisterForm() {
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      console.log('[initRegisterForm] Form submitted');
+
       [nameIn, emailIn, passIn, confirmIn].forEach(clearFieldError);
 
       const name = nameIn?.value.trim();
       const email = emailIn?.value.trim();
       const pass = passIn?.value;
       const confirm = confirmIn?.value;
+
+      console.log('[initRegisterForm] Input values:', {
+        name: !!name,
+        email: !!email,
+        password: !!pass,
+        passwordLength: pass?.length || 0,
+        confirm: !!confirm,
+        termsChecked: termsIn?.checked
+      });
 
       let ok = true;
       if (!name) { setFieldError(nameIn, "Podaj imię wojownika."); ok = false; }
@@ -399,16 +524,32 @@ export function initRegisterForm() {
         showToast("⚠️ Musisz zaakceptować Regulamin Areny.", "error");
         ok = false;
       }
-      if (!ok) return;
+
+      if (!ok) {
+        console.log('[initRegisterForm] Validation failed');
+        return;
+      }
 
       setLoading(registerBtn, true);
       try {
+        console.log('[initRegisterForm] Calling registerWithEmail...', { email, name });
         await registerWithEmail(email, pass, name);
+        console.log('[initRegisterForm] Registration successful, redirecting to home...');
         window.location.href = "/";
       } catch (err) {
-        if (err.code === "auth/email-already-in-use") setFieldError(emailIn, "Email już w użyciu.");
-        else if (err.code === "auth/invalid-email") setFieldError(emailIn, "Niepoprawny email.");
-        else if (err.code === "auth/weak-password") setFieldError(passIn, "Hasło za słabe.");
+        console.error('[initRegisterForm] Caught error in form submit:', err);
+        console.error('[initRegisterForm] Error Code:', err.code);
+        console.error('[initRegisterForm] Error Message:', err.message);
+
+        if (err.code === "auth/email-already-in-use") {
+          setFieldError(emailIn, "Email już w użyciu.");
+        } else if (err.code === "auth/invalid-email") {
+          setFieldError(emailIn, "Niepoprawny email.");
+        } else if (err.code === "auth/weak-password") {
+          setFieldError(passIn, "Hasło za słabe.");
+        } else {
+          console.error('[initRegisterForm] Unhandled error code:', err.code);
+        }
       } finally {
         setLoading(registerBtn, false);
       }
