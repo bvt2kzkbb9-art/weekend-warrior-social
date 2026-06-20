@@ -13,19 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
-      
+
       - name: Deploy Firestore Rules
-        run: |
-          echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/firebase-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-key.json
-          firebase deploy --only firestore:rules --project weekend-warrior-social-ed3d0
+        run: firebase deploy --only firestore:rules --project weekend-warrior-social-ed3d0
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
