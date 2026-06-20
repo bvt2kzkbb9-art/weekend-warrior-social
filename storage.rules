@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuth() { return request.auth != null; }
+    function isImage() {
+      return request.resource.contentType.matches('image/.*')
+             && request.resource.size < 8 * 1024 * 1024;
+    }
+
+    // Zdjęcia do postów: posts/{uid}/{plik}
+    match /posts/{uid}/{fileName} {
+      allow read:   if isAuth();
+      allow write:  if isAuth() && request.auth.uid == uid && isImage();
+      allow delete: if isAuth() && request.auth.uid == uid;
+    }
+
+    // Avatar / banner: profiles/{uid}/{plik}
+    match /profiles/{uid}/{fileName} {
+      allow read:   if isAuth();
+      allow write:  if isAuth() && request.auth.uid == uid && isImage();
+      allow delete: if isAuth() && request.auth.uid == uid;
+    }
+
+    // Zdjęcia w wiadomościach: messages/{convId}/{uid}_{ts}.jpg
+    match /messages/{convId}/{fileName} {
+      allow read:   if isAuth();
+      allow write:  if isAuth() && fileName.matches(request.auth.uid + '_.*') && isImage();
+    }
+  }
+}
