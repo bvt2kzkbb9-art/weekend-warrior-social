@@ -1,18 +1,63 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <meta name="theme-color" content="#080808"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekend Warrior Social</title>
-  <style>
-    body { margin: 0; padding: 0; background: #080808; }
-  </style>
+  <link rel="stylesheet" href="src/styles/foundation.css">
 </head>
 <body>
-  <script>
-    // Redirect do głównego routera aplikacji
-    window.location.href = 'src/pages/index.html';
+  <div class="app-layout">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-logo">WWS</div>
+      <div class="topbar-actions">
+        <button class="topbar-action-btn" aria-label="Logout" onclick="logout()">X</button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main"></main>
+
+    <!-- Bottom navigation -->
+    <nav class="bottom-nav">
+      <a href="#/" class="nav-item" data-route="/">Arena</a>
+      <a href="#/kroniki" class="nav-item" data-route="/kroniki">Kroniki</a>
+      <a href="#/misje" class="nav-item" data-route="/misje">Misje</a>
+      <a href="#/chwala" class="nav-item" data-route="/chwala">Chwała</a>
+      <a href="#/bohater" class="nav-item" data-route="/bohater">Bohater</a>
+    </nav>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from './src/js/core/auth.js';
+    import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
+    import { renderArena } from './src/arena/arena.js';
+    import { renderKroniki, renderMisje, renderChwala, renderBohater } from './src/placeholders.js';
+
+    window.navigateTo = navigateTo;
+
+    // Define routes
+    defineRoute('/', renderArena);
+    defineRoute('/kroniki', renderKroniki);
+    defineRoute('/misje', renderMisje);
+    defineRoute('/chwala', renderChwala);
+    defineRoute('/bohater', renderBohater);
+
+    // Check auth
+    checkAuth((user, userData) => {
+      if (!user) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      window.logout = async () => {
+        const { logout } = await import('./src/js/core/auth.js');
+        await logout();
+      };
+
+      initRouter();
+    });
   </script>
 </body>
 </html>

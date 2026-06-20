@@ -187,6 +187,13 @@ export function checkAuth(callback) {
   return unsubscribe;
 }
 
+export function handleAuthUI(user, userData) {
+  if (!user) {
+    window.location.href = "/login.html";
+    return;
+  }
+}
+
 export async function registerWithEmail(email, password, displayName) {
   try {
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
@@ -251,7 +258,7 @@ export async function resetPassword(email) {
 export async function logout() {
   try {
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "/login.html";
   } catch (err) {
     showToast("❌ Błąd wylogowania", "error");
     throw err;
@@ -260,7 +267,7 @@ export async function logout() {
 
 export function handleAuthUI(user, userData) {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "/login.html";
     return;
   }
   const userNameEl = document.getElementById("user-name");
@@ -282,7 +289,7 @@ export function handleAuthUI(user, userData) {
 
 export function redirectIfLogged() {
   onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = "index.html";
+    if (user) window.location.href = "/";
   });
 }
 
@@ -315,7 +322,7 @@ export function initLoginForm() {
       setLoading(loginBtn, true);
       try {
         await loginWithEmail(email, password);
-        window.location.href = "index.html";
+        window.location.href = "/";
       } catch (err) {
         const map = {
           "auth/user-not-found": "Nie znaleziono wojownika o tym adresie.",
@@ -338,7 +345,7 @@ export function initLoginForm() {
       showErr("");
       try {
         await loginWithGoogle();
-        window.location.href = "index.html";
+        window.location.href = "/";
       } catch (err) {
         if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
           showErr("Błąd logowania Google: " + (err.code || err.message));
@@ -447,7 +454,7 @@ export function initRegisterForm() {
       setLoading(registerBtn, true);
       try {
         await registerWithEmail(email, pass, name);
-        window.location.href = "index.html";
+        window.location.href = "/";
       } catch (err) {
         if (err.code === "auth/email-already-in-use") setFieldError(emailIn, "Email już w użyciu.");
         else if (err.code === "auth/invalid-email") setFieldError(emailIn, "Niepoprawny email.");
@@ -463,7 +470,7 @@ export function initRegisterForm() {
       e.preventDefault();
       try {
         await loginWithGoogle();
-        window.location.href = "index.html";
+        window.location.href = "/";
       } catch { /* toast pokazany */ }
     });
   }

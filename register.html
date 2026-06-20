@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rejestracja</title>
+  <link rel="stylesheet" href="src/styles/foundation.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1>WEEKEND WARRIOR</h1>
+      <p>Stwórz nowe konto</p>
+
+      <form class="auth-form" id="register-form">
+        <div class="form-group">
+          <label>Imię</label>
+          <input type="text" id="display-name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required>
+        </div>
+
+        <div class="form-group">
+          <label>Hasło (min 6 znaków)</label>
+          <input type="password" id="password" required>
+        </div>
+
+        <div class="form-group">
+          <label>Potwierdź hasło</label>
+          <input type="password" id="confirm-password" required>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="terms" required>
+            Akceptuję warunki
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-full" id="register-btn">Stwórz konto</button>
+      </form>
+
+      <div class="divider">LUB</div>
+
+      <button class="btn btn-full" id="google-btn">Zaloguj przez Google</button>
+
+      <div class="auth-links">
+        <a href="login.html">Masz już konto? Zaloguj się</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initRegisterForm, redirectIfLogged } from './src/js/core/auth.js';
+    redirectIfLogged();
+    initRegisterForm();
+  </script>
+</body>
+</html>
