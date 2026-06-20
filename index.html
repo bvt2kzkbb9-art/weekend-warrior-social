@@ -30,12 +30,15 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from './src/js/core/auth.js';
+    import { checkAuth, logout } from './src/js/core/auth.js';
     import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
     import { renderArena } from './src/arena/arena.js';
     import { renderKroniki, renderMisje, renderChwala, renderBohater } from './src/placeholders.js';
 
     window.navigateTo = navigateTo;
+    window.logout = logout;
+    window.currentUser = null;
+    window.currentUserData = null;
 
     // Define routes
     defineRoute('/', renderArena);
@@ -51,10 +54,8 @@
         return;
       }
 
-      window.logout = async () => {
-        const { logout } = await import('./src/js/core/auth.js');
-        await logout();
-      };
+      window.currentUser = user;
+      window.currentUserData = userData;
 
       initRouter();
     });

@@ -57,6 +57,10 @@
         "destination": "/register.html"
       },
       {
+        "source": "/forgot-password",
+        "destination": "/forgot-password.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
