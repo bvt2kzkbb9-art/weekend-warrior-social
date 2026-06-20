@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logowanie</title>
-  <link rel="stylesheet" href="src/styles/wireframe.css">
+  <link rel="stylesheet" href="src/styles/foundation.css">
 </head>
 <body>
   <div class="auth-container">
     <div class="auth-card">
-      <h1>Logowanie</h1>
+      <h1>WEEKEND WARRIOR</h1>
       <p>Zaloguj się do aplikacji</p>
 
       <form class="auth-form" id="login-form">
-        <div id="error-msg" style="display: none; color: red; font-size: 12px; margin-bottom: 12px;"></div>
+        <div id="error-msg" style="display: none; color: red; font-size: 12px; margin-bottom: 10px;"></div>
 
         <div class="form-group">
           <label>Email</label>
@@ -25,15 +25,15 @@
           <input type="password" id="password" required>
         </div>
 
-        <button type="submit" class="btn" id="login-btn">Zaloguj się</button>
+        <button type="submit" class="btn btn-full" id="login-btn">Zaloguj się</button>
       </form>
 
-      <div style="margin-top: 12px; border-top: 1px solid #000; padding-top: 12px;">
-        <button class="btn" style="width: 100%; margin-bottom: 8px;" id="google-btn">Zaloguj przez Google</button>
-      </div>
+      <div class="divider">LUB</div>
 
-      <div style="margin-top: 12px; text-align: center; font-size: 12px;">
-        <a href="register.html">Stwórz konto</a> |
+      <button class="btn btn-full" id="google-btn">Zaloguj przez Google</button>
+
+      <div class="auth-links">
+        <a href="register.html">Stwórz konto</a>
         <a href="#" id="forgot-link">Resetuj hasło</a>
       </div>
     </div>

@@ -1,40 +1,56 @@
 export function renderArena() {
   return `
     <div class="page-container">
-      <div class="section">
-        <div class="section-title">Arena</div>
+      <div style="text-align: center; margin-bottom: 20px; font-size: 16px; font-weight: bold; letter-spacing: 2px;">
+        WEEKEND WARRIOR
       </div>
 
       <div class="section">
-        <div class="card">
-          <div style="height: 60px; border: 1px solid #000; margin-bottom: 8px;"></div>
-          <div style="font-size: 12px; font-weight: bold;">Seria: 14 dni</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Wyzwania</div>
-        <div class="grid">
-          <div class="grid-item">Ćwiczenia</div>
-          <div class="grid-item">Nauka</div>
-          <div class="grid-item">Bieganie</div>
-          <div class="grid-item">Muzyka</div>
+        <div class="section-header">AKTYWNE WYZWANIA</div>
+        <div class="section-content">
+          <div style="text-align: center; color: #999;">Brak danych</div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Top Gracze</div>
-        <div class="list-item">
-          <div>1. Gracz A</div>
-          <div>5000 pkt</div>
+        <div class="section-header">TWOJA SERIA</div>
+        <div class="section-content">
+          <div class="section-row">
+            <span class="row-label">Dni z rzędu:</span>
+            <span class="row-value">0</span>
+          </div>
         </div>
-        <div class="list-item">
-          <div>2. Gracz B</div>
-          <div>4800 pkt</div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">RANKING</div>
+        <div class="section-content">
+          <div class="section-row">
+            <span class="row-label">1.</span>
+            <span class="row-value">---</span>
+          </div>
+          <div class="section-row">
+            <span class="row-label">2.</span>
+            <span class="row-value">---</span>
+          </div>
+          <div class="section-row">
+            <span class="row-label">3.</span>
+            <span class="row-value">---</span>
+          </div>
         </div>
-        <div class="list-item">
-          <div>3. Gracz C</div>
-          <div>4600 pkt</div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">STATYSTYKI</div>
+        <div class="section-content">
+          <div class="section-row">
+            <span class="row-label">XP:</span>
+            <span class="row-value">0</span>
+          </div>
+          <div class="section-row">
+            <span class="row-label">POZIOM:</span>
+            <span class="row-value">1</span>
+          </div>
         </div>
       </div>
     </div>

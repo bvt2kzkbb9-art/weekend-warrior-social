@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekend Warrior Social</title>
-  <link rel="stylesheet" href="src/styles/wireframe.css">
+  <link rel="stylesheet" href="src/styles/foundation.css">
 </head>
 <body>
   <div class="app-layout">
@@ -12,8 +12,7 @@
     <header class="topbar">
       <div class="topbar-logo">WWS</div>
       <div class="topbar-actions">
-        <button class="topbar-action-btn" aria-label="Notifications"></button>
-        <button class="topbar-action-btn" aria-label="Settings"></button>
+        <button class="topbar-action-btn" aria-label="Logout" onclick="logout()">X</button>
       </div>
     </header>
 
@@ -22,38 +21,11 @@
 
     <!-- Bottom navigation -->
     <nav class="bottom-nav">
-      <a href="#/" class="nav-item" data-route="/">
-        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/></svg>
-        <span>Arena</span>
-      </a>
-      <a href="#/kroniki" class="nav-item" data-route="/kroniki">
-        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="20"/></svg>
-        <span>Kroniki</span>
-      </a>
-      <a href="#/misje" class="nav-item" data-route="/misje">
-        <svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="14"/></svg>
-        <span>Misje</span>
-      </a>
-      <a href="#/chwala" class="nav-item" data-route="/chwala">
-        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg>
-        <span>Chwała</span>
-      </a>
-      <a href="#/bohater" class="nav-item" data-route="/bohater">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><rect x="4" y="14" width="16" height="8"/></svg>
-        <span>Bohater</span>
-      </a>
-      <a href="#/wiadomosci" class="nav-item" data-route="/wiadomosci">
-        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16"/></svg>
-        <span>Wiadomości</span>
-      </a>
-      <a href="#/czat" class="nav-item" data-route="/czat">
-        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="10" height="10"/><rect x="12" y="12" width="10" height="10"/></svg>
-        <span>Czat</span>
-      </a>
-      <a href="#/ustawienia" class="nav-item" data-route="/ustawienia">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><rect x="10" y="2" width="4" height="4"/></svg>
-        <span>Ustawienia</span>
-      </a>
+      <a href="#/" class="nav-item" data-route="/">Arena</a>
+      <a href="#/kroniki" class="nav-item" data-route="/kroniki">Kroniki</a>
+      <a href="#/misje" class="nav-item" data-route="/misje">Misje</a>
+      <a href="#/chwala" class="nav-item" data-route="/chwala">Chwała</a>
+      <a href="#/bohater" class="nav-item" data-route="/bohater">Bohater</a>
     </nav>
   </div>
 
@@ -61,13 +33,7 @@
     import { checkAuth } from './src/js/core/auth.js';
     import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
     import { renderArena } from './src/arena/arena.js';
-    import { renderKroniki } from './src/kroniki/kroniki.js';
-    import { renderMisje } from './src/misje/misje.js';
-    import { renderChwala } from './src/chwala/chwala.js';
-    import { renderBohater } from './src/bohater/bohater.js';
-    import { renderWiadomosci } from './src/wiadomosci/wiadomosci.js';
-    import { renderCzat } from './src/wiadomosci/czat.js';
-    import { renderUstawienia } from './src/ustawienia/ustawienia.js';
+    import { renderKroniki, renderMisje, renderChwala, renderBohater } from './src/placeholders.js';
 
     window.navigateTo = navigateTo;
 
@@ -77,9 +43,6 @@
     defineRoute('/misje', renderMisje);
     defineRoute('/chwala', renderChwala);
     defineRoute('/bohater', renderBohater);
-    defineRoute('/wiadomosci', renderWiadomosci);
-    defineRoute('/czat', renderCzat);
-    defineRoute('/ustawienia', renderUstawienia);
 
     // Check auth
     checkAuth((user, userData) => {

@@ -1,0 +1,299 @@
+/* FOUNDATION 0.1 — Minimal Excel-like Design */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #000;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+/* Layout */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  height: 50px;
+}
+
+.topbar-logo {
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.topbar-action-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+/* Main */
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 60px;
+  background: #fff;
+}
+
+.page-container {
+  max-width: 100%;
+  padding: 15px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 15px;
+  border: 1px solid #000;
+  background: #fff;
+}
+
+.section-header {
+  padding: 8px 10px;
+  border-bottom: 1px solid #000;
+  font-weight: bold;
+  font-size: 12px;
+  background: #e0e0e0;
+}
+
+.section-content {
+  padding: 10px;
+  min-height: 60px;
+}
+
+.section-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.section-row:last-child {
+  border-bottom: none;
+}
+
+.row-label {
+  font-weight: normal;
+}
+
+.row-value {
+  font-weight: bold;
+  text-align: right;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  border-top: 1px solid #000;
+  background: #fff;
+  height: 50px;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #000;
+  text-decoration: none;
+  color: #000;
+  font-size: 11px;
+  cursor: pointer;
+  background: #fff;
+  font-weight: 500;
+}
+
+.nav-item:last-child {
+  border-right: none;
+}
+
+.nav-item.active {
+  background: #e0e0e0;
+}
+
+/* Buttons */
+.btn {
+  border: 1px solid #000;
+  padding: 8px 12px;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+}
+
+.btn:active {
+  background: #f0f0f0;
+}
+
+.btn-full {
+  width: 100%;
+  padding: 10px;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #000;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  background: #fff;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+/* Auth pages */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background: #f5f5f5;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #000;
+  padding: 20px;
+  background: #fff;
+}
+
+.auth-card h1 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.auth-card p {
+  font-size: 11px;
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.divider {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 11px;
+  color: #999;
+}
+
+.auth-links {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.auth-links a {
+  color: #0066cc;
+  text-decoration: none;
+  display: block;
+  margin: 3px 0;
+}
+
+/* Message display */
+.message {
+  padding: 8px;
+  margin: 5px 0;
+  border: 1px solid #000;
+  font-size: 12px;
+}
+
+.message.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.message.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* Building notice */
+.building-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .topbar {
+    padding: 8px 10px;
+    height: 45px;
+  }
+
+  .nav-item {
+    font-size: 10px;
+  }
+
+  .bottom-nav {
+    height: 45px;
+  }
+
+  main {
+    padding-bottom: 45px;
+  }
+
+  .page-container {
+    padding: 10px;
+  }
+}
