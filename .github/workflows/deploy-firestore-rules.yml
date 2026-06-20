@@ -27,22 +27,22 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
-      - name: Configure gcloud authentication
+      - name: Verify service account permissions
         run: |
           gcloud auth activate-service-account --key-file=/tmp/firebase-key.json
           gcloud config set project weekend-warrior-social-ed3d0
-
-      - name: Grant Firebase Admin role to service account
-        run: |
           SA_EMAIL=$(gcloud config get-value account)
-          echo "Service account: ${SA_EMAIL}"
-          echo "Granting roles/firebase.admin..."
-          gcloud projects add-iam-policy-binding weekend-warrior-social-ed3d0 \
-            --member=serviceAccount:${SA_EMAIL} \
-            --role=roles/firebase.admin \
-            --quiet 2>/dev/null || true
-          echo "Waiting for IAM propagation (10 seconds)..."
-          sleep 10
+          echo "Service Account: ${SA_EMAIL}"
+          echo ""
+          echo "IMPORTANT: This service account requires the following IAM roles in GCP:"
+          echo "  - roles/firebase.admin (or)"
+          echo "  - roles/firebase.rulesAdmin + roles/firestore.admin"
+          echo ""
+          echo "Assign these roles via GCP Console:"
+          echo "  1. Go to IAM & Admin -> IAM"
+          echo "  2. Find service account: ${SA_EMAIL}"
+          echo "  3. Grant required role(s)"
+          echo "  4. Allow 1-2 minutes for permission propagation"
 
       - name: Deploy Firestore Rules
         run: firebase deploy --only firestore:rules --project weekend-warrior-social-ed3d0
