@@ -32,6 +32,12 @@ const firebaseConfig = {
   appId: "1:487311448505:web:ffbe035b92efa8fc193e68",
 };
 
+console.log('[Firebase] Environment Information:');
+console.log('[Firebase] Current Hostname:', window.location.hostname);
+console.log('[Firebase] Current Origin:', window.location.origin);
+console.log('[Firebase] Current Pathname:', window.location.pathname);
+console.log('[Firebase] Protocol:', window.location.protocol);
+
 console.log('[Firebase] Initializing with config:', {
   projectId: firebaseConfig.projectId,
   authDomain: firebaseConfig.authDomain,
