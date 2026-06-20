@@ -155,6 +155,24 @@ export function checkAuth(callback) {
   return unsubscribe;
 }
 
+export function redirectIfNotLogged(callback) {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    try {
+      const userData = await migrateUserDoc(user);
+      await updateLastSeen(user.uid);
+      callback(user, userData || {});
+    } catch (err) {
+      console.error('[redirectIfNotLogged] error:', err.code);
+      window.location.href = '/login.html';
+    }
+  });
+}
+
 export async function registerWithEmail(email, password, displayName) {
   try {
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
