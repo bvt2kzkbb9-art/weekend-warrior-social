@@ -1,221 +1,508 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helpers ─────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FUNKCJE POMOCNICZE
+    // ════════════════════════════════════════════════════════════
+
+    // Zalogowany użytkownik
     function isAuth() {
       return request.auth != null;
     }
+
+    // Właściciel dokumentu
     function isOwner(uid) {
       return isAuth() && request.auth.uid == uid;
     }
 
-    // ── Users ───────────────────────────────────────────────────
-    // Właściciel: pełna edycja (profil, bio, zdjęcia, dane fizyczne).
-    // Inni zalogowani: TYLKO liczniki/XP (awardXP działa cross-user).
-    match /users/{uid} {
-      allow read:   if isAuth();
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid)
-                    || (isAuth() && request.resource.data.diff(resource.data)
-                        .affectedKeys().hasOnly(['points','level','rank',
-                        'challengesCompleted','challengesSent','postsCount',
-                        'commentsCount','likesReceived','quizzesCompleted',
-                        'streak','lastActive','lastDailyLogin',
-                        'achievements','badges']));
+    // Admin (dla Admin SDK)
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/admins/$(request.auth.uid)).exists();
     }
 
-    // ── Posts ───────────────────────────────────────────────────
-    // Autor: pełna edycja + delete. Inni: tylko lajki/reakcje/liczniki.
+    // Walidacja bazowych pól użytkownika
+    function isValidUser(data) {
+      return data.uid is string
+        && data.email is string
+        && data.username is string
+        && data.email.size() > 0
+        && data.username.size() > 0;
+    }
+
+    // Walidacja XP i statystyk
+    function isValidStats(data) {
+      return data.xp is int && data.xp >= 0
+        && data.level is int && data.level >= 1
+        && data.streak is int && data.streak >= 0;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // REGUŁY DOMYŚLNE
+    // ════════════════════════════════════════════════════════════
+
+    // Domyślnie zabrań wszystko
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // UŻYTKOWNICY (Kolekcja główna)
+    // ════════════════════════════════════════════════════════════
+
+    match /users/{uid} {
+      // CZYTANIE: Zalogowani mogą czytać profile
+      allow read: if isAuth();
+
+      // TWORZENIE: Tylko właściciel, musi być zalogowany
+      allow create: if isOwner(uid) && isValidUser(request.resource.data);
+
+      // AKTUALIZACJA:
+      // - Właściciel edytuje wszystko
+      // - Inni mogą zmienić TYLKO liczniki/XP
+      allow update: if isOwner(uid)
+                    || (isAuth() && request.resource.data.diff(resource.data)
+                        .affectedKeys().hasOnly([
+                          'xp', 'points', 'level', 'rank',
+                          'challengesCompleted', 'challengesSent',
+                          'postsCount', 'commentsCount', 'likesReceived',
+                          'quizzesCompleted', 'streak', 'lastActive',
+                          'lastDailyLogin', 'achievements', 'badges',
+                          'updatedAt', 'lastSeen', 'online'
+                        ]));
+
+      // USUWANIE: Zablokowane (użytkownicy się nie kasują)
+      allow delete: if false;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // POSTY
+    // ════════════════════════════════════════════════════════════
+
     match /posts/{postId} {
-      allow read:   if isAuth();
-      allow create: if isAuth() && request.resource.data.authorId == request.auth.uid;
+      // CZYTANIE: Wszyscy zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani mogą tworzyć posty
+      allow create: if isAuth() && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.authorId is string
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0;
+
+      // AKTUALIZACJA:
+      // - Autor edytuje post
+      // - Inni mogą zaktualizować TYLKO liczniki (lajki, komentarze, etc)
       allow update: if isAuth()
                     && (resource.data.authorId == request.auth.uid
                         || request.resource.data.diff(resource.data).affectedKeys()
-                           .hasOnly(['likes','likesCount','reactions','reactionsCount',
-                                     'commentsCount','sharesCount']));
+                           .hasOnly([
+                             'likes', 'likesCount', 'reactions', 'reactionsCount',
+                             'commentsCount', 'sharesCount', 'updatedAt'
+                           ]));
+
+      // USUWANIE: Tylko autor
       allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
+
+      // ── Komentarze do postów ──
+      match /comments/{commentId} {
+        // CZYTANIE: Zalogowani
+        allow read: if isAuth();
+
+        // TWORZENIE: Zalogowani
+        allow create: if isAuth() && request.resource.data.authorId == request.auth.uid
+                      && request.resource.data.content is string;
+
+        // AKTUALIZACJA: Tylko autor komentarza
+        allow update: if isAuth() && resource.data.authorId == request.auth.uid;
+
+        // USUWANIE: Tylko autor
+        allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
+      }
     }
 
-    // ── Comments (+ odpowiedzi przez parentId) ──────────────────
-    match /posts/{postId}/comments/{commentId} {
-      allow read:   if isAuth();
-      allow create: if isAuth() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isAuth() && resource.data.authorId == request.auth.uid;
-      allow delete: if isAuth() && resource.data.authorId == request.auth.uid;
-    }
+    // ════════════════════════════════════════════════════════════
+    // OBSERWUJĄCY (Followers)
+    // ════════════════════════════════════════════════════════════
 
-    // ── Followers ───────────────────────────────────────────────
     match /followers/{docId} {
-      allow read:   if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani mogą obserwować
       allow create: if isAuth() && request.resource.data.followerId == request.auth.uid;
-      allow delete: if isAuth() && resource.data.followerId == request.auth.uid;
+
+      // AKTUALIZACJA: Zablokowana
       allow update: if false;
+
+      // USUWANIE: Tylko ten kto zaobserwował
+      allow delete: if isAuth() && resource.data.followerId == request.auth.uid;
     }
 
-    // ── Friend requests ─────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // ZAPROSZENIA PRZYJACIÓŁ
+    // ════════════════════════════════════════════════════════════
+
     match /friend_requests/{docId} {
-      allow read:   if isAuth()
-                    && (resource.data.senderId   == request.auth.uid
-                        || resource.data.receiverId == request.auth.uid);
+      // CZYTANIE: Wysyłający i odbierający mogą czytać
+      allow read: if isAuth()
+                  && (resource.data.senderId == request.auth.uid
+                      || resource.data.receiverId == request.auth.uid);
+
+      // TWORZENIE: Zalogowani wysyłają zaproszenia sobie
       allow create: if isAuth()
                     && request.resource.data.senderId == request.auth.uid
                     && request.resource.data.status == 'pending';
+
+      // AKTUALIZACJA: Wysyłający lub odbierający mogą aktualizować
       allow update: if isAuth()
-                    && (resource.data.senderId   == request.auth.uid
+                    && (resource.data.senderId == request.auth.uid
                         || resource.data.receiverId == request.auth.uid);
+
+      // USUWANIE: Wysyłający lub odbierający mogą usunąć
       allow delete: if isAuth()
-                    && (resource.data.senderId   == request.auth.uid
+                    && (resource.data.senderId == request.auth.uid
                         || resource.data.receiverId == request.auth.uid);
     }
 
-    // ── Friends — pole users:[uid1,uid2] umożliwia zapytania ────
+    // ════════════════════════════════════════════════════════════
+    // PRZYJACIÓŁE (Friends)
+    // ════════════════════════════════════════════════════════════
+
     match /friends/{docId} {
-      allow read:   if isAuth() && request.auth.uid in resource.data.users;
+      // CZYTANIE: Użytkownik musi być w liście przyjaciół
+      allow read: if isAuth() && request.auth.uid in resource.data.users;
+
+      // TWORZENIE: Zalogowani
       allow create: if isAuth() && request.auth.uid in request.resource.data.users;
+
+      // USUWANIE: Użytkownik musi być na liście
       allow delete: if isAuth() && request.auth.uid in resource.data.users;
+
+      // AKTUALIZACJA: Zablokowana
       allow update: if false;
     }
 
-    // ── Notifications ───────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // POWIADOMIENIA
+    // ════════════════════════════════════════════════════════════
+
     match /notifications/{uid}/items/{notifId} {
-      allow read:   if isOwner(uid);
+      // CZYTANIE: Tylko właściciel
+      allow read: if isOwner(uid);
+
+      // TWORZENIE: Zalogowani mogą dodać powiadomienie dla kogoś
       allow create: if isAuth();
+
+      // AKTUALIZACJA: Tylko właściciel
       allow update: if isOwner(uid);
+
+      // USUWANIE: Tylko właściciel
       allow delete: if isOwner(uid);
     }
 
-    // ── Conversations (Messenger) ───────────────────────────────
-    // update przez uczestników — m.in. mapa unread + lastMessage.
+    // ════════════════════════════════════════════════════════════
+    // ROZMOWY (Messenger)
+    // ════════════════════════════════════════════════════════════
+
     match /conversations/{convId} {
-      allow read:   if isAuth()
-                    && request.auth.uid in resource.data.participants;
+      // CZYTANIE: Tylko uczestnicy rozmowy
+      allow read: if isAuth()
+                  && request.auth.uid in resource.data.participants;
+
+      // TWORZENIE: Zalogowani
       allow create: if isAuth()
                     && request.auth.uid in request.resource.data.participants;
+
+      // AKTUALIZACJA: Uczestnicy mogą aktualizować metadata (ostatnia wiadomość, itd)
       allow update: if isAuth()
                     && request.auth.uid in resource.data.participants;
-    }
 
-    // ── Messages ────────────────────────────────────────────────
-    // KLUCZOWA POPRAWKA: odbiorca może oznaczyć wiadomość jako
-    // odczytaną (poprzednio update mógł tylko nadawca → ✓✓ nie działało).
-    match /conversations/{convId}/messages/{msgId} {
-      allow read:   if isAuth()
+      // USUWANIE: Zablokowane (rozmowy się archiwizują, nie usuwają)
+      allow delete: if false;
+
+      // ── Wiadomości w rozmowach ──
+      match /messages/{msgId} {
+        // CZYTANIE: Uczestnicy rozmowy
+        allow read: if isAuth()
                     && request.auth.uid in
                        get(/databases/$(database)/documents/conversations/$(convId))
                        .data.participants;
-      allow create: if isAuth()
-                    && request.resource.data.senderId == request.auth.uid
-                    && request.auth.uid in
-                       get(/databases/$(database)/documents/conversations/$(convId))
-                       .data.participants;
-      allow update: if isAuth()
-                    && (resource.data.senderId == request.auth.uid
-                        || (request.auth.uid in
-                              get(/databases/$(database)/documents/conversations/$(convId))
-                              .data.participants
-                            && request.resource.data.diff(resource.data)
-                               .affectedKeys().hasOnly(['read'])));
+
+        // TWORZENIE: Wysyłający musi być uczestnikiem
+        allow create: if isAuth()
+                      && request.resource.data.senderId == request.auth.uid
+                      && request.auth.uid in
+                         get(/databases/$(database)/documents/conversations/$(convId))
+                         .data.participants;
+
+        // AKTUALIZACJA:
+        // - Wysyłający edytuje swoje wiadomości
+        // - Odbierający mogą oznaczić jako przeczytane
+        allow update: if isAuth()
+                      && (resource.data.senderId == request.auth.uid
+                          || (request.auth.uid in
+                                get(/databases/$(database)/documents/conversations/$(convId))
+                                .data.participants
+                              && request.resource.data.diff(resource.data)
+                                 .affectedKeys().hasOnly(['read', 'readAt'])));
+
+        // USUWANIE: Zablokowane
+        allow delete: if false;
+      }
     }
 
-    // ── Challenge Invites ───────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // WYZWANIA (Challenges)
+    // ════════════════════════════════════════════════════════════
+
     match /challenge_invites/{docId} {
-      allow read:   if isAuth()
-                    && (resource.data.challengerId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+      // CZYTANIE: Zapraszający lub zapraszany
+      allow read: if isAuth()
+                  && (resource.data.challengerId == request.auth.uid
+                      || resource.data.targetId == request.auth.uid);
+
+      // TWORZENIE: Zalogowani wysyłają zaproszenia
       allow create: if isAuth()
                     && request.resource.data.challengerId == request.auth.uid;
+
+      // AKTUALIZACJA: Zapraszający lub zapraszany
       allow update: if isAuth()
                     && (resource.data.challengerId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+                        || resource.data.targetId == request.auth.uid);
+
+      // USUWANIE: Zapraszający lub zapraszany
+      allow delete: if isAuth()
+                    && (resource.data.challengerId == request.auth.uid
+                        || resource.data.targetId == request.auth.uid);
     }
 
-    // ── Challenge Completions ───────────────────────────────────
     match /challenge_completions/{docId} {
-      allow read:   if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani dodają ukończenia
       allow create: if isAuth();
+
+      // AKTUALIZACJA: Zalogowani
       allow update: if isAuth();
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
     }
 
-    // ── Challenge Quizzes ───────────────────────────────────────
     match /challenge_quizzes/{docId} {
-      allow read:   if isAuth() && resource.data.userId == request.auth.uid;
+      // CZYTANIE: Tylko właściciel quizu
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+
+      // TWORZENIE: Zalogowani
       allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+
+      // AKTUALIZACJA: Tylko właściciel
       allow update: if isAuth() && resource.data.userId == request.auth.uid;
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
     }
 
-    // ── User Challenges ─────────────────────────────────────────
     match /userChallenges/{docId} {
-      allow read:   if isAuth();
-      allow write:  if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // ZAPIS: Zalogowani
+      allow write: if isAuth();
     }
 
-    // ── Duels ───────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // POJEDYNKI (Duels)
+    // ════════════════════════════════════════════════════════════
+
     match /duels/{docId} {
-      allow read:   if isAuth()
-                    && (resource.data.challengerId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+      // CZYTANIE: Tylko uczestnicy
+      allow read: if isAuth()
+                  && (resource.data.challengerId == request.auth.uid
+                      || resource.data.targetId == request.auth.uid);
+
+      // TWORZENIE: Zalogowani
       allow create: if isAuth();
+
+      // AKTUALIZACJA: Uczestnicy mogą aktualizować wynik
       allow update: if isAuth()
                     && (resource.data.challengerId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+                        || resource.data.targetId == request.auth.uid);
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
     }
 
-    // ── Pokes ───────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // POKS (Pokes)
+    // ════════════════════════════════════════════════════════════
+
     match /pokes/{docId} {
-      allow read:   if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani wysyłają poki
       allow create: if isAuth() && request.resource.data.pokerId == request.auth.uid;
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
     }
 
-    // ── Weekly Scores ───────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // RANKING (Weekly Scores)
+    // ════════════════════════════════════════════════════════════
+
     match /weeklyScores/{weekId}/scores/{uid} {
-      allow read:  if isAuth();
+      // CZYTANIE: Zalogowani mogą zobaczyć ranking
+      allow read: if isAuth();
+
+      // ZAPIS: Tylko właściciel wyniku
       allow write: if isOwner(uid);
     }
 
-    // ── Usernames (search/mention lookup) ──────────────────────
+    // ════════════════════════════════════════════════════════════
+    // NAZWY UŻYTKOWNIKÓW (dla search/mention)
+    // ════════════════════════════════════════════════════════════
+
     match /usernames/{username} {
-      allow read:  if isAuth();
+      // CZYTANIE: Zalogowani mogą szukać użytkowników
+      allow read: if isAuth();
+
+      // ZAPIS: Tylko właściciel swojej nazwy
       allow write: if isAuth() && request.resource.data.uid == request.auth.uid;
     }
 
-    // ── Laga Pajacu ─────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // LAGA PAJĄCE (Laga Pajacu - Challenge Mode)
+    // ════════════════════════════════════════════════════════════
+
     match /pajacChallenges/{docId} {
-      allow read:   if isAuth()
-                    && (resource.data.initiatorId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+      // CZYTANIE: Tylko zapraszający i zapraszany
+      allow read: if isAuth()
+                  && (resource.data.initiatorId == request.auth.uid
+                      || resource.data.targetId == request.auth.uid);
+
+      // TWORZENIE: Zalogowani inicjują
       allow create: if isAuth()
                     && request.resource.data.initiatorId == request.auth.uid;
+
+      // AKTUALIZACJA: Inicjator lub cel
       allow update: if isAuth()
                     && (resource.data.initiatorId == request.auth.uid
-                        || resource.data.targetId   == request.auth.uid);
+                        || resource.data.targetId == request.auth.uid);
+
+      // USUWANIE: Inicjator lub cel
+      allow delete: if isAuth()
+                    && (resource.data.initiatorId == request.auth.uid
+                        || resource.data.targetId == request.auth.uid);
     }
 
-    // ── Laga Events (feed) ──────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // ZDARZENIA LAGI (Laga Events - Activity Feed)
+    // ════════════════════════════════════════════════════════════
+
     match /laga_events/{docId} {
-      allow read:   if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani dodają swoje zdarzenia
       allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+
+      // AKTUALIZACJA: Zalogowani
       allow update: if isAuth();
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
     }
 
-    // ── Blocks ──────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // BLOKADY (Blocks)
+    // ════════════════════════════════════════════════════════════
+
     match /blocks/{docId} {
-      allow read:   if isAuth() && resource.data.blockerId == request.auth.uid;
+      // CZYTANIE: Tylko blokujący
+      allow read: if isAuth() && resource.data.blockerId == request.auth.uid;
+
+      // TWORZENIE: Zalogowani blokują
       allow create: if isAuth() && request.resource.data.blockerId == request.auth.uid;
+
+      // USUWANIE: Tylko blokujący
       allow delete: if isAuth() && resource.data.blockerId == request.auth.uid;
     }
 
-    // ── Reports ─────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // ZGŁOSZENIA (Reports - Admin only)
+    // ════════════════════════════════════════════════════════════
+
     match /reports/{docId} {
+      // TWORZENIE: Zalogowani zgłaszają
       allow create: if isAuth() && request.resource.data.reporterId == request.auth.uid;
-      allow read:   if false;  // admin only via Admin SDK
+
+      // CZYTANIE: ZABRAŃ - tylko Admin SDK
+      allow read: if false;
+
+      // AKTUALIZACJA: ZABRAŃ - tylko Admin SDK
+      allow update: if false;
+
+      // USUWANIE: ZABRAŃ - tylko Admin SDK
+      allow delete: if false;
     }
 
-    // ── Shares ──────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // UDOSTĘPNIANIA (Shares)
+    // ════════════════════════════════════════════════════════════
+
     match /shares/{docId} {
-      allow read:   if isAuth();
+      // CZYTANIE: Zalogowani
+      allow read: if isAuth();
+
+      // TWORZENIE: Zalogowani udostępniają
       allow create: if isAuth() && request.resource.data.sharerId == request.auth.uid;
+
+      // USUWANIE: Zalogowani
+      allow delete: if isAuth();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ADMIN PANEL (tylko dla adminów)
+    // ════════════════════════════════════════════════════════════
+
+    match /admins/{adminId} {
+      // CZYTANIE: Tylko siebie lub Admin SDK
+      allow read: if isOwner(adminId);
+
+      // TWORZENIE: ZABRAŃ - tylko Admin SDK
+      allow create: if false;
+
+      // AKTUALIZACJA: ZABRAŃ - tylko Admin SDK
+      allow update: if false;
+
+      // USUWANIE: ZABRAŃ - tylko Admin SDK
+      allow delete: if false;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // STORAGE RULES (jeśli będzie używany Storage)
+    // ════════════════════════════════════════════════════════════
+
+    match /b/{bucket}/o {
+      match /avatars/{userId}/{allPaths=**} {
+        // CZYTANIE: Wszyscy
+        allow read;
+
+        // ZAPIS: Tylko właściciel avatara
+        allow write: if request.auth.uid == userId && request.auth != null;
+      }
+
+      match /posts/{postId}/{allPaths=**} {
+        // CZYTANIE: Wszyscy
+        allow read;
+
+        // ZAPIS: Tylko zalogowani
+        allow write: if request.auth != null;
+      }
     }
   }
 }
