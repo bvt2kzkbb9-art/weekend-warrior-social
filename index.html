@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Weekend Warrior Social - Challenge yourself and conquer the arena">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Weekend Warrior Social</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="src/styles/base.css">
   <link rel="stylesheet" href="src/styles/theme.css">
   <link rel="stylesheet" href="src/styles/layout.css">
@@ -92,6 +95,8 @@
     import { renderMissions } from './src/js/pages/missions.js';
     import { renderLeaderboard } from './src/js/pages/leaderboard.js';
     import { renderProfile } from './src/js/pages/profile.js';
+    import { renderSettings } from './src/js/pages/settings.js';
+    import { renderNotifications } from './src/js/pages/notifications.js';
 
     // Make navigateTo global
     window.navigateTo = navigateTo;
@@ -102,6 +107,8 @@
     defineRoute('/missions', renderMissions);
     defineRoute('/leaderboard', renderLeaderboard);
     defineRoute('/profile', renderProfile);
+    defineRoute('/settings', renderSettings);
+    defineRoute('/notifications', renderNotifications);
 
     // Check authentication
     checkAuth((user, userData) => {
