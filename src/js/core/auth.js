@@ -1,8 +1,7 @@
-import { auth, db, COL, googleProvider, uploadImage, compressImage } from "./firebase.js";
+import { auth, db, COL } from "./firebase.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signInWithPopup,
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
@@ -16,38 +15,8 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-export function showToast(message, type = "info", duration = 4000) {
-  let container = document.getElementById("wws-toasts");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "wws-toasts";
-    container.className = "toast-container";
-    document.body.appendChild(container);
-  }
-
-  const ICON = {
-    success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16C784" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-    error: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-    info: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F8CFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  };
-
-  const el = document.createElement("div");
-  el.className = `toast toast-${type}`;
-  el.innerHTML = `${ICON[type] || ICON.info}<span>${message}</span>`;
-  container.appendChild(el);
-
-  const dismiss = () => {
-    el.style.transition = "opacity 0.25s ease, transform 0.25s ease";
-    el.style.opacity = "0";
-    el.style.transform = "translateY(6px)";
-    setTimeout(() => el.remove(), 280);
-  };
-
-  const t = setTimeout(dismiss, duration);
-  el.addEventListener("click", () => {
-    clearTimeout(t);
-    dismiss();
-  });
+export function showToast(message, type = "info") {
+  alert(message);
 }
 
 function setLoading(btn, state) {
@@ -93,12 +62,11 @@ export async function ensureUserDoc(user) {
       uid: user.uid,
       email: user.email,
       username: username,
-      avatar: user.photoURL || "",
-      level: 1,
       xp: 0,
-      rank: "Rookie",
+      level: 1,
+      rank: "Nowicjusz",
       streak: 0,
-      online: false,
+      online: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       lastSeen: serverTimestamp(),
@@ -124,11 +92,10 @@ export async function migrateUserDoc(user) {
   if (needsMigration) {
     const migratedData = {
       ...data,
-      avatar: data.avatar || data.photoURL || "",
       xp: data.xp !== undefined ? data.xp : (data.points || 0),
-      rank: data.rank || "Rookie",
+      rank: data.rank || "Nowicjusz",
       streak: data.streak !== undefined ? data.streak : 0,
-      online: data.online !== undefined ? data.online : false,
+      online: data.online !== undefined ? data.online : true,
       updatedAt: data.updatedAt ? data.updatedAt : serverTimestamp(),
       lastSeen: data.lastSeen ? data.lastSeen : serverTimestamp(),
     };
@@ -139,6 +106,7 @@ export async function migrateUserDoc(user) {
     delete migratedData.bannerURL;
     delete migratedData.bio;
     delete migratedData.lastLoginAt;
+    delete migratedData.avatar;
 
     await updateDoc(ref, migratedData);
     return migratedData;
@@ -187,11 +155,22 @@ export function checkAuth(callback) {
   return unsubscribe;
 }
 
-export function handleAuthUI(user, userData) {
-  if (!user) {
-    window.location.href = "/login.html";
-    return;
-  }
+export function redirectIfNotLogged(callback) {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    try {
+      const userData = await migrateUserDoc(user);
+      await updateLastSeen(user.uid);
+      callback(user, userData || {});
+    } catch (err) {
+      console.error('[redirectIfNotLogged] error:', err.code);
+      window.location.href = '/login.html';
+    }
+  });
 }
 
 export async function registerWithEmail(email, password, displayName) {
@@ -228,20 +207,6 @@ export async function loginWithEmail(email, password) {
   }
 }
 
-export async function loginWithGoogle() {
-  try {
-    const { user } = await signInWithPopup(auth, googleProvider);
-    await ensureUserDoc(user);
-    await updateLastSeen(user.uid);
-    showToast("✅ Zalogowano przez Google!", "success");
-    return user;
-  } catch (err) {
-    let msg = "Błąd logowania Google";
-    if (err.code === "auth/popup-closed-by-user") msg = "Okno logowania zostało zamknięte";
-    showToast(`❌ ${msg}`, "error");
-    throw err;
-  }
-}
 
 export async function resetPassword(email) {
   try {
@@ -279,7 +244,7 @@ export function handleAuthUI(user, userData) {
   if (userNameEl) userNameEl.textContent = userData.username || "Wojownik";
   if (userAvatarEl) userAvatarEl.textContent = (userData.username || "W").charAt(0).toUpperCase();
   if (userLevelEl) userLevelEl.textContent = userData.level || 1;
-  if (userRankEl) userRankEl.textContent = userData.rank || "Rookie";
+  if (userRankEl) userRankEl.textContent = userData.rank || "Nowicjusz";
   if (userXpEl) userXpEl.textContent = userData.xp || 0;
 }
 
@@ -339,20 +304,6 @@ export function initLoginForm() {
     });
   }
 
-  if (googleBtn) {
-    googleBtn.addEventListener("click", async (e) => {
-      e.preventDefault(); // przycisk bez type="button" w <form> domyślnie submituje
-      showErr("");
-      try {
-        await loginWithGoogle();
-        window.location.href = "/";
-      } catch (err) {
-        if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
-          showErr("Błąd logowania Google: " + (err.code || err.message));
-        }
-      }
-    });
-  }
 
   if (forgotLink) {
     forgotLink.addEventListener("click", async (e) => {
@@ -464,14 +415,43 @@ export function initRegisterForm() {
       }
     });
   }
+}
 
-  if (googleBtn) {
-    googleBtn.addEventListener("click", async (e) => {
+export function initResetPasswordForm() {
+  const form = document.getElementById("reset-form");
+  const emailIn = document.getElementById("email");
+  const resetBtn = document.getElementById("reset-btn");
+  const errEl = document.getElementById("error-msg");
+
+  const showErr = (msg) => {
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.style.display = msg ? "block" : "none";
+  };
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      showErr("");
+      const email = emailIn?.value.trim();
+      if (!email) {
+        showErr("Podaj adres email.");
+        return;
+      }
+      setLoading(resetBtn, true);
       try {
-        await loginWithGoogle();
-        window.location.href = "/";
-      } catch { /* toast pokazany */ }
+        await resetPassword(email);
+        showErr("Link resetowania wysłany na email!");
+      } catch (err) {
+        const map = {
+          "auth/user-not-found": "Użytkownik o tym emailu nie istnieje.",
+          "auth/invalid-email": "Niepoprawny adres email.",
+          "auth/too-many-requests": "Za dużo prób. Odczekaj chwilę.",
+        };
+        showErr(map[err.code] || "Błąd resetowania: " + (err.code || err.message));
+      } finally {
+        setLoading(resetBtn, false);
+      }
     });
   }
 }

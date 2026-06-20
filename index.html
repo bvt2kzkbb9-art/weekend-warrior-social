@@ -5,9 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekend Warrior Social</title>
   <link rel="stylesheet" href="src/styles/foundation.css">
+  <style>
+    #auth-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      z-index: 9999;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-layout">
+  <div id="auth-loading">Sprawdzanie sesji...</div>
+
+  <div class="app-layout" id="app-layout" style="display: none;">
     <!-- Top bar -->
     <header class="topbar">
       <div class="topbar-logo">WWS</div>
@@ -30,12 +48,15 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from './src/js/core/auth.js';
+    import { logout, redirectIfNotLogged } from './src/js/core/auth.js';
     import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
     import { renderArena } from './src/arena/arena.js';
     import { renderKroniki, renderMisje, renderChwala, renderBohater } from './src/placeholders.js';
 
     window.navigateTo = navigateTo;
+    window.logout = logout;
+    window.currentUser = null;
+    window.currentUserData = null;
 
     // Define routes
     defineRoute('/', renderArena);
@@ -44,17 +65,13 @@
     defineRoute('/chwala', renderChwala);
     defineRoute('/bohater', renderBohater);
 
-    // Check auth
-    checkAuth((user, userData) => {
-      if (!user) {
-        window.location.href = '/login.html';
-        return;
-      }
+    // Auth guard - redirect if not logged in, otherwise show app
+    redirectIfNotLogged((user, userData) => {
+      window.currentUser = user;
+      window.currentUserData = userData;
 
-      window.logout = async () => {
-        const { logout } = await import('./src/js/core/auth.js');
-        await logout();
-      };
+      document.getElementById('auth-loading').style.display = 'none';
+      document.getElementById('app-layout').style.display = 'flex';
 
       initRouter();
     });

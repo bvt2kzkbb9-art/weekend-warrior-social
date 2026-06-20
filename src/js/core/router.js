@@ -26,11 +26,23 @@ export async function navigateTo(path) {
   if (!main) return;
 
   try {
+    let content = '';
     if (typeof route === 'function') {
-      const content = await route();
-      main.innerHTML = content;
+      content = await route();
     } else {
-      main.innerHTML = route;
+      content = route;
+    }
+
+    main.innerHTML = content;
+
+    if (path === '/bohater') {
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          const { logout } = await import('./auth.js');
+          await logout();
+        });
+      }
     }
 
     // Update active nav item

@@ -1,8 +1,14 @@
 export function renderArena() {
+  const userData = window.currentUserData || {};
+  const username = userData.username || "Wojownik";
   return `
     <div class="page-container">
       <div style="text-align: center; margin-bottom: 20px; font-size: 16px; font-weight: bold; letter-spacing: 2px;">
-        WEEKEND WARRIOR
+        WEEKEND WARRIOR SOCIAL
+      </div>
+
+      <div style="text-align: center; margin-bottom: 20px; font-size: 14px;">
+        Zalogowany: <strong>${username}</strong>
       </div>
 
       <div class="section">
