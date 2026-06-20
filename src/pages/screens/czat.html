@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Czat — Weekend Warrior Social</title>
+  <link rel="manifest" href="../../manifest.json"/>
+  <link rel="stylesheet" href="../../css/main.css"/>
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; }
+    .czat-container { display: flex; flex-direction: column; height: 100vh; }
+    .czat-nagłówek { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; }
+    .czat-nazwa { font-weight: 600; }
+    .czat-status { font-size: 0.8rem; color: var(--text-secondary); }
+    .czat-treść { flex: 1; overflow-y: auto; padding: var(--spacing-lg); display: flex; flex-direction: column; gap: var(--spacing-md); padding-bottom: 100px; }
+    .wiadomość { display: flex; gap: var(--spacing-md); align-items: flex-end; }
+    .wiadomość-obca { justify-content: flex-start; }
+    .wiadomość-własna { justify-content: flex-end; }
+    .wiadomość-awatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-primary); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 600; flex-shrink: 0; }
+    .wiadomość-bąbel { background: var(--card-bg); padding: var(--spacing-md) var(--spacing-lg); border-radius: 12px; max-width: 70%; word-wrap: break-word; }
+    .wiadomość-własna .wiadomość-bąbel { background: var(--gold-primary); color: #000; }
+    .wiadomość-czas { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+    .czat-wejście { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-secondary); border-top: 1px solid var(--border); padding: var(--spacing-lg); display: flex; gap: var(--spacing-md); }
+    .czat-input { flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: var(--spacing-md) var(--spacing-lg); color: var(--text-primary); font-size: 0.95rem; }
+    .czat-input:focus { outline: none; border-color: var(--gold-primary); }
+    .czat-przycisk { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-primary); color: #000; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 600; flex-shrink: 0; }
+    .powrót-przycisk { background: var(--card-bg); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="czat-container">
+    <header class="czat-nagłówek">
+      <div style="display: flex; gap: var(--spacing-md); align-items: center;">
+        <button class="powrót-przycisk" onclick="window.location.href='wiadomosci.html'">← Wstecz</button>
+        <div>
+          <div class="czat-nazwa">LegendaryWolf</div>
+          <div class="czat-status">Online</div>
+        </div>
+      </div>
+      <div style="font-size: 1.2rem; cursor: pointer;">⋮</div>
+    </header>
+
+    <div class="czat-treść">
+      <div class="wiadomość wiadomość-obca">
+        <div class="wiadomość-awatar">L</div>
+        <div>
+          <div class="wiadomość-bąbel">Cześć! Jak się masz?</div>
+          <div class="wiadomość-czas">10:15</div>
+        </div>
+      </div>
+
+      <div class="wiadomość wiadomość-własna">
+        <div>
+          <div class="wiadomość-bąbel">Cześć! Świetnie, dzięki za pytanie!</div>
+          <div class="wiadomość-czas">10:16</div>
+        </div>
+      </div>
+
+      <div class="wiadomość wiadomość-obca">
+        <div class="wiadomość-awatar">L</div>
+        <div>
+          <div class="wiadomość-bąbel">Chcesz pójść na trening?</div>
+          <div class="wiadomość-czas">10:17</div>
+        </div>
+      </div>
+
+      <div class="wiadomość wiadomość-obca">
+        <div class="wiadomość-awatar">L</div>
+        <div>
+          <div class="wiadomość-bąbel">Mam nowy plan treningowy</div>
+          <div class="wiadomość-czas">10:18</div>
+        </div>
+      </div>
+
+      <div class="wiadomość wiadomość-własna">
+        <div>
+          <div class="wiadomość-bąbel">Chętnie! O ile godzinie?</div>
+          <div class="wiadomość-czas">10:19</div>
+        </div>
+      </div>
+
+      <div class="wiadomość wiadomość-obca">
+        <div class="wiadomość-awatar">L</div>
+        <div>
+          <div class="wiadomość-bąbel">O 18:00 przy siłowni? 💪</div>
+          <div class="wiadomość-czas">10:20</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="czat-wejście">
+      <input type="text" class="czat-input" placeholder="Wpisz wiadomość..."/>
+      <button class="czat-przycisk">→</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Misje — Weekend Warrior Social</title>
+  <link rel="manifest" href="../../manifest.json"/>
+  <link rel="stylesheet" href="../../css/main.css"/>
+  <style>
+    .ekran { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
+    .pasek-górny { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .logo-aplikacji { font-size: 1.5rem; font-weight: 700; color: var(--gold-primary); }
+    .akcje-górne { display: flex; gap: var(--spacing-md); }
+    .przycisk-akcja { width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+    .przycisk-akcja svg { width: 20px; height: 20px; }
+    .sekcja { padding: var(--spacing-lg); }
+    .karty { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+    .misja-karta { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: var(--spacing-lg); }
+    .misja-nagłówek { display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md); }
+    .misja-nazwa { font-size: 1.1rem; font-weight: 600; }
+    .misja-trudność { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .trudność-łatwa { background: rgba(22, 199, 132, 0.2); color: var(--success); }
+    .trudność-średnia { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .trudność-trudna { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+    .misja-opis { color: var(--text-secondary); margin-bottom: var(--spacing-md); }
+    .misja-postęp { margin-bottom: var(--spacing-md); }
+    .postęp-label { font-size: 0.9rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .postęp-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .postęp-fill { height: 100%; background: linear-gradient(90deg, var(--gold-primary), var(--gold-accent)); }
+    .misja-xp { font-size: 0.9rem; font-weight: 600; color: var(--gold-primary); }
+    .przyciski-misji { display: flex; gap: var(--spacing-md); }
+    .btn-start { padding: var(--spacing-md) var(--spacing-lg); background: var(--gold-primary); color: #000; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; flex: 1; transition: all 0.2s; }
+    .btn-start:hover { background: var(--gold-accent); }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <header class="pasek-górny">
+    <div class="logo-aplikacji">⚔ Misje</div>
+    <div class="akcje-górne">
+      <button class="przycisk-akcja" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        </svg>
+      </button>
+      <button class="przycisk-akcja" aria-label="Profil" onclick="window.location.href='bohater.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="ekran">
+    <section class="sekcja">
+      <h2 style="color: var(--gold-primary); margin-bottom: var(--spacing-lg);">Dzienne Misje</h2>
+      <div class="karty">
+        <div class="misja-karta">
+          <div class="misja-nagłówek">
+            <div class="misja-nazwa">💪 Ćwiczenia Ranku</div>
+            <span class="misja-trudność trudność-łatwa">Łatwa</span>
+          </div>
+          <div class="misja-opis">Przeprowadź 20 minut ćwiczeń ranku</div>
+          <div class="misja-postęp">
+            <div class="postęp-label"><span>Postęp</span><span>12/20 min</span></div>
+            <div class="postęp-bar"><div class="postęp-fill" style="width: 60%;"></div></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+            <div class="misja-xp">+50 XP</div>
+          </div>
+          <div class="przyciski-misji">
+            <button class="btn-start">Wznów</button>
+          </div>
+        </div>
+
+        <div class="misja-karta">
+          <div class="misja-nagłówek">
+            <div class="misja-nazwa">📚 Nauka Nowych Umiejętności</div>
+            <span class="misja-trudność trudność-średnia">Średnia</span>
+          </div>
+          <div class="misja-opis">Naucz się czegoś nowego przez 30 minut</div>
+          <div class="misja-postęp">
+            <div class="postęp-label"><span>Postęp</span><span>0/30 min</span></div>
+            <div class="postęp-bar"><div class="postęp-fill" style="width: 0%;"></div></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+            <div class="misja-xp">+75 XP</div>
+          </div>
+          <div class="przyciski-misji">
+            <button class="btn-start">Zacznij</button>
+          </div>
+        </div>
+
+        <div class="misja-karta">
+          <div class="misja-nagłówek">
+            <div class="misja-nazwa">🏃 Bieganie</div>
+            <span class="misja-trudność trudność-trudna">Trudna</span>
+          </div>
+          <div class="misja-opis">Pobiegaj 5 km</div>
+          <div class="misja-postęp">
+            <div class="postęp-label"><span>Postęp</span><span>0/5 km</span></div>
+            <div class="postęp-bar"><div class="postęp-fill" style="width: 0%;"></div></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+            <div class="misja-xp">+100 XP</div>
+          </div>
+          <div class="przyciski-misji">
+            <button class="btn-start">Zacznij</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Główna nawigacja">
+    <a href="arena.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
+      <span>Arena</span>
+    </a>
+    <a href="kroniki.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="misje.html" class="nav-item aktywny" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>
+      <span>Misje</span>
+    </a>
+    <a href="sala-chwaly.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V11a2 2 0 00-2-2h-2"/></svg>
+      <span>Sala Chwały</span>
+    </a>
+    <a href="bohater.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
+</body>
+</html>

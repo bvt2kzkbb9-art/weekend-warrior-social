@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#080808"/>
+  <title>Kroniki — Weekend Warrior Social</title>
+  <link rel="manifest" href="../../manifest.json"/>
+  <link rel="stylesheet" href="../../css/main.css"/>
+  <style>
+    .ekran { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
+    .pasek-górny { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .logo-aplikacji { font-size: 1.5rem; font-weight: 700; color: var(--gold-primary); }
+    .akcje-górne { display: flex; gap: var(--spacing-md); }
+    .przycisk-akcja { width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+    .przycisk-akcja:hover { border-color: var(--gold-primary); }
+    .przycisk-akcja svg { width: 20px; height: 20px; }
+    .sekcja-treść { padding: var(--spacing-lg); }
+    .post { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+    .post-nagłówek { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
+    .post-autor { display: flex; gap: var(--spacing-md); align-items: center; }
+    .post-awatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold-primary); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 600; }
+    .post-dane { flex: 1; }
+    .post-nazwa { font-weight: 600; }
+    .post-czas { font-size: 0.85rem; color: var(--text-secondary); }
+    .post-treść { margin: var(--spacing-md) 0; line-height: 1.6; }
+    .post-obraz { width: 100%; border-radius: 8px; margin: var(--spacing-md) 0; max-height: 300px; object-fit: cover; }
+    .post-akcje { display: flex; gap: var(--spacing-lg); margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border); }
+    .akcja-przycisk { display: flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
+    .akcja-przycisk:hover { color: var(--gold-primary); }
+    .pusty-stan { text-align: center; padding: var(--spacing-3xl) var(--spacing-lg); color: var(--text-secondary); }
+    .pusty-stan-emoji { font-size: 3rem; margin-bottom: var(--spacing-lg); }
+  </style>
+</head>
+<body>
+  <header class="pasek-górny">
+    <div class="logo-aplikacji">📖 Kroniki</div>
+    <div class="akcje-górne">
+      <button class="przycisk-akcja" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+      <button class="przycisk-akcja" aria-label="Profil" onclick="window.location.href='bohater.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="ekran">
+    <section class="sekcja-treść">
+      <div class="post">
+        <div class="post-nagłówek">
+          <div class="post-autor">
+            <div class="post-awatar">🔥</div>
+            <div class="post-dane">
+              <div class="post-nazwa">LegendaryWolf</div>
+              <div class="post-czas">2 godziny temu</div>
+            </div>
+          </div>
+        </div>
+        <div class="post-treść">Ukończyłem 10 km bieganie! Czuję się niesamowicie 💪 #weekend #bieganie</div>
+        <div class="post-akcje">
+          <div class="akcja-przycisk">
+            <span>👍</span>
+            <span>24</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>💬</span>
+            <span>3</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>🔗</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-nagłówek">
+          <div class="post-autor">
+            <div class="post-awatar">⚡</div>
+            <div class="post-dane">
+              <div class="post-nazwa">IcebreakKing</div>
+              <div class="post-czas">5 godzin temu</div>
+            </div>
+          </div>
+        </div>
+        <div class="post-treść">Właśnie skończyłem naukę o machine learning! Następny poziom: 🎓</div>
+        <div class="post-akcje">
+          <div class="akcja-przycisk">
+            <span>👍</span>
+            <span>18</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>💬</span>
+            <span>7</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>🔗</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-nagłówek">
+          <div class="post-autor">
+            <div class="post-awatar">🌟</div>
+            <div class="post-dane">
+              <div class="post-nazwa">PhoenixRising</div>
+              <div class="post-czas">1 dzień temu</div>
+            </div>
+          </div>
+        </div>
+        <div class="post-treść">Medytowałem 30 minut dzisiaj. Stan umysłu: spokojny 🧘</div>
+        <div class="post-akcje">
+          <div class="akcja-przycisk">
+            <span>👍</span>
+            <span>42</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>💬</span>
+            <span>12</span>
+          </div>
+          <div class="akcja-przycisk">
+            <span>🔗</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Główna nawigacja">
+    <a href="arena.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
+      <span>Arena</span>
+    </a>
+    <a href="kroniki.html" class="nav-item aktywny" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span>Kroniki</span>
+    </a>
+    <a href="misje.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>
+      <span>Misje</span>
+    </a>
+    <a href="sala-chwaly.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V11a2 2 0 00-2-2h-2"/><path d="M6 9V7a2 2 0 012-2h8a2 2 0 012 2v2"/></svg>
+      <span>Sala Chwały</span>
+    </a>
+    <a href="bohater.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Bohater</span>
+    </a>
+  </nav>
+</body>
+</html>
