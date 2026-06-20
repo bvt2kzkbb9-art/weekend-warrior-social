@@ -11,7 +11,7 @@
       "README.txt",
       "seed.html",
       "admin.html",
-      "irestore.indexes.json"
+      "firestore.indexes.json"
     ],
     "cleanUrls": false,
     "trailingSlash": false,
