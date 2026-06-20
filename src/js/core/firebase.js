@@ -32,12 +32,31 @@ const firebaseConfig = {
   appId: "1:487311448505:web:ffbe035b92efa8fc193e68",
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
+console.log('[Firebase] Initializing with config:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  appId: firebaseConfig.appId
+});
 
+const app = initializeApp(firebaseConfig);
+console.log('[Firebase] App initialized:', { name: app.name });
+
+export const auth = getAuth(app);
+console.log('[Firebase] Auth initialized:', {
+  authDomain: auth.config.authDomain,
+  projectId: auth.config.projectId,
+  apiKey: auth.config.apiKey ? '***' : 'MISSING'
+});
+
+export const db = getFirestore(app);
+console.log('[Firebase] Firestore initialized:', {
+  projectId: db.projectId,
+  type: 'firestore'
+});
+
+export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
+console.log('[Firebase] Google Provider initialized');
 
 // ── Kolekcje ─────────────────────────────────────────────────
 // PHASE 1.3: Only users collection is active
