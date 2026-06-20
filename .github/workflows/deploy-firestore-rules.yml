@@ -27,6 +27,21 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
+      - name: Configure gcloud authentication
+        run: |
+          gcloud auth activate-service-account --key-file=/tmp/firebase-key.json
+          gcloud config set project weekend-warrior-social-ed3d0
+
+      - name: Grant Firebase Rules Admin role to service account
+        run: |
+          SA_EMAIL=$(gcloud config get-value account)
+          gcloud projects add-iam-policy-binding weekend-warrior-social-ed3d0 \
+            --member=serviceAccount:${SA_EMAIL} \
+            --role=roles/firebase.rulesAdmin \
+            --condition=None \
+            --quiet 2>/dev/null || true
+          echo "Service account: ${SA_EMAIL}"
+
       - name: Deploy Firestore Rules
         run: firebase deploy --only firestore:rules --project weekend-warrior-social-ed3d0
         env:
