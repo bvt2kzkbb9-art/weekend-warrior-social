@@ -272,7 +272,7 @@
 }
 
 .text-accent {
-  color: var(--accent-primary);
+  color: var(--gold-primary);
 }
 
 .text-success {
@@ -415,11 +415,11 @@
 }
 
 .bg-tertiary {
-  background-color: var(--bg-tertiary);
+  background-color: var(--card-bg);
 }
 
 .bg-accent {
-  background-color: var(--accent-primary);
+  background-color: var(--gold-primary);
 }
 
 /* WIDTH UTILITIES */
