@@ -9,10 +9,10 @@
 .screen-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-lg);
+  padding: var(--space-lg);
 }
 
 .screen-header {
-  padding: var(--spacing-lg);
+  padding: var(--space-lg);
   border-bottom: 1px solid var(--border);
 }

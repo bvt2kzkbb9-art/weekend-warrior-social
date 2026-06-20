@@ -2,7 +2,7 @@
 
 .grid {
   display: grid;
-  gap: var(--spacing-lg);
+  gap: var(--space-lg);
 }
 
 .grid-2 { grid-template-columns: repeat(2, 1fr); }

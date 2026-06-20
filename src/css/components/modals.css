@@ -24,7 +24,7 @@
 .modal-content {
   background: var(--card-bg);
   border-radius: 12px;
-  padding: var(--spacing-2xl);
+  padding: var(--space-2xl);
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
