@@ -23,12 +23,17 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Authenticate with Firebase
-        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/firebase-key.json
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: weekend-warrior-social-ed3d0
 
       - name: Deploy to Firebase Hosting
         run: firebase deploy --only hosting --project weekend-warrior-social-ed3d0
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
