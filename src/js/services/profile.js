@@ -15,11 +15,11 @@
 
 import {
   auth, db, COL, RANKS, getRank, getLevel, getRankProgress,
-} from './firebase.js';
+} from '../core/firebase.js';
 
 import {
   checkAuth, logout, getCurrentUserData, ensureUserDoc, showToast,
-} from './auth.js';
+} from '../core/auth.js';
 
 import {
   doc,
@@ -53,15 +53,15 @@ function setVal(id, value) {
 
 export function renderAvatar(el, user, data) {
   if (!el) return;
-  const photoURL = user?.photoURL || data?.photoURL || '';
-  const name     = data?.displayName || user?.displayName || 'W';
+  const avatar = data?.avatar || user?.photoURL || '';
+  const name     = data?.username || user?.displayName || 'W';
   const initials = name
     .split(' ').map(w => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?';
 
-  if (photoURL) {
+  if (avatar) {
     el.innerHTML = '';
     const img     = document.createElement('img');
-    img.src       = photoURL;
+    img.src       = avatar;
     img.alt       = `Avatar ${name}`;
     img.className = 'avatar av-xl';
     img.onerror   = () => { el.innerHTML = ''; el.textContent = initials; };
@@ -72,19 +72,19 @@ export function renderAvatar(el, user, data) {
   }
 }
 
-export function renderRankBadge(el, points) {
+export function renderRankBadge(el, xp) {
   if (!el) return;
-  const rank = getRank(points);
+  const rank = getRank(xp);
   el.textContent = `${rank.emoji} ${rank.label}`;
 }
 
-export function renderLevelBadge(el, points) {
+export function renderLevelBadge(el, xp) {
   if (!el) return;
-  el.textContent = `Poziom ${getLevel(points)}`;
+  el.textContent = `Poziom ${getLevel(xp)}`;
 }
 
-export function renderXpBar(barEl, pctEl, points) {
-  const pct = getRankProgress(points);
+export function renderXpBar(barEl, pctEl, xp) {
+  const pct = getRankProgress(xp);
   if (barEl) {
     barEl.style.width = pct + '%';
     barEl.setAttribute('aria-valuenow', pct);
@@ -121,11 +121,13 @@ export function initDashboard() {
 
     if (!data) {
       data = {
-        uid:         user.uid,
-        displayName: user.displayName || 'Wojownik',
-        email:       user.email       || '',
-        photoURL:    user.photoURL    || '',
-        points:      0, level: 1, rank: 'Rookie',
+        uid:      user.uid,
+        username: user.displayName || 'Wojownik',
+        email:    user.email       || '',
+        avatar:   user.photoURL    || '',
+        xp:       0,
+        level:    1,
+        rank:     'Rookie',
       };
     }
 
@@ -141,15 +143,15 @@ export function initDashboard() {
 }
 
 function renderDashboard(user, data) {
-  const points   = Number(data.points) || 0;
-  const level    = getLevel(points);
-  const rankObj  = getRank(points);
-  const progress = getRankProgress(points);
+  const xp       = Number(data.xp) || 0;
+  const level    = getLevel(xp);
+  const rankObj  = getRank(xp);
+  const progress = getRankProgress(xp);
   const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
   const nextRank = RANKS[rankIdx + 1] ?? null;
 
   renderAvatar(document.getElementById('user-avatar'), user, data);
-  setText('user-name',  data.displayName || user.displayName || 'Wojownik');
+  setText('user-name',  data.username || user.displayName || 'Wojownik');
   setText('user-email', data.email        || user.email        || '');
 
   const rankBadge  = document.getElementById('rank-badge');
@@ -157,7 +159,7 @@ function renderDashboard(user, data) {
   if (rankBadge)  rankBadge.textContent  = `${rankObj.emoji} ${rankObj.label}`;
   if (levelBadge) levelBadge.textContent = `Poziom ${level}`;
 
-  setText('stat-points', points.toLocaleString('pl-PL'));
+  setText('stat-points', xp.toLocaleString('pl-PL'));
   setText('stat-level',  String(level));
 
   const emojiEl = document.getElementById('stat-rank-emoji');
@@ -166,7 +168,7 @@ function renderDashboard(user, data) {
     emojiEl.className   = `stat-value ${rankObj.cssClass}`;
   }
 
-  renderXpBar(document.getElementById('xp-bar'), document.getElementById('xp-percent'), points);
+  renderXpBar(document.getElementById('xp-bar'), document.getElementById('xp-percent'), xp);
 
   setText('rank-current-label',
     `${rankObj.emoji} ${rankObj.label} (${rankObj.min.toLocaleString('pl-PL')} pkt)`);
@@ -201,12 +203,13 @@ export function initProfilePage() {
 
     if (!data) {
       data = {
-        uid:         user.uid,
-        displayName: user.displayName || 'Wojownik',
-        email:       user.email       || '',
-        photoURL:    user.photoURL    || '',
-        points:      0, level: 1, rank: 'Rookie',
-        bio: '', username: '',
+        uid:      user.uid,
+        username: user.displayName || 'Wojownik',
+        email:    user.email       || '',
+        avatar:   user.photoURL    || '',
+        xp:       0,
+        level:    1,
+        rank:     'Rookie',
       };
     }
 
@@ -217,8 +220,8 @@ export function initProfilePage() {
     initDangerSection(user);
     initSectionToggles();
 
-    // Update lastActive — not critical
-    updateDoc(doc(db, COL.USERS, user.uid), { lastActive: serverTimestamp() })
+    // Update updatedAt — not critical
+    updateDoc(doc(db, COL.USERS, user.uid), { updatedAt: serverTimestamp() })
       .catch(() => {});
   });
 
@@ -230,23 +233,23 @@ export function initProfilePage() {
 function renderProfilePage(user, data) {
   const TAG = '[renderProfilePage]';
 
-  const points   = Number(data.points) || 0;
-  const level    = getLevel(points);
-  const rankObj  = getRank(points);
-  const progress = getRankProgress(points);
+  const xp       = Number(data.xp) || 0;
+  const level    = getLevel(xp);
+  const rankObj  = getRank(xp);
+  const progress = getRankProgress(xp);
   const rankIdx  = RANKS.findIndex(r => r.id === rankObj.id);
   const nextRank = RANKS[rankIdx + 1] ?? null;
 
-  console.log(TAG, { displayName: data.displayName, points, rank: rankObj.id });
+  console.log(TAG, { username: data.username, xp, rank: rankObj.id });
 
   // Avatar
   const avatarEl = document.getElementById('profile-avatar-el');
   renderAvatar(avatarEl, user, data);
 
   // Dane
-  setText('profile-display-name', data.displayName || 'Wojownik');
-  setText('profile-username',     '@' + (data.username || data.displayName?.toLowerCase().replace(/\s+/g,'_') || 'wojownik'));
-  setText('profile-bio',          data.bio || 'Brak opisu profilu. Kliknij "Edytuj profil" aby dodać.');
+  setText('profile-display-name', data.username || 'Wojownik');
+  setText('profile-username',     '@' + (data.username || data.username?.toLowerCase().replace(/\s+/g,'_') || 'wojownik'));
+  setText('profile-bio',          '');
   setText('profile-email-display', data.email || user.email || '');
 
   // Badges
@@ -259,7 +262,7 @@ function renderProfilePage(user, data) {
   if (levelBadge) levelBadge.textContent = `Poziom ${level}`;
 
   // Stats
-  setText('profile-stat-points', points.toLocaleString('pl-PL'));
+  setText('profile-stat-points', xp.toLocaleString('pl-PL'));
   setText('profile-stat-level',  String(level));
   setText('profile-stat-rank',   rankObj.emoji);
 
@@ -270,7 +273,7 @@ function renderProfilePage(user, data) {
   renderXpBar(
     document.getElementById('profile-xp-bar'),
     document.getElementById('profile-xp-percent'),
-    points,
+    xp,
   );
 
   setText('profile-rank-current',
@@ -281,7 +284,7 @@ function renderProfilePage(user, data) {
       : '🏅 Maks. ranga!');
 
   // Formularz edycji — wypełnij
-  setVal('edit-display-name', data.displayName || '');
+  setVal('edit-display-name', data.username || '');
   setVal('edit-bio',          data.bio          || '');
 
   // Member since
@@ -305,11 +308,11 @@ const ACHIEVEMENT_DEFS = [
   { id: 'first_post',    emoji: '📝', name: 'Pierwszy post',     condition: d => (d.postsCount ?? 0) >= 1 },
   { id: 'ten_posts',     emoji: '✍️', name: '10 postów',         condition: d => (d.postsCount ?? 0) >= 10 },
   { id: 'first_like',    emoji: '❤️', name: 'Pierwsze lajki',    condition: d => (d.likesReceived ?? 0) >= 1 },
-  { id: 'warrior_rank',  emoji: '🥈', name: 'Ranga Warrior',     condition: d => (d.points ?? 0) >= 500 },
-  { id: 'champion_rank', emoji: '🥇', name: 'Ranga Champion',    condition: d => (d.points ?? 0) >= 2000 },
-  { id: 'legend_rank',   emoji: '💎', name: 'Ranga Legend',      condition: d => (d.points ?? 0) >= 10000 },
-  { id: 'golden_circle', emoji: '🌕', name: 'Złoty Krąg',        condition: d => (d.points ?? 0) >= 1000 },
-  { id: 'dragon',        emoji: '🐉', name: 'Pogromca Smoków',   condition: d => (d.points ?? 0) >= 5000 },
+  { id: 'warrior_rank',  emoji: '🥈', name: 'Ranga Warrior',     condition: d => (d.xp ?? 0) >= 500 },
+  { id: 'champion_rank', emoji: '🥇', name: 'Ranga Champion',    condition: d => (d.xp ?? 0) >= 2000 },
+  { id: 'legend_rank',   emoji: '💎', name: 'Ranga Legend',      condition: d => (d.xp ?? 0) >= 10000 },
+  { id: 'golden_circle', emoji: '🌕', name: 'Złoty Krąg',        condition: d => (d.xp ?? 0) >= 1000 },
+  { id: 'dragon',        emoji: '🐉', name: 'Pogromca Smoków',   condition: d => (d.xp ?? 0) >= 5000 },
 ];
 
 function renderAchievementsPreview(data) {
@@ -379,8 +382,8 @@ function initAvatarUpload(user, data) {
 
       // Update Firestore
       await updateDoc(doc(db, COL.USERS, user.uid), {
-        photoURL:   result.url,
-        lastActive: serverTimestamp(),
+        avatar:    result.url,
+        updatedAt: serverTimestamp(),
       });
 
       // Update avatar in UI
@@ -447,9 +450,8 @@ function initEditProfileSection(user, data) {
 
       // Aktualizuj Firestore
       await updateDoc(doc(db, COL.USERS, user.uid), {
-        displayName: newName,
-        bio:         newBio,
-        lastActive:  serverTimestamp(),
+        username:  newName,
+        updatedAt: serverTimestamp(),
       });
 
       // Aktualizuj UI natychmiast
