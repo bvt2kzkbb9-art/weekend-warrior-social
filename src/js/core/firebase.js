@@ -32,17 +32,27 @@ const firebaseConfig = {
   appId: "1:487311448505:web:ffbe035b92efa8fc193e68",
 };
 
-console.log('[Firebase] Environment Information:');
-console.log('[Firebase] Current Hostname:', window.location.hostname);
-console.log('[Firebase] Current Origin:', window.location.origin);
-console.log('[Firebase] Current Pathname:', window.location.pathname);
+console.log('[Firebase] ═══════════════════════════════════════════════════════');
+console.log('[Firebase] DIAGNOSTIC INFO - Browser Environment');
+console.log('[Firebase] ═══════════════════════════════════════════════════════');
+console.log('[Firebase] Hostname:', window.location.hostname);
+console.log('[Firebase] Origin:', window.location.origin);
+console.log('[Firebase] Pathname:', window.location.pathname);
+console.log('[Firebase] Full URL:', window.location.href);
 console.log('[Firebase] Protocol:', window.location.protocol);
+console.log('[Firebase] Deployment:',
+  window.location.hostname.includes('github.io') ? 'GITHUB PAGES' :
+  window.location.hostname.includes('web.app') ? 'FIREBASE HOSTING' : 'UNKNOWN'
+);
 
-console.log('[Firebase] Initializing with config:', {
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain,
-  appId: firebaseConfig.appId
-});
+console.log('[Firebase] ═══════════════════════════════════════════════════════');
+console.log('[Firebase] Firebase Config Being Used');
+console.log('[Firebase] ═══════════════════════════════════════════════════════');
+console.log('[Firebase] projectId:', firebaseConfig.projectId);
+console.log('[Firebase] authDomain:', firebaseConfig.authDomain);
+console.log('[Firebase] apiKey:', firebaseConfig.apiKey ? '✅ SET' : '❌ MISSING');
+console.log('[Firebase] appId:', firebaseConfig.appId);
+console.log('[Firebase] messagingSenderId:', firebaseConfig.messagingSenderId);
 
 const app = initializeApp(firebaseConfig);
 console.log('[Firebase] App initialized:', { name: app.name });
