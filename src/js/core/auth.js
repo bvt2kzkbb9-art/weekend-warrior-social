@@ -235,6 +235,7 @@ export async function registerWithEmail(email, password, displayName) {
     else if (err.code === "auth/network-request-failed") msg = "Brak połączenia z siecią";
     else if (err.code === "auth/operation-not-allowed") msg = "Rejestracja wyłączona w Firebase";
     else if (err.code === "auth/operation-not-supported-in-this-environment") msg = "Operacja nie wspierana w tym środowisku";
+    else if (err.code === "auth/requests-from-referer-blocked") msg = "Domena nie autoryzowana — patrz dokumentacja FIX_AUTH_BLOCKED.md";
 
     console.error('[registerWithEmail] Mapped error message:', msg);
     showToast(`❌ ${msg}`, "error");
@@ -272,6 +273,7 @@ export async function loginWithEmail(email, password) {
     else if (err.code === "auth/too-many-requests") msg = "Za dużo prób logowania. Spróbuj później.";
     else if (err.code === "auth/invalid-credential") msg = "Niepoprawny email lub hasło";
     else if (err.code === "auth/operation-not-allowed") msg = "Logowanie wyłączone w Firebase";
+    else if (err.code === "auth/requests-from-referer-blocked") msg = "Domena nie autoryzowana — patrz dokumentacja FIX_AUTH_BLOCKED.md";
 
     console.error('[loginWithEmail] Mapped error message:', msg);
     showToast(`❌ ${msg}`, "error");
@@ -392,6 +394,7 @@ export function initLoginForm() {
           "auth/invalid-email": "Niepoprawny adres email.",
           "auth/too-many-requests": "Za dużo prób. Odczekaj chwilę.",
           "auth/network-request-failed": "Brak połączenia z siecią.",
+          "auth/requests-from-referer-blocked": "Domena nie autoryzowana. Patrz: FIX_AUTH_BLOCKED.md",
         };
         const displayMsg = map[err.code] || "Błąd logowania: " + (err.code || err.message);
         showErr(displayMsg);
@@ -547,8 +550,11 @@ export function initRegisterForm() {
           setFieldError(emailIn, "Niepoprawny email.");
         } else if (err.code === "auth/weak-password") {
           setFieldError(passIn, "Hasło za słabe.");
+        } else if (err.code === "auth/requests-from-referer-blocked") {
+          showToast("⚠️ Domena nie autoryzowana w Firebase. Patrz: FIX_AUTH_BLOCKED.md", "error");
         } else {
           console.error('[initRegisterForm] Unhandled error code:', err.code);
+          showToast(`⚠️ Błąd: ${err.code || err.message}`, "error");
         }
       } finally {
         setLoading(registerBtn, false);
