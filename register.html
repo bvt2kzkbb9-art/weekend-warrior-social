@@ -13,6 +13,8 @@
       <p>Stwórz nowe konto</p>
 
       <form class="auth-form" id="register-form">
+        <div id="error-msg" style="display: none; color: red; font-size: 12px; margin-bottom: 10px; white-space: pre-wrap;"></div>
+
         <div class="form-group">
           <label>Imię</label>
           <input type="text" id="display-name" required>
@@ -51,8 +53,21 @@
 
   <script type="module">
     import { initRegisterForm, redirectIfLogged } from './src/js/core/auth.js';
+
+    console.log('[register.html] Initializing...');
+
     redirectIfLogged();
     initRegisterForm();
+
+    // Add global error handler for uncaught auth errors
+    window.addEventListener('error', (e) => {
+      console.error('[register.html] Uncaught error:', e.error);
+    });
+
+    // Add handler for unhandled promise rejections
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('[register.html] Unhandled promise rejection:', e.reason);
+    });
   </script>
 </body>
 </html>

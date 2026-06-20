@@ -504,8 +504,8 @@
     // Check if user is already logged in
     checkAuth((user, userData) => {
       if (user) {
-        console.log('[index.html] User is logged in, redirecting to dashboard');
-        window.location.href = '/dashboard.html';
+        console.log('[index.html] User is logged in, redirecting to feed');
+        window.location.href = '/feed.html';
         return;
       }
 

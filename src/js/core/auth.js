@@ -558,6 +558,7 @@ export function initRegisterForm() {
   const termsIn = document.getElementById("terms");
   const registerBtn = document.getElementById("register-btn");
   const googleBtn = document.getElementById("google-btn");
+  const errorMsgEl = document.getElementById("error-msg");
   const strengthLabel = document.getElementById("strength-label");
   const bars = Array.from(document.querySelectorAll(".strength-bar"));
 
@@ -668,18 +669,32 @@ export function initRegisterForm() {
         console.error('[initRegisterForm] Error Code:', err.code);
         console.error('[initRegisterForm] Error Message:', err.message);
 
+        let errorDisplay = `❌ Błąd rejestracji\n\nKod: ${err.code}\nWiadomość: ${err.message}`;
+
         if (err.code === "auth/email-already-in-use") {
           setFieldError(emailIn, "Email już w użyciu.");
+          errorDisplay = "❌ Ten email jest już zarejestrowany. Spróbuj się zalogować lub użyj innego emaila.";
         } else if (err.code === "auth/invalid-email") {
           setFieldError(emailIn, "Niepoprawny email.");
+          errorDisplay = "❌ Adres email jest niepoprawny. Sprawdź format (xxx@xxx.xxx).";
         } else if (err.code === "auth/weak-password") {
           setFieldError(passIn, "Hasło za słabe.");
+          errorDisplay = "❌ Hasło musi mieć co najmniej 6 znaków.";
+        } else if (err.code === "auth/network-request-failed") {
+          errorDisplay = "❌ Brak połączenia z siecią. Sprawdź połączenie internetowe.";
+        } else if (err.code === "auth/operation-not-allowed") {
+          errorDisplay = "❌ Rejestracja jest wyłączona. Spróbuj za chwilę.";
         } else if (err.code === "auth/requests-from-referer-blocked") {
-          showToast("⚠️ Domena nie autoryzowana w Firebase. Patrz: FIX_AUTH_BLOCKED.md", "error");
+          errorDisplay = `❌ Błąd autoryzacji domeny\n\nDomena: ${window.location.hostname}\nNie jest autoryzowana w Firebase.\n\nSzukaj: FIX_AUTH_BLOCKED.md`;
         } else {
           console.error('[initRegisterForm] Unhandled error code:', err.code);
-          showToast(`⚠️ Błąd: ${err.code || err.message}`, "error");
         }
+
+        if (errorMsgEl) {
+          errorMsgEl.textContent = errorDisplay;
+          errorMsgEl.style.display = 'block';
+        }
+        showToast(errorDisplay.split('\n')[0], "error");
       } finally {
         setLoading(registerBtn, false);
       }
