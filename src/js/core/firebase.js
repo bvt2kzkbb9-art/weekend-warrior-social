@@ -40,21 +40,27 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // ── Kolekcje ─────────────────────────────────────────────────
+// PHASE 1.3: Only users collection is active
+// TODO: Future collections (leave for expansion phases):
+// POSTS, COMMENTS, FOLLOWERS, FRIEND_REQUESTS, FRIENDS
+// CONVERSATIONS, MESSAGES, NOTIFICATIONS
+// CHALLENGE_INVITES, CHALLENGES, LAGA_REQUESTS
+// ACHIEVEMENTS, USER_ACHIEVEMENTS
 export const COL = {
   USERS: "users",
-  POSTS: "posts",
-  COMMENTS: "comments",
-  FOLLOWERS: "followers",
-  FRIEND_REQUESTS: "friend_requests",
-  FRIENDS: "friends",
-  CONVERSATIONS: "conversations",
-  MESSAGES: "messages",
-  NOTIFICATIONS: "notifications",
-  CHALLENGE_INVITES: "challenge_invites",
-  CHALLENGES: "challenges",
-  LAGA_REQUESTS: "laga_requests",
-  ACHIEVEMENTS: "achievements",
-  USER_ACHIEVEMENTS: "userAchievements",
+  // TODO POSTS: "posts",
+  // TODO COMMENTS: "comments",
+  // TODO FOLLOWERS: "followers",
+  // TODO FRIEND_REQUESTS: "friend_requests",
+  // TODO FRIENDS: "friends",
+  // TODO CONVERSATIONS: "conversations",
+  // TODO MESSAGES: "messages",
+  // TODO NOTIFICATIONS: "notifications",
+  // TODO CHALLENGE_INVITES: "challenge_invites",
+  // TODO CHALLENGES: "challenges",
+  // TODO LAGA_REQUESTS: "laga_requests",
+  // TODO ACHIEVEMENTS: "achievements",
+  // TODO USER_ACHIEVEMENTS: "userAchievements",
 };
 
 // ── Rangi ────────────────────────────────────────────────────

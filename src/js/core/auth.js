@@ -88,25 +88,76 @@ export async function ensureUserDoc(user) {
   const snap = await getDoc(ref).catch(() => null);
 
   if (!snap || !snap.exists()) {
+    const username = user.displayName || user.email.split("@")[0];
     const userData = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName || "Wojownik",
-      photoURL: user.photoURL || "",
-      bannerURL: "",
-      username: user.email.split("@")[0],
-      bio: "",
-      points: 0,
+      username: username,
+      avatar: user.photoURL || "",
       level: 1,
+      xp: 0,
       rank: "Rookie",
       streak: 0,
+      online: false,
       createdAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      lastSeen: serverTimestamp(),
     };
     await setDoc(ref, userData);
     return userData;
   }
   return snap.data();
+}
+
+export async function migrateUserDoc(user) {
+  if (!user) return null;
+  const ref = doc(db, COL.USERS, user.uid);
+  const snap = await getDoc(ref).catch(() => null);
+
+  if (!snap || !snap.exists()) {
+    return ensureUserDoc(user);
+  }
+
+  const data = snap.data();
+  const needsMigration = data.photoURL !== undefined || data.points !== undefined || !data.avatar || !data.xp;
+
+  if (needsMigration) {
+    const migratedData = {
+      ...data,
+      avatar: data.avatar || data.photoURL || "",
+      xp: data.xp !== undefined ? data.xp : (data.points || 0),
+      rank: data.rank || "Rookie",
+      streak: data.streak !== undefined ? data.streak : 0,
+      online: data.online !== undefined ? data.online : false,
+      updatedAt: data.updatedAt ? data.updatedAt : serverTimestamp(),
+      lastSeen: data.lastSeen ? data.lastSeen : serverTimestamp(),
+    };
+
+    delete migratedData.photoURL;
+    delete migratedData.points;
+    delete migratedData.displayName;
+    delete migratedData.bannerURL;
+    delete migratedData.bio;
+    delete migratedData.lastLoginAt;
+
+    await updateDoc(ref, migratedData);
+    return migratedData;
+  }
+
+  return data;
+}
+
+export async function updateLastSeen(uid) {
+  if (!uid) return;
+  try {
+    await updateDoc(doc(db, COL.USERS, uid), {
+      lastSeen: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      online: true,
+    });
+  } catch (err) {
+    console.error('[updateLastSeen] error:', err);
+  }
 }
 
 export async function getCurrentUserData(uid) {
@@ -119,11 +170,11 @@ export function checkAuth(callback) {
   const unsubscribe = onAuthStateChanged(auth, async (user) => {
     if (user) {
       try {
-        const userData = await getCurrentUserData(user.uid);
+        const userData = await migrateUserDoc(user);
+        await updateLastSeen(user.uid);
         callback(user, userData || {});
       } catch (err) {
         console.error('[checkAuth] data load error:', err.code);
-        // Still call callback with user but empty data
         callback(user, {});
       }
     } else {
@@ -156,7 +207,8 @@ export async function registerWithEmail(email, password, displayName) {
 export async function loginWithEmail(email, password) {
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, password);
-    await updateDoc(doc(db, COL.USERS, user.uid), { lastLoginAt: serverTimestamp() });
+    await migrateUserDoc(user);
+    await updateLastSeen(user.uid);
     showToast("✅ Zalogowano!", "success");
     return user;
   } catch (err) {
@@ -173,7 +225,7 @@ export async function loginWithGoogle() {
   try {
     const { user } = await signInWithPopup(auth, googleProvider);
     await ensureUserDoc(user);
-    await updateDoc(doc(db, COL.USERS, user.uid), { lastLoginAt: serverTimestamp() });
+    await updateLastSeen(user.uid);
     showToast("✅ Zalogowano przez Google!", "success");
     return user;
   } catch (err) {
@@ -217,11 +269,11 @@ export function handleAuthUI(user, userData) {
   const userRankEl = document.getElementById("user-rank");
   const userXpEl = document.getElementById("user-xp");
 
-  if (userNameEl) userNameEl.textContent = userData.displayName || "Wojownik";
-  if (userAvatarEl) userAvatarEl.textContent = (userData.displayName || "W").charAt(0).toUpperCase();
+  if (userNameEl) userNameEl.textContent = userData.username || "Wojownik";
+  if (userAvatarEl) userAvatarEl.textContent = (userData.username || "W").charAt(0).toUpperCase();
   if (userLevelEl) userLevelEl.textContent = userData.level || 1;
   if (userRankEl) userRankEl.textContent = userData.rank || "Rookie";
-  if (userXpEl) userXpEl.textContent = userData.points || 0;
+  if (userXpEl) userXpEl.textContent = userData.xp || 0;
 }
 
 // ════════════════════════════════════════════════════════════

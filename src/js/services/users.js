@@ -114,13 +114,11 @@ export function obliczKompletnosćProfilu(dane) {
   if (!dane) return 0;
 
   let punkty = 0;
-  const maksimum = 5;
+  const maksimum = 3;
 
-  if (dane.displayName && dane.displayName !== '') punkty++;
-  if (dane.bio && dane.bio !== '') punkty++;
-  if (dane.photoURL && dane.photoURL !== '') punkty++;
-  if (dane.bannerURL && dane.bannerURL !== '') punkty++;
   if (dane.username && dane.username !== '') punkty++;
+  if (dane.avatar && dane.avatar !== '') punkty++;
+  if (dane.email && dane.email !== '') punkty++;
 
   return Math.round((punkty / maksimum) * 100);
 }
