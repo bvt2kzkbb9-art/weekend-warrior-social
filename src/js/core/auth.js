@@ -1,4 +1,4 @@
-import { auth, db, COL, googleProvider } from "./firebase.js";
+import { auth, db, COL, googleProvider, uploadImage, compressImage } from "./firebase.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -15,7 +15,6 @@ import {
   updateDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { uploadImage, compressImage } from "./storage.js";
 
 export function showToast(message, type = "info", duration = 4000) {
   let container = document.getElementById("wws-toasts");
