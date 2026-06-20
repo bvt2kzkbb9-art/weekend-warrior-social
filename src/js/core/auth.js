@@ -156,20 +156,19 @@ export function checkAuth(callback) {
 }
 
 export function redirectIfNotLogged(callback) {
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = '/login.html';
       return;
     }
 
-    try {
-      const userData = await migrateUserDoc(user);
-      await updateLastSeen(user.uid);
-      callback(user, userData || {});
-    } catch (err) {
-      console.error('[redirectIfNotLogged] error:', err.code);
-      window.location.href = '/login.html';
-    }
+    migrateUserDoc(user)
+      .then(userData => updateLastSeen(user.uid).then(() => userData))
+      .then(userData => callback(user, userData || {}))
+      .catch(err => {
+        console.error('[redirectIfNotLogged] error:', err.code);
+        window.location.href = '/login.html';
+      });
   });
 }
 
