@@ -232,76 +232,175 @@ export function redirectIfNotLogged(callback) {
 }
 
 export async function registerWithEmail(email, password, displayName) {
+  console.log('[registerWithEmail] ========== START REGISTRATION ==========');
+  console.log('[registerWithEmail] Email:', email);
+  console.log('[registerWithEmail] Display Name:', displayName);
+  console.log('[registerWithEmail] Auth instance:', {
+    authDomain: auth.config.authDomain,
+    projectId: auth.config.projectId,
+    apiKey: auth.config.apiKey ? '(set)' : '(missing)',
+    configured: !!auth
+  });
+
   try {
-    console.log('[registerWithEmail] START:', { email, displayName });
-    console.log('[registerWithEmail] Firebase Auth instance:', { authDomain: auth.config.authDomain, projectId: auth.config.projectId });
-
+    console.log('[registerWithEmail] Step 1: Creating user with Email/Password...');
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
-    console.log('[registerWithEmail] User created:', { uid: user.uid, email: user.email });
+    console.log('[registerWithEmail] ✅ User created in Firebase Auth:', {
+      uid: user.uid,
+      email: user.email,
+      emailVerified: user.emailVerified,
+      createdAt: user.metadata?.creationTime
+    });
 
+    console.log('[registerWithEmail] Step 2: Updating user profile...');
     await updateProfile(user, { displayName });
-    console.log('[registerWithEmail] Profile updated:', { uid: user.uid, displayName });
+    console.log('[registerWithEmail] ✅ Profile updated:', { displayName });
 
-    await ensureUserDoc(user);
-    console.log('[registerWithEmail] User doc created in Firestore:', { uid: user.uid });
+    console.log('[registerWithEmail] Step 3: Creating Firestore user document...');
+    const userData = await ensureUserDoc(user);
+    console.log('[registerWithEmail] ✅ Firestore document created:', {
+      uid: userData.uid,
+      email: userData.email,
+      username: userData.username,
+      xp: userData.xp,
+      level: userData.level,
+      rank: userData.rank
+    });
 
-    showToast("✅ Konto utworzone!", "success");
+    console.log('[registerWithEmail] ========== REGISTRATION SUCCESS ==========');
+    showToast("✅ Konto utworzone! Zalogowano automatycznie.", "success");
     return user;
+
   } catch (err) {
-    console.error('[registerWithEmail] FULL ERROR:', err);
-    console.error('[registerWithEmail] Error Code:', err.code);
-    console.error('[registerWithEmail] Error Message:', err.message);
-    console.error('[registerWithEmail] Error Stack:', err.stack);
+    console.error('[registerWithEmail] ========== REGISTRATION FAILED ==========');
+    console.error('[registerWithEmail] Full error object:', err);
+    console.error('[registerWithEmail] Error code:', err.code);
+    console.error('[registerWithEmail] Error message:', err.message);
+    console.error('[registerWithEmail] Error name:', err.name);
+
+    if (err.stack) console.error('[registerWithEmail] Stack trace:', err.stack);
 
     let msg = "Błąd rejestracji";
-    if (err.code === "auth/email-already-in-use") msg = "Email już w użyciu";
-    else if (err.code === "auth/weak-password") msg = "Hasło za słabe (min. 6 znaków)";
-    else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
-    else if (err.code === "auth/network-request-failed") msg = "Brak połączenia z siecią";
-    else if (err.code === "auth/operation-not-allowed") msg = "Rejestracja wyłączona w Firebase";
-    else if (err.code === "auth/operation-not-supported-in-this-environment") msg = "Operacja nie wspierana w tym środowisku";
-    else if (err.code === "auth/requests-from-referer-blocked") msg = "Domena nie autoryzowana — patrz dokumentacja FIX_AUTH_BLOCKED.md";
+    let details = "";
 
-    console.error('[registerWithEmail] Mapped error message:', msg);
-    showToast(`❌ ${msg}`, "error");
+    if (err.code === "auth/email-already-in-use") {
+      msg = "Email już w użyciu";
+      details = "Spróbuj zalogować się lub użyć innego emaila";
+    } else if (err.code === "auth/weak-password") {
+      msg = "Hasło za słabe";
+      details = "Hasło musi mieć co najmniej 6 znaków";
+    } else if (err.code === "auth/invalid-email") {
+      msg = "Niepoprawny email";
+      details = "Sprawdź format adresu email";
+    } else if (err.code === "auth/network-request-failed") {
+      msg = "Brak połączenia z siecią";
+      details = "Sprawdź połączenie internetowe";
+    } else if (err.code === "auth/operation-not-allowed") {
+      msg = "Rejestracja wyłączona";
+      details = "Rejestracja jest tymczasowo wyłączona. Spróbuj za chwilę.";
+    } else if (err.code === "auth/operation-not-supported-in-this-environment") {
+      msg = "Środowisko nie wspierane";
+      details = "Upewnij się, że używasz HTTPS";
+    } else if (err.code === "auth/requests-from-referer-blocked") {
+      msg = "Domena nie autoryzowana";
+      details = "Aplikacja nie ma dostępu do Firebase z tej domeny";
+    } else {
+      details = err.message || err.code;
+    }
+
+    console.error('[registerWithEmail] Mapped message:', msg);
+    console.error('[registerWithEmail] Details:', details);
+    console.error('[registerWithEmail] ========== END FAILED ATTEMPT ==========');
+
+    showToast(`❌ ${msg}\n${details}`, "error");
     throw err;
   }
 }
 
 export async function loginWithEmail(email, password) {
+  console.log('[loginWithEmail] ========== START LOGIN ==========');
+  console.log('[loginWithEmail] Email:', email);
+  console.log('[loginWithEmail] Auth configured:', {
+    authDomain: auth.config.authDomain,
+    projectId: auth.config.projectId,
+    apiKey: auth.config.apiKey ? '(set)' : '(missing)',
+    currentHost: window.location.hostname,
+    currentOrigin: window.location.origin
+  });
+
   try {
-    console.log('[loginWithEmail] START:', { email });
-    console.log('[loginWithEmail] Firebase Auth instance:', { authDomain: auth.config.authDomain, projectId: auth.config.projectId });
-
+    console.log('[loginWithEmail] Step 1: Signing in with email/password...');
     const { user } = await signInWithEmailAndPassword(auth, email, password);
-    console.log('[loginWithEmail] User signed in:', { uid: user.uid, email: user.email });
+    console.log('[loginWithEmail] ✅ User signed in:', {
+      uid: user.uid,
+      email: user.email,
+      emailVerified: user.emailVerified
+    });
 
-    await migrateUserDoc(user);
-    console.log('[loginWithEmail] User doc migrated:', { uid: user.uid });
+    console.log('[loginWithEmail] Step 2: Loading user profile from Firestore...');
+    const userData = await migrateUserDoc(user);
+    console.log('[loginWithEmail] ✅ User data loaded:', {
+      username: userData.username,
+      xp: userData.xp,
+      level: userData.level,
+      rank: userData.rank
+    });
 
+    console.log('[loginWithEmail] Step 3: Updating last seen...');
     await updateLastSeen(user.uid);
-    console.log('[loginWithEmail] Last seen updated:', { uid: user.uid });
+    console.log('[loginWithEmail] ✅ Last seen updated');
 
-    showToast("✅ Zalogowano!", "success");
+    console.log('[loginWithEmail] ========== LOGIN SUCCESS ==========');
+    showToast("✅ Zalogowano pomyślnie!", "success");
     return user;
+
   } catch (err) {
-    console.error('[loginWithEmail] FULL ERROR:', err);
-    console.error('[loginWithEmail] Error Code:', err.code);
-    console.error('[loginWithEmail] Error Message:', err.message);
-    console.error('[loginWithEmail] Error Stack:', err.stack);
+    console.error('[loginWithEmail] ========== LOGIN FAILED ==========');
+    console.error('[loginWithEmail] Full error:', err);
+    console.error('[loginWithEmail] Error code:', err.code);
+    console.error('[loginWithEmail] Error message:', err.message);
+    console.error('[loginWithEmail] Error name:', err.name);
+
+    if (err.stack) console.error('[loginWithEmail] Stack:', err.stack);
 
     let msg = "Błąd logowania";
-    if (err.code === "auth/user-not-found") msg = "Użytkownik nie istnieje";
-    else if (err.code === "auth/wrong-password") msg = "Niepoprawne hasło";
-    else if (err.code === "auth/invalid-email") msg = "Niepoprawny email";
-    else if (err.code === "auth/network-request-failed") msg = "Brak połączenia z siecią";
-    else if (err.code === "auth/too-many-requests") msg = "Za dużo prób logowania. Spróbuj później.";
-    else if (err.code === "auth/invalid-credential") msg = "Niepoprawny email lub hasło";
-    else if (err.code === "auth/operation-not-allowed") msg = "Logowanie wyłączone w Firebase";
-    else if (err.code === "auth/requests-from-referer-blocked") msg = "Domena nie autoryzowana — patrz dokumentacja FIX_AUTH_BLOCKED.md";
+    let details = "";
 
-    console.error('[loginWithEmail] Mapped error message:', msg);
-    showToast(`❌ ${msg}`, "error");
+    if (err.code === "auth/user-not-found") {
+      msg = "Użytkownik nie istnieje";
+      details = "Konto z tym emailem nie zostało znalezione";
+    } else if (err.code === "auth/wrong-password") {
+      msg = "Niepoprawne hasło";
+      details = "Sprawdź poprawność hasła";
+    } else if (err.code === "auth/invalid-email") {
+      msg = "Niepoprawny email";
+      details = "Sprawdź format adresu email";
+    } else if (err.code === "auth/invalid-credential") {
+      msg = "Niepoprawne dane";
+      details = "Email lub hasło jest niepoprawne";
+    } else if (err.code === "auth/network-request-failed") {
+      msg = "Brak połączenia";
+      details = "Sprawdź połączenie internetowe";
+    } else if (err.code === "auth/too-many-requests") {
+      msg = "Za dużo prób";
+      details = "Zbyt wiele nieudanych prób logowania. Spróbuj za 15 minut.";
+    } else if (err.code === "auth/operation-not-allowed") {
+      msg = "Logowanie wyłączone";
+      details = "Logowanie jest tymczasowo wyłączone";
+    } else if (err.code === "auth/requests-from-referer-blocked") {
+      msg = "Błąd autoryzacji domeny";
+      details = `Aplikacja (${window.location.hostname}) nie jest autoryzowana w Firebase`;
+    } else {
+      details = err.message || err.code;
+    }
+
+    console.error('[loginWithEmail] Mapped:', msg);
+    console.error('[loginWithEmail] Details:', details);
+    console.error('[loginWithEmail] Host:', window.location.hostname);
+    console.error('[loginWithEmail] Origin:', window.location.origin);
+    console.error('[loginWithEmail] ========== END FAILED ATTEMPT ==========');
+
+    showToast(`❌ ${msg}\n${details}`, "error");
     throw err;
   }
 }

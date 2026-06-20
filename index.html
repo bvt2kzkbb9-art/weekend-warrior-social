@@ -3,77 +3,515 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekend Warrior Social</title>
+  <title>Weekend Warrior Social - Społeczność Wojowników</title>
   <link rel="stylesheet" href="src/styles/foundation.css">
   <style>
-    #auth-loading {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #fff;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #eee;
+    }
+
+    nav .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    nav .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #666;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #e74c3c;
+    }
+
+    .btn-nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-nav a {
+      padding: 0.5rem 1.5rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+
+    .btn-login {
+      color: #2c3e50;
+      border: 2px solid #2c3e50;
+    }
+
+    .btn-register {
+      background: #e74c3c;
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 70vh;
+    }
+
+    .hero-content h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+      line-height: 1.2;
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 2rem;
+      line-height: 1.8;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-secondary {
+      border: 2px solid #2c3e50;
+      color: #2c3e50;
+    }
+
+    .btn-secondary:hover {
+      background: #2c3e50;
+      color: white;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #e74c3c;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .hero-image {
+      text-align: center;
+    }
+
+    .hero-image svg {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+    }
+
+    /* Features Section */
+    .features {
+      background: #f8f9fa;
+      padding: 5rem 2rem;
+    }
+
+    .features-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #2c3e50;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .feature-card p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* CTA Section */
+    .cta {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .cta-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .cta p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      opacity: 0.95;
+    }
+
+    .cta .btn {
+      background: white;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .cta .btn:hover {
+      background: #f8f9fa;
+    }
+
+    /* Footer */
+    footer {
+      background: #2c3e50;
+      color: white;
+      padding: 3rem 2rem 1rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      margin-bottom: 2rem;
+    }
+
+    .footer-section h4 {
+      margin-bottom: 1rem;
+      color: #e74c3c;
+    }
+
+    .footer-section a {
+      color: #bdc3c7;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .footer-section a:hover {
+      color: #e74c3c;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #34495e;
+      padding-top: 2rem;
+      text-align: center;
+      color: #bdc3c7;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav .nav-links {
+        display: none;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 2rem 1rem;
+        min-height: auto;
+      }
+
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+
+      .hero-content p {
+        font-size: 1rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+        margin-top: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+      }
+
+      .cta h2 {
+        font-size: 1.8rem;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hidden-while-loading {
+      display: none;
+    }
+
+    .loading {
       display: flex;
       align-items: center;
       justify-content: center;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #fff;
-      z-index: 9999;
-      font-size: 14px;
-      color: #666;
+      height: 100vh;
+      background: white;
     }
   </style>
 </head>
 <body>
-  <div id="auth-loading">Sprawdzanie sesji...</div>
+  <div id="auth-check" class="loading">
+    <p>Ładowanie...</p>
+  </div>
 
-  <div class="app-layout" id="app-layout" style="display: none;">
-    <!-- Top bar -->
-    <header class="topbar">
-      <div class="topbar-logo">WWS</div>
-      <div class="topbar-actions">
-        <button class="topbar-action-btn" aria-label="Logout" onclick="logout()">X</button>
+  <div id="main-content" class="hidden-while-loading">
+    <!-- Navigation -->
+    <nav>
+      <div class="logo">⚔️ Weekend Warrior</div>
+      <ul class="nav-links">
+        <li><a href="#features">Funkcje</a></li>
+        <li><a href="#about">O nas</a></li>
+        <li><a href="#community">Społeczność</a></li>
+      </ul>
+      <div class="btn-nav">
+        <a href="login.html" class="btn-login">Logowanie</a>
+        <a href="register.html" class="btn-register">Rejestracja</a>
       </div>
-    </header>
-
-    <!-- Main content -->
-    <main class="main"></main>
-
-    <!-- Bottom navigation -->
-    <nav class="bottom-nav">
-      <a href="#/" class="nav-item" data-route="/">Arena</a>
-      <a href="#/kroniki" class="nav-item" data-route="/kroniki">Kroniki</a>
-      <a href="#/misje" class="nav-item" data-route="/misje">Misje</a>
-      <a href="#/chwala" class="nav-item" data-route="/chwala">Chwała</a>
-      <a href="#/bohater" class="nav-item" data-route="/bohater">Bohater</a>
     </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Bądź Wojownikiem Weekendu</h1>
+        <p>Dołącz do społeczności ludzi, którzy przekraczają swoje granice każdy weekend. Zbieraj punkty, wspinaj się w rankingach i rywalizuj z przyjaciółmi.</p>
+        <div class="hero-buttons">
+          <a href="register.html" class="btn btn-primary">Utwórz konto</a>
+          <a href="login.html" class="btn btn-secondary">Zaloguj się</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-number">1000+</div>
+            <div class="stat-label">Wojowników</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Wyzwań</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Aktywna społeczność</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="200" r="150" fill="#e74c3c" opacity="0.1"/>
+          <circle cx="200" cy="200" r="120" fill="#e74c3c" opacity="0.2"/>
+          <text x="200" y="220" font-size="80" text-anchor="middle" fill="#e74c3c" font-weight="bold">⚔️</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="features-container">
+        <h2 class="section-title">Funkcje Aplikacji</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>System Rangów</h3>
+            <p>Zbieraj punkty doświadczenia i wspinaj się przez rangi: Nowicjusz, Wojownik, Mistrz i Legenda.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>Społeczność</h3>
+            <p>Połącz się z przyjaciółmi, śledź ich postęp i dziel się swoimi osiągnięciami.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h3>Wyzwania</h3>
+            <p>Rywalizuj w wyzwaniach, zdobywaj odznaki i zostań najlepszym wojownikiem weekendu.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Statystyki</h3>
+            <p>Śledź swoje postępy, wyniki i najlepsze okresy aktywności w szczegółowych raportach.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Osiągnięcia</h3>
+            <p>Odblokuj ponad 50 unikalnych osiągnięć poprzez różne działania i wyzwania.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Mobilne</h3>
+            <p>W pełni responsywna aplikacja. Uczestnicz z dowolnego urządzenia, o dowolnym czasie.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="about">
+      <div class="cta-content">
+        <h2>Gotów na Wyzwanie?</h2>
+        <p>Dołącz do społeczności Weekend Warrior już dzisiaj. To całkowicie darmowe i zajmie Ci mniej niż 30 sekund.</p>
+        <a href="register.html" class="btn">Utwórz konto teraz</a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="community">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Aplikacja</h4>
+          <a href="#features">Funkcje</a>
+          <a href="/login.html">Logowanie</a>
+          <a href="/register.html">Rejestracja</a>
+        </div>
+        <div class="footer-section">
+          <h4>Społeczność</h4>
+          <a href="#">Forum</a>
+          <a href="#">Discord</a>
+          <a href="#">Twitter</a>
+        </div>
+        <div class="footer-section">
+          <h4>Pomoc</h4>
+          <a href="#">FAQ</a>
+          <a href="#">Wsparcie</a>
+          <a href="#">Zaraportuj błąd</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Weekend Warrior Social. Wszystkie prawa zastrzeżone.</p>
+      </div>
+    </footer>
   </div>
 
   <script type="module">
-    import { logout, redirectIfNotLogged } from './src/js/core/auth.js';
-    import { initRouter, navigateTo, defineRoute } from './src/js/core/router.js';
-    import { renderArena } from './src/arena/arena.js';
-    import { renderKroniki, renderMisje, renderChwala, renderBohater } from './src/placeholders.js';
+    import { checkAuth } from './src/js/core/auth.js';
 
-    window.navigateTo = navigateTo;
-    window.logout = logout;
-    window.currentUser = null;
-    window.currentUserData = null;
+    console.log('[index.html] Checking authentication status...');
 
-    // Define routes
-    defineRoute('/', renderArena);
-    defineRoute('/kroniki', renderKroniki);
-    defineRoute('/misje', renderMisje);
-    defineRoute('/chwala', renderChwala);
-    defineRoute('/bohater', renderBohater);
+    const mainContent = document.getElementById('main-content');
+    const authCheck = document.getElementById('auth-check');
 
-    // Auth guard - redirect if not logged in, otherwise show app
-    redirectIfNotLogged((user, userData) => {
-      window.currentUser = user;
-      window.currentUserData = userData;
+    // Check if user is already logged in
+    checkAuth((user, userData) => {
+      if (user) {
+        console.log('[index.html] User is logged in, redirecting to dashboard');
+        window.location.href = '/dashboard.html';
+        return;
+      }
 
-      document.getElementById('auth-loading').style.display = 'none';
-      document.getElementById('app-layout').style.display = 'flex';
-
-      initRouter();
+      console.log('[index.html] User is not logged in, showing landing page');
+      authCheck.style.display = 'none';
+      mainContent.classList.remove('hidden-while-loading');
     });
   </script>
 </body>
