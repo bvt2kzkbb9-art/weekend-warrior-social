@@ -3,12 +3,12 @@
  * Complete messenger with proper event handling
  */
 
-import { auth, db, COL, uploadImage } from "./firebase.js";
+import { auth, db, COL, uploadImage } from "../core/firebase.js";
 import {
   collection, query, where, getDocs, getDoc, doc, addDoc, updateDoc,
   onSnapshot, orderBy, serverTimestamp, increment, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { showToast } from "./auth.js";
+import { showToast } from "../core/auth.js";
 import { createNotification } from "./notifications.js";
 
 let currentUser = null;
@@ -119,12 +119,12 @@ function renderOnlineUsers() {
   onlineUsers.forEach(user => {
     const avatar = document.createElement('div');
     avatar.className = 'online-avatar';
-    avatar.title = user.displayName || 'Wojownik';
-    avatar.onclick = () => openOrCreateChat(user.uid, user.displayName);
+    avatar.title = user.username || 'Wojownik';
+    avatar.onclick = () => openOrCreateChat(user.uid, user.username);
 
-    const initials = user.displayName?.charAt(0).toUpperCase() || 'U';
-    if (user.photoURL) {
-      avatar.innerHTML = `<img src="${escapeHtml(user.photoURL)}" alt="" />`;
+    const initials = user.username?.charAt(0).toUpperCase() || 'U';
+    if (user.avatar) {
+      avatar.innerHTML = `<img src="${escapeHtml(user.avatar)}" alt="" />`;
     } else {
       avatar.textContent = initials;
     }
@@ -185,18 +185,18 @@ async function renderConversations() {
       item.className = `chat-item${hasUnread ? ' unread' : ''}`;
       item.dataset.convId = conv.id;
       item.dataset.otherUid = otherUid;
-      item.dataset.otherName = userData.displayName || 'Wojownik';
+      item.dataset.otherName = userData.username || 'Wojownik';
 
-      const initials = userData.displayName?.charAt(0).toUpperCase() || 'U';
+      const initials = userData.username?.charAt(0).toUpperCase() || 'U';
 
       item.innerHTML = `
         <div class="chat-avatar">
-          ${userData.photoURL 
-            ? `<img src="${escapeHtml(userData.photoURL)}" alt="" />` 
+          ${userData.avatar 
+            ? `<img src="${escapeHtml(userData.avatar)}" alt="" />` 
             : initials}
         </div>
         <div class="chat-info">
-          <div class="chat-name">${escapeHtml(userData.displayName || 'Wojownik')}</div>
+          <div class="chat-name">${escapeHtml(userData.username || 'Wojownik')}</div>
           <div class="chat-preview">${escapeHtml((conv.lastMessage || '').substring(0, 50))}</div>
         </div>
         <div>
@@ -206,7 +206,7 @@ async function renderConversations() {
       `;
 
       item.addEventListener('click', () => {
-        openChat(conv.id, otherUid, userData.displayName);
+        openChat(conv.id, otherUid, userData.username);
       });
 
       list.appendChild(item);
@@ -402,7 +402,7 @@ async function sendMessage() {
 
     // Get user data
     const userSnap = await getDoc(doc(db, COL.USERS, currentUser.uid));
-    const userName = userSnap.exists() ? userSnap.data().displayName || 'Wojownik' : 'Wojownik';
+    const userName = userSnap.exists() ? userSnap.data().username || 'Wojownik' : 'Wojownik';
 
     // Send message
     await addDoc(collection(db, COL.CONVERSATIONS, activeConversationId, COL.MESSAGES), {

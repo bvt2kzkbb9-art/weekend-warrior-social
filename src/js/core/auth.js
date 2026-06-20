@@ -269,11 +269,11 @@ export function handleAuthUI(user, userData) {
   const userRankEl = document.getElementById("user-rank");
   const userXpEl = document.getElementById("user-xp");
 
-  if (userNameEl) userNameEl.textContent = userData.displayName || "Wojownik";
-  if (userAvatarEl) userAvatarEl.textContent = (userData.displayName || "W").charAt(0).toUpperCase();
+  if (userNameEl) userNameEl.textContent = userData.username || "Wojownik";
+  if (userAvatarEl) userAvatarEl.textContent = (userData.username || "W").charAt(0).toUpperCase();
   if (userLevelEl) userLevelEl.textContent = userData.level || 1;
   if (userRankEl) userRankEl.textContent = userData.rank || "Rookie";
-  if (userXpEl) userXpEl.textContent = userData.points || 0;
+  if (userXpEl) userXpEl.textContent = userData.xp || 0;
 }
 
 // ════════════════════════════════════════════════════════════
