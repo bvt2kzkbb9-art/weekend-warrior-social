@@ -15,29 +15,28 @@
 :root {
   /* COLORS — Premium Dark Theme */
   --bg-primary:     #080808;
-  --bg-secondary:   #111111;
-  --bg-tertiary:    #1a1a1a;
+  --bg-secondary:   #0f0f0f;
+  --card-bg:        #1a1a1a;
   --bg-hover:       #1f1f1f;
   --bg-nav:         rgba(8, 8, 8, 0.98);
 
+  /* ACCENT — GOLD */
+  --gold-primary:   #d4af37;
+  --gold-accent:    #ffd700;
+
   /* TEXT */
   --text-primary:   #FFFFFF;
-  --text-secondary: #A0A0A0;
+  --text-secondary: #b0b0b0;
   --text-tertiary:  #696969;
 
-  /* ACCENT — GOLD (use sparingly) */
-  --accent-primary: #D4AF37;
-  --accent-light:   #E8D89C;
-  --accent-dark:    #B8860B;
-
   /* SEMANTIC */
-  --success:        #4CAF50;
-  --error:          #FF6B6B;
-  --warning:        #FFC107;
+  --success:        #16c784;
+  --error:          #ef4444;
+  --warning:        #f59e0b;
   --info:           #2196F3;
 
   /* BORDERS & DIVIDERS */
-  --border:         rgba(212, 175, 55, 0.1);
+  --border:         #2a2a2a;
   --border-strong:  rgba(212, 175, 55, 0.2);
   --divider:        rgba(255, 255, 255, 0.05);
 
@@ -159,7 +158,7 @@ header.top-bar {
 .top-bar-logo {
   font-size: 24px;
   font-weight: var(--weight-bold);
-  color: var(--accent-primary);
+  color: var(--gold-primary);
   font-family: var(--font-logo);
 }
 
@@ -252,7 +251,7 @@ nav.bottom-nav {
 .nav-item.active,
 .nav-item[aria-current="page"],
 .nav-item-hero.active {
-  color: var(--accent-primary);
+  color: var(--gold-primary);
 }
 
 .nav-item svg,
@@ -325,7 +324,7 @@ small {
 .panel,
 [class*="card"],
 [class*="panel"] {
-  background-color: var(--bg-secondary);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
@@ -335,7 +334,7 @@ small {
 .card:hover,
 .panel:hover {
   border-color: var(--border-strong);
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
 }
 
 .card:active,
@@ -350,7 +349,7 @@ button,
 .btn {
   min-height: var(--min-touch);
   padding: var(--space-md) var(--space-lg);
-  background-color: var(--bg-secondary);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
@@ -374,20 +373,20 @@ button:active,
 
 button:focus,
 .btn:focus {
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--gold-primary);
   outline-offset: 2px;
 }
 
 .btn-primary {
-  background-color: var(--accent-primary);
-  border-color: var(--accent-primary);
+  background-color: var(--gold-primary);
+  border-color: var(--gold-primary);
   color: #000;
   font-weight: var(--weight-semibold);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-light);
-  border-color: var(--accent-light);
+  background-color: var(--gold-accent);
+  border-color: var(--gold-accent);
 }
 
 .btn-ghost {
@@ -412,7 +411,7 @@ textarea,
 select {
   width: 100%;
   padding: var(--space-md) var(--space-lg);
-  background-color: var(--bg-secondary);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
@@ -427,8 +426,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--accent-primary);
-  background-color: var(--bg-tertiary);
+  border-color: var(--gold-primary);
+  background-color: var(--bg-secondary);
 }
 
 input::placeholder,
@@ -444,7 +443,7 @@ textarea::placeholder {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  background-color: var(--bg-tertiary);
+  background-color: var(--card-bg);
   border: 1px solid var(--border);
   object-fit: cover;
   flex-shrink: 0;
@@ -478,13 +477,23 @@ textarea::placeholder {
   align-items: center;
   justify-content: center;
   padding: var(--space-xs) var(--space-sm);
-  background-color: var(--accent-primary);
+  background-color: var(--gold-primary);
   color: #000;
   border-radius: var(--radius-full);
   font-size: var(--size-xs);
   font-weight: var(--weight-bold);
   white-space: nowrap;
   animation: badge-appear 300ms var(--ease);
+}
+
+.badge-error {
+  background-color: var(--error);
+  color: white;
+}
+
+.badge-success {
+  background-color: var(--success);
+  color: white;
 }
 
 @keyframes badge-appear {
@@ -518,7 +527,7 @@ textarea::placeholder {
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
 .text-tertiary { color: var(--text-tertiary); }
-.text-accent { color: var(--accent-primary); }
+.text-accent { color: var(--gold-primary); }
 
 .bg-primary { background-color: var(--bg-primary); }
 .bg-secondary { background-color: var(--bg-secondary); }
