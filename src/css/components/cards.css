@@ -1,0 +1,23 @@
+/* Card Component */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  transition: all 0.2s;
+}
+
+.card:hover {
+  border-color: var(--gold-primary);
+}
+
+.card-header {
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-body {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
