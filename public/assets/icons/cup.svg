@@ -1,7 +1,0 @@
-<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Cup icon: Trophy -->
-  <path d="M8 4H24V12C24 16.4 20.4 20 16 20C11.6 20 8 16.4 8 12V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M6 20H26V22C26 24.2 24.2 26 22 26H10C7.8 26 6 24.2 6 22V20Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="4" y1="12" x2="8" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-  <line x1="28" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-</svg>
