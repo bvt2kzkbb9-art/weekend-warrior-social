@@ -57,6 +57,19 @@
   white-space: nowrap;
 }
 
+.top-nav-logo img {
+  height: 40px;
+  width: auto;
+  max-width: 280px;
+  object-fit: contain;
+  display: block;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.top-nav-logo:hover img {
+  opacity: 0.9;
+}
+
 .top-nav-logo span {
   font-size: 1.25rem;
   display: flex;
