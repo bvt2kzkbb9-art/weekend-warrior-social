@@ -11,7 +11,6 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   onAuthStateChanged,
-  currentUser,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase.js';
 import { userService } from './UserService.js';
@@ -47,7 +46,7 @@ class AuthService {
    * Zwraca aktualnego zalogowanego użytkownika
    */
   getCurrentUser() {
-    return this.currentUser || currentUser(auth);
+    return this.currentUser || auth.currentUser;
   }
 
   /**
