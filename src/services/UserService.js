@@ -42,7 +42,7 @@ class UserService {
         },
       };
 
-      await firestoreService.addDocument(FIRESTORE_COLLECTIONS.USERS, userProfile);
+      await firestoreService.setDocument(FIRESTORE_COLLECTIONS.USERS, userId, userProfile);
       return userProfile;
     } catch (error) {
       console.error('Error creating user profile:', error);

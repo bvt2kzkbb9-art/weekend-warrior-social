@@ -7,6 +7,7 @@
 
 import {
   addDoc,
+  setDoc,
   getDoc,
   getDocs,
   updateDoc,
@@ -48,12 +49,21 @@ class FirestoreService {
   }
 
   /**
-   * Dodaje dokument do kolekcji
+   * Dodaje dokument do kolekcji (auto-generated ID)
    */
   async addDocument(collection, data) {
     this.checkInitialized();
     const docRef = await addDoc(firestoreCollection(this.db, collection), data);
     return docRef.id;
+  }
+
+  /**
+   * Ustawia dokument z konkretnym ID (tworzy lub nadpisuje)
+   */
+  async setDocument(collection, docId, data) {
+    this.checkInitialized();
+    await setDoc(doc(this.db, collection, docId), data);
+    return docId;
   }
 
   /**
