@@ -1,64 +1,19 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Spartan/Templar helmet - Hero icon -->
-  <defs>
-    <linearGradient id="helmetPremium" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#E8E8E8;stop-opacity:1" />
-      <stop offset="40%" style="stop-color:#C0C0C0;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="crescent" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#C89B3C;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-
-  <!-- Main helmet dome -->
-  <path d="M8 9C8 6 9.5 4 12 4C14.5 4 16 6 16 9L16 13C16 14 15.5 15 14.5 15.5L9.5 15.5C8.5 15 8 14 8 13Z"
-        fill="url(#helmetPremium)" stroke="currentColor" stroke-width="0.8" stroke-linejoin="round"/>
-
-  <!-- Eye opening (horizontal slit) -->
-  <path d="M9.5 10.5L14.5 10.5"
-        stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
-
-  <!-- Nose guard (vertical center crest) -->
-  <path d="M12 10.5L12 14"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linecap="round"/>
-
-  <!-- Left cheekpiece angle -->
-  <path d="M9.5 10L8.5 11.5L8 14L9 15"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linejoin="round"/>
-
-  <!-- Right cheekpiece angle -->
-  <path d="M14.5 10L15.5 11.5L16 14L15 15"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linejoin="round"/>
-
-  <!-- Top crest/plume mount -->
-  <path d="M11 4L11.5 2L12 4L12.5 2L13 4"
-        stroke="currentColor" stroke-width="0.5" fill="none" stroke-linecap="round"/>
-
-  <!-- Plume (feather/hair effect) -->
-  <path d="M11.3 3.8L10.5 2L11 0.5"
-        stroke="currentColor" stroke-width="0.5" fill="none" stroke-linecap="round"/>
-  <path d="M12.7 3.8L13.5 2L13 0.5"
-        stroke="currentColor" stroke-width="0.5" fill="none" stroke-linecap="round"/>
-
-  <!-- Bottom rim detail -->
-  <path d="M8.5 14.5L9 15.5L12 16L15 15.5L15.5 14.5"
-        stroke="currentColor" stroke-width="0.7" fill="none" stroke-linecap="round"/>
-
-  <!-- Decorative gold crescent on front -->
-  <path d="M10.5 11C10.5 10.5 11.5 10.5 12 11.5C12.5 10.5 13.5 10.5 13.5 11"
-        fill="url(#crescent)" stroke="currentColor" stroke-width="0.5" opacity="0.8"/>
-
-  <!-- Metallic shine -->
-  <ellipse cx="10.5" cy="7.5" rx="1.2" ry="1.8" fill="currentColor" opacity="0.25"/>
-
-  <!-- Eye detail -->
-  <circle cx="12" cy="10.5" r="0.3" fill="currentColor" opacity="0.5"/>
-
-  <!-- Shoulder armor extension -->
-  <path d="M8.5 15L7.5 16L7 17"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linecap="round"/>
-  <path d="M15.5 15L16.5 16L17 17"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Premium Templar/Spartan Helmet -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main helmet dome -->
+    <path d="M 10 14 Q 10 8 16 7 Q 22 8 22 14 L 22 19 Q 22 20.5 16 21 Q 10 20.5 10 19 L 10 14"/>
+    <!-- Nose guard center crest -->
+    <line x1="16" y1="14" x2="16" y2="19"/>
+    <!-- Eye slit -->
+    <line x1="12" y1="14" x2="20" y2="14"/>
+    <!-- Left cheek guard -->
+    <path d="M 12 14 L 10.5 17"/>
+    <!-- Right cheek guard -->
+    <path d="M 20 14 L 21.5 17"/>
+    <!-- Neck guard opening -->
+    <path d="M 12 19 L 12 21 Q 16 22 20 21 L 20 19"/>
+    <!-- Plume crest ornament -->
+    <path d="M 15 7 L 16 5 L 17 7"/>
+  </g>
 </svg>

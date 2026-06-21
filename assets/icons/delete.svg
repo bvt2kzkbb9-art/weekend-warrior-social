@@ -1,0 +1,13 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Delete/Trash Can -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Handle/lid -->
+    <path d="M 10 8 L 12 7 L 20 7 L 22 8"/>
+    <!-- Can body -->
+    <rect x="8" y="9" width="16" height="16" rx="1"/>
+    <!-- Delete lines inside -->
+    <line x1="12" y1="13" x2="12" y2="21"/>
+    <line x1="16" y1="13" x2="16" y2="21"/>
+    <line x1="20" y1="13" x2="20" y2="21"/>
+  </g>
+</svg>

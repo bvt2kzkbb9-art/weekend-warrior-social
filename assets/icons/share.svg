@@ -1,0 +1,14 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Share Symbol -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Top circle (source) -->
+    <circle cx="16" cy="8" r="3"/>
+    <!-- Bottom left circle -->
+    <circle cx="8" cy="22" r="3"/>
+    <!-- Bottom right circle -->
+    <circle cx="24" cy="22" r="3"/>
+    <!-- Lines connecting -->
+    <line x1="14.5" y1="10.5" x2="9.5" y2="19.5"/>
+    <line x1="17.5" y1="10.5" x2="22.5" y2="19.5"/>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flame of Power -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main flame body -->
+    <path d="M 16 6 Q 12 12 12 18 Q 12 23 16 25 Q 20 23 20 18 Q 20 12 16 6"/>
+    <!-- Inner flame detail -->
+    <path d="M 16 10 Q 14 13 14 17 Q 14 20 16 22 Q 18 20 18 17 Q 18 13 16 10"/>
+    <!-- Top point -->
+    <path d="M 16 6 L 15.5 3 L 16 5.5"/>
+  </g>
+</svg>

@@ -1,35 +1,23 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Parchment scroll - Chronicles icon -->
-  <defs>
-    <linearGradient id="scrollParchment" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#B8956F;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8B7355;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-
-  <!-- Left scroll roll -->
-  <path d="M5 8C4 8 4 9 5 9.5L5.5 10C4 10 4 11 5 11.5L5.5 12C4 12 4 13 5 13.5L5.5 14"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linecap="round"/>
-
-  <!-- Right scroll roll -->
-  <path d="M19 8C20 8 20 9 19 9.5L18.5 10C20 10 20 11 19 11.5L18.5 12C20 12 20 13 19 13.5L18.5 14"
-        stroke="currentColor" stroke-width="0.6" fill="none" stroke-linecap="round"/>
-
-  <!-- Parchment body -->
-  <path d="M6 9L6 15C6 16.5 7 17.5 8 18L16 18C17 17.5 18 16.5 18 15L18 9"
-        fill="url(#scrollParchment)" stroke="currentColor" stroke-width="0.8" stroke-linejoin="round"/>
-
-  <!-- Scroll lines (written text) -->
-  <line x1="8" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="0.4" opacity="0.4"/>
-  <line x1="7.5" y1="11.5" x2="16.5" y2="11.5" stroke="currentColor" stroke-width="0.4" opacity="0.3"/>
-  <line x1="8" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="0.4" opacity="0.4"/>
-  <line x1="8" y1="14.5" x2="14" y2="14.5" stroke="currentColor" stroke-width="0.4" opacity="0.3"/>
-
-  <!-- Metallic shine -->
-  <ellipse cx="10.5" cy="11" rx="1.8" ry="1.5" fill="currentColor" opacity="0.2"/>
-
-  <!-- Seal/ribbon -->
-  <path d="M12 18L12 19.5L11 20L12 20.5L13 20L12 19.5"
-        stroke="currentColor" stroke-width="0.5" fill="currentColor" opacity="0.6"/>
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Premium Chronicles Parchment Scroll -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left scroll roller -->
+    <circle cx="7" cy="10" r="2.2" fill="none"/>
+    <line x1="7" y1="8" x2="7" y2="12"/>
+    <!-- Right scroll roller -->
+    <circle cx="25" cy="10" r="2.2" fill="none"/>
+    <line x1="25" y1="8" x2="25" y2="12"/>
+    <!-- Parchment body left edge -->
+    <path d="M 10 9 L 10 23 Q 10 25 12 25"/>
+    <!-- Parchment body right edge -->
+    <path d="M 22 9 L 22 23 Q 22 25 20 25"/>
+    <!-- Top edge -->
+    <line x1="10" y1="9" x2="22" y2="9"/>
+    <!-- Decorative text lines -->
+    <line x1="13" y1="13" x2="19" y2="13"/>
+    <line x1="12" y1="16" x2="20" y2="16"/>
+    <line x1="13" y1="19" x2="18" y2="19"/>
+    <!-- Wax seal -->
+    <circle cx="16" cy="24" r="2.4" fill="none"/>
+  </g>
 </svg>

@@ -1,0 +1,17 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Trophy Cup -->
+  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cup bowl -->
+    <path d="M 9 8 L 10 14 Q 10 18 16 18 Q 22 18 22 14 L 23 8"/>
+    <!-- Cup handles -->
+    <path d="M 9 10 Q 6 10 6 14 Q 6 18 9 18"/>
+    <path d="M 23 10 Q 26 10 26 14 Q 26 18 23 18"/>
+    <!-- Base -->
+    <rect x="12" y="18" width="8" height="3" rx="0.5"/>
+    <!-- Trophy foot -->
+    <line x1="12" y1="21" x2="12" y2="24"/>
+    <line x1="20" y1="21" x2="20" y2="24"/>
+    <!-- Top ornament -->
+    <path d="M 14 7 Q 14 5 16 5 Q 18 5 18 7"/>
+  </g>
+</svg>
