@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="WWS Arena"/>
+  <meta name="description" content="Weekend Warrior Social — Arena Wojowników"/>
+  <meta property="og:title" content="⚔️ Weekend Warrior Social"/>
+  <meta property="og:description" content="Dołącz. Walcz. Zwyciężaj."/>
+  <link rel="apple-touch-icon" href="assets/icons/icon-512.svg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Arena Wojowników — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/arena.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+</head>
+<body>
+
+<!-- Atmospheric layers -->
+<div class="bg-orbs" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+</div>
+<div class="fog-layer" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════
+     BOTTOM NAVIGATION
+══════════════════════════════════════════ -->
+<nav class="nav" aria-label="Główna nawigacja">
+  <span class="nav-brand">⚔ WWS</span>
+
+  <a href="index.html" class="nav-item active" aria-current="page">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+      <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+    </svg>
+    <span>Arena</span>
+  </a>
+
+  <a href="feed.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+    <span>Kroniki</span>
+  </a>
+
+  <a href="challenges.html" class="nav-item-hero nav-item">
+    <div class="nav-hero-shield">⚔</div>
+    <span>Misje</span>
+  </a>
+
+  <a href="ranking.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="6"/>
+      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+    </svg>
+    <span>Chwała</span>
+  </a>
+
+  <a href="profile.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span>Bohater</span>
+  </a>
+
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
+  <div class="nav-actions" id="nav-notif-anchor"></div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════ -->
+<div class="content-area" style="padding-top:.5rem;">
+
+  <!-- Mobile hero strip (shown only on mobile, filled by JS) -->
+  <div id="mobile-hero"></div>
+
+  <!-- RPG 3-col layout -->
+  <div class="rpg-layout">
+
+    <!-- ═══ LEFT SIDEBAR — CHARACTER CARD ═══ -->
+    <aside class="rpg-sidebar-left">
+      <div class="rpg-panel">
+        <!-- Skeleton -->
+        <div id="char-skeleton" style="padding:1rem .875rem;">
+          <div class="skeleton" style="width:80px;height:80px;border-radius:50%;margin:0 auto .875rem;"></div>
+          <div class="skeleton" style="height:14px;width:65%;border-radius:4px;margin:0 auto .375rem;"></div>
+          <div class="skeleton" style="height:10px;width:45%;border-radius:4px;margin:0 auto .875rem;"></div>
+          <div class="skeleton" style="height:7px;border-radius:4px;margin-bottom:.875rem;"></div>
+          <div class="skeleton" style="height:72px;border-radius:8px;margin-bottom:.75rem;"></div>
+          <div class="skeleton" style="height:120px;border-radius:8px;"></div>
+        </div>
+
+        <!-- Char card content -->
+        <div id="char-card" class="rpg-char-card hidden">
+          <div class="rpg-char-avatar-wrap">
+            <div id="char-avatar" class="rpg-char-avatar"></div>
+            <div class="rpg-level-badge" id="char-level">Poz. 1</div>
+          </div>
+
+          <div class="rpg-char-name" id="char-name">—</div>
+          <div class="rpg-char-rank" id="char-rank">Rookie</div>
+
+          <div class="rpg-xp-label">Doświadczenie</div>
+          <div class="rpg-xp-track">
+            <div class="rpg-xp-fill" id="char-xp-fill" style="width:0%;"></div>
+          </div>
+          <div class="rpg-xp-text" id="char-xp-text">0 / 500 XP</div>
+
+          <div class="rpg-achievement-badge" style="margin:.75rem 0;">
+            <div class="rpg-badge-icon">🌼</div>
+            <div class="rpg-badge-label" id="char-badge-name">Inicjacja</div>
+          </div>
+
+          <div class="rpg-divider"><span>◆</span></div>
+
+          <div style="font-family:var(--font-heading);font-size:.45rem;font-weight:700;
+               letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);
+               text-align:center;margin:.375rem 0 .25rem;">Statystyki</div>
+
+          <table class="rpg-stats-table">
+            <tr><td>Wygrane wyzwania</td><td id="cs-wins">0</td></tr>
+            <tr><td>Rzucone wyzwania</td><td id="cs-sent-c">0</td></tr>
+            <tr><td>Posty</td><td id="cs-posts">0</td></tr>
+            <tr><td>Zdobyte XP</td><td id="cs-xp">0</td></tr>
+            <tr><td>Aktywna seria</td><td id="cs-streak" class="fire">0 🔥</td></tr>
+          </table>
+
+          <div style="margin-top:.875rem;">
+            <a href="profile.html" class="rpg-btn rpg-btn-outline" style="width:100%;padding:.5rem;">
+              🛡 Karta Bohatera
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ CENTER — ARENA ═══ -->
+    <main class="rpg-main" style="min-width:0;">
+
+      <!-- Arena header -->
+      <div class="rpg-arena-header">
+        <div class="rpg-brand-title">Weekend Warrior</div>
+        <div class="rpg-brand-sub">Social</div>
+        <div class="rpg-swords" style="margin:.375rem 0;"></div>
+        <div class="rpg-section-title">Arena Wojowników</div>
+        <div style="font-size:.6875rem;color:var(--text-faint);margin-top:.25rem;
+             font-family:var(--font-heading);font-style:italic;letter-spacing:.06em;">
+          Podejmij wyzwania, pokonaj Węże i wspinaj się w rankingu
+        </div>
+        <div style="margin:.875rem 0 .375rem;display:flex;gap:.625rem;justify-content:center;flex-wrap:wrap;">
+          <a href="challenges.html" class="rpg-btn rpg-btn-gold" style="gap:.5rem;padding:.5625rem 1.375rem;">
+            ⚔ Rzuć Wyzwanie
+          </a>
+          <a href="feed.html" class="rpg-btn rpg-btn-outline" style="padding:.5rem 1rem;">
+            📜 Kroniki
+          </a>
+        </div>
+      </div>
+
+      <!-- Challenge Cards -->
+      <div style="padding:.125rem 0 .25rem;">
+        <div class="rpg-divider" style="padding:0 .875rem;margin-bottom:.5rem;">
+          <span>Wyzwania Areny</span>
+        </div>
+        <div class="rpg-cards-scroll" id="rpg-cards-scroll">
+          <!-- skeleton card -->
+          <div class="rpg-ch-card" style="animation:none;">
+            <div class="rpg-ch-img-wrap" style="background:var(--bg-card);">
+              <div class="skeleton" style="width:100%;height:100%;border-radius:0;"></div>
+            </div>
+            <div class="rpg-ch-body">
+              <div class="skeleton" style="height:9px;border-radius:3px;margin-bottom:.375rem;"></div>
+              <div class="skeleton" style="height:11px;width:55%;border-radius:3px;margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 .875rem .25rem;">
+          <a href="challenges.html" class="rpg-see-all">Zobacz wszystkie wyzwania</a>
+        </div>
+      </div>
+
+      <!-- Bottom grid -->
+      <div style="display:grid;grid-template-columns:1fr;gap:.75rem;padding:0 .5rem .875rem;">
+        <div id="rpg-bottom-grid" style="display:grid;grid-template-columns:1fr;gap:.75rem;">
+
+          <!-- Odebrane wyzwania -->
+          <div class="rpg-panel">
+            <div class="rpg-panel-header">
+              <div class="rpg-panel-title">
+                📥 Odebrane Wyzwania
+                <span class="rpg-count-badge" id="received-count" style="display:none;">0</span>
+              </div>
+              <a href="challenges.html" class="rpg-panel-link">Wszystkie</a>
+            </div>
+            <div id="received-list" style="padding:.375rem 0;">
+              <div style="text-align:center;padding:1.5rem .75rem;">
+                <div style="font-size:1.25rem;margin-bottom:.375rem;">📭</div>
+                <div class="label-caps">Ładowanie...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aktywne + Seria -->
+          <div style="display:flex;flex-direction:column;gap:.75rem;">
+            <div class="rpg-panel">
+              <div class="rpg-panel-header">
+                <div class="rpg-panel-title">⚔️ Aktywne Wyzwania</div>
+              </div>
+              <div id="active-ch-content" style="padding:.75rem .875rem;">
+                <div style="text-align:center;padding:.75rem;font-family:var(--font-heading);
+                     font-size:.6rem;color:var(--text-faint);letter-spacing:.1em;font-style:italic;">
+                  Brak aktywnych
+                </div>
+              </div>
+            </div>
+
+            <div class="rpg-panel">
+              <div class="rpg-panel-header">
+                <div class="rpg-panel-title">🔥 Twoja Seria</div>
+              </div>
+              <div class="rpg-streak-card">
+                <div class="rpg-streak-ring">
+                  <div class="rpg-streak-num" id="streak-num">0</div>
+                  <div class="rpg-streak-unit">DNI</div>
+                </div>
+                <div class="rpg-streak-label" id="streak-label">⚔️ Zacznij serię!</div>
+                <div class="rpg-streak-sub" id="streak-sub">Zaloguj się każdego dnia</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini ranking -->
+        <div class="rpg-panel" id="mini-ranking-panel">
+          <div class="rpg-panel-header">
+            <div class="rpg-panel-title">👑 Ranking Wojowników</div>
+            <a href="ranking.html" class="rpg-panel-link">Pełny</a>
+          </div>
+          <div class="rpg-mini-podium" id="mini-podium"></div>
+          <div id="mini-rank-list"></div>
+          <a href="ranking.html" class="rpg-see-all">Zobacz pełny ranking</a>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ RIGHT SIDEBAR — KOMNATA POSŁAŃCÓW ═══ -->
+    <aside class="rpg-sidebar-right">
+      <div class="rpg-panel" style="max-height:calc(100vh - 110px);display:flex;flex-direction:column;overflow:hidden;">
+        <div class="rpg-panel-header" style="flex-shrink:0;">
+          <div class="rpg-panel-title">
+            💌 Komnata Posłańców
+            <span class="rpg-count-badge notif-badge" style="display:none;">0</span>
+          </div>
+        </div>
+        <div id="right-notif-list" style="flex:1;overflow-y:auto;">
+          <div style="text-align:center;padding:2rem .75rem;font-family:var(--font-heading);
+               font-size:.6rem;color:var(--text-faint);font-style:italic;">
+            Ładowanie posłańców...
+          </div>
+        </div>
+        <a href="#" id="see-all-notifs" class="rpg-see-all" style="flex-shrink:0;">
+          Zobacz wszystkie
+        </a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

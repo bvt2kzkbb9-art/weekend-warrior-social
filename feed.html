@@ -340,33 +340,12 @@
   <div style="height:1rem;"></div>
 </main>
 
-<script type="module">
-  import { initFeed } from './js/feed.js';
-  import { injectMessengerBadge } from './js/messenger.js';
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
-  import { auth } from './js/firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-  // 2s skeleton fallback
-  const skTimer = setTimeout(() => {
-    const loading = document.getElementById('feed-loading');
-    if (loading) loading.style.display = 'none';
-    const empty = document.getElementById('feed-empty');
-    const list  = document.getElementById('feed-list');
-    if (list && list.children.length === 0 && empty) empty.style.display = 'block';
-  }, 2000);
-
-  injectLightModeCSS();
-  initTheme();
-  onAuthStateChanged(auth, u => { if(u) injectMessengerBadge(u.uid); });
-
-  window._clearFeedSkeleton = () => {
-    clearTimeout(skTimer);
-    const loading = document.getElementById('feed-loading');
-    if (loading) loading.style.display = 'none';
-  };
-
-  initFeed();
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

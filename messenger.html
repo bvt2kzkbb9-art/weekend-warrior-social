@@ -157,35 +157,12 @@
   </div><!-- /.messenger-page -->
 </main>
 
-<script type="module">
-  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
-  import { initMessenger, setOnlinePresence, injectMessengerBadge } from './js/messenger.js';
-  import { auth } from './js/firebase.js';
-  import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-
-  // Ustaw presence online gdy załadujemy stronę
-  injectLightModeCSS();
-  initTheme();
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setOnlinePresence(user.uid, true);
-      injectMessengerBadge(user.uid);
-
-      // Ustaw offline przy zamknięciu
-      window.addEventListener('beforeunload', () => setOnlinePresence(user.uid, false));
-      document.addEventListener('visibilitychange', () => {
-        setOnlinePresence(user.uid, !document.hidden);
-      });
-    }
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
   });
-
-  // Usuń skeleton po załadowaniu
-  setTimeout(() => {
-    document.getElementById('conv-skeleton')?.remove();
-  }, 2000);
-
-  initMessenger();
+}
 </script>
 </body>
 </html>

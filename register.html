@@ -239,14 +239,12 @@
   </div>
 </div>
 
-<script type="module">
-import { initRegisterForm, redirectIfLogged } from './js/auth.js';
-
-redirectIfLogged();
-
-document.addEventListener('DOMContentLoaded', () => {
-  initRegisterForm();
-});
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
