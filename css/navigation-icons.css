@@ -1,0 +1,275 @@
+/* ═══════════════════════════════════════════════════════════════════
+   NAVIGATION ICONS — Dark Fantasy / Premium RPG Style
+   SVG Icons with CSS Animations and States
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Icon Base Styles ──────────────────────────────────────────────── */
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-out),
+              filter var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Icon Color States ────────────────────────────────────────────── */
+
+/* Default state */
+.nav-icon {
+  color: var(--text-faint);
+  opacity: 0.7;
+}
+
+/* Hover state */
+.nav-icon:hover {
+  color: var(--gold-500);
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
+  transform: translateY(-2px);
+}
+
+/* Active state (current page) */
+.nav-icon.active,
+.bottom-nav-item.active .nav-icon {
+  color: var(--gold-500);
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+}
+
+/* Focus state (keyboard navigation) */
+.nav-icon:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Click Animation ───────────────────────────────────────────────── */
+
+.nav-icon:active {
+  animation: icon-press 150ms var(--ease-out);
+}
+
+@keyframes icon-press {
+  0% {
+    transform: scale(1) translateY(-2px);
+  }
+  50% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ── Top Nav Icons Specific ────────────────────────────────────────– */
+
+.top-nav-action .nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.top-nav-action:hover .nav-icon {
+  color: var(--gold-500);
+}
+
+.top-nav-action:active .nav-icon {
+  animation: icon-press 150ms var(--ease-out);
+}
+
+/* ── Bottom Nav Icons Specific ─────────────────────────────────────– */
+
+.bottom-nav-item .nav-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+}
+
+/* Bottom nav item active state */
+.bottom-nav-item.active .nav-icon {
+  color: var(--gold-500);
+  opacity: 1;
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.5));
+}
+
+/* Hover on bottom nav */
+.bottom-nav-item:hover .nav-icon {
+  color: var(--gold-400);
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.4));
+}
+
+/* ── Hero Item (Missions) Special Styling ──────────────────────────– */
+
+.bottom-nav-item.hero-item .nav-icon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 2px;
+}
+
+.bottom-nav-item.hero-item.active .nav-icon {
+  color: var(--gold-300);
+  filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.7))
+          drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3));
+}
+
+.bottom-nav-item.hero-item:hover .nav-icon {
+  color: var(--gold-400);
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+}
+
+/* ── Disabled State ────────────────────────────────────────────────── */
+
+.nav-icon:disabled,
+.nav-icon[aria-disabled="true"],
+.nav-item[disabled] .nav-icon {
+  color: var(--text-faint);
+  opacity: 0.3;
+  filter: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.nav-icon:disabled:hover,
+.nav-icon[aria-disabled="true"]:hover {
+  color: var(--text-faint);
+  filter: none;
+  transform: none;
+}
+
+/* ── Metallic Glow on Active ───────────────────────────────────────– */
+
+.bottom-nav-item.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-500), transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  pointer-events: none;
+}
+
+/* ── Responsive Sizes ──────────────────────────────────────────────– */
+
+@media (max-width: 480px) {
+  .nav-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bottom-nav-item.hero-item .nav-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media (min-width: 900px) {
+  .nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .bottom-nav-item.hero-item .nav-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Desktop: Slightly larger on hover */
+  .nav-icon:hover {
+    transform: translateY(-2px) scale(1.05);
+  }
+}
+
+/* ── Animation Utilities ───────────────────────────────────────────– */
+
+/* Pulse effect for notifications (if needed) */
+@keyframes icon-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.nav-icon.has-notification {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+/* Subtle metallic shine on active icons */
+@keyframes metallic-shine {
+  0% {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+  }
+}
+
+.nav-icon.active.shine {
+  animation: metallic-shine 2.5s ease-in-out infinite;
+}
+
+/* ── Print Styles ──────────────────────────────────────────────────– */
+
+@media print {
+  .nav-icon {
+    color: var(--gold-500);
+    filter: none;
+  }
+}
+
+/* ── Accessibility ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-icon {
+    transition: color 200ms linear;
+    animation: none !important;
+  }
+
+  .nav-icon:hover {
+    transform: none;
+  }
+
+  .nav-icon:active {
+    animation: none;
+  }
+
+  @keyframes icon-press {
+    0%, 100% { transform: none; }
+    50% { transform: none; }
+  }
+}
+
+/* ── Dark Mode (if applicable) ────────────────────────────────────– */
+
+@media (prefers-color-scheme: dark) {
+  .nav-icon {
+    color: var(--text-faint);
+  }
+
+  .nav-icon:hover,
+  .nav-icon.active {
+    color: var(--gold-500);
+  }
+}
