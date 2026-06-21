@@ -420,82 +420,205 @@ p {
   border-radius: var(--radius-md);
   font-family: var(--font-ui);
   font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
   text-decoration: none;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Primary Gold Button */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+/* Primary Gold Button - AAA Game UI */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 100%);
-  color: var(--color-black);
-  border: 1px solid var(--color-gold);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  background: linear-gradient(180deg,
+    rgba(255, 215, 0, 1) 0%,
+    rgba(212, 175, 55, 0.95) 50%,
+    rgba(184, 134, 11, 0.9) 100%);
+  color: #1a1a1a;
+  border: 2px solid;
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.5),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(212, 175, 55, 0.5),
+    0 8px 24px rgba(212, 175, 55, 0.3);
+  font-weight: 700;
+  position: relative;
+}
+
+.btn-primary::before {
+  opacity: 1;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
-  transform: translateY(-2px);
+  background: linear-gradient(180deg,
+    rgba(255, 230, 0, 1) 0%,
+    rgba(220, 185, 65, 0.98) 50%,
+    rgba(200, 150, 20, 0.92) 100%);
+  border-color: rgba(255, 255, 100, 0.9);
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 0 28px rgba(212, 175, 55, 0.65),
+    0 12px 32px rgba(212, 175, 55, 0.4);
+  transform: translateY(-3px);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+  background: linear-gradient(180deg,
+    rgba(212, 175, 55, 0.95) 0%,
+    rgba(184, 134, 11, 0.9) 50%,
+    rgba(150, 100, 10, 0.85) 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.2),
+    0 2px 8px rgba(212, 175, 55, 0.3),
+    0 0 12px rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px);
 }
 
-/* Secondary Dark Button */
+/* Secondary Dark Button - AAA Game UI */
 .btn-secondary {
-  background: var(--glass-dark);
-  color: var(--text-primary);
-  border: 1px solid var(--glass-dark);
+  background: linear-gradient(180deg,
+    rgba(80, 80, 80, 0.95) 0%,
+    rgba(60, 60, 60, 0.9) 50%,
+    rgba(40, 40, 40, 0.85) 100%);
+  color: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(100, 100, 100, 0.8);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6),
+    0 0 16px rgba(0, 0, 0, 0.6),
+    0 6px 20px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-  background: var(--glass-medium);
-  border-color: var(--color-gold);
+  background: linear-gradient(180deg,
+    rgba(100, 100, 100, 0.98) 0%,
+    rgba(80, 80, 80, 0.95) 50%,
+    rgba(60, 60, 60, 0.9) 100%);
+  border-color: rgba(150, 150, 150, 0.9);
   color: var(--color-gold);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(212, 175, 55, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  transform: translateY(-3px);
 }
 
-/* Outline Gold Button */
+.btn-secondary:active {
+  background: linear-gradient(180deg,
+    rgba(60, 60, 60, 0.9) 0%,
+    rgba(40, 40, 40, 0.85) 50%,
+    rgba(30, 30, 30, 0.8) 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.7),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Outline Gold Button - AAA Game UI */
 .btn-outline {
-  background: transparent;
-  color: var(--color-gold);
+  background: rgba(212, 175, 55, 0.05);
+  color: var(--color-gold-light);
   border: 2px solid var(--color-gold);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    0 0 12px rgba(212, 175, 55, 0.2);
 }
 
 .btn-outline:hover {
-  background: rgba(212, 175, 55, 0.1);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--color-gold-light);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    0 0 20px rgba(212, 175, 55, 0.4),
+    0 4px 16px rgba(212, 175, 55, 0.25);
+  transform: translateY(-2px);
 }
 
-/* Danger Button */
+.btn-outline:active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(212, 175, 55, 0.25);
+  transform: translateY(0);
+}
+
+/* Danger Button - AAA Game UI */
 .btn-danger {
-  background: var(--color-blood);
+  background: linear-gradient(180deg,
+    rgba(200, 40, 40, 0.95) 0%,
+    rgba(139, 0, 0, 0.9) 50%,
+    rgba(100, 0, 0, 0.85) 100%);
   color: white;
-  border: 1px solid var(--color-blood);
+  border: 2px solid rgba(200, 80, 80, 0.8);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(139, 0, 0, 0.4),
+    0 6px 20px rgba(139, 0, 0, 0.3);
 }
 
 .btn-danger:hover {
-  background: #a00000;
-  box-shadow: 0 0 12px rgba(139, 0, 0, 0.3);
+  background: linear-gradient(180deg,
+    rgba(220, 60, 60, 0.98) 0%,
+    rgba(160, 20, 20, 0.93) 50%,
+    rgba(120, 10, 10, 0.88) 100%);
+  border-color: rgba(230, 100, 100, 0.9);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(139, 0, 0, 0.5),
+    0 8px 24px rgba(139, 0, 0, 0.4);
+  transform: translateY(-3px);
 }
 
-/* Ghost Button */
+.btn-danger:active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(139, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Ghost Button - AAA Game UI */
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--glass-dark);
+  border: 1.5px solid rgba(100, 100, 100, 0.6);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
 .btn-ghost:hover {
   color: var(--color-gold);
   border-color: var(--color-gold);
+  box-shadow:
+    0 0 16px rgba(212, 175, 55, 0.25),
+    0 4px 12px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-ghost:active {
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.15);
+  transform: translateY(0);
 }
 
 /* Icon Button */
