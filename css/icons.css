@@ -1,0 +1,266 @@
+/* ══════════════════════════════════════════
+   ICON SYSTEM - CSS Classes
+   Premium Dark Fantasy Icon Styling
+══════════════════════════════════════════ */
+
+/* Base icon styles */
+icon,
+.icon,
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Icon SVG styling */
+icon svg,
+.icon svg,
+.icon-wrapper svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: currentColor;
+  color: currentColor;
+}
+
+/* Default color state */
+icon,
+.icon,
+.icon-wrapper {
+  color: #A8A8A8;
+  transition: color 150ms var(--ease-out),
+              transform 150ms var(--ease-out),
+              filter 150ms var(--ease-out);
+}
+
+/* Hover state */
+icon:hover,
+.icon:hover,
+.icon-wrapper:hover {
+  color: #D4AF37;
+  transform: scale(0.98);
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
+}
+
+/* Active state */
+icon.active,
+.icon.active,
+.icon-wrapper.active {
+  color: #D4AF37;
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
+}
+
+/* Pressed state */
+icon:active,
+.icon:active,
+.icon-wrapper:active {
+  transform: scale(0.95);
+}
+
+/* Focus state (keyboard navigation) */
+icon:focus-visible,
+.icon:focus-visible,
+.icon-wrapper:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Disabled state */
+icon[disabled],
+.icon[disabled],
+.icon-wrapper[disabled],
+icon.disabled,
+.icon.disabled,
+.icon-wrapper.disabled {
+  color: var(--text-faint);
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+icon[disabled]:hover,
+.icon[disabled]:hover,
+.icon-wrapper[disabled]:hover {
+  color: var(--text-faint);
+  filter: none;
+  transform: none;
+}
+
+/* Size variants */
+.icon-xs {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-sm,
+.icon-small {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-md,
+.icon-medium {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg,
+.icon-large {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-xl {
+  width: 40px;
+  height: 40px;
+}
+
+.icon-2xl {
+  width: 48px;
+  height: 48px;
+}
+
+/* Color variants */
+.icon-gold {
+  color: #D4AF37;
+}
+
+.icon-silver {
+  color: #C0C0C0;
+}
+
+.icon-danger {
+  color: #FF4444;
+}
+
+.icon-success {
+  color: #44FF44;
+}
+
+/* Opacity variants */
+.icon-muted {
+  opacity: 0.5;
+}
+
+.icon-bright {
+  opacity: 1;
+}
+
+/* Glow effect */
+.icon-glow {
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
+}
+
+.icon-glow:hover {
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.9));
+}
+
+/* Animation - pulse */
+@keyframes icon-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.icon-pulse {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+/* Animation - spin */
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.icon-spin {
+  animation: icon-spin 1.5s linear infinite;
+}
+
+/* Button-like icon styles */
+.icon-button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover {
+  transform: scale(0.98);
+}
+
+.icon-button:active {
+  transform: scale(0.95);
+}
+
+/* Badge for notifications */
+.icon-badge {
+  position: relative;
+}
+
+.icon-badge::after {
+  content: attr(data-badge);
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #D4AF37;
+  color: #000;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border: 2px solid var(--bg-nav);
+}
+
+/* Accessibility - reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  icon,
+  .icon,
+  .icon-wrapper {
+    transition: none;
+    animation: none;
+  }
+
+  icon:hover,
+  .icon:hover,
+  .icon-wrapper:hover {
+    transform: none;
+  }
+
+  icon:active,
+  .icon:active,
+  .icon-wrapper:active {
+    transform: none;
+  }
+}
+
+/* Responsive sizes */
+@media (max-width: 480px) {
+  .icon-sm,
+  .icon-small {
+    width: 18px;
+    height: 18px;
+  }
+
+  .icon-md,
+  .icon-medium {
+    width: 22px;
+    height: 22px;
+  }
+
+  .icon-lg,
+  .icon-large {
+    width: 28px;
+    height: 28px;
+  }
+}
