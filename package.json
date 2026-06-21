@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "npx live-server --port=5500 --host=0.0.0.0"
+  },
+  "dependencies": {
+    "puppeteer": "^25.1.0"
   }
 }
