@@ -1,0 +1,1303 @@
+/**
+ * ⚔️ WARRIOR OS 2.0 — SURREALISTIC CYBERPUNK GOTHIC FANTASY CSS
+ * 
+ * A complete CSS system inspired by futuristic temples, dark fantasy, neon cyberpunk,
+ * and baroque opulence. Every element breathes, pulses, and emanates energy.
+ * 
+ * Philosophy:
+ * - Zero minimalism. Maximum layering.
+ * - Physical presence: metal, glass, light, fog, neon, shadow, relief, engraving.
+ * - Multi-dimensional: glows, reflections, textures, gradients.
+ * - Living organism: every element feels alive and responsive.
+ * 
+ * @author Michał
+ * @version 2.0
+ * @license MIT
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. DESIGN TOKENS & COLOR PALETTE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── BLACKS & DARKS (Universe Foundation) ─── */
+  --color-black-absolute: #000000;      /* Absolute void */
+  --color-black-fog: #050509;           /* Black mist */
+  --color-black-cosmic: #0A0A12;        /* Cosmic depth */
+  --color-black-shadow: #11111A;        /* High-density shadow */
+  --color-black-metallic: #1A1A27;      /* Metallic graphite */
+  --color-black-steel: #222233;         /* Steel semi-matte */
+  
+  /* ─── GRAYS & METALLICS (Metal Foundation) ─── */
+  --color-gray-cold: #2F2F45;           /* Cold metal */
+  --color-gray-steel: #3A3A55;          /* Steel with violet hint */
+  --color-gray-moonlit: #4A4A6F;        /* Moonlit fog */
+  --color-gray-silver: #6A6A9F;         /* Silver with violet reflection */
+  --color-gray-polished: #C0C0C0;       /* Polished silver */
+  --color-white-pure: #FFFFFF;          /* Pure light */
+  
+  /* ─── GOLDS & FIRE (Ceremonial Energy) ─── */
+  --color-gold-ceremonial: #FFD700;     /* Ceremonial gold */
+  --color-gold-energetic: #FFAA00;      /* Energetic gold */
+  --color-fire-aggressive: #FF5500;     /* Fire, aggression */
+  
+  /* ─── PURPLES & MAGIC (Astral Realm) ─── */
+  --color-purple-neon: #8F8FFF;         /* Neon purple */
+  --color-purple-bright: #B0B0FF;       /* Cold glow */
+  --color-purple-glitch: #FF00FF;       /* Glitch, pulse, surrealism */
+  --color-purple-magic: #AA00FF;        /* Magic, aura */
+  --color-purple-astral: #5500FF;       /* Deep astral purple */
+  --color-purple-dark: #330033;         /* Dark purpura */
+  
+  /* ─── CYANS & CYBER (Digital Realm) ─── */
+  --color-cyan-cyber: #00FFFF;          /* Cyber-turquoise */
+  --color-cyan-neon: #00FFAA;           /* Neon green */
+  
+  /* ─── UTILITY COLORS ─── */
+  --color-success: #00FF55;             /* Success green */
+  --color-warning: #FFAA00;             /* Warning orange */
+  --color-error: #FF3333;               /* Error red */
+  --color-info: #00CCFF;                /* Info cyan */
+  
+  /* ─── TYPOGRAPHY ─── */
+  --font-serif: 'Trajan Pro', 'Palatino', serif;
+  --font-sans: 'Inter', '-apple-system', 'BlinkMacSystemFont', sans-serif;
+  --font-mono: 'Monaco', 'Courier New', monospace;
+  
+  /* ─── SPACING ─── */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* ─── SIZING ─── */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* ─── ANIMATION TIMING ─── */
+  --duration-instant: 100ms;
+  --duration-fast: 250ms;
+  --duration-normal: 350ms;
+  --duration-slow: 500ms;
+  --duration-slowest: 800ms;
+  
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  
+  /* ─── SHADOW LAYERS ─── */
+  --shadow-xs: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.8);
+  
+  /* ─── GLOW LAYERS ─── */
+  --glow-xs: 0 0 8px rgba(139, 143, 255, 0.3);
+  --glow-sm: 0 0 16px rgba(139, 143, 255, 0.5);
+  --glow-md: 0 0 24px rgba(139, 143, 255, 0.7);
+  --glow-lg: 0 0 40px rgba(139, 143, 255, 0.9);
+  
+  /* ─── GLOW VARIANTS ─── */
+  --glow-gold: 0 0 24px rgba(255, 215, 0, 0.6);
+  --glow-cyan: 0 0 24px rgba(0, 255, 255, 0.6);
+  --glow-magenta: 0 0 24px rgba(255, 0, 255, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. GLOBAL STYLES & TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-black-absolute);
+  color: var(--color-white-pure);
+  line-height: 1.6;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ─── ANIMATED BACKGROUND NOISE (CRT Screen Effect) ─── */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.02) 2px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+  pointer-events: none;
+  z-index: -1;
+  animation: noise 0.8s infinite;
+}
+
+/* ─── ANIMATED FOG LAYER (Depth Atmosphere) ─── */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(139, 143, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(255, 0, 255, 0.02) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+  animation: fog 12s infinite;
+}
+
+/* ─── TYPOGRAPHY HIERARCHY ─── */
+
+h1 {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-gold-ceremonial);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-white-pure);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 16px rgba(139, 143, 255, 0.3);
+}
+
+h3 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-gold-energetic);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-gray-polished);
+}
+
+small {
+  font-size: 12px;
+  color: var(--color-gray-silver);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. CARDS & PANELS (Heart of the Design)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card,
+.panel,
+[class*="card-"],
+[class*="panel-"] {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    var(--color-black-metallic) 0%,
+    var(--color-black-steel) 25%,
+    var(--color-gray-cold) 50%,
+    var(--color-gray-steel) 75%,
+    var(--color-black-shadow) 100%
+  );
+  
+  /* ─── DOUBLE BORDER FRAME ─── */
+  border: 2px solid var(--color-gray-polished);
+  box-shadow: 
+    /* Inner white border */
+    inset 0 0 0 1px var(--color-gray-silver),
+    /* Outer graphite border */
+    0 0 0 3px var(--color-black-steel),
+    /* Deep shadow */
+    0 8px 32px rgba(0, 0, 0, 0.8),
+    /* Neon glow underneath */
+    0 0 20px rgba(139, 143, 255, 0.2);
+  
+  padding: var(--space-lg);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+/* ─── CARD INTERNAL LIGHT (Welt at bottom) ─── */
+.card::before,
+.panel::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-purple-neon),
+    transparent
+  );
+  opacity: 0.6;
+}
+
+/* ─── CARD REFLECTION (Top edge metallic shine) ─── */
+.card::after,
+.panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gray-polished),
+    transparent
+  );
+  opacity: 0.4;
+}
+
+/* ─── CARD HOVER STATE (Alive & Responsive) ─── */
+.card:hover,
+.panel:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    inset 0 0 0 1px var(--color-gray-polished),
+    0 0 0 3px var(--color-black-steel),
+    0 12px 48px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(139, 143, 255, 0.4),
+    0 0 60px rgba(0, 255, 255, 0.1);
+  background: linear-gradient(
+    135deg,
+    var(--color-black-metallic) 0%,
+    var(--color-gray-steel) 25%,
+    var(--color-gray-cold) 50%,
+    var(--color-gray-silver) 75%,
+    var(--color-purple-astral) 100%
+  );
+}
+
+/* ─── PREMIUM CARDS (Golden Bordered) ─── */
+.card--premium,
+.card--featured {
+  border-color: var(--color-gold-ceremonial);
+  box-shadow: 
+    inset 0 0 0 1px var(--color-gold-energetic),
+    0 0 0 3px var(--color-black-steel),
+    0 8px 32px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.4),
+    0 0 60px rgba(255, 170, 0, 0.2);
+}
+
+.card--premium:hover {
+  box-shadow: 
+    inset 0 0 0 1px var(--color-gold-ceremonial),
+    0 0 0 3px var(--color-black-steel),
+    0 12px 48px rgba(0, 0, 0, 0.9),
+    0 0 60px rgba(255, 215, 0, 0.6),
+    0 0 100px rgba(255, 170, 0, 0.4);
+}
+
+/* ─── COMPACT CARDS ─── */
+.card--compact {
+  padding: var(--space-md);
+  min-height: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. PROGRESS BARS & STAT INDICATORS (Energy Flow)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.progress-bar,
+[class*="bar-"],
+.stat-bar {
+  position: relative;
+  height: 24px;
+  border-radius: var(--radius-md);
+  background: var(--color-black-metallic);
+  border: 1px solid var(--color-gray-silver);
+  overflow: hidden;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 0 8px rgba(139, 143, 255, 0.1),
+    0 0 16px rgba(139, 143, 255, 0.2);
+}
+
+/* ─── PROGRESS FILL (Energy Animation) ─── */
+.progress-bar::after,
+.stat-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-purple-neon) 0%,
+    var(--color-cyan-cyber) 25%,
+    var(--color-gold-energetic) 50%,
+    var(--color-purple-magic) 75%,
+    var(--color-purple-neon) 100%
+  );
+  background-size: 200% 100%;
+  width: 65%;
+  animation: energy-flow 2s infinite;
+  box-shadow: 
+    0 0 16px rgba(139, 143, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+}
+
+/* ─── WAVE EFFECT ON PROGRESS ─── */
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 65%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: wave-flow 2s infinite;
+  border-radius: var(--radius-md);
+  z-index: 2;
+}
+
+/* ─── STAT TEXT OVERLAY ─── */
+.stat-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-white-pure);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(139, 143, 255, 0.6);
+  z-index: 3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── XP BAR VARIANTS ─── */
+.bar--xp {
+  height: 32px;
+}
+
+.bar--xp::after {
+  background: linear-gradient(
+    90deg,
+    var(--color-purple-neon),
+    var(--color-cyan-cyber),
+    var(--color-gold-energetic),
+    var(--color-purple-magic)
+  );
+  animation: energy-flow 1.5s infinite;
+}
+
+.bar--health {
+  height: 28px;
+}
+
+.bar--health::after {
+  background: linear-gradient(
+    90deg,
+    var(--color-error),
+    var(--color-fire-aggressive),
+    var(--color-gold-energetic)
+  );
+  animation: pulse-glow 2s infinite;
+}
+
+.bar--mana {
+  height: 28px;
+}
+
+.bar--mana::after {
+  background: linear-gradient(
+    90deg,
+    var(--color-cyan-cyber),
+    var(--color-purple-neon),
+    var(--color-purple-magic)
+  );
+  animation: energy-flow 2s infinite;
+}
+
+.bar--streak {
+  height: 28px;
+}
+
+.bar--streak::after {
+  background: linear-gradient(
+    90deg,
+    var(--color-fire-aggressive),
+    var(--color-gold-energetic),
+    var(--color-gold-ceremonial)
+  );
+  animation: flame-pulse 1.8s infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. BUTTONS (Physical Metal & Glass Objects)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+button,
+.btn,
+[role="button"],
+.button {
+  position: relative;
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-in-out);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  
+  /* ─── BASE GRADIENT ─── */
+  background: linear-gradient(
+    135deg,
+    var(--color-gray-cold) 0%,
+    var(--color-gray-steel) 50%,
+    var(--color-purple-neon) 100%
+  );
+  color: var(--color-white-pure);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ─── BUTTON GLOW LAYER ─── */
+button::before,
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(139, 143, 255, 0.3),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+  pointer-events: none;
+}
+
+/* ─── BUTTON RIPPLE EFFECT ─── */
+button::after,
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ─── PRIMARY BUTTON ─── */
+.btn--primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-purple-neon) 0%,
+    var(--color-purple-bright) 50%,
+    var(--color-purple-magic) 100%
+  );
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(139, 143, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: var(--color-white-pure);
+  border: 1px solid var(--color-gold-ceremonial);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 32px rgba(139, 143, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(
+    135deg,
+    var(--color-purple-bright) 0%,
+    var(--color-purple-magic) 50%,
+    var(--color-cyan-cyber) 100%
+  );
+}
+
+.btn--primary:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.8),
+    0 0 16px rgba(139, 143, 255, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── SECONDARY BUTTON ─── */
+.btn--secondary {
+  background: linear-gradient(
+    135deg,
+    var(--color-black-steel) 0%,
+    var(--color-gray-steel) 50%,
+    var(--color-gray-cold) 100%
+  );
+  border: 2px solid var(--color-gray-polished);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px var(--color-gray-silver);
+}
+
+.btn--secondary:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-gold-energetic);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    inset 0 0 0 1px var(--color-gray-polished),
+    0 0 24px rgba(255, 170, 0, 0.3);
+}
+
+/* ─── GHOST BUTTON ─── */
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--color-purple-neon);
+  color: var(--color-purple-bright);
+  box-shadow: 0 0 12px rgba(139, 143, 255, 0.2);
+}
+
+.btn--ghost:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(139, 143, 255, 0.5);
+  background: rgba(139, 143, 255, 0.1);
+}
+
+/* ─── SUCCESS BUTTON ─── */
+.btn--success {
+  background: linear-gradient(
+    135deg,
+    var(--color-success) 0%,
+    var(--color-cyan-neon) 100%
+  );
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 255, 85, 0.4);
+}
+
+.btn--success:hover {
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 32px rgba(0, 255, 85, 0.6);
+}
+
+/* ─── DANGER BUTTON ─── */
+.btn--danger {
+  background: linear-gradient(
+    135deg,
+    var(--color-error) 0%,
+    var(--color-fire-aggressive) 100%
+  );
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 51, 51, 0.4);
+}
+
+.btn--danger:hover {
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 32px rgba(255, 51, 51, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. BADGES & INDICATORS (Glowing Artifacts)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.badge,
+.tag,
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: linear-gradient(
+    90deg,
+    var(--color-gray-cold),
+    var(--color-gray-steel)
+  );
+  color: var(--color-white-pure);
+  border: 1px solid var(--color-purple-neon);
+  box-shadow: 
+    0 0 12px rgba(139, 143, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  animation: badge-glow 2s ease-in-out infinite;
+}
+
+.badge--gold {
+  border-color: var(--color-gold-ceremonial);
+  box-shadow: 
+    0 0 16px rgba(255, 215, 0, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  color: var(--color-gold-ceremonial);
+}
+
+.badge--success {
+  border-color: var(--color-success);
+  box-shadow: 0 0 12px rgba(0, 255, 85, 0.4);
+  color: var(--color-success);
+}
+
+.badge--danger {
+  border-color: var(--color-error);
+  box-shadow: 0 0 12px rgba(255, 51, 51, 0.4);
+  color: var(--color-error);
+}
+
+.badge--warning {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 12px rgba(255, 170, 0, 0.4);
+  color: var(--color-warning);
+}
+
+.badge--cyan {
+  border-color: var(--color-cyan-cyber);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+  color: var(--color-cyan-cyber);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. RANKINGS & LEADERBOARDS (Holographic Lists)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ranking-entry,
+.leaderboard-item,
+[class*="rank-item"] {
+  position: relative;
+  padding: var(--space-md);
+  margin: var(--space-sm) 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--color-black-shadow),
+    var(--color-black-metallic)
+  );
+  border: 1px solid var(--color-purple-neon);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  
+  box-shadow: 
+    0 0 16px rgba(139, 143, 255, 0.2),
+    inset 0 0 8px rgba(139, 143, 255, 0.05);
+  
+  transition: all var(--duration-normal) var(--ease-in-out);
+}
+
+.ranking-entry:hover {
+  transform: translateX(4px);
+  box-shadow: 
+    0 0 24px rgba(139, 143, 255, 0.4),
+    inset 0 0 12px rgba(139, 143, 255, 0.1);
+  background: linear-gradient(
+    90deg,
+    var(--color-black-metallic),
+    var(--color-gray-cold)
+  );
+}
+
+/* ─── TOP 3 SPECIAL STYLING ─── */
+.ranking-entry.rank-1 {
+  border-color: var(--color-gold-ceremonial);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 215, 0, 0.05),
+    var(--color-black-metallic)
+  );
+  box-shadow: 
+    0 0 32px rgba(255, 215, 0, 0.3),
+    inset 0 0 8px rgba(255, 215, 0, 0.1);
+}
+
+.ranking-entry.rank-2 {
+  border-color: var(--color-gray-polished);
+  background: linear-gradient(
+    90deg,
+    rgba(192, 192, 192, 0.05),
+    var(--color-black-metallic)
+  );
+  box-shadow: 
+    0 0 24px rgba(192, 192, 192, 0.2),
+    inset 0 0 8px rgba(192, 192, 192, 0.05);
+}
+
+.ranking-entry.rank-3 {
+  border-color: var(--color-fire-aggressive);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 85, 0, 0.05),
+    var(--color-black-metallic)
+  );
+  box-shadow: 
+    0 0 24px rgba(255, 85, 0, 0.2),
+    inset 0 0 8px rgba(255, 85, 0, 0.05);
+}
+
+/* ─── RANK NUMBER BADGE ─── */
+.ranking-number {
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--color-purple-neon),
+    var(--color-cyan-cyber)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-white-pure);
+  box-shadow: 
+    0 0 20px rgba(139, 143, 255, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.rank-1 .ranking-number {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-ceremonial),
+    var(--color-gold-energetic)
+  );
+  box-shadow: 
+    0 0 32px rgba(255, 215, 0, 0.8),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* ─── AVATAR HALO ─── */
+.ranking-avatar,
+.player-avatar {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-purple-neon);
+  box-shadow: 
+    0 0 24px rgba(139, 143, 255, 0.5),
+    inset 0 0 8px rgba(0, 0, 0, 0.6);
+  animation: avatar-pulse 3s ease-in-out infinite;
+}
+
+.rank-1 .ranking-avatar {
+  border-color: var(--color-gold-ceremonial);
+  box-shadow: 
+    0 0 32px rgba(255, 215, 0, 0.6),
+    inset 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── XP DISPLAY ─── */
+.ranking-xp,
+.stat-value {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-gold-energetic);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(255, 170, 0, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. CHAT & MESSAGES (Holographic Bubbles)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.message,
+.chat-bubble {
+  position: relative;
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-sm) 0;
+  border-radius: var(--radius-lg);
+  max-width: 70%;
+  word-wrap: break-word;
+  
+  /* ─── HOLOGRAM EFFECT ─── */
+  background: linear-gradient(
+    135deg,
+    rgba(139, 143, 255, 0.15),
+    rgba(0, 255, 255, 0.05)
+  );
+  border: 1px solid var(--color-purple-neon);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 0 16px rgba(139, 143, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  
+  color: var(--color-white-pure);
+  font-size: 14px;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  
+  animation: message-enter 0.3s ease-out;
+}
+
+.message.sent {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.15),
+    rgba(139, 143, 255, 0.05)
+  );
+  border-color: var(--color-cyan-cyber);
+  box-shadow: 
+    0 0 16px rgba(0, 255, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.message.received {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 143, 255, 0.15),
+    rgba(170, 0, 255, 0.05)
+  );
+  border-color: var(--color-purple-magic);
+  box-shadow: 
+    0 0 16px rgba(170, 0, 255, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  align-self: flex-start;
+}
+
+/* ─── TIMESTAMP ─── */
+.message-time,
+.chat-time {
+  font-size: 11px;
+  color: var(--color-gray-silver);
+  margin-top: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ─── TYPING INDICATOR ─── */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(139, 143, 255, 0.1);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-purple-neon);
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-purple-neon);
+  animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. ICONS & SYMBOLS (Neon Glyphs)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.icon,
+[class*="icon-"],
+svg {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  color: var(--color-purple-neon);
+  filter: drop-shadow(0 0 4px rgba(139, 143, 255, 0.4));
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.icon:hover,
+[class*="icon-"]:hover {
+  color: var(--color-cyan-cyber);
+  filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.6));
+  transform: scale(1.1) rotate(5deg);
+}
+
+.icon--large {
+  width: 48px;
+  height: 48px;
+}
+
+.icon--gold {
+  color: var(--color-gold-ceremonial);
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+.icon--success {
+  color: var(--color-success);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 85, 0.4));
+}
+
+.icon--error {
+  color: var(--color-error);
+  filter: drop-shadow(0 0 8px rgba(255, 51, 51, 0.4));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10. MODALS & OVERLAYS (Dimensional Gateways)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.modal,
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: modal-enter 0.3s ease-out;
+}
+
+.modal-content,
+.dialog-content {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(
+    135deg,
+    var(--color-black-metallic) 0%,
+    var(--color-black-steel) 25%,
+    var(--color-gray-cold) 50%,
+    var(--color-black-shadow) 100%
+  );
+  border: 2px solid var(--color-purple-neon);
+  box-shadow: 
+    0 0 60px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(139, 143, 255, 0.4);
+  padding: var(--space-2xl);
+  animation: modal-content-enter 0.4s ease-out;
+}
+
+/* ─── MODAL HEADER ─── */
+.modal-header,
+.dialog-header {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-gold-ceremonial);
+  margin-bottom: var(--space-lg);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 16px rgba(255, 215, 0, 0.3);
+  border-bottom: 1px solid var(--color-purple-neon);
+  padding-bottom: var(--space-md);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11. ANIMATIONS (Life & Energy)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes noise {
+  0% { opacity: 1; }
+  50% { opacity: 0.97; }
+  100% { opacity: 1; }
+}
+
+@keyframes fog {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-10px, -20px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes energy-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes wave-flow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      inset 0 0 8px rgba(255, 51, 51, 0.3),
+      0 0 16px rgba(255, 51, 51, 0.2);
+  }
+  50% {
+    box-shadow: 
+      inset 0 0 12px rgba(255, 51, 51, 0.5),
+      0 0 24px rgba(255, 51, 51, 0.4);
+  }
+}
+
+@keyframes flame-pulse {
+  0%, 100% {
+    box-shadow: 
+      inset 0 0 8px rgba(255, 85, 0, 0.3),
+      0 0 16px rgba(255, 85, 0, 0.2);
+  }
+  50% {
+    box-shadow: 
+      inset 0 0 12px rgba(255, 85, 0, 0.5),
+      0 0 24px rgba(255, 85, 0, 0.4);
+  }
+}
+
+@keyframes badge-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 12px rgba(139, 143, 255, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(139, 143, 255, 0.6),
+      inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes avatar-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 24px rgba(139, 143, 255, 0.5),
+      inset 0 0 8px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(139, 143, 255, 0.8),
+      inset 0 0 12px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes message-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes modal-enter {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-content-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotateX(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateX(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   12. UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.glow {
+  box-shadow: 0 0 24px rgba(139, 143, 255, 0.5);
+}
+
+.glow--gold {
+  box-shadow: 0 0 32px rgba(255, 215, 0, 0.6);
+}
+
+.glow--cyan {
+  box-shadow: 0 0 24px rgba(0, 255, 255, 0.5);
+}
+
+.glow--magenta {
+  box-shadow: 0 0 24px rgba(255, 0, 255, 0.5);
+}
+
+.text-glow {
+  text-shadow: 0 0 16px rgba(139, 143, 255, 0.6);
+}
+
+.text-gold {
+  color: var(--color-gold-ceremonial);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.text-neon {
+  color: var(--color-purple-neon);
+  text-shadow: 0 0 8px rgba(139, 143, 255, 0.4);
+}
+
+.text-cyber {
+  color: var(--color-cyan-cyber);
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   13. RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 32px;
+  }
+  
+  h2 {
+    font-size: 24px;
+  }
+  
+  .card,
+  .panel {
+    padding: var(--space-md);
+  }
+  
+  .modal-content,
+  .dialog-content {
+    width: 95%;
+    padding: var(--space-lg);
+  }
+  
+  .message,
+  .chat-bubble {
+    max-width: 85%;
+  }
+  
+  button,
+  .btn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/**
+ * END OF WARRIOR OS 2.0 SURREALIST CSS
+ * 
+ * This CSS creates a living, breathing interface that feels:
+ * ✓ Physically present (metal, glass, light)
+ * ✓ Energetically alive (pulsing, flowing, emanating)
+ * ✓ Dimensionally complex (layered, multi-textured)
+ * ✓ Magically surreal (holographic, neon, glitchy)
+ * 
+ * Every element is carefully crafted to create an atmosphere
+ * of a futuristic temple discovered in the ruins of a cyberpunk civilization,
+ * where technology and magic intertwine.
+ */
