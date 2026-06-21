@@ -7,15 +7,8 @@
   <meta name="description" content="Logowanie — Weekend Warrior Social"/>
   <title>Logowanie — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="css/system.css"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/design-system.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/premium-components.css"/>
-  <link rel="stylesheet" href="css/animations.css"/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/unified-system.css"/>
   <style>
     .auth-container {
       display: flex;
@@ -34,84 +27,55 @@
       width: 100%;
       max-width: 380px;
       text-align: center;
-    }
-
     .auth-logo {
       width: 80px;
       height: 80px;
       margin: 0 auto 1.5rem;
       opacity: 0.8;
-    }
-
     .auth-title {
       font-size: 1.375rem;
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 0.5rem;
       font-family: var(--font-heading);
-    }
-
     .auth-subtitle {
       font-size: 0.85rem;
       color: var(--text-muted);
       margin-bottom: 1.5rem;
-    }
-
     .auth-button {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
       gap: 0.75rem;
-      width: 100%;
       padding: 0.875rem 1.25rem;
       background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
       color: #000;
       border: none;
-      border-radius: var(--radius-md);
       font-size: 0.95rem;
       font-weight: 600;
-      font-family: var(--font-heading);
       cursor: pointer;
       transition: all 180ms ease;
       box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-    }
-
     .auth-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
-    }
-
     .auth-button:active {
       transform: translateY(0);
-    }
-
     .divider-text {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
       margin: 1.5rem 0;
-      color: var(--text-muted);
       font-size: 0.8rem;
-    }
-
     .divider-text::before,
     .divider-text::after {
       content: '';
       flex: 1;
       height: 1px;
       background: rgba(212, 175, 55, 0.15);
-    }
   </style>
 </head>
 <body>
-
 <div class="bg-orbs" aria-hidden="true"></div>
 <div class="particles" aria-hidden="true">
   <div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
-
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-logo">
@@ -130,42 +94,24 @@
         <circle cx="60" cy="55" r="4" fill="url(#goldGradient)"/>
       </svg>
     </div>
-
     <h1 class="auth-title">Weekend Warrior</h1>
     <p class="auth-subtitle">Dołącz. Walcz. Zwyciężaj.</p>
-
     <button class="auth-button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/>
         <path d="M12 6v6l4 2"/>
-      </svg>
       Zaloguj się
     </button>
-
     <div class="divider-text">lub</div>
-
-    <button class="auth-button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-      </svg>
       Facebook
-    </button>
-
-    <div class="divider-text">lub</div>
-
-    <button class="auth-button">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-      </svg>
       GitHub
-    </button>
-
     <p class="auth-subtitle" style="margin-top: 1.5rem; margin-bottom: 0;">
       Nie masz konta? <a href="#" style="color: var(--color-gold); text-decoration: none;">Zarejestruj się</a>
     </p>
   </div>
-</div>
-
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

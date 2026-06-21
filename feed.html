@@ -8,14 +8,164 @@
   <title>Kroniki — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/design-system.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/premium-components.css"/>
-  <link rel="stylesheet" href="css/animations.css"/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/unified-system.css"/>
+  <link rel="stylesheet" href="css/system.css"/>
+  <style>
+    .post-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-md);
+      padding: var(--sp-lg);
+      background: rgba(30, 30, 40, 0.6);
+      border: 1.5px solid rgba(60, 60, 60, 0.6);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(8px);
+      box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.05),
+        inset 0 -1px 3px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-bottom: var(--sp-lg);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .post-card:hover {
+      border-color: rgba(212, 175, 55, 0.3);
+      box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.08),
+        inset 0 -1px 3px rgba(0, 0, 0, 0.2),
+        0 8px 24px rgba(212, 175, 55, 0.15),
+        0 0 20px rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .post-header {
+      display: flex;
+      gap: var(--sp-md);
+      align-items: flex-start;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(107, 79, 187, 0.2) 100%);
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .post-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-xs);
+    }
+
+    .post-username {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+    }
+
+    .post-meta {
+      display: flex;
+      gap: var(--sp-sm);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+    }
+
+    .post-level {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--color-gold);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 0.65rem;
+    }
+
+    .post-content {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+    }
+
+    .post-image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(107, 79, 187, 0.1) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: var(--sp-md);
+      justify-content: space-between;
+      padding-top: var(--sp-md);
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-xs);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: color var(--duration-fast) var(--ease-out);
+      flex: 1;
+      justify-content: center;
+    }
+
+    .post-action:hover {
+      color: var(--color-gold);
+    }
+
+    .feed-tabs {
+      display: flex;
+      gap: var(--sp-sm);
+      margin-bottom: var(--sp-xl);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      padding-bottom: var(--sp-md);
+    }
+
+    .feed-tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: var(--sp-sm) var(--sp-lg);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      position: relative;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .feed-tab-btn.active {
+      color: var(--color-gold);
+    }
+
+    .feed-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -var(--sp-md);
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-gold), transparent);
+    }
+  </style>
 </head>
 <body>
 
@@ -25,15 +175,13 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
+<div class="fog-layer" aria-hidden="true"></div>
 
-<!-- ══════════════════════════════════════════
-     TOP NAVIGATION BAR
-══════════════════════════════════════════ -->
+<!-- TOP NAVIGATION BAR -->
 <nav class="navbar-top" role="banner">
   <a href="index.html" class="navbar-top-brand">
     <img src="assets/images/logo.png" alt="Weekend Warrior Social" class="navbar-logo">
   </a>
-
   <div class="navbar-top-actions">
     <a href="#" class="navbar-top-item" id="notif-btn" title="Powiadomienia" aria-label="Powiadomienia">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,7 +191,6 @@
       </svg>
       <span class="navbar-top-notification-badge" id="notif-badge" style="display:none;">0</span>
     </a>
-
     <a href="messenger.html" class="navbar-top-item" title="Wiadomości" aria-label="Wiadomości">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H8L4 26V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -52,14 +199,12 @@
       </svg>
       <span class="navbar-top-notification-badge" id="msg-badge" style="display:none;">0</span>
     </a>
-
     <a href="profile.html" class="navbar-top-item" title="Profil" aria-label="Profil">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M6 24C6 20.1 9.6 17 14 17H18C22.4 17 26 20.1 26 24V26H6V24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
-
     <a href="login.html" class="navbar-top-item" title="Wylogowanie" aria-label="Wylogowanie">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22 4H26C27.1 4 28 4.9 28 6V26C28 27.1 27.1 28 26 28H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -70,9 +215,7 @@
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════════
-     BOTTOM NAVIGATION BAR
-══════════════════════════════════════════ -->
+<!-- BOTTOM NAVIGATION BAR -->
 <nav class="navbar-bottom" role="navigation" aria-label="Główna nawigacja">
   <a href="index.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -82,7 +225,6 @@
     </svg>
     <span>Arena</span>
   </a>
-
   <a href="feed.html" class="navbar-bottom-item active" aria-current="page">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="6" y="2" width="20" height="28" rx="1.5"/>
@@ -93,7 +235,6 @@
     </svg>
     <span>Kroniki</span>
   </a>
-
   <a href="challenges.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M8 10L14 4L20 10"/>
@@ -104,7 +245,6 @@
     </svg>
     <span>Misje</span>
   </a>
-
   <a href="ranking.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z"/>
@@ -115,7 +255,6 @@
     </svg>
     <span>Chwała</span>
   </a>
-
   <a href="profile.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M16 2C10 2 6 5 6 10V12C6 15 8 17 10 18V26H22V18C24 17 26 15 26 12V10C26 5 22 2 16 2Z"/>
@@ -127,24 +266,19 @@
   </a>
 </nav>
 
-<!-- ══════════════════════════════════════════
-     MAIN CONTENT
-══════════════════════════════════════════ -->
+<!-- MAIN CONTENT -->
 <main class="page-container">
 
-  <!-- Page header -->
-  <div class="page-header">
-    <div class="page-header-title">
-      <div class="page-title">📜 Kroniki Areny</div>
-      <div class="page-subtitle">Głosy Wojowników</div>
-    </div>
-    <div class="page-badge">
-      <span class="page-badge-dot"></span>
-      na żywo
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-icon">📜</div>
+      <div class="hero-title">Kroniki Areny</div>
+      <div class="hero-subtitle">Śledzenie bitew i osiągnięć wojowników</div>
     </div>
   </div>
 
-  <!-- Feed tabs -->
+  <!-- Feed Tabs -->
   <div class="feed-tabs" role="tablist" aria-label="Filtry feedu">
     <button class="feed-tab-btn active" data-tab="forYou" role="tab" aria-selected="true">
       ⚔️ Dla Ciebie
@@ -157,27 +291,39 @@
     </button>
   </div>
 
-  <!-- Placeholder content cards -->
-  <div class="content-card">
-    <div style="height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
+  <!-- Example Post Cards -->
+  <div id="feed-container">
+    <!-- Sample post -->
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar">⚔️</div>
+        <div class="post-info">
+          <div class="post-username">Dragonslayer</div>
+          <div class="post-meta">
+            <span class="post-level">LVL 42</span>
+            <span>2h temu</span>
+          </div>
+        </div>
+      </div>
+      <div class="post-content">Właśnie pokonałem 5 wyzwań! Moja seria zwycięstw rośnie. #Arena #Gaming</div>
+      <div class="post-image"></div>
+      <div class="post-actions">
+        <div class="post-action">❤️ 342</div>
+        <div class="post-action">💬 18</div>
+        <div class="post-action">↗️ 42</div>
+      </div>
+    </div>
+
+    <!-- Placeholder for dynamic posts -->
   </div>
 
-  <div class="content-card">
-    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
+  <!-- Empty State -->
+  <div id="feed-empty" style="display:none; text-align: center; padding: var(--sp-3xl) var(--sp-lg);">
+    <div style="font-size: 2.5rem; margin-bottom: var(--sp-lg);">📜</div>
+    <div class="heading-sm" style="color: var(--text-secondary);">Kroniki są puste</div>
+    <div class="caption" style="margin-top: var(--sp-md); color: var(--text-muted);">Nikt jeszcze nic nie zapisał.<br>Bądź pierwszy i zainauguruj bitwę!</div>
   </div>
 
-  <div class="content-card">
-    <div style="height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
-  </div>
-
-  <!-- Empty state fallback -->
-  <div id="feed-empty" class="empty-state" style="display:none;">
-    <div class="empty-state-icon">📜</div>
-    <div class="empty-state-title">Kroniki są puste</div>
-    <p class="empty-state-subtitle">Nikt jeszcze nic nie zapisał.<br>Bądź pierwszy i zainauguruj bitwę!</p>
-  </div>
-
-  <div style="height: 1rem;"></div>
 </main>
 
 <script>
@@ -187,5 +333,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
 </body>
 </html>

@@ -4,18 +4,229 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#06050A"/>
-  <meta name="description" content="Sala Chwały — Weekend Warrior Social"/>
-  <title>Sala Chwały — Weekend Warrior Social</title>
+  <meta name="description" content="Chwała - Ranking — Weekend Warrior Social"/>
+  <title>Chwała — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/design-system.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/premium-components.css"/>
-  <link rel="stylesheet" href="css/animations.css"/>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/unified-system.css"/>
+  <link rel="stylesheet" href="css/system.css"/>
+  <style>
+    .podium-container {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: var(--sp-lg);
+      margin-bottom: var(--sp-3xl);
+      align-items: flex-end;
+    }
+
+    .podium-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-md);
+    }
+
+    .podium-rank {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-md);
+      width: 100%;
+    }
+
+    .podium-medal {
+      font-size: 3rem;
+      margin-bottom: var(--sp-sm);
+    }
+
+    .podium-card {
+      position: relative;
+      width: 100%;
+      padding: var(--sp-lg);
+      background: linear-gradient(135deg, rgba(20, 20, 30, 0.8) 0%, rgba(30, 25, 45, 0.8) 100%);
+      border: 2px solid;
+      border-radius: var(--radius-md);
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .podium-1 .podium-card {
+      border-color: var(--color-gold-light);
+      box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(212, 175, 55, 0.4),
+        0 8px 24px rgba(212, 175, 55, 0.25);
+    }
+
+    .podium-2 .podium-card {
+      border-color: rgba(192, 192, 192, 0.5);
+      box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 0 16px rgba(192, 192, 192, 0.2),
+        0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .podium-3 .podium-card {
+      border-color: rgba(205, 127, 50, 0.5);
+      box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.1),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+        0 0 16px rgba(205, 127, 50, 0.2),
+        0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .podium-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(107, 79, 187, 0.2) 100%);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto;
+    }
+
+    .podium-name {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-family: var(--font-ui);
+    }
+
+    .podium-level {
+      font-size: 0.8rem;
+      color: var(--color-gold);
+      font-weight: 600;
+    }
+
+    .podium-score {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--color-gold);
+      margin-top: var(--sp-sm);
+    }
+
+    .podium-height {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--color-gold);
+      font-size: 1.5rem;
+    }
+
+    .podium-1 .podium-height { height: 180px; }
+    .podium-2 .podium-height { height: 150px; }
+    .podium-3 .podium-height { height: 120px; }
+
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-lg);
+      padding: var(--sp-lg);
+      background: rgba(30, 30, 40, 0.6);
+      border: 1.5px solid rgba(60, 60, 60, 0.6);
+      border-left: 3px solid rgba(212, 175, 55, 0.3);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(8px);
+      margin-bottom: var(--sp-lg);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .ranking-item:hover {
+      border-color: rgba(212, 175, 55, 0.4);
+      border-left-color: var(--color-gold);
+      box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.08),
+        inset 0 -1px 3px rgba(0, 0, 0, 0.2),
+        0 8px 24px rgba(212, 175, 55, 0.15),
+        0 0 20px rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .ranking-position {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--color-gold);
+      width: 40px;
+      text-align: center;
+      font-family: var(--font-heading);
+    }
+
+    .ranking-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(107, 79, 187, 0.15) 100%);
+      border: 1.5px solid rgba(212, 175, 55, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .ranking-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-xs);
+    }
+
+    .ranking-name {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: var(--font-ui);
+    }
+
+    .ranking-meta {
+      display: flex;
+      gap: var(--sp-md);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .ranking-level-badge {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--color-gold);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .ranking-stats {
+      display: flex;
+      gap: var(--sp-xl);
+      align-items: center;
+    }
+
+    .stat-column {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-xs);
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .stat-name {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
@@ -25,16 +236,13 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
+<div class="fog-layer" aria-hidden="true"></div>
 
 <!-- TOP NAVIGATION BAR -->
-<!-- ══════════════════════════════════════════
-     TOP NAVIGATION BAR
-══════════════════════════════════════════ -->
 <nav class="navbar-top" role="banner">
   <a href="index.html" class="navbar-top-brand">
     <img src="assets/images/logo.png" alt="Weekend Warrior Social" class="navbar-logo">
   </a>
-
   <div class="navbar-top-actions">
     <a href="#" class="navbar-top-item" id="notif-btn" title="Powiadomienia" aria-label="Powiadomienia">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,7 +252,6 @@
       </svg>
       <span class="navbar-top-notification-badge" id="notif-badge" style="display:none;">0</span>
     </a>
-
     <a href="messenger.html" class="navbar-top-item" title="Wiadomości" aria-label="Wiadomości">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H8L4 26V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -53,14 +260,12 @@
       </svg>
       <span class="navbar-top-notification-badge" id="msg-badge" style="display:none;">0</span>
     </a>
-
     <a href="profile.html" class="navbar-top-item" title="Profil" aria-label="Profil">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M6 24C6 20.1 9.6 17 14 17H18C22.4 17 26 20.1 26 24V26H6V24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
-
     <a href="login.html" class="navbar-top-item" title="Wylogowanie" aria-label="Wylogowanie">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22 4H26C27.1 4 28 4.9 28 6V26C28 27.1 27.1 28 26 28H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -81,7 +286,6 @@
     </svg>
     <span>Arena</span>
   </a>
-
   <a href="feed.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="6" y="2" width="20" height="28" rx="1.5"/>
@@ -92,7 +296,6 @@
     </svg>
     <span>Kroniki</span>
   </a>
-
   <a href="challenges.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M8 10L14 4L20 10"/>
@@ -103,7 +306,6 @@
     </svg>
     <span>Misje</span>
   </a>
-
   <a href="ranking.html" class="navbar-bottom-item active" aria-current="page">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z"/>
@@ -114,7 +316,6 @@
     </svg>
     <span>Chwała</span>
   </a>
-
   <a href="profile.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M16 2C10 2 6 5 6 10V12C6 15 8 17 10 18V26H22V18C24 17 26 15 26 12V10C26 5 22 2 16 2Z"/>
@@ -129,58 +330,155 @@
 <!-- MAIN CONTENT -->
 <main class="page-container">
 
-  <!-- Page header -->
-  <div class="page-header">
-    <div class="page-header-title">
-      <div class="page-title">👑 Sala Chwały</div>
-      <div class="page-subtitle">Tabela Najlepszych Wojowników Areny</div>
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-icon">👑</div>
+      <div class="hero-title">Chwała</div>
+      <div class="hero-subtitle">Najlepsi wojownicy areny</div>
     </div>
   </div>
 
-  <div class="divider"></div>
+  <!-- TOP 3 Podium -->
+  <div class="podium-container">
+    <!-- Silver - 2nd Place -->
+    <div class="podium-item podium-2">
+      <div class="podium-rank">
+        <div class="podium-medal">🥈</div>
+        <div class="podium-card">
+          <div class="podium-avatar">🗡️</div>
+          <div class="podium-name">ShadowBlade</div>
+          <div class="podium-level">LVL 48</div>
+          <div class="podium-score">2,850 pts</div>
+        </div>
+      </div>
+      <div class="podium-height">2</div>
+    </div>
 
-  <!-- Placeholder ranking items -->
-  <div class="ranking-item">
-    <div class="ranking-position">1</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #1</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">5500 XP</span>
-        <span>Wygrane: 23</span>
+    <!-- Gold - 1st Place (Center) -->
+    <div class="podium-item podium-1">
+      <div class="podium-rank">
+        <div class="podium-medal">🥇</div>
+        <div class="podium-card">
+          <div class="podium-avatar">⚔️</div>
+          <div class="podium-name">Dragonslayer</div>
+          <div class="podium-level">LVL 52</div>
+          <div class="podium-score">3,250 pts</div>
+        </div>
+      </div>
+      <div class="podium-height">1</div>
+    </div>
+
+    <!-- Bronze - 3rd Place -->
+    <div class="podium-item podium-3">
+      <div class="podium-rank">
+        <div class="podium-medal">🥉</div>
+        <div class="podium-card">
+          <div class="podium-avatar">🛡️</div>
+          <div class="podium-name">IronFist</div>
+          <div class="podium-level">LVL 46</div>
+          <div class="podium-score">2,620 pts</div>
+        </div>
+      </div>
+      <div class="podium-height">3</div>
+    </div>
+  </div>
+
+  <!-- Full Ranking List -->
+  <div style="border-top: 2px solid rgba(212, 175, 55, 0.1); padding-top: var(--sp-2xl); margin-bottom: var(--sp-xl);">
+    <h3 class="heading-sm mb-lg">Pełny Ranking</h3>
+
+    <div class="ranking-item">
+      <div class="ranking-position">4</div>
+      <div class="ranking-avatar">🎯</div>
+      <div class="ranking-info">
+        <div class="ranking-name">PhantomArrow</div>
+        <div class="ranking-meta">
+          <span class="ranking-level-badge">LVL 44</span>
+          <span>2,480 pts</span>
+        </div>
+      </div>
+      <div class="ranking-stats">
+        <div class="stat-column">
+          <div class="stat-value">156</div>
+          <div class="stat-name">Wygrane</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ranking-item">
+      <div class="ranking-position">5</div>
+      <div class="ranking-avatar">⚡</div>
+      <div class="ranking-info">
+        <div class="ranking-name">ThunderMage</div>
+        <div class="ranking-meta">
+          <span class="ranking-level-badge">LVL 43</span>
+          <span>2,350 pts</span>
+        </div>
+      </div>
+      <div class="ranking-stats">
+        <div class="stat-column">
+          <div class="stat-value">142</div>
+          <div class="stat-name">Wygrane</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ranking-item">
+      <div class="ranking-position">6</div>
+      <div class="ranking-avatar">🔥</div>
+      <div class="ranking-info">
+        <div class="ranking-name">InfernoKnight</div>
+        <div class="ranking-meta">
+          <span class="ranking-level-badge">LVL 41</span>
+          <span>2,220 pts</span>
+        </div>
+      </div>
+      <div class="ranking-stats">
+        <div class="stat-column">
+          <div class="stat-value">128</div>
+          <div class="stat-name">Wygrane</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ranking-item">
+      <div class="ranking-position">7</div>
+      <div class="ranking-avatar">🌙</div>
+      <div class="ranking-info">
+        <div class="ranking-name">MoonShadow</div>
+        <div class="ranking-meta">
+          <span class="ranking-level-badge">LVL 40</span>
+          <span>2,150 pts</span>
+        </div>
+      </div>
+      <div class="ranking-stats">
+        <div class="stat-column">
+          <div class="stat-value">115</div>
+          <div class="stat-name">Wygrane</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ranking-item">
+      <div class="ranking-position">8</div>
+      <div class="ranking-avatar">⭐</div>
+      <div class="ranking-info">
+        <div class="ranking-name">StarLight</div>
+        <div class="ranking-meta">
+          <span class="ranking-level-badge">LVL 39</span>
+          <span>2,080 pts</span>
+        </div>
+      </div>
+      <div class="ranking-stats">
+        <div class="stat-column">
+          <div class="stat-value">103</div>
+          <div class="stat-name">Wygrane</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="ranking-item">
-    <div class="ranking-position">2</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #2</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">5200 XP</span>
-        <span>Wygrane: 21</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="ranking-item">
-    <div class="ranking-position">3</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #3</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">4800 XP</span>
-        <span>Wygrane: 19</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Empty state fallback -->
-  <div id="ranking-empty" class="empty-state" style="display:none;">
-    <div class="empty-state-icon">👑</div>
-    <div class="empty-state-title">Ranking się ładuje</div>
-    <p class="empty-state-subtitle">Czekaj na wyniki pozostałych<br>wojowników areny</p>
-  </div>
-
-  <div style="height: 1rem;"></div>
 </main>
 
 <script>
@@ -190,5 +488,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
 </body>
 </html>
