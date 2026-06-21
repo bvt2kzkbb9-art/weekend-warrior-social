@@ -177,7 +177,7 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   PARTICLE SYSTEM — CSS only floating embers
+   PARTICLE SYSTEM — Gold & purple particles
    ════════════════════════════════════════════════════════════════════ */
 .particles {
   position: fixed;
@@ -197,17 +197,17 @@
 }
 .particle:nth-child(1)  { left:5%;  bottom:10%; animation-duration:8s;  animation-delay:0s;   width:2px; height:2px; }
 .particle:nth-child(2)  { left:12%; bottom:5%;  animation-duration:10s; animation-delay:1s;   }
-.particle:nth-child(3)  { left:20%; bottom:15%; animation-duration:7s;  animation-delay:2s;   width:2px; height:2px; background: var(--fire); }
+.particle:nth-child(3)  { left:20%; bottom:15%; animation-duration:7s;  animation-delay:2s;   width:2px; height:2px; background: var(--purple-dark); box-shadow: 0 0 6px var(--purple-glow); }
 .particle:nth-child(4)  { left:35%; bottom:8%;  animation-duration:9s;  animation-delay:.5s;  }
 .particle:nth-child(5)  { left:50%; bottom:12%; animation-duration:11s; animation-delay:3s;   width:2px; height:2px; }
-.particle:nth-child(6)  { left:62%; bottom:6%;  animation-duration:8s;  animation-delay:1.5s; background: var(--fire); }
+.particle:nth-child(6)  { left:62%; bottom:6%;  animation-duration:8s;  animation-delay:1.5s; background: var(--purple-dark); box-shadow: 0 0 6px var(--purple-glow); }
 .particle:nth-child(7)  { left:75%; bottom:18%; animation-duration:9s;  animation-delay:4s;   width:2px; height:2px; }
 .particle:nth-child(8)  { left:85%; bottom:9%;  animation-duration:10s; animation-delay:2.5s; }
-.particle:nth-child(9)  { left:92%; bottom:14%; animation-duration:7s;  animation-delay:.8s;  background: var(--fire); width:2px; height:2px; }
+.particle:nth-child(9)  { left:92%; bottom:14%; animation-duration:7s;  animation-delay:.8s;  background: var(--purple-dark); width:2px; height:2px; box-shadow: 0 0 6px var(--purple-glow); }
 .particle:nth-child(10) { left:28%; bottom:20%; animation-duration:12s; animation-delay:5s;   }
 
 /* ════════════════════════════════════════════════════════════════════
-   FOG LAYER
+   FOG LAYER — deepened with purple undertone
    ════════════════════════════════════════════════════════════════════ */
 .fog-layer {
   position: fixed;
@@ -216,8 +216,8 @@
   height: 80px;
   background: linear-gradient(180deg,
     transparent 0%,
-    rgba(7,6,10,.3) 60%,
-    rgba(7,6,10,.6) 100%
+    rgba(5,4,4,.5) 60%,
+    rgba(5,4,4,.8) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -1240,7 +1240,7 @@
 .sport-item.selected .sport-label { color: var(--gold-500); }
 
 /* ════════════════════════════════════════════════════════════════════
-   LEVEL UP EFFECT (overlay)
+   LEVEL UP EFFECT (overlay) — deep black
    ════════════════════════════════════════════════════════════════════ */
 .level-up-overlay {
   position: fixed;
@@ -1250,7 +1250,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,.85);
+  background: rgba(5,4,4,.92);
   backdrop-filter: blur(8px);
   animation: fade-in .2s ease-out;
   pointer-events: none;
