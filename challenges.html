@@ -354,6 +354,8 @@
   import { challengeService } from './src/services/ChallengeService.js';
   import { initializeApp } from './src/lib/init.js';
   import { firestoreService } from './src/services/FirestoreService.js';
+  import { protectPage } from './src/lib/guards.js';
+  import { authService } from './src/services/AuthService.js';
   import { where } from 'firebase/firestore';
 
   const categoryMap = {
@@ -493,6 +495,28 @@
       renderChallenges();
     });
   });
+
+  // Protect page - user must be logged in
+  try {
+    await protectPage();
+  } catch (error) {
+    console.error('Page protection error:', error);
+  }
+
+  // Logout button
+  const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await authService.logout();
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = 'login.html';
+      }
+    });
+  }
 
   // Initialize app and load challenges on page load
   document.addEventListener('DOMContentLoaded', async () => {
