@@ -4,161 +4,18 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#06050A"/>
-  <meta name="description" content="Misje — Weekend Warrior Social"/>
+  <meta name="description" content="Misje Areny — Weekend Warrior Social"/>
   <title>Misje — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/system.css"/>
-  <style>
-    .mission-card {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-md);
-      padding: var(--sp-lg);
-      background: rgba(30, 30, 40, 0.6);
-      border: 1.5px solid rgba(60, 60, 60, 0.6);
-      border-radius: var(--radius-md);
-      backdrop-filter: blur(8px);
-      box-shadow:
-        inset 0 1px 2px rgba(255, 255, 255, 0.05),
-        inset 0 -1px 3px rgba(0, 0, 0, 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.2);
-      margin-bottom: var(--sp-lg);
-      transition: all var(--duration-normal) var(--ease-out);
-    }
-
-    .mission-card:hover {
-      border-color: rgba(212, 175, 55, 0.3);
-      box-shadow:
-        inset 0 1px 3px rgba(255, 255, 255, 0.08),
-        inset 0 -1px 3px rgba(0, 0, 0, 0.2),
-        0 8px 24px rgba(212, 175, 55, 0.15),
-        0 0 20px rgba(212, 175, 55, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .mission-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: var(--sp-md);
-    }
-
-    .mission-title {
-      font-family: var(--font-ui);
-      font-weight: 700;
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-
-    .mission-tier {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 3px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-family: var(--font-ui);
-    }
-
-    .tier-daily { background: rgba(100, 150, 255, 0.2); color: #64b8ff; }
-    .tier-weekly { background: rgba(150, 100, 255, 0.2); color: #c799ff; }
-    .tier-monthly { background: rgba(212, 175, 55, 0.2); color: var(--color-gold); }
-    .tier-season { background: rgba(255, 107, 0, 0.2); color: var(--color-fire); }
-    .tier-legendary { background: rgba(255, 215, 0, 0.2); color: #ffff80; border: 1px solid rgba(255, 215, 0, 0.5); }
-
-    .mission-description {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .mission-progress {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-sm);
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: rgba(212, 175, 55, 0.1);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--color-gold-light), var(--color-gold));
-      border-radius: 2px;
-      transition: width 0.3s ease-out;
-      box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
-    }
-
-    .progress-text {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-family: var(--font-ui);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .mission-rewards {
-      display: flex;
-      gap: var(--sp-md);
-      padding: var(--sp-md);
-      background: rgba(212, 175, 55, 0.05);
-      border-radius: var(--radius-sm);
-    }
-
-    .reward-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--sp-xs);
-      flex: 1;
-    }
-
-    .reward-icon {
-      font-size: 1.5rem;
-    }
-
-    .reward-amount {
-      font-weight: 700;
-      color: var(--color-gold);
-      font-size: 0.85rem;
-    }
-
-    .reward-label {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .mission-timer {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-sm);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .missions-section {
-      margin-bottom: var(--sp-2xl);
-    }
-
-    .missions-section-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      margin-bottom: var(--sp-lg);
-      letter-spacing: 0.05em;
-      font-family: var(--font-ui);
-      padding-bottom: var(--sp-md);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-    }
-  </style>
+  <link rel="stylesheet" href="css/design-system.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/premium-components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <link rel="stylesheet" href="css/unified-system.css"/>
 </head>
 <body>
 
@@ -168,13 +25,16 @@
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
-<div class="fog-layer" aria-hidden="true"></div>
 
 <!-- TOP NAVIGATION BAR -->
+<!-- ══════════════════════════════════════════
+     TOP NAVIGATION BAR
+══════════════════════════════════════════ -->
 <nav class="navbar-top" role="banner">
   <a href="index.html" class="navbar-top-brand">
     <img src="assets/images/logo.png" alt="Weekend Warrior Social" class="navbar-logo">
   </a>
+
   <div class="navbar-top-actions">
     <a href="#" class="navbar-top-item" id="notif-btn" title="Powiadomienia" aria-label="Powiadomienia">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -184,6 +44,7 @@
       </svg>
       <span class="navbar-top-notification-badge" id="notif-badge" style="display:none;">0</span>
     </a>
+
     <a href="messenger.html" class="navbar-top-item" title="Wiadomości" aria-label="Wiadomości">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H8L4 26V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -192,12 +53,14 @@
       </svg>
       <span class="navbar-top-notification-badge" id="msg-badge" style="display:none;">0</span>
     </a>
+
     <a href="profile.html" class="navbar-top-item" title="Profil" aria-label="Profil">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="16" cy="10" r="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M6 24C6 20.1 9.6 17 14 17H18C22.4 17 26 20.1 26 24V26H6V24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
+
     <a href="login.html" class="navbar-top-item" title="Wylogowanie" aria-label="Wylogowanie">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22 4H26C27.1 4 28 4.9 28 6V26C28 27.1 27.1 28 26 28H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -218,6 +81,7 @@
     </svg>
     <span>Arena</span>
   </a>
+
   <a href="feed.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="6" y="2" width="20" height="28" rx="1.5"/>
@@ -228,6 +92,7 @@
     </svg>
     <span>Kroniki</span>
   </a>
+
   <a href="challenges.html" class="navbar-bottom-item active" aria-current="page">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M8 10L14 4L20 10"/>
@@ -238,6 +103,7 @@
     </svg>
     <span>Misje</span>
   </a>
+
   <a href="ranking.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z"/>
@@ -248,6 +114,7 @@
     </svg>
     <span>Chwała</span>
   </a>
+
   <a href="profile.html" class="navbar-bottom-item">
     <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M16 2C10 2 6 5 6 10V12C6 15 8 17 10 18V26H22V18C24 17 26 15 26 12V10C26 5 22 2 16 2Z"/>
@@ -262,170 +129,37 @@
 <!-- MAIN CONTENT -->
 <main class="page-container">
 
-  <!-- Hero Section -->
-  <div class="hero">
-    <div class="hero-content">
-      <div class="hero-icon">🎯</div>
-      <div class="hero-title">Misje</div>
-      <div class="hero-subtitle">Wykonuj wyzwania, zbieraj nagrody i podnoś swój poziom</div>
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-title">
+      <div class="page-title">⚔️ Misje Areny</div>
+      <div class="page-subtitle">Wybierz swoją probe, wojowniku</div>
     </div>
   </div>
 
-  <!-- Daily Missions -->
-  <div class="missions-section">
-    <div class="missions-section-title">🌅 Misje Dzienne</div>
-    <div class="mission-card">
-      <div class="mission-header">
-        <div>
-          <div class="mission-title">Wygraj 3 bitwy</div>
-          <span class="mission-tier tier-daily">Daily</span>
-        </div>
-        <div class="mission-timer">⏱️ 18h 32m</div>
-      </div>
-      <div class="mission-description">Zwyciężyć w 3 wyzwaniach, aby uzyskać nagrodę</div>
-      <div class="mission-progress">
-        <div class="progress-bar"><div class="progress-fill" style="width: 66%;"></div></div>
-        <div class="progress-text"><span>Postęp</span><span>2/3</span></div>
-      </div>
-      <div class="mission-rewards">
-        <div class="reward-item">
-          <div class="reward-icon">✨</div>
-          <div class="reward-amount">250</div>
-          <div class="reward-label">XP</div>
-        </div>
-        <div class="reward-item">
-          <div class="reward-icon">💰</div>
-          <div class="reward-amount">100</div>
-          <div class="reward-label">Gold</div>
-        </div>
-      </div>
-    </div>
+  <div class="divider"></div>
+
+  <!-- Placeholder content cards -->
+  <div class="content-card">
+    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
   </div>
 
-  <!-- Weekly Missions -->
-  <div class="missions-section">
-    <div class="missions-section-title">📅 Misje Tygodniowe</div>
-    <div class="mission-card">
-      <div class="mission-header">
-        <div>
-          <div class="mission-title">Osiągnij 15 zwycięstw</div>
-          <span class="mission-tier tier-weekly">Weekly</span>
-        </div>
-        <div class="mission-timer">⏱️ 5d 12h</div>
-      </div>
-      <div class="mission-description">Zwyciężyć w 15 wyzwaniach w ciągu tygodnia</div>
-      <div class="mission-progress">
-        <div class="progress-bar"><div class="progress-fill" style="width: 40%;"></div></div>
-        <div class="progress-text"><span>Postęp</span><span>6/15</span></div>
-      </div>
-      <div class="mission-rewards">
-        <div class="reward-item">
-          <div class="reward-icon">✨</div>
-          <div class="reward-amount">1000</div>
-          <div class="reward-label">XP</div>
-        </div>
-        <div class="reward-item">
-          <div class="reward-icon">💰</div>
-          <div class="reward-amount">500</div>
-          <div class="reward-label">Gold</div>
-        </div>
-      </div>
-    </div>
+  <div class="content-card">
+    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
   </div>
 
-  <!-- Monthly Missions -->
-  <div class="missions-section">
-    <div class="missions-section-title">🌟 Misje Miesięczne</div>
-    <div class="mission-card">
-      <div class="mission-header">
-        <div>
-          <div class="mission-title">Osiągnij poziom 50</div>
-          <span class="mission-tier tier-monthly">Monthly</span>
-        </div>
-        <div class="mission-timer">⏱️ 20d 8h</div>
-      </div>
-      <div class="mission-description">Podnieś swój poziom do 50</div>
-      <div class="mission-progress">
-        <div class="progress-bar"><div class="progress-fill" style="width: 76%;"></div></div>
-        <div class="progress-text"><span>Postęp</span><span>38/50</span></div>
-      </div>
-      <div class="mission-rewards">
-        <div class="reward-item">
-          <div class="reward-icon">✨</div>
-          <div class="reward-amount">5000</div>
-          <div class="reward-label">XP</div>
-        </div>
-        <div class="reward-item">
-          <div class="reward-icon">🏆</div>
-          <div class="reward-amount">Odznaka</div>
-          <div class="reward-label">Elita</div>
-        </div>
-      </div>
-    </div>
+  <div class="content-card">
+    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;"></div>
   </div>
 
-  <!-- Seasonal Missions -->
-  <div class="missions-section">
-    <div class="missions-section-title">👑 Misje Sezonowe</div>
-    <div class="mission-card">
-      <div class="mission-header">
-        <div>
-          <div class="mission-title">Zostań Top 100</div>
-          <span class="mission-tier tier-season">Season</span>
-        </div>
-        <div class="mission-timer">⏱️ 45d</div>
-      </div>
-      <div class="mission-description">Wejdź do Top 100 rankingu tego sezonu</div>
-      <div class="mission-progress">
-        <div class="progress-bar"><div class="progress-fill" style="width: 32%;"></div></div>
-        <div class="progress-text"><span>Postęp</span><span>Rank #312</span></div>
-      </div>
-      <div class="mission-rewards">
-        <div class="reward-item">
-          <div class="reward-icon">👑</div>
-          <div class="reward-amount">Tytuł</div>
-          <div class="reward-label">Elita</div>
-        </div>
-        <div class="reward-item">
-          <div class="reward-icon">🏅</div>
-          <div class="reward-amount">Odznaka</div>
-          <div class="reward-label">Top 100</div>
-        </div>
-      </div>
-    </div>
+  <!-- Empty state fallback -->
+  <div id="missions-empty" class="empty-state" style="display:none;">
+    <div class="empty-state-icon">⚔️</div>
+    <div class="empty-state-title">Brak misji</div>
+    <p class="empty-state-subtitle">Czekaj na nowe wyzwania<br>od innych wojowników</p>
   </div>
 
-  <!-- Legendary Missions -->
-  <div class="missions-section">
-    <div class="missions-section-title">⚡ Misje Legendarne</div>
-    <div class="mission-card">
-      <div class="mission-header">
-        <div>
-          <div class="mission-title">Pokonaj mistrza</div>
-          <span class="mission-tier tier-legendary">LEGENDARY</span>
-        </div>
-        <div class="mission-timer">⏱️ ∞</div>
-      </div>
-      <div class="mission-description">Pokonaj gracza z Top 10 rankingu w wyzwaniu</div>
-      <div class="mission-progress">
-        <div class="progress-bar"><div class="progress-fill" style="width: 0%;"></div></div>
-        <div class="progress-text"><span>Status</span><span>Niewykonana</span></div>
-      </div>
-      <div class="mission-rewards">
-        <div class="reward-item">
-          <div class="reward-icon">⭐</div>
-          <div class="reward-amount">10000</div>
-          <div class="reward-label">XP</div>
-        </div>
-        <div class="reward-item">
-          <div class="reward-icon">💎</div>
-          <div class="reward-amount">Legenda</div>
-          <div class="reward-label">Status</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <div style="height: 1rem;"></div>
 </main>
 
 <script>
@@ -435,6 +169,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-
 </body>
 </html>
