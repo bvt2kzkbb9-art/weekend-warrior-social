@@ -134,33 +134,58 @@
       padding: 1rem 1.5rem;
     }
 
-    .action-button-image {
+    .action-button {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 180ms ease;
+      font-family: var(--font-heading);
+      text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 180ms ease;
-      border-radius: var(--radius-md);
-      overflow: hidden;
+      gap: 0.5rem;
     }
 
-    .action-button-image:focus-visible {
+    .action-button:focus-visible {
       outline: 2px solid var(--color-gold);
       outline-offset: 2px;
     }
 
-    .action-button-img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      display: block;
-      transition: all 180ms ease;
-    }
-
-    .action-button-image:active .action-button-img {
+    .action-button:active {
       transform: scale(0.97);
       filter: brightness(0.9);
+    }
+
+    .action-button-primary {
+      background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .action-button-primary:hover {
+      background: linear-gradient(135deg, #FFF000 0%, #FFD700 100%);
+      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .action-button-secondary {
+      background: #1A1A1A;
+      color: #FFD700;
+      border: 2px solid #D4AF37;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+    }
+
+    .action-button-secondary:hover {
+      background: #252525;
+      border-color: #FFD700;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+      transform: translateY(-2px);
     }
 
     /* ─── STATS LINE ─── */
@@ -493,6 +518,11 @@
         gap: 0.5rem;
       }
 
+      .action-button {
+        font-size: 0.85rem;
+        padding: 0.75rem 1.25rem;
+      }
+
       .stats-line {
         padding: 0.75rem 1rem;
         gap: 0.5rem;
@@ -668,11 +698,11 @@
 
   <!-- ACTION BUTTONS -->
   <div class="action-buttons">
-    <a href="challenges.html" class="action-button-image">
-      <img src="assets/buttons/btn_rzuc_wyzwanie.png" alt="Rzuć Wyzwanie" class="action-button-img"/>
+    <a href="challenges.html" class="action-button action-button-primary">
+      ⚔️ RZUĆ WYZWANIE
     </a>
-    <a href="feed.html" class="action-button-image">
-      <img src="assets/buttons/btn_kroniki.png" alt="Kroniki" class="action-button-img"/>
+    <a href="feed.html" class="action-button action-button-secondary">
+      📜 KRONIKI
     </a>
   </div>
 
