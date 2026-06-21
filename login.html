@@ -101,6 +101,131 @@
       height: 1px;
       background: rgba(212, 175, 55, 0.15);
     }
+
+    /* Modal dla formularza logowania - minimalna stylizacja */
+    .auth-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-modal.active {
+      display: flex;
+    }
+
+    .auth-modal-content {
+      position: relative;
+      background: var(--glass-light);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      width: 100%;
+      max-width: 380px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .auth-close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-form-group {
+      margin-bottom: 1rem;
+    }
+
+    .auth-form-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .auth-form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 180ms ease;
+    }
+
+    .auth-form-input:focus {
+      outline: none;
+      border-color: rgba(212, 175, 55, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .auth-error {
+      color: #ff4444;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .auth-error.show {
+      display: block;
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
+      color: #000;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 180ms ease;
+      font-family: var(--font-heading);
+    }
+
+    .auth-submit-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .auth-submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-toggle-link {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .auth-toggle-link a {
+      color: var(--color-gold);
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -161,17 +286,359 @@
     </button>
 
     <p class="auth-subtitle" style="margin-top: 1.5rem; margin-bottom: 0;">
-      Nie masz konta? <a href="#" style="color: var(--color-gold); text-decoration: none;">Zarejestruj się</a>
+      Nie masz konta? <a href="#register" style="color: var(--color-gold); text-decoration: none;" id="registerLink">Zarejestruj się</a>
     </p>
   </div>
 </div>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+<!-- Modal dla formularza logowania/rejestracji -->
+<div class="auth-modal" id="authModal">
+  <div class="auth-modal-content">
+    <button class="auth-close-btn" id="closeAuthModal">&times;</button>
+
+    <!-- Formularz logowania -->
+    <div id="loginForm" class="auth-form">
+      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Logowanie</h2>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Email</label>
+        <input type="email" id="loginEmail" class="auth-form-input" placeholder="twój@email.com">
+        <div class="auth-error" id="loginEmailError"></div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Hasło</label>
+        <input type="password" id="loginPassword" class="auth-form-input" placeholder="Twoje hasło">
+        <div class="auth-error" id="loginPasswordError"></div>
+      </div>
+
+      <div class="auth-error" id="loginError"></div>
+
+      <button class="auth-submit-btn" id="loginSubmitBtn">Zaloguj się</button>
+
+      <div class="auth-toggle-link">
+        Nie masz konta? <a id="showRegisterLink">Zarejestruj się</a>
+      </div>
+
+      <div class="auth-toggle-link">
+        <a href="#" id="resetPasswordLink">Zapomniałeś hasła?</a>
+      </div>
+    </div>
+
+    <!-- Formularz rejestracji -->
+    <div id="registerForm" class="auth-form" style="display: none;">
+      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Rejestracja</h2>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Nazwa użytkownika</label>
+        <input type="text" id="registerDisplayName" class="auth-form-input" placeholder="Twoja nazwa">
+        <div class="auth-error" id="registerDisplayNameError"></div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Email</label>
+        <input type="email" id="registerEmail" class="auth-form-input" placeholder="twój@email.com">
+        <div class="auth-error" id="registerEmailError"></div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Hasło</label>
+        <input type="password" id="registerPassword" class="auth-form-input" placeholder="Min. 6 znaków">
+        <div class="auth-error" id="registerPasswordError"></div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Powtórz hasło</label>
+        <input type="password" id="registerConfirmPassword" class="auth-form-input" placeholder="Powtórz hasło">
+        <div class="auth-error" id="registerConfirmPasswordError"></div>
+      </div>
+
+      <div class="auth-error" id="registerError"></div>
+
+      <button class="auth-submit-btn" id="registerSubmitBtn">Zarejestruj się</button>
+
+      <div class="auth-toggle-link">
+        Masz już konto? <a id="showLoginLink">Zaloguj się</a>
+      </div>
+    </div>
+
+    <!-- Formularz resetowania hasła -->
+    <div id="resetPasswordForm" class="auth-form" style="display: none;">
+      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Reset hasła</h2>
+
+      <p class="auth-subtitle">Wpisz swój email, a wyślemy Ci link do resetowania hasła.</p>
+
+      <div class="auth-form-group">
+        <label class="auth-form-label">Email</label>
+        <input type="email" id="resetEmail" class="auth-form-input" placeholder="twój@email.com">
+        <div class="auth-error" id="resetEmailError"></div>
+      </div>
+
+      <div class="auth-error" id="resetError"></div>
+
+      <button class="auth-submit-btn" id="resetSubmitBtn">Wyślij link</button>
+
+      <div class="auth-toggle-link">
+        <a id="backToLoginLink">Wróć do logowania</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { authService } from './src/services/AuthService.js';
+  import { protectAuthPage } from './src/lib/guards.js';
+
+  // Elementy DOM
+  const authModal = document.getElementById('authModal');
+  const closeAuthModalBtn = document.getElementById('closeAuthModal');
+  const loginFormDiv = document.getElementById('loginForm');
+  const registerFormDiv = document.getElementById('registerForm');
+  const resetPasswordFormDiv = document.getElementById('resetPasswordForm');
+
+  // Przyciski główne
+  const loginMainBtn = document.querySelector('.auth-button');
+  const registerLink = document.getElementById('registerLink');
+
+  // Linki nawigacyjne w modalu
+  const showRegisterLink = document.getElementById('showRegisterLink');
+  const showLoginLink = document.getElementById('showLoginLink');
+  const resetPasswordLink = document.getElementById('resetPasswordLink');
+  const backToLoginLink = document.getElementById('backToLoginLink');
+
+  // Pola logowania
+  const loginEmailInput = document.getElementById('loginEmail');
+  const loginPasswordInput = document.getElementById('loginPassword');
+  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+  const loginError = document.getElementById('loginError');
+
+  // Pola rejestracji
+  const registerDisplayNameInput = document.getElementById('registerDisplayName');
+  const registerEmailInput = document.getElementById('registerEmail');
+  const registerPasswordInput = document.getElementById('registerPassword');
+  const registerConfirmPasswordInput = document.getElementById('registerConfirmPassword');
+  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+  const registerError = document.getElementById('registerError');
+
+  // Pola resetowania hasła
+  const resetEmailInput = document.getElementById('resetEmail');
+  const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+  const resetError = document.getElementById('resetError');
+
+  // Funkcje do otwierania/zamykania modalu
+  function openAuthModal(form = 'login') {
+    authModal.classList.add('active');
+    if (form === 'login') {
+      loginFormDiv.style.display = 'block';
+      registerFormDiv.style.display = 'none';
+      resetPasswordFormDiv.style.display = 'none';
+      loginEmailInput.focus();
+    } else if (form === 'register') {
+      loginFormDiv.style.display = 'none';
+      registerFormDiv.style.display = 'block';
+      resetPasswordFormDiv.style.display = 'none';
+      registerDisplayNameInput.focus();
+    } else if (form === 'reset') {
+      loginFormDiv.style.display = 'none';
+      registerFormDiv.style.display = 'none';
+      resetPasswordFormDiv.style.display = 'block';
+      resetEmailInput.focus();
+    }
+  }
+
+  function closeAuthModal() {
+    authModal.classList.remove('active');
+    clearErrors();
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.auth-error').forEach(el => {
+      el.textContent = '';
+      el.classList.remove('show');
+    });
+  }
+
+  function showError(elementId, message) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.textContent = message;
+      el.classList.add('show');
+    }
+  }
+
+  // Event listenery - przyciski główne
+  loginMainBtn.addEventListener('click', () => openAuthModal('login'));
+  registerLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('register');
   });
-}
+
+  // Event listenery - zamykanie modalu
+  closeAuthModalBtn.addEventListener('click', closeAuthModal);
+  authModal.addEventListener('click', (e) => {
+    if (e.target === authModal) closeAuthModal();
+  });
+
+  // Nawigacja między formularzami
+  showRegisterLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('register');
+  });
+
+  showLoginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('login');
+  });
+
+  resetPasswordLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('reset');
+  });
+
+  backToLoginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('login');
+  });
+
+  // Logowanie
+  loginSubmitBtn.addEventListener('click', async () => {
+    clearErrors();
+    const email = loginEmailInput.value.trim();
+    const password = loginPasswordInput.value;
+
+    if (!email) {
+      showError('loginEmailError', 'Email jest wymagany');
+      return;
+    }
+
+    if (!password) {
+      showError('loginPasswordError', 'Hasło jest wymagane');
+      return;
+    }
+
+    loginSubmitBtn.disabled = true;
+    loginSubmitBtn.textContent = '⏳ Logowanie...';
+
+    try {
+      await authService.login(email, password);
+      closeAuthModal();
+      window.location.href = 'index.html';
+    } catch (error) {
+      showError('loginError', error.message);
+    } finally {
+      loginSubmitBtn.disabled = false;
+      loginSubmitBtn.textContent = 'Zaloguj się';
+    }
+  });
+
+  // Rejestracja
+  registerSubmitBtn.addEventListener('click', async () => {
+    clearErrors();
+    const displayName = registerDisplayNameInput.value.trim();
+    const email = registerEmailInput.value.trim();
+    const password = registerPasswordInput.value;
+    const confirmPassword = registerConfirmPasswordInput.value;
+
+    let hasError = false;
+
+    if (!displayName) {
+      showError('registerDisplayNameError', 'Nazwa użytkownika jest wymagana');
+      hasError = true;
+    }
+
+    if (!email) {
+      showError('registerEmailError', 'Email jest wymagany');
+      hasError = true;
+    }
+
+    if (!password) {
+      showError('registerPasswordError', 'Hasło jest wymagane');
+      hasError = true;
+    }
+
+    if (password !== confirmPassword) {
+      showError('registerConfirmPasswordError', 'Hasła się nie zgadzają');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    registerSubmitBtn.disabled = true;
+    registerSubmitBtn.textContent = '⏳ Rejestracja...';
+
+    try {
+      await authService.register(email, password, displayName);
+      registerError.textContent = '✅ Konto utworzone! Sprawdź email aby potwierdzić adres.';
+      registerError.classList.add('show');
+      registerSubmitBtn.style.color = '#4CAF50';
+      setTimeout(() => {
+        openAuthModal('login');
+        registerSubmitBtn.style.color = '#000';
+      }, 2000);
+    } catch (error) {
+      showError('registerError', error.message);
+    } finally {
+      registerSubmitBtn.disabled = false;
+      registerSubmitBtn.textContent = 'Zarejestruj się';
+    }
+  });
+
+  // Reset hasła
+  resetSubmitBtn.addEventListener('click', async () => {
+    clearErrors();
+    const email = resetEmailInput.value.trim();
+
+    if (!email) {
+      showError('resetEmailError', 'Email jest wymagany');
+      return;
+    }
+
+    resetSubmitBtn.disabled = true;
+    resetSubmitBtn.textContent = '⏳ Wysyłanie...';
+
+    try {
+      await authService.resetPassword(email);
+      resetError.textContent = '✅ Link do resetowania został wysłany na Twój email.';
+      resetError.classList.add('show');
+      resetError.style.color = '#4CAF50';
+      setTimeout(() => {
+        openAuthModal('login');
+        resetError.style.color = '#ff4444';
+      }, 3000);
+    } catch (error) {
+      showError('resetError', error.message);
+    } finally {
+      resetSubmitBtn.disabled = false;
+      resetSubmitBtn.textContent = 'Wyślij link';
+    }
+  });
+
+  // Enter key support
+  loginPasswordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') loginSubmitBtn.click();
+  });
+
+  registerConfirmPasswordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') registerSubmitBtn.click();
+  });
+
+  resetEmailInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') resetSubmitBtn.click();
+  });
+
+  // Inicjalizacja - jeśli użytkownik jest zalogowany, przekieruj
+  try {
+    await protectAuthPage();
+  } catch (error) {
+    console.error('Auth page initialization error:', error);
+  }
+
+  // Service Worker
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
