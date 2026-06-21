@@ -18,25 +18,29 @@
 }
 
 .page-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.015em;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
   color: var(--text-primary);
   font-family: var(--font-heading);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  line-height: 1.2;
+  gap: 0.75rem;
+  line-height: 1.1;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(212, 175, 55, 0.15);
 }
 
 .page-subtitle {
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 600;
+  color: rgba(212, 175, 55, 0.7);
+  font-weight: 700;
   font-family: var(--font-heading);
-  opacity: 0.8;
+  opacity: 0.95;
+  word-spacing: 0.1em;
 }
 
 .page-badge {
@@ -143,24 +147,37 @@
 }
 
 .stat-label {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  color: rgba(212, 175, 55, 0.7);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-heading);
 }
 
 /* ─── SECTION HEADER ─── */
 .section-header {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
+  color: rgba(212, 175, 55, 0.8);
+  margin-bottom: 1rem;
   font-family: var(--font-heading);
-  margin-top: 1.125rem;
+  margin-top: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.25);
+  position: relative;
+}
+
+.section-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 40px;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.8), transparent);
 }
 
 .section-header:first-child {
@@ -262,11 +279,12 @@
 }
 
 .ranking-name {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
   font-family: var(--font-heading);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
 }
 
 .ranking-details {
@@ -332,19 +350,23 @@
 }
 
 .profile-name {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: var(--text-primary);
   font-family: var(--font-heading);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .profile-level {
-  font-size: 0.875rem;
-  color: var(--color-gold);
+  font-size: 0.95rem;
+  color: var(--color-gold-light);
   font-weight: 700;
   font-family: var(--font-heading);
   margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* ─── EMPTY STATE ─── */
@@ -364,16 +386,18 @@
 }
 
 .empty-state-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
   font-family: var(--font-heading);
+  letter-spacing: 0.01em;
 }
 
 .empty-state-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
 }
 
 /* ─── DIVIDER ─── */
