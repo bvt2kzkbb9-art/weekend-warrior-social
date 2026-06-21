@@ -149,6 +149,21 @@
     </div>
   </div>
 
+  <!-- Profile card with XP -->
+  <div class="profile-card" style="display: flex; gap: 0.75rem; padding: 1rem; background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(107,79,187,0.05) 100%); border: 1.5px solid rgba(212,175,55,0.15); border-radius: 8px; margin-bottom: 1rem;">
+    <div style="font-size: 2.5rem;">⚔️</div>
+    <div style="flex: 1;">
+      <div style="font-weight: 700; color: #FFFFFF; margin-bottom: 0.25rem;">Wojownik</div>
+      <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 0.75rem;">Poziom 24 • 4,250 XP</div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div style="flex: 1; height: 6px; background: rgba(212,175,55,0.1); border-radius: 3px; overflow: hidden;">
+          <div style="width: 68%; height: 100%; background: linear-gradient(90deg, #FFD700, #D4AF37); box-shadow: 0 0 8px rgba(212,175,55,0.6);"></div>
+        </div>
+        <span style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">68%</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Stats grid -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -175,10 +190,37 @@
 
   <div class="divider"></div>
 
-  <!-- Action buttons -->
-  <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
-    <a href="challenges.html" class="btn btn-primary btn-lg">⚔️ RZUĆ WYZWANIE</a>
-    <a href="feed.html" class="btn btn-secondary btn-lg">📜 KRONIKI</a>
+  <!-- Quick Actions section -->
+  <div style="margin-bottom: 1rem;">
+    <div class="section-header">Szybkie akcje</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+      <a href="challenges.html" class="btn btn-primary" style="text-align: center; padding: 0.75rem;">⚔️ Wyzwanie</a>
+      <a href="feed.html" class="btn btn-secondary" style="text-align: center; padding: 0.75rem;">📜 Kroniki</a>
+      <a href="ranking.html" class="btn btn-secondary" style="text-align: center; padding: 0.75rem;">👑 Ranking</a>
+      <a href="profile.html" class="btn btn-secondary" style="text-align: center; padding: 0.75rem;">🛡️ Profil</a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Daily mission -->
+  <div style="margin-bottom: 1rem;">
+    <div class="section-header">Misja dnia</div>
+    <div style="padding: 1rem; background: rgba(30,30,40,0.6); border: 1.5px solid rgba(212,175,55,0.2); border-radius: 8px; backdrop-filter: blur(8px);">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+        <div>
+          <div style="font-weight: 700; color: #FFFFFF; margin-bottom: 0.25rem;">Wygraj 3 bitwy</div>
+          <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Nagroda: 250 XP + 100 Gold</div>
+        </div>
+        <span style="background: rgba(212,175,55,0.2); color: #D4AF37; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">DAILY</span>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <div style="flex: 1; height: 4px; background: rgba(212,175,55,0.1); border-radius: 2px; overflow: hidden;">
+          <div style="width: 66%; height: 100%; background: linear-gradient(90deg, #FFD700, #D4AF37); box-shadow: 0 0 8px rgba(212,175,55,0.5);"></div>
+        </div>
+        <span style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">2/3</span>
+      </div>
+    </div>
   </div>
 
   <div class="divider"></div>
@@ -207,6 +249,33 @@
         <div class="empty-state-subtitle">Zaczeknij by zobaczyć aktywność przyjaciół</div>
       </div>
     </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TOP 3 Ranking section -->
+  <div style="margin-bottom: 1rem;">
+    <div class="section-header">TOP 3 Wojowników</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 0.75rem;">
+      <div style="text-align: center; padding: 0.75rem; background: rgba(30,30,40,0.6); border: 1.5px solid rgba(212,175,55,0.3); border-radius: 8px;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🥇</div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #FFD700; margin-bottom: 0.25rem;">Dragonslayer</div>
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5);">LVL 52</div>
+      </div>
+      <div style="text-align: center; padding: 0.75rem; background: rgba(30,30,40,0.6); border: 1.5px solid rgba(192,192,192,0.3); border-radius: 8px;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🥈</div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #C0C0C0; margin-bottom: 0.25rem;">ShadowBlade</div>
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5);">LVL 48</div>
+      </div>
+      <div style="text-align: center; padding: 0.75rem; background: rgba(30,30,40,0.6); border: 1.5px solid rgba(205,127,50,0.3); border-radius: 8px;">
+        <div style="font-size: 1.25rem; margin-bottom: 0.25rem;">🥉</div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #CD7F32; margin-bottom: 0.25rem;">IronFist</div>
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5);">LVL 46</div>
+      </div>
+    </div>
+    <a href="ranking.html" class="btn btn-ghost" style="width: 100%;">
+      Pełny ranking →
+    </a>
   </div>
 
   <div class="divider"></div>
