@@ -5,8 +5,8 @@
 
 /* ── CSS Variables ────────────────────────────────────────────── */
 :root {
-  --nav-top-h: 56px;
-  --nav-bot-h: 64px;
+  --nav-top-h: 72px;
+  --nav-bot-h: 80px;
   --nav-dur: 250ms;
   --nav-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -89,35 +89,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background: none;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  color: var(--text-muted);
-  transition: all var(--dur-fast) var(--ease-out);
+  color: #A8A8A8;
+  transition: all 150ms var(--ease-out);
   -webkit-tap-highlight-color: transparent;
   padding: 0;
 }
 
 .top-nav-action:hover,
 .top-nav-action:active {
-  color: var(--gold-500);
-  background: rgba(212,175,55,.08);
-  transform: scale(0.96);
+  color: #D4AF37;
+  background: rgba(212,175,55,.1);
+  transform: scale(0.97);
 }
 
 .top-nav-action svg {
-  width: 24px;
-  height: 24px;
-  stroke-width: 1.9;
-  transition: transform var(--dur-fast) var(--ease-out);
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.3;
+  transition: all 150ms var(--ease-out);
 }
 
 .top-nav-action:hover svg,
 .top-nav-action:active svg {
-  filter: drop-shadow(0 0 4px rgba(212,175,55,.4));
+  filter: drop-shadow(0 0 6px rgba(212,175,55,.6));
 }
 
 /* Badge for notifications/messages */
@@ -189,7 +189,7 @@
   padding: 0.5rem 0.25rem;
   background: none;
   border: none;
-  color: var(--text-faint);
+  color: #A8A8A8;
   font-family: var(--font-heading);
   font-size: 0.45rem;
   font-weight: 600;
@@ -197,7 +197,7 @@
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-out);
+  transition: color 150ms var(--ease-out);
   position: relative;
   -webkit-tap-highlight-color: transparent;
 }
@@ -213,24 +213,27 @@
 }
 
 .bottom-nav-item svg {
-  width: 24px;
-  height: 24px;
-  transition: transform var(--dur-fast) var(--ease-out),
-              opacity var(--dur-fast) var(--ease-out),
-              filter var(--dur-fast) var(--ease-out);
-  opacity: 0.5;
-  stroke-width: 1.9;
+  width: 32px;
+  height: 32px;
+  transition: transform 150ms var(--ease-out),
+              opacity 150ms var(--ease-out),
+              filter 150ms var(--ease-out),
+              color 150ms var(--ease-out);
+  opacity: 0.75;
+  stroke-width: 2.5;
+  color: #A8A8A8;
 }
 
 .bottom-nav-item:hover svg,
 .bottom-nav-item.active svg {
   opacity: 1;
-  filter: drop-shadow(0 0 6px rgba(212,175,55,.5));
+  color: #D4AF37;
+  filter: drop-shadow(0 0 8px rgba(212,175,55,.7));
 }
 
 .bottom-nav-item:hover,
 .bottom-nav-item.active {
-  color: var(--gold-500);
+  color: #D4AF37;
 }
 
 /* Active indicator line at top */
@@ -264,19 +267,19 @@
 }
 
 .bottom-nav-item.hero-item .hero-shield {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   background: linear-gradient(135deg, var(--gold-700), var(--gold-500));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
+  font-size: 1.75rem;
   margin-bottom: 2px;
   box-shadow: 0 0 20px var(--gold-glow-md), 0 4px 12px rgba(0,0,0,.5);
   border: 1.5px solid var(--gold-400);
-  transition: transform var(--dur-fast) var(--ease-out),
-              box-shadow var(--dur-fast) var(--ease-out);
+  transition: transform 150ms var(--ease-out),
+              box-shadow 150ms var(--ease-out);
 }
 
 .bottom-nav-item.hero-item:hover .hero-shield,

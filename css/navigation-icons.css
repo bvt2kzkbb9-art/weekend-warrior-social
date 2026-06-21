@@ -28,24 +28,24 @@
 
 /* Default state */
 .nav-icon {
-  color: var(--text-muted);
-  opacity: 0.75;
+  color: #A8A8A8;
+  opacity: 1;
 }
 
 /* Hover state */
 .nav-icon:hover {
-  color: var(--gold-500);
+  color: #D4AF37;
   opacity: 1;
-  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
   transform: translateY(-2px);
 }
 
 /* Active state (current page) */
 .nav-icon.active,
 .bottom-nav-item.active .nav-icon {
-  color: var(--gold-500);
+  color: #D4AF37;
   opacity: 1;
-  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
 }
 
 /* Focus state (keyboard navigation) */

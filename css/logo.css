@@ -4,9 +4,9 @@
 ═══════════════════════════════════════════════════════════════════ */
 
 .logo-svg {
-  height: 40px;
+  height: 56px;
   width: auto;
-  max-width: 200px;
+  max-width: 280px;
   display: block;
   object-fit: contain;
 }
@@ -65,12 +65,14 @@
 /* Responsive sizing */
 @media (max-width: 480px) {
   .logo-svg {
-    max-width: 140px;
+    height: 48px;
+    max-width: 200px;
   }
 }
 
 @media (max-width: 320px) {
   .logo-svg {
-    max-width: 120px;
+    height: 40px;
+    max-width: 160px;
   }
 }
