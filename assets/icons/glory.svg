@@ -1,0 +1,8 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Glory icon: Crown -->
+  <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M8 24V14L12 8L16 12L20 8L24 14V24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="10" r="1.5" fill="currentColor"/>
+  <circle cx="20" cy="10" r="1.5" fill="currentColor"/>
+  <circle cx="16" cy="6" r="1.5" fill="currentColor"/>
+</svg>

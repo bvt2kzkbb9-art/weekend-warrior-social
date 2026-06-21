@@ -1,0 +1,6 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Edit icon: Pencil -->
+  <path d="M4 26H10L24 12L18 6L4 20V26Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="14" y1="2" x2="20" y2="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="20" y1="2" x2="28" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
