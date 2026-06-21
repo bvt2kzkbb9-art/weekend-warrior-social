@@ -40,6 +40,19 @@
     .form-actions { display: flex; gap: 0.75rem; margin-top: 2rem; }
     .btn-back { background: rgba(60,60,60,0.8); color: rgba(255,255,255,0.7); border: 1.5px solid rgba(60,60,60,0.6); padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
     .btn-back:hover { background: rgba(80,80,80,0.9); border-color: rgba(80,80,80,0.7); }
+    .upload-area { padding: 2rem; border: 2px dashed rgba(212,175,55,0.3); border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(212,175,55,0.05); }
+    .upload-area:hover { border-color: rgba(212,175,55,0.5); background: rgba(212,175,55,0.1); }
+    .upload-area.dragover { border-color: var(--color-gold); background: rgba(212,175,55,0.15); }
+    .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .upload-text { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+    .progress-bar { width: 100%; height: 6px; background: rgba(212,175,55,0.1); border-radius: 3px; overflow: hidden; margin: 1rem 0; display: none; }
+    .progress-bar.active { display: block; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #D4AF37, #aa8c2a); width: 0%; transition: width 0.3s ease; }
+    .preview-image { max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(212,175,55,0.2); }
+    .error-message { color: #f44336; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+    .error-message.show { display: block; }
+    .success-message { color: #4CAF50; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+    .success-message.show { display: block; }
   </style>
 </head>
 <body>
@@ -148,7 +161,7 @@
       <input type="hidden" id="category" name="category" value="">
     </div>
 
-    <!-- Step 2: Description -->
+    <!-- Step 2: Description & Image Upload -->
     <div id="step-description" class="form-step" style="display: none;">
       <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: #FFFFFF;">2. Opis wyzwania</h3>
       <div class="form-group">
@@ -159,6 +172,21 @@
         <label class="form-label">Opis</label>
         <textarea id="description" name="description" class="form-textarea" placeholder="Opisz wyzwanie..."></textarea>
         <div class="form-helper">Maksymalnie 200 znaków</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zdjęcie wyzwania (opcjonalnie)</label>
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Kliknij lub przeciągnij zdjęcie</div>
+          <div class="form-helper">JPG, PNG, GIF - max 10MB</div>
+        </div>
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <img id="preview" class="preview-image" style="display: none;">
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
       </div>
     </div>
 
@@ -207,135 +235,223 @@
   </form>
 </main>
 
-<script>
-const form = document.getElementById('challengeForm');
-const nextBtn = document.getElementById('nextBtn');
-const prevBtn = document.getElementById('prevBtn');
-const categoryBtns = document.querySelectorAll('.category-btn');
-const steps = ['category', 'description', 'deadline', 'opponent', 'confirm'];
-let currentStep = 0;
-const formData = {};
+<script type="module">
+  import { cloudinaryService } from './src/services/CloudinaryStorageService.js';
 
-// Mock opponents
-const mockOpponents = [
-  { id: 1, name: 'Dragonslayer', level: 52, emoji: '⚔️' },
-  { id: 2, name: 'ShadowBlade', level: 48, emoji: '🗡️' },
-  { id: 3, name: 'IronFist', level: 46, emoji: '🛡️' },
-  { id: 4, name: 'ThunderMage', level: 43, emoji: '⚡' },
-  { id: 5, name: 'InfernoKnight', level: 41, emoji: '🔥' },
-];
+  const form = document.getElementById('challengeForm');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const categoryBtns = document.querySelectorAll('.category-btn');
+  const uploadArea = document.getElementById('uploadArea');
+  const imageInput = document.getElementById('imageInput');
+  const preview = document.getElementById('preview');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
 
-categoryBtns.forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    categoryBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    formData.category = btn.dataset.category;
-    document.getElementById('category').value = btn.dataset.category;
+  const steps = ['category', 'description', 'deadline', 'opponent', 'confirm'];
+  let currentStep = 0;
+  let uploadedImageAsset = null;
+  const formData = {};
+
+  // Mock opponents
+  const mockOpponents = [
+    { id: 1, name: 'Dragonslayer', level: 52, emoji: '⚔️' },
+    { id: 2, name: 'ShadowBlade', level: 48, emoji: '🗡️' },
+    { id: 3, name: 'IronFist', level: 46, emoji: '🛡️' },
+    { id: 4, name: 'ThunderMage', level: 43, emoji: '⚡' },
+    { id: 5, name: 'InfernoKnight', level: 41, emoji: '🔥' },
+  ];
+
+  // Category selection
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      categoryBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      formData.category = btn.dataset.category;
+      document.getElementById('category').value = btn.dataset.category;
+    });
   });
-});
 
-nextBtn.addEventListener('click', () => {
-  if (currentStep < steps.length - 1) {
-    if (validateStep(currentStep)) {
-      currentStep++;
+  // Image upload
+  uploadArea.addEventListener('click', () => imageInput.click());
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+      handleImageUpload(e.dataTransfer.files[0]);
+    }
+  });
+
+  imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleImageUpload(e.target.files[0]);
+    }
+  });
+
+  async function handleImageUpload(file) {
+    errorMessage.classList.remove('show');
+    errorMessage.textContent = '';
+    successMessage.classList.remove('show');
+
+    try {
+      progressBar.classList.add('active');
+      
+      const challengeId = `challenge-${Date.now()}`;
+      uploadedImageAsset = await cloudinaryService.uploadChallengeImage(
+        file,
+        challengeId,
+        (percent) => {
+          progressFill.style.width = percent + '%';
+        }
+      );
+
+      progressBar.classList.remove('active');
+      successMessage.textContent = '✅ Zdjęcie zostało załadowane';
+      successMessage.classList.add('show');
+
+      preview.src = cloudinaryService.getOptimizedImage(uploadedImageAsset.public_id, 200, 200);
+      preview.style.display = 'block';
+
+      formData.imageAsset = uploadedImageAsset;
+    } catch (error) {
+      progressBar.classList.remove('active');
+      errorMessage.textContent = error.message;
+      errorMessage.classList.add('show');
+      uploadedImageAsset = null;
+      preview.style.display = 'none';
+    }
+  }
+
+  // Navigation
+  nextBtn.addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+      if (validateStep(currentStep)) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    } else if (currentStep === steps.length - 1) {
+      submitChallenge();
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentStep > 0) {
+      currentStep--;
       showStep(currentStep);
     }
-  } else if (currentStep === steps.length - 1) {
-    submitChallenge();
-  }
-});
-
-prevBtn.addEventListener('click', () => {
-  if (currentStep > 0) {
-    currentStep--;
-    showStep(currentStep);
-  }
-});
-
-function showStep(step) {
-  steps.forEach((s, i) => {
-    const el = document.getElementById('step-' + s);
-    const indicator = document.getElementById('step-' + (i + 1));
-    if (el) el.style.display = i === step ? 'block' : 'none';
-    if (indicator) {
-      indicator.classList.remove('active', 'completed');
-      if (i < step) indicator.classList.add('completed');
-      if (i === step) indicator.classList.add('active');
-    }
   });
 
-  prevBtn.style.display = step > 0 ? 'inline-flex' : 'none';
-  nextBtn.textContent = step === steps.length - 1 ? '✓ Rzuć wyzwanie' : 'Dalej →';
+  function showStep(step) {
+    steps.forEach((s, i) => {
+      const el = document.getElementById('step-' + s);
+      const indicator = document.getElementById('step-' + (i + 1));
+      if (el) el.style.display = i === step ? 'block' : 'none';
+      if (indicator) {
+        indicator.classList.remove('active', 'completed');
+        if (i < step) indicator.classList.add('completed');
+        if (i === step) indicator.classList.add('active');
+      }
+    });
 
-  if (step === 3) populateOpponents();
-  if (step === 4) showConfirm();
-}
+    prevBtn.style.display = step > 0 ? 'inline-flex' : 'none';
+    nextBtn.textContent = step === steps.length - 1 ? '✓ Rzuć wyzwanie' : 'Dalej →';
 
-function validateStep(step) {
-  if (step === 0) return formData.category;
-  if (step === 1) return document.getElementById('title').value;
-  if (step === 2) return document.getElementById('responseTime').value && document.getElementById('xpStake').value;
-  if (step === 3) return formData.opponent;
-  return true;
-}
+    if (step === 3) populateOpponents();
+    if (step === 4) showConfirm();
+  }
 
-function populateOpponents() {
-  const list = document.getElementById('opponentList');
-  list.innerHTML = mockOpponents.map(opp => `
-    <div class="opponent-card" data-opponent-id="${opp.id}" onclick="selectOpponent(${opp.id}, this)">
-      <div class="opponent-avatar">${opp.emoji}</div>
-      <div class="opponent-info">
-        <div class="opponent-name">${opp.name}</div>
-        <div class="opponent-level">LVL ${opp.level}</div>
+  function validateStep(step) {
+    if (step === 0) return formData.category;
+    if (step === 1) return document.getElementById('title').value;
+    if (step === 2) return document.getElementById('responseTime').value && document.getElementById('xpStake').value;
+    if (step === 3) return formData.opponent;
+    return true;
+  }
+
+  function populateOpponents() {
+    const list = document.getElementById('opponentList');
+    list.innerHTML = mockOpponents.map(opp => `
+      <div class="opponent-card" data-opponent-id="${opp.id}" onclick="selectOpponent(${opp.id}, this)">
+        <div class="opponent-avatar">${opp.emoji}</div>
+        <div class="opponent-info">
+          <div class="opponent-name">${opp.name}</div>
+          <div class="opponent-level">LVL ${opp.level}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
-}
+    `).join('');
+  }
 
-function selectOpponent(id, element) {
-  document.querySelectorAll('.opponent-card').forEach(el => el.classList.remove('selected'));
-  element.classList.add('selected');
-  const opponent = mockOpponents.find(o => o.id === id);
-  formData.opponent = opponent;
-  document.getElementById('opponent').value = id;
-}
-
-function showConfirm() {
-  const summary = document.getElementById('confirmSummary');
-  const categoryMap = { combat: 'Walka', duel: 'Pojedynek', tournament: 'Turniej', friendly: 'Amistyczny' };
-  summary.innerHTML = `
-    <div style="color: #FFFFFF;">
-      <p style="margin-bottom: 0.75rem;"><strong>Kategoria:</strong> ${categoryMap[formData.category]}</p>
-      <p style="margin-bottom: 0.75rem;"><strong>Tytuł:</strong> ${document.getElementById('title').value}</p>
-      <p style="margin-bottom: 0.75rem;"><strong>Termin:</strong> ${document.getElementById('responseTime').value} godzin</p>
-      <p style="margin-bottom: 0.75rem;"><strong>Stawka XP:</strong> ${document.getElementById('xpStake').value} XP</p>
-      <p style="margin-bottom: 0.75rem;"><strong>Przeciwnik:</strong> ${formData.opponent?.name || 'Nie wybrany'}</p>
-    </div>
-  `;
-}
-
-function submitChallenge() {
-  const challenge = {
-    id: Date.now(),
-    ...formData,
-    title: document.getElementById('title').value,
-    description: document.getElementById('description').value,
-    responseTime: document.getElementById('responseTime').value,
-    xpStake: parseInt(document.getElementById('xpStake').value),
-    createdAt: new Date().toISOString(),
-    status: 'pending'
+  window.selectOpponent = function(id, element) {
+    document.querySelectorAll('.opponent-card').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected');
+    const opponent = mockOpponents.find(o => o.id === id);
+    formData.opponent = opponent;
+    document.getElementById('opponent').value = id;
   };
 
-  let challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
-  challenges.push(challenge);
-  localStorage.setItem('challenges', JSON.stringify(challenges));
+  function showConfirm() {
+    const summary = document.getElementById('confirmSummary');
+    const categoryMap = { combat: 'Walka', duel: 'Pojedynek', tournament: 'Turniej', friendly: 'Amistyczny' };
+    const imagePreview = uploadedImageAsset ? `<img src="${cloudinaryService.getOptimizedImage(uploadedImageAsset.public_id, 200, 200)}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin: 1rem 0;">` : '';
+    summary.innerHTML = `
+      <div style="color: #FFFFFF;">
+        <p style="margin-bottom: 0.75rem;"><strong>Kategoria:</strong> ${categoryMap[formData.category]}</p>
+        <p style="margin-bottom: 0.75rem;"><strong>Tytuł:</strong> ${document.getElementById('title').value}</p>
+        <p style="margin-bottom: 0.75rem;"><strong>Termin:</strong> ${document.getElementById('responseTime').value} godzin</p>
+        <p style="margin-bottom: 0.75rem;"><strong>Stawka XP:</strong> ${document.getElementById('xpStake').value} XP</p>
+        <p style="margin-bottom: 0.75rem;"><strong>Przeciwnik:</strong> ${formData.opponent?.name || 'Nie wybrany'}</p>
+        ${imagePreview}
+      </div>
+    `;
+  }
 
-  alert('✅ Wyzwanie rzucone! Czekaj na odpowiedź od ' + formData.opponent.name);
-  window.location.href = 'challenges.html';
-}
+  async function submitChallenge() {
+    try {
+      nextBtn.disabled = true;
+      nextBtn.textContent = '⏳ Zapisywanie...';
 
-showStep(0);
+      const challenge = {
+        id: Date.now(),
+        ...formData,
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        responseTime: document.getElementById('responseTime').value,
+        xpStake: parseInt(document.getElementById('xpStake').value),
+        imageAssetId: uploadedImageAsset?.id || null,
+        imageUrl: uploadedImageAsset?.secure_url || null,
+        createdAt: new Date().toISOString(),
+        status: 'pending'
+      };
+
+      // TODO: Save to Firebase when ready
+      // For now, keep in localStorage as temporary cache
+      let challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
+      challenges.push(challenge);
+      localStorage.setItem('challenges', JSON.stringify(challenges));
+
+      alert('✅ Wyzwanie rzucone! Czekaj na odpowiedź od ' + formData.opponent.name);
+      window.location.href = 'challenges.html';
+    } catch (error) {
+      alert('❌ Błąd: ' + error.message);
+      nextBtn.disabled = false;
+      nextBtn.textContent = '✓ Rzuć wyzwanie';
+    }
+  }
+
+  showStep(0);
 </script>
 
 </body>

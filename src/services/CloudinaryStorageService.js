@@ -68,8 +68,11 @@ class CloudinaryStorageService {
 
   /**
    * Uploaduje avatar użytkownika
+   * @param {File} file - Plik do uploadowania
+   * @param {string} userId - ID użytkownika
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadAvatar(file, userId) {
+  async uploadAvatar(file, userId, onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE);
 
     const displayName = `avatar-${userId}-${Date.now()}`;
@@ -79,13 +82,17 @@ class CloudinaryStorageService {
       ['avatar', userId]
     );
 
-    return this.performUpload(formData, displayName, { userId });
+    return this.performUpload(formData, displayName, { userId }, onProgress);
   }
 
   /**
    * Uploaduje zdjęcie do posta
+   * @param {File} file - Plik do uploadowania
+   * @param {string} userId - ID użytkownika
+   * @param {string} postId - ID posta
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadPostImage(file, userId, postId) {
+  async uploadPostImage(file, userId, postId, onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE);
 
     const displayName = `post-${postId}-${Date.now()}`;
@@ -95,13 +102,16 @@ class CloudinaryStorageService {
       ['post', userId, postId]
     );
 
-    return this.performUpload(formData, displayName, { userId, postId });
+    return this.performUpload(formData, displayName, { userId, postId }, onProgress);
   }
 
   /**
    * Uploaduje zdjęcie wyzwania
+   * @param {File} file - Plik do uploadowania
+   * @param {string} challengeId - ID wyzwania
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadChallengeImage(file, challengeId) {
+  async uploadChallengeImage(file, challengeId, onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE);
 
     const displayName = `challenge-${challengeId}-${Date.now()}`;
@@ -111,13 +121,17 @@ class CloudinaryStorageService {
       ['challenge', challengeId]
     );
 
-    return this.performUpload(formData, displayName, { challengeId });
+    return this.performUpload(formData, displayName, { challengeId }, onProgress);
   }
 
   /**
    * Uploaduje story
+   * @param {File} file - Plik do uploadowania
+   * @param {string} userId - ID użytkownika
+   * @param {string} storyId - ID story
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadStory(file, userId, storyId) {
+  async uploadStory(file, userId, storyId, onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE);
 
     const displayName = `story-${storyId}-${Date.now()}`;
@@ -127,13 +141,17 @@ class CloudinaryStorageService {
       ['story', userId, storyId]
     );
 
-    return this.performUpload(formData, displayName, { userId, storyId });
+    return this.performUpload(formData, displayName, { userId, storyId }, onProgress);
   }
 
   /**
    * Uploaduje video
+   * @param {File} file - Plik do uploadowania
+   * @param {string} userId - ID użytkownika
+   * @param {string} videoId - ID wideo
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadVideo(file, userId, videoId) {
+  async uploadVideo(file, userId, videoId, onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_VIDEO_SIZE);
 
     const displayName = `video-${videoId}-${Date.now()}`;
@@ -143,13 +161,16 @@ class CloudinaryStorageService {
       ['video', userId, videoId]
     );
 
-    return this.performUpload(formData, displayName, { userId, videoId });
+    return this.performUpload(formData, displayName, { userId, videoId }, onProgress);
   }
 
   /**
    * Uploaduje załącznik do wiadomości/komentarza
+   * @param {File} file - Plik do uploadowania
+   * @param {string} type - Typ załącznika
+   * @param {Function} onProgress - Callback dla progress (optional)
    */
-  async uploadAttachment(file, type = 'attachment') {
+  async uploadAttachment(file, type = 'attachment', onProgress = null) {
     this.validateFile(file, UPLOAD_CONSTRAINTS.MAX_FILE_SIZE);
 
     const displayName = `attachment-${Date.now()}`;
@@ -159,45 +180,80 @@ class CloudinaryStorageService {
       [type, 'attachment']
     );
 
-    return this.performUpload(formData, displayName, { type });
+    return this.performUpload(formData, displayName, { type }, onProgress);
   }
 
   /**
-   * Główna metoda uploadowania do Cloudinary
+   * Główna metoda uploadowania do Cloudinary z obsługą progress
+   * @param {FormData} formData - Dane do uploadowania
+   * @param {string} displayName - Nazwa wyświetlana
+   * @param {Object} metadata - Metadane
+   * @param {Function} onProgress - Callback dla progress (optional)
+   * @returns {Promise<CloudinaryAsset>}
    */
-  async performUpload(formData, displayName, metadata = {}) {
-    try {
-      const response = await fetch(this.uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
+  async performUpload(formData, displayName, metadata = {}, onProgress = null) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-      if (!response.ok) {
-        throw new Error(`Upload failed with status ${response.status}`);
+      // Progress tracking
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = (event.loaded / event.total) * 100;
+            onProgress(percentComplete, event.loaded, event.total);
+          }
+        });
       }
 
-      const data = await response.json();
+      // Completion
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
 
-      const asset = new CloudinaryAsset({
-        public_id: data.public_id,
-        secure_url: data.secure_url,
-        display_name: displayName,
-        folder: data.folder,
-        width: data.width,
-        height: data.height,
-        format: data.format,
-        bytes: data.bytes,
-        resource_type: data.resource_type,
-        created_at: new Date().toISOString(),
-        uploaded_by: metadata.userId || 'anonymous',
-        metadata,
+            const asset = new CloudinaryAsset({
+              public_id: data.public_id,
+              secure_url: data.secure_url,
+              display_name: displayName,
+              folder: data.folder,
+              width: data.width,
+              height: data.height,
+              format: data.format,
+              bytes: data.bytes,
+              resource_type: data.resource_type,
+              created_at: new Date().toISOString(),
+              uploaded_by: metadata.userId || 'anonymous',
+              metadata,
+            });
+
+            resolve(asset);
+          } catch (error) {
+            reject(new Error(`Błąd parsowania odpowiedzi: ${error.message}`));
+          }
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
       });
 
-      return asset;
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error(`Błąd uploadowania: ${error.message}`);
-    }
+      // Error handling
+      xhr.addEventListener('error', () => {
+        reject(new Error('Błąd połączenia podczas uploadowania'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload został anulowany'));
+      });
+
+      // Timeout
+      xhr.timeout = 300000; // 5 minut
+      xhr.addEventListener('timeout', () => {
+        reject(new Error('Timeout uploadowania - spróbuj ponownie'));
+      });
+
+      // Send request
+      xhr.open('POST', this.uploadUrl);
+      xhr.send(formData);
+    });
   }
 
   /**
