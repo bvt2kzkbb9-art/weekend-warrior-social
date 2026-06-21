@@ -1,9 +1,0 @@
-<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Search Magnifying Glass -->
-  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Circle (lens) -->
-    <circle cx="14" cy="14" r="7"/>
-    <!-- Handle/stem -->
-    <line x1="20" y1="20" x2="26" y2="26"/>
-  </g>
-</svg>

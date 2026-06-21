@@ -1,7 +1,0 @@
-<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Heart Like -->
-  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Heart shape -->
-    <path d="M 16 26 L 4 15 Q 3 13 3 11 Q 3 7 6 7 Q 9 7 11 9 Q 13 7 16 7 Q 19 7 21 9 Q 23 7 26 7 Q 29 7 29 11 Q 29 13 28 15 Z"/>
-  </g>
-</svg>

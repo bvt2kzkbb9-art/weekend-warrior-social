@@ -1,9 +1,0 @@
-<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Close/X Button -->
-  <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Diagonal 1 -->
-    <line x1="7" y1="7" x2="25" y2="25"/>
-    <!-- Diagonal 2 -->
-    <line x1="25" y1="7" x2="7" y2="25"/>
-  </g>
-</svg>
