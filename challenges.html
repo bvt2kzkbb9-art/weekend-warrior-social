@@ -350,128 +350,167 @@
   <div style="height: 1rem;"></div>
 </main>
 
-<script>
-const categoryMap = {
-  combat: '⚔️ Walka',
-  duel: '🛡️ Pojedynek',
-  tournament: '🏆 Turniej',
-  friendly: '👊 Amistyczny'
-};
+<script type="module">
+  import { challengeService } from './src/services/ChallengeService.js';
+  import { initializeApp } from './src/lib/init.js';
+  import { firestoreService } from './src/services/FirestoreService.js';
+  import { where } from 'firebase/firestore';
 
-const statusMap = {
-  pending: { label: 'Oczekujące', class: 'status-pending' },
-  accepted: { label: 'Przyjęte', class: 'status-accepted' },
-  'in-progress': { label: 'W trakcie', class: 'status-in-progress' },
-  completed: { label: 'Ukończone', class: 'status-completed' }
-};
+  const categoryMap = {
+    combat: '⚔️ Walka',
+    duel: '🛡️ Pojedynek',
+    tournament: '🏆 Turniej',
+    friendly: '👊 Amistyczny'
+  };
 
-let currentFilter = 'all';
-let challenges = [];
+  const statusMap = {
+    pending: { label: 'Oczekujące', class: 'status-pending' },
+    accepted: { label: 'Przyjęte', class: 'status-accepted' },
+    'in-progress': { label: 'W trakcie', class: 'status-in-progress' },
+    completed: { label: 'Ukończone', class: 'status-completed' }
+  };
 
-function loadChallenges() {
-  challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
-  renderChallenges();
-}
+  let currentFilter = 'all';
+  let challenges = [];
+  let unsubscribe = null;
 
-function renderChallenges() {
-  const container = document.getElementById('challenges-container');
-  const emptyState = document.getElementById('challenges-empty');
+  function renderChallenges() {
+    const container = document.getElementById('challenges-container');
+    const emptyState = document.getElementById('challenges-empty');
 
-  let filtered = challenges;
-  if (currentFilter !== 'all') {
-    filtered = challenges.filter(c => c.status === currentFilter);
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = '';
-    emptyState.style.display = 'block';
-    return;
-  }
-
-  emptyState.style.display = 'none';
-  container.innerHTML = filtered.map(challenge => {
-    const statusInfo = statusMap[challenge.status];
-    const categoryLabel = categoryMap[challenge.category];
-
-    let actionsHTML = '';
-    if (challenge.status === 'pending') {
-      actionsHTML = `
-        <div class="challenge-actions">
-          <button class="btn-accept" onclick="acceptChallenge(${challenge.id})">✓ Przyjmij</button>
-          <button class="btn-decline" onclick="declineChallenge(${challenge.id})">✕ Odrzuć</button>
-        </div>
-      `;
-    } else if (challenge.status === 'accepted' || challenge.status === 'in-progress') {
-      actionsHTML = `
-        <div class="challenge-actions">
-          <button class="btn-view" onclick="viewChallengeDetails(${challenge.id})">Przejdź do wyzwania</button>
-        </div>
-      `;
+    let filtered = challenges;
+    if (currentFilter !== 'all') {
+      filtered = challenges.filter(c => c.status === currentFilter);
     }
 
-    return `
-      <div class="challenge-card">
-        <div class="challenge-header">
-          <div>
-            <span class="challenge-category">${categoryLabel}</span>
-            <div class="challenge-title">${challenge.title || 'Bez tytułu'}</div>
+    if (filtered.length === 0) {
+      container.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    container.innerHTML = filtered.map(challenge => {
+      const statusInfo = statusMap[challenge.status];
+      const categoryLabel = categoryMap[challenge.category];
+
+      let actionsHTML = '';
+      if (challenge.status === 'pending') {
+        actionsHTML = `
+          <div class="challenge-actions">
+            <button class="btn-accept" onclick="window.acceptChallenge('${challenge.id}')">✓ Przyjmij</button>
+            <button class="btn-decline" onclick="window.declineChallenge('${challenge.id}')">✕ Odrzuć</button>
           </div>
-          <span class="challenge-status ${statusInfo.class}">${statusInfo.label}</span>
-        </div>
-
-        <div class="challenge-meta">
-          <div>⏱️ ${challenge.responseTime}h na odpowiedź</div>
-          <div>⭐ ${challenge.xpStake} XP</div>
-        </div>
-
-        <div class="challenge-opponent">
-          <div class="opponent-avatar">${challenge.opponent?.emoji || '👤'}</div>
-          <div class="opponent-info">
-            <div class="opponent-name">${challenge.opponent?.name || 'Nieznany'}</div>
-            <div class="opponent-level">LVL ${challenge.opponent?.level || '?'}</div>
+        `;
+      } else if (challenge.status === 'accepted' || challenge.status === 'in-progress') {
+        actionsHTML = `
+          <div class="challenge-actions">
+            <button class="btn-view" onclick="window.viewChallengeDetails('${challenge.id}')">Przejdź do wyzwania</button>
           </div>
+        `;
+      }
+
+      return `
+        <div class="challenge-card">
+          <div class="challenge-header">
+            <div>
+              <span class="challenge-category">${categoryLabel}</span>
+              <div class="challenge-title">${challenge.title || 'Bez tytułu'}</div>
+            </div>
+            <span class="challenge-status ${statusInfo.class}">${statusInfo.label}</span>
+          </div>
+
+          <div class="challenge-meta">
+            <div>⏱️ ${challenge.responseTime}h na odpowiedź</div>
+            <div>⭐ ${challenge.xpStake} XP</div>
+          </div>
+
+          <div class="challenge-opponent">
+            <div class="opponent-avatar">${challenge.opponent?.emoji || '👤'}</div>
+            <div class="opponent-info">
+              <div class="opponent-name">${challenge.opponent?.name || 'Nieznany'}</div>
+              <div class="opponent-level">LVL ${challenge.opponent?.level || '?'}</div>
+            </div>
+          </div>
+
+          ${challenge.description ? `<p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin: 0.75rem 0;">${challenge.description}</p>` : ''}
+
+          ${actionsHTML}
         </div>
-
-        ${challenge.description ? `<p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin: 0.75rem 0;">${challenge.description}</p>` : ''}
-
-        ${actionsHTML}
-      </div>
-    `;
-  }).join('');
-}
-
-function acceptChallenge(challengeId) {
-  const challenge = challenges.find(c => c.id === challengeId);
-  if (challenge) {
-    challenge.status = 'accepted';
-    challenge.acceptedAt = new Date().toISOString();
-    localStorage.setItem('challenges', JSON.stringify(challenges));
-    renderChallenges();
-    alert('✅ Wyzwanie przyjęte! Walka się rozpoczyna!');
+      `;
+    }).join('');
   }
-}
 
-function declineChallenge(challengeId) {
-  challenges = challenges.filter(c => c.id !== challengeId);
-  localStorage.setItem('challenges', JSON.stringify(challenges));
-  renderChallenges();
-  alert('Wyzwanie odrzucone.');
-}
+  window.acceptChallenge = async (challengeId) => {
+    try {
+      await challengeService.updateChallengeStatus(challengeId, 'accepted');
+      alert('✅ Wyzwanie przyjęte! Walka się rozpoczyna!');
+    } catch (error) {
+      alert('❌ Błąd: ' + error.message);
+      console.error('Error accepting challenge:', error);
+    }
+  };
 
-function viewChallengeDetails(challengeId) {
-  window.location.href = `challenge-detail.html?id=${challengeId}`;
-}
+  window.declineChallenge = async (challengeId) => {
+    try {
+      await challengeService.deleteChallenge(challengeId);
+      alert('Wyzwanie odrzucone.');
+    } catch (error) {
+      alert('❌ Błąd: ' + error.message);
+      console.error('Error declining challenge:', error);
+    }
+  };
 
-document.querySelectorAll('.challenge-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.challenge-tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    renderChallenges();
+  window.viewChallengeDetails = (challengeId) => {
+    window.location.href = `challenge-detail.html?id=${challengeId}`;
+  };
+
+  async function loadChallengesRealtime() {
+    try {
+      // Set up real-time listener for all challenges
+      unsubscribe = firestoreService.onCollectionChange(
+        'challenges',
+        [],
+        (snapshot) => {
+          challenges = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          renderChallenges();
+        }
+      );
+    } catch (error) {
+      console.error('Error setting up real-time listener:', error);
+      alert('⚠️ Błąd ładowania wyzwań. Sprawdź konfigurację Firebase.');
+    }
+  }
+
+  document.querySelectorAll('.challenge-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.challenge-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderChallenges();
+    });
   });
-});
 
-loadChallenges();
+  // Initialize app and load challenges on page load
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await initializeApp();
+      await loadChallengesRealtime();
+    } catch (error) {
+      console.error('Failed to initialize page:', error);
+      alert('⚠️ Błąd inicjalizacji. Sprawdź konfigurację Firebase.');
+    }
+  });
+
+  // Clean up listener when page unloads
+  window.addEventListener('beforeunload', () => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
 </script>
 
 </body>
