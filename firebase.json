@@ -16,17 +16,13 @@
 “cleanUrls”: false,
 “trailingSlash”: false,
 “rewrites”: [
-{ “source”: “/search”, “destination”: “/search.html” },
-{ “source”: “/pajac”, “destination”: “/pajac.html” },
 { “source”: “/messenger”, “destination”: “/messenger.html” },
 { “source”: “/feed”, “destination”: “/feed.html” },
 { “source”: “/ranking”, “destination”: “/ranking.html” },
 { “source”: “/challenges”, “destination”: “/challenges.html” },
-{ “source”: “/achievements”, “destination”: “/achievements.html” },
 { “source”: “/profile”, “destination”: “/profile.html” },
 { “source”: “/login”, “destination”: “/login.html” },
-{ “source”: “/register”, “destination”: “/register.html” },
-{ “source”: “”, “destination”: “/index.html” }
+{ “source”: “/**”, “destination”: “/index.html” }
 ]
 },
 “firestore”: {
