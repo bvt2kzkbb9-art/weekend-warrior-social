@@ -157,7 +157,7 @@
   font-family: var(--font-heading);
   font-size: .55rem;
   font-weight: 900;
-  color: #030201;
+  color: #0A0700;
   box-shadow: 0 2px 8px rgba(0,0,0,.5);
 }
 
@@ -166,7 +166,7 @@
   width: 100%;
   aspect-ratio: 3/4;
   overflow: hidden;
-  background: #0A0809;
+  background: #0D0C0A;
   position: relative;
 }
 .rpg-ch-img {
@@ -263,7 +263,7 @@
   position: absolute;
   bottom: -4px; right: -4px;
   background: linear-gradient(135deg, var(--gold-700), var(--gold-400));
-  color: #030201;
+  color: #0A0700;
   font-family: var(--font-heading);
   font-size: .45rem;
   font-weight: 900;
@@ -774,7 +774,7 @@
 
 .rpg-btn-gold {
   background: linear-gradient(135deg, var(--gold-900) 0%, var(--gold-700) 40%, var(--gold-500) 100%);
-  color: #030201;
+  color: #0A0700;
   box-shadow: 0 4px 16px rgba(212,175,55,.25), 0 2px 4px rgba(0,0,0,.4);
 }
 .rpg-btn-gold:hover {
