@@ -237,6 +237,8 @@
 
 <script type="module">
   import { cloudinaryService } from './src/services/CloudinaryStorageService.js';
+  import { challengeService } from './src/services/ChallengeService.js';
+  import { initializeApp } from './src/lib/init.js';
 
   const form = document.getElementById('challengeForm');
   const nextBtn = document.getElementById('nextBtn');
@@ -423,33 +425,43 @@
       nextBtn.disabled = true;
       nextBtn.textContent = '⏳ Zapisywanie...';
 
+      // Initialize app if not already done
+      await initializeApp();
+
       const challenge = {
-        id: Date.now(),
+        id: `challenge-${Date.now()}`,
         ...formData,
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
         responseTime: document.getElementById('responseTime').value,
         xpStake: parseInt(document.getElementById('xpStake').value),
-        imageAssetId: uploadedImageAsset?.id || null,
-        imageUrl: uploadedImageAsset?.secure_url || null,
-        createdAt: new Date().toISOString(),
+        createdBy: 'current-user', // TODO: Replace with actual user ID from auth
+        opponentId: formData.opponent?.id,
         status: 'pending'
       };
 
-      // TODO: Save to Firebase when ready
-      // For now, keep in localStorage as temporary cache
-      let challenges = JSON.parse(localStorage.getItem('challenges') || '[]');
-      challenges.push(challenge);
-      localStorage.setItem('challenges', JSON.stringify(challenges));
+      // Save to Firebase with image asset
+      await challengeService.createChallenge(challenge, uploadedImageAsset);
 
-      alert('✅ Wyzwanie rzucone! Czekaj na odpowiedź od ' + formData.opponent.name);
+      alert('✅ Wyzwanie rzucone! Czekaj na odpowiedź od ' + (formData.opponent?.name || 'przeciwnika'));
       window.location.href = 'challenges.html';
     } catch (error) {
       alert('❌ Błąd: ' + error.message);
+      console.error('Challenge submission error:', error);
       nextBtn.disabled = false;
       nextBtn.textContent = '✓ Rzuć wyzwanie';
     }
   }
+
+  // Initialize app on page load
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      await initializeApp();
+    } catch (error) {
+      console.error('Failed to initialize app:', error);
+      alert('⚠️ Błąd inicjalizacji aplikacji. Sprawdź konfigurację Firebase.');
+    }
+  });
 
   showStep(0);
 </script>

@@ -1,35 +1,41 @@
 /**
  * FirestoreService
- * 
+ *
  * Abstrakcja dla komunikacji z Firestore.
  * Obsługuje wszystkie operacje na bazie danych.
- * 
- * NOTE: W przyszłości będzie inicjalizowana Firebase SDK.
- * Teraz jest gotowa do integracji.
  */
 
+import {
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  writeBatch,
+  runTransaction,
+  collection as firestoreCollection,
+  doc,
+} from 'firebase/firestore';
 import { FIRESTORE_COLLECTIONS } from '../config/firebase.config.js';
 
 class FirestoreService {
   constructor() {
-    this.db = null; // Będzie inicjalizowane w Firebase.init()
+    this.db = null;
     this.isInitialized = false;
   }
 
   /**
-   * Inicjalizuje Firebase i Firestore
+   * Inicjalizuje Firestore
    */
-  async initialize(firebaseApp) {
-    try {
-      // This would be implemented when Firebase SDK is added
-      // import { getFirestore } from 'firebase/firestore';
-      // this.db = getFirestore(firebaseApp);
-      this.isInitialized = true;
-      console.log('Firestore initialized');
-    } catch (error) {
-      console.error('Firestore initialization error:', error);
-      throw error;
-    }
+  initialize(firestoreDb) {
+    this.db = firestoreDb;
+    this.isInitialized = true;
+    console.log('Firestore initialized');
   }
 
   /**
@@ -46,9 +52,8 @@ class FirestoreService {
    */
   async addDocument(collection, data) {
     this.checkInitialized();
-    // import { addDoc, collection as firestoreCollection } from 'firebase/firestore';
-    // const docRef = await addDoc(firestoreCollection(this.db, collection), data);
-    // return docRef.id;
+    const docRef = await addDoc(firestoreCollection(this.db, collection), data);
+    return docRef.id;
   }
 
   /**
@@ -56,9 +61,8 @@ class FirestoreService {
    */
   async getDocument(collection, docId) {
     this.checkInitialized();
-    // import { getDoc, doc } from 'firebase/firestore';
-    // const docRef = await getDoc(doc(this.db, collection, docId));
-    // return docRef.exists() ? docRef.data() : null;
+    const docRef = await getDoc(doc(this.db, collection, docId));
+    return docRef.exists() ? docRef.data() : null;
   }
 
   /**
@@ -66,10 +70,9 @@ class FirestoreService {
    */
   async getCollection(collection, queryConstraints = []) {
     this.checkInitialized();
-    // import { query, getDocs } from 'firebase/firestore';
-    // const q = query(collection(this.db, collection), ...queryConstraints);
-    // const snapshots = await getDocs(q);
-    // return snapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const q = query(firestoreCollection(this.db, collection), ...queryConstraints);
+    const snapshots = await getDocs(q);
+    return snapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
   /**
@@ -77,8 +80,7 @@ class FirestoreService {
    */
   async updateDocument(collection, docId, data) {
     this.checkInitialized();
-    // import { updateDoc, doc } from 'firebase/firestore';
-    // await updateDoc(doc(this.db, collection, docId), data);
+    await updateDoc(doc(this.db, collection, docId), data);
   }
 
   /**
@@ -86,8 +88,7 @@ class FirestoreService {
    */
   async deleteDocument(collection, docId) {
     this.checkInitialized();
-    // import { deleteDoc, doc } from 'firebase/firestore';
-    // await deleteDoc(doc(this.db, collection, docId));
+    await deleteDoc(doc(this.db, collection, docId));
   }
 
   /**
@@ -95,15 +96,14 @@ class FirestoreService {
    */
   async batchWrite(operations) {
     this.checkInitialized();
-    // import { writeBatch, doc } from 'firebase/firestore';
-    // const batch = writeBatch(this.db);
-    // operations.forEach(op => {
-    //   const { type, collection, docId, data } = op;
-    //   if (type === 'set') batch.set(doc(this.db, collection, docId), data);
-    //   if (type === 'update') batch.update(doc(this.db, collection, docId), data);
-    //   if (type === 'delete') batch.delete(doc(this.db, collection, docId));
-    // });
-    // await batch.commit();
+    const batch = writeBatch(this.db);
+    operations.forEach(op => {
+      const { type, collection: coll, docId, data } = op;
+      if (type === 'set') batch.set(doc(this.db, coll, docId), data);
+      if (type === 'update') batch.update(doc(this.db, coll, docId), data);
+      if (type === 'delete') batch.delete(doc(this.db, coll, docId));
+    });
+    await batch.commit();
   }
 
   /**
@@ -111,8 +111,7 @@ class FirestoreService {
    */
   onDocumentChange(collection, docId, callback) {
     this.checkInitialized();
-    // import { onSnapshot, doc } from 'firebase/firestore';
-    // return onSnapshot(doc(this.db, collection, docId), callback);
+    return onSnapshot(doc(this.db, collection, docId), callback);
   }
 
   /**
@@ -120,9 +119,8 @@ class FirestoreService {
    */
   onCollectionChange(collection, queryConstraints = [], callback) {
     this.checkInitialized();
-    // import { onSnapshot, query, collection as firestoreCollection } from 'firebase/firestore';
-    // const q = query(firestoreCollection(this.db, collection), ...queryConstraints);
-    // return onSnapshot(q, callback);
+    const q = query(firestoreCollection(this.db, collection), ...queryConstraints);
+    return onSnapshot(q, callback);
   }
 
   /**
@@ -130,8 +128,7 @@ class FirestoreService {
    */
   async transaction(updateFunction) {
     this.checkInitialized();
-    // import { runTransaction } from 'firebase/firestore';
-    // return runTransaction(this.db, updateFunction);
+    return runTransaction(this.db, updateFunction);
   }
 }
 
