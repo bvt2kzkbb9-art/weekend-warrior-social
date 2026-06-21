@@ -92,12 +92,33 @@ html {
 }
 
 body {
-  background: var(--color-black);
+  background: linear-gradient(
+    135deg,
+    #06050a 0%,
+    #0a0a0f 25%,
+    #0d0c12 50%,
+    #0a0908 75%,
+    #05040a 100%
+  );
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(107, 79, 187, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
   overflow-x: hidden;
 }
 

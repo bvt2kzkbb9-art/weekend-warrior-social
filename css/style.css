@@ -154,22 +154,28 @@ ul, ol { list-style: none; }
 .bg-orbs::before {
   content: '';
   position: absolute;
-  top: -20%;
-  left: -10%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(ellipse, rgba(212,175,55,.055) 0%, transparent 65%);
+  top: -30%;
+  left: -15%;
+  width: 70%;
+  height: 70%;
+  background:
+    radial-gradient(ellipse at center, rgba(212,175,55,.08) 0%, transparent 70%),
+    radial-gradient(ellipse at center, rgba(255,215,0,.04) 0%, transparent 50%);
   animation: orb-drift-1 25s ease-in-out infinite alternate;
+  filter: blur(40px);
 }
 .bg-orbs::after {
   content: '';
   position: absolute;
-  bottom: -10%;
-  right: -10%;
-  width: 55%;
-  height: 55%;
-  background: radial-gradient(ellipse, rgba(107,79,187,.04) 0%, transparent 65%);
+  bottom: -20%;
+  right: -15%;
+  width: 65%;
+  height: 65%;
+  background:
+    radial-gradient(ellipse at center, rgba(107,79,187,.06) 0%, transparent 70%),
+    radial-gradient(ellipse at center, rgba(147,112,219,.03) 0%, transparent 50%);
   animation: orb-drift-2 30s ease-in-out infinite alternate;
+  filter: blur(45px);
 }
 
 /* Torch flames — decorative side glows */
