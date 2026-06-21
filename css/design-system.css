@@ -101,25 +101,29 @@ body {
     #05040a 100%
   );
   background-attachment: fixed;
+  background-size: 100% 100%;
   color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background:
     radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(107, 79, 187, 0.02) 0%, transparent 50%);
   pointer-events: none;
-  z-index: 1;
-}
-  overflow-x: hidden;
+  z-index: 0;
 }
 
 /* ── TYPOGRAPHY ──────────────────────────────────────────────────── */
