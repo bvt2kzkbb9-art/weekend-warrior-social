@@ -1,0 +1,168 @@
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT ADJUSTMENTS FOR NEW DESIGN SYSTEM
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Body padding to account for fixed navigation bars */
+body {
+  padding-top: var(--nav-height-top);
+  padding-bottom: var(--nav-height-bottom);
+}
+
+/* Content area spacing */
+.content-area {
+  min-height: 100vh;
+  padding: var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Page wrapper */
+.page {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    padding-top: var(--nav-height-top);
+    padding-bottom: var(--nav-height-bottom);
+  }
+
+  .content-area {
+    padding: var(--sp-md);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: var(--nav-height-top);
+    padding-bottom: var(--nav-height-bottom);
+  }
+
+  .content-area {
+    padding: var(--sp-sm);
+  }
+}
+
+/* Fix old style button classes to use new design system buttons */
+.rpg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-md) var(--sp-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rpg-btn-gold,
+.rpg-btn-primary {
+  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 100%);
+  color: var(--color-black);
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.rpg-btn-gold:hover,
+.rpg-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+  transform: translateY(-2px);
+}
+
+.rpg-btn-gold:active,
+.rpg-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
+
+.rpg-btn-secondary {
+  background: var(--glass-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-dark);
+  backdrop-filter: blur(10px);
+}
+
+.rpg-btn-secondary:hover {
+  background: var(--glass-medium);
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.rpg-btn-outline {
+  background: transparent;
+  color: var(--color-gold);
+  border: 2px solid var(--color-gold);
+}
+
+.rpg-btn-outline:hover {
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+.rpg-btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-dark);
+}
+
+.rpg-btn-ghost:hover {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+.rpg-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Compatibility for old icon system */
+.icon-xs { font-size: 16px; }
+.icon-sm { font-size: 20px; }
+.icon-md { font-size: 24px; }
+.icon-lg { font-size: 32px; }
+.icon-xl { font-size: 40px; }
+.icon-2xl { font-size: 48px; }
+
+.icon-gold {
+  color: var(--color-gold);
+}
+
+.icon-active {
+  color: var(--color-gold);
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+}
+
+.icon-disabled {
+  color: rgba(255, 255, 255, 0.2);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Hidden utilities */
+.hidden {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

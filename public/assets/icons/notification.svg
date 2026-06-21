@@ -1,0 +1,6 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Notification icon: Bell -->
+  <path d="M10 12C10 9.2 12.2 7 15 7C17.8 7 20 9.2 20 12V17L22 20H8L10 17V12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 24H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="22" cy="10" r="2.5" fill="currentColor"/>
+</svg>

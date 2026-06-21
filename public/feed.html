@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <meta name="description" content="Kroniki Areny — Weekend Warrior Social"/>
+  <title>Kroniki — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/design-system.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/premium-components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+
+    /* ── FEED TABS ─────────────────────────────────────────── */
+    .feed-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-lg);
+      padding: 3px;
+      margin-bottom: .875rem;
+    }
+    .feed-tab-btn {
+      flex: 1;
+      padding: .5rem .25rem;
+      background: none;
+      border: none;
+      border-radius: calc(var(--r-lg) - 3px);
+      font-family: var(--font-heading);
+      font-size: .525rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+    .feed-tab-btn:hover { color: var(--text-parchment); }
+    .feed-tab-btn.active {
+      background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(212,175,55,.08));
+      color: var(--gold-400);
+      box-shadow: 0 2px 8px rgba(212,175,55,.12);
+    }
+
+    /* ── REACTION BUTTON ───────────────────────────────────── */
+    .reaction-btn {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .4rem .625rem;
+      background: none;
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast);
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .reaction-btn:hover { color: var(--gold-400); background: rgba(212,175,55,.06); }
+    .reaction-btn.reacted { color: var(--gold-400); }
+    .reaction-emoji { font-size: .9375rem; line-height: 1; }
+    .reaction-label { display: none; }
+    @media (min-width: 380px) { .reaction-label { display: inline; } }
+
+    /* ── REACTION PICKER ───────────────────────────────────── */
+    .reaction-picker {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-gold);
+      border-radius: 9999px;
+      padding: 5px 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.7), 0 0 0 1px rgba(212,175,55,.1);
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(6px) scale(.9);
+      transition: opacity .18s ease, transform .18s ease;
+      white-space: nowrap;
+    }
+    .reaction-picker.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    .reaction-picker-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 50%;
+      background: none;
+      font-size: 1.375rem;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1;
+    }
+    .reaction-picker-btn:hover,
+    .reaction-picker-btn:active { transform: scale(1.3) translateY(-4px); background: rgba(255,255,255,.06); }
+    .reaction-picker-btn.active { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--gold-glow-md)); }
+
+    /* ── REACTIONS SUMMARY ─────────────────────────────────── */
+    .post-reactions-summary {
+      display: flex;
+      align-items: center;
+      gap: .375rem;
+      padding: .25rem .875rem .125rem;
+      border-bottom: 1px solid var(--border-dim);
+      min-height: 0;
+    }
+    .reactions-emoji-row {
+      font-size: .9375rem;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .reactions-count {
+      font-family: var(--font-heading);
+      font-size: .575rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* ── SHARE BUTTON ──────────────────────────────────────── */
+    .share-btn span {
+      display: none;
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    @media (min-width: 420px) { .share-btn span { display: inline; } }
+    .share-btn svg { width: 16px; height: 16px; }
+
+    /* ── MENTION / HASHTAG LINKS ───────────────────────────── */
+    .mention-link {
+      color: var(--gold-400);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color var(--dur-fast);
+    }
+    .mention-link:hover { color: var(--gold-300); text-decoration: underline; }
+    .hashtag-link {
+      color: var(--gold-500);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color var(--dur-fast);
+    }
+    .hashtag-link:hover { color: var(--gold-300); text-decoration: underline; }
+
+    /* ── REACTION WRAP (position context) ──────────────────── */
+    .reaction-wrap { position: relative; }
+
+  </style>
+</head>
+<body>
+
+<div class="bg-orbs" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<!-- Nav -->
+<!-- ══════════════════════════════════════════
+     TOP NAVIGATION BAR
+══════════════════════════════════════════ -->
+<nav class="navbar-top" role="banner">
+  <a href="index.html" class="navbar-top-brand">
+    <svg class="icon icon-xl" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <path d="M60 10L30 22V50C30 72 60 90 60 90C60 90 90 72 90 50V22L60 10Z"
+            fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M45 35L35 15L37 60L50 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M75 35L85 15L83 60L70 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="60" cy="55" r="4" fill="url(#goldGradient)"/>
+    </svg>
+    <span>WEEKEND WARRIOR</span>
+  </a>
+
+  <div class="navbar-top-actions">
+    <a href="#" class="navbar-top-item" id="notif-btn" title="Powiadomienia">
+      <svg class="icon icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 12C10 9.2 12.2 7 15 7C17.8 7 20 9.2 20 12V17L22 20H8L10 17V12Z"/>
+        <path d="M12 24H20"/>
+        <circle cx="22" cy="10" r="2.5" fill="currentColor"/>
+      </svg>
+      <span class="navbar-top-notification-badge" id="notif-badge" style="display:none;">0</span>
+    </a>
+
+    <a href="messenger.html" class="navbar-top-item" title="Wiadomości">
+      <svg class="icon icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H8L4 26V6Z"/>
+        <line x1="10" y1="11" x2="22" y2="11"/>
+        <line x1="10" y1="17" x2="18" y2="17"/>
+      </svg>
+      <span class="navbar-top-notification-badge" id="msg-badge" style="display:none;">0</span>
+    </a>
+
+    <a href="profile.html" class="navbar-top-item" title="Profil">
+      <svg class="icon icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="16" cy="10" r="5"/>
+        <path d="M6 24C6 20.1 9.6 17 14 17H18C22.4 17 26 20.1 26 24V26H6V24Z"/>
+      </svg>
+    </a>
+
+    <a href="login.html" class="navbar-top-item" title="Wylogowanie">
+      <svg class="icon icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 4H26C27.1 4 28 4.9 28 6V26C28 27.1 27.1 28 26 28H22"/>
+        <path d="M14 22L22 16L14 10"/>
+        <line x1="22" y1="16" x2="6" y2="16"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     BOTTOM NAVIGATION BAR
+══════════════════════════════════════════ -->
+<nav class="navbar-bottom" role="navigation" aria-label="Główna nawigacja">
+  <a href="index.html" class="navbar-bottom-item">
+    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 2L8 5V14C8 22 16 28 16 28C16 28 24 22 24 14V5L16 2Z"/>
+      <path d="M11 16L21 21"/>
+      <path d="M21 16L11 21"/>
+    </svg>
+    <span>Arena</span>
+  </a>
+
+  <a href="feed.html" class="navbar-bottom-item active" aria-current="page">
+    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="2" width="20" height="28" rx="1.5"/>
+      <line x1="10" y1="8" x2="22" y2="8"/>
+      <line x1="10" y1="13" x2="22" y2="13"/>
+      <line x1="10" y1="18" x2="22" y2="18"/>
+      <line x1="10" y1="23" x2="18" y2="23"/>
+    </svg>
+    <span>Kroniki</span>
+  </a>
+
+  <a href="challenges.html" class="navbar-bottom-item">
+    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 10L14 4L20 10"/>
+      <path d="M14 4V22"/>
+      <path d="M10 16L18 24"/>
+      <path d="M18 16L10 24"/>
+      <circle cx="14" cy="16" r="2.5"/>
+    </svg>
+    <span>Misje</span>
+  </a>
+
+  <a href="ranking.html" class="navbar-bottom-item">
+    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z"/>
+      <path d="M8 24V14L12 8L16 12L20 8L24 14V24"/>
+      <circle cx="12" cy="10" r="1.5" fill="currentColor"/>
+      <circle cx="20" cy="10" r="1.5" fill="currentColor"/>
+      <circle cx="16" cy="6" r="1.5" fill="currentColor"/>
+    </svg>
+    <span>Chwała</span>
+  </a>
+
+  <a href="profile.html" class="navbar-bottom-item">
+    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 2C10 2 6 5 6 10V12C6 15 8 17 10 18V26H22V18C24 17 26 15 26 12V10C26 5 22 2 16 2Z"/>
+      <path d="M10 10H22"/>
+      <line x1="13" y1="2" x2="13" y2="8"/>
+      <line x1="19" y1="2" x2="19" y2="8"/>
+    </svg>
+    <span>Bohater</span>
+  </a>
+</nav>
+
+<!-- Content -->
+<main class="content-area page">
+
+  <!-- Feed header -->
+  <div class="feed-header">
+    <div>
+      <div class="feed-title">📜 Kroniki Areny</div>
+      <div class="label-caps" style="margin-top:.15rem;">Głosy Wojowników</div>
+    </div>
+    <span class="label-caps" style="color:var(--fire);display:flex;align-items:center;gap:.375rem;">
+      <span style="width:6px;height:6px;background:var(--fire);border-radius:50%;animation:badge-pulse 2s ease-in-out infinite;display:inline-block;"></span>
+      na żywo
+    </span>
+  </div>
+
+  <!-- Feed tabs -->
+  <div class="feed-tabs" role="tablist" aria-label="Filtry feedu">
+    <button class="feed-tab-btn active" data-tab="forYou" role="tab" aria-selected="true">
+      ⚔️ Dla Ciebie
+    </button>
+    <button class="feed-tab-btn" data-tab="following" role="tab" aria-selected="false">
+      👁️ Obserwowani
+    </button>
+    <button class="feed-tab-btn" data-tab="latest" role="tab" aria-selected="false">
+      🕐 Najnowsze
+    </button>
+  </div>
+
+  <!-- Compose box -->
+  <div class="compose-card">
+    <div class="compose-top">
+      <div id="compose-avatar" class="compose-avatar" aria-label="Twój avatar"></div>
+      <textarea id="post-textarea" class="compose-textarea"
+        placeholder="Co słychać na arenie, wojowniku? ⚔️  Użyj @nick i #tag"
+        maxlength="500" rows="3" aria-label="Treść posta"></textarea>
+    </div>
+
+    <div id="compose-preview" class="compose-image-preview hidden">
+      <img src="" alt="Podgląd zdjęcia"/>
+      <button id="remove-image-btn" class="compose-image-remove" aria-label="Usuń zdjęcie">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="upload-progress" class="hidden" style="margin-top:.75rem;">
+      <div class="progress-track"><div id="upload-progress-bar" class="progress-fill" style="width:0%;"></div></div>
+      <p style="font-size:.7rem;color:var(--text-muted);margin-top:.25rem;text-align:center;font-family:var(--font-heading);letter-spacing:.06em;">Przesyłanie do skryptorium...</p>
+    </div>
+
+    <div class="compose-actions">
+      <div class="compose-tools">
+        <button id="image-upload-btn" class="compose-tool-btn" aria-label="Dodaj zdjęcie" title="Dodaj zdjęcie">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </button>
+      </div>
+      <span id="char-count" class="char-count">500</span>
+      <button id="post-submit-btn" class="btn btn-primary btn-sm">⚔ Ogłoś</button>
+    </div>
+    <input type="file" id="image-input" accept="image/jpeg,image/png,image/webp,image/gif"/>
+  </div>
+
+  <!-- Skeleton -->
+  <div id="feed-loading">
+    <div class="post-skeleton">
+      <div class="post-skeleton-header">
+        <div class="skeleton" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
+          <div class="skeleton" style="height:13px;width:42%;border-radius:4px;"></div>
+          <div class="skeleton" style="height:10px;width:28%;border-radius:4px;"></div>
+        </div>
+      </div>
+      <div class="skeleton" style="height:13px;width:88%;border-radius:4px;margin-bottom:.375rem;"></div>
+      <div class="skeleton" style="height:13px;width:65%;border-radius:4px;margin-bottom:.625rem;"></div>
+      <div class="skeleton" style="height:38px;border-radius:var(--r-md);"></div>
+    </div>
+    <div class="post-skeleton" style="margin-top:.875rem;">
+      <div class="post-skeleton-header">
+        <div class="skeleton" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:.375rem;">
+          <div class="skeleton" style="height:13px;width:35%;border-radius:4px;"></div>
+          <div class="skeleton" style="height:10px;width:22%;border-radius:4px;"></div>
+        </div>
+      </div>
+      <div class="skeleton" style="height:180px;border-radius:var(--r-md);margin-bottom:.625rem;"></div>
+      <div class="skeleton" style="height:38px;border-radius:var(--r-md);"></div>
+    </div>
+  </div>
+
+  <!-- Feed list -->
+  <div id="feed-list" class="feed-list" role="feed" aria-live="polite"></div>
+
+  <!-- Empty state -->
+  <div id="feed-empty" class="feed-empty" style="display:none;">
+    <div class="feed-empty-icon">📜</div>
+    <div class="feed-empty-title">Kroniki są puste</div>
+    <p class="feed-empty-text">Nikt jeszcze nic nie zapisał.<br>Bądź pierwszy i zainauguruj bitwę!</p>
+  </div>
+
+  <button id="load-more-btn" class="load-more-posts" style="display:none;">
+    📜 Załaduj więcej kronik
+  </button>
+
+  <div style="height:1rem;"></div>
+</main>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

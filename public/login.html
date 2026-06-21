@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Brama Areny — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/design-system.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/premium-components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/rpg-theme.css"/>
+  <style>
+    .login-bg-glow {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(ellipse, rgba(212,175,55,.08) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+      animation: orb-drift-1 8s ease-in-out infinite alternate;
+    }
+    .auth-swords {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
+      display: block;
+      text-align: center;
+      animation: glow-pulse 2.5s ease-in-out infinite;
+    }
+    .auth-divider {
+      display: flex; align-items: center; gap: .75rem;
+      font-family: var(--font-heading);
+      font-size: .5rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-faint);
+      margin: .875rem 0;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border-dim);
+    }
+    .google-btn {
+      display: flex; align-items: center; justify-content: center; gap: .625rem;
+      width: 100%; padding: .75rem 1rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--r-md);
+      color: var(--text-parchment);
+      font-family: var(--font-heading);
+      font-size: .6rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+    .google-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+    .google-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-orbs" aria-hidden="true"></div>
+<div class="login-bg-glow" aria-hidden="true"></div>
+<div class="particles" aria-hidden="true">
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
+</div>
+
+<div class="auth-page" style="position:relative;z-index:1;">
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="auth-swords">⚔️</span>
+      <div class="auth-brand">Weekend Warrior</div>
+      <div class="auth-subtitle">Social · Brama Areny</div>
+    </div>
+
+    <form class="auth-form" id="login-form">
+      <div style="text-align:center;padding-bottom:.25rem;">
+        <div style="font-family:var(--font-body);font-size:.9375rem;color:var(--text-muted);font-style:italic;line-height:1.6;">
+          Wejdź do Areny Wojowników.<br>Twoja legenda czeka.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">✉ Adres Krwi (e-mail)</label>
+        <input type="email" id="email" class="form-input" placeholder="wojownik@arena.pl" autocomplete="email" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">🔑 Słowo Mocy (hasło)</label>
+        <input type="password" id="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required/>
+      </div>
+
+      <div id="error-msg" class="form-error" style="display:none;text-align:center;"></div>
+
+      <button id="login-btn" class="btn btn-primary btn-md btn-full">
+        ⚔ Wejdź do Areny
+      </button>
+
+      <div class="auth-divider">lub</div>
+
+      <button id="google-btn" class="google-btn">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Wejdź przez Google
+      </button>
+
+      <div class="auth-link">
+        Nie masz konta?
+        <a href="register.html">Zaprzysiężenie Wojownika →</a>
+      </div>
+
+      <div style="text-align:center;">
+        <a href="#" id="forgot-link" style="font-family:var(--font-heading);font-size:.5rem;
+           letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;">
+          Zapomniałem słowa mocy
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
