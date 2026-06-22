@@ -7,12 +7,13 @@
  */
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "your-sender-id",
-  appId: "1:your-app-id:web:your-web-app-id"
+  apiKey: "AIzaSyCbDrX7ZXjz_78wvYIpZt95UDElLne3EWA",
+  authDomain: "weekend-warrior-social-c23ae.firebaseapp.com",
+  databaseURL: "https://weekend-warrior-social-c23ae-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "weekend-warrior-social-c23ae",
+  storageBucket: "weekend-warrior-social-c23ae.firebasestorage.app",
+  messagingSenderId: "493489696733",
+  appId: "1:493489696733:web:88173236a68210c1ca9034"
 };
 
 /**
