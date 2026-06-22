@@ -185,37 +185,37 @@
 </main>
 
 <script type="module">
-  import { protectPage } from './src/lib/guards.js';
-  import { authService } from './src/services/AuthService.js';
+  (async () => {
+    const { authService } = await import('./src/services/AuthService.js');
+    const { initializeApp } = await import('./src/lib/init.js');
 
-  // Protect page - user must be logged in
-  try {
-    await protectPage();
-  } catch (error) {
-    console.error('Page protection error:', error);
-  }
+    await initializeApp();
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Logout button
-  const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await authService.logout();
-        window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Logout error:', error);
-        window.location.href = 'login.html';
-      }
-    });
-  }
+    if (!authService.getCurrentUser()) {
+      window.location.replace('login.html');
+      return;
+    }
 
-  // Service Worker
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  })();
 </script>
 </body>
 </html>

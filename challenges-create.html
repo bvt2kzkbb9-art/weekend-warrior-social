@@ -456,38 +456,29 @@
   }
 
   // Protect page - user must be logged in
-  try {
-    await protectPage();
-  } catch (error) {
-    console.error('Page protection error:', error);
-  }
+  await initializeApp();
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Logout button
-  const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await authService.logout();
-        window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Logout error:', error);
-        window.location.href = 'login.html';
-      }
-    });
-  }
-
-  // Initialize app on page load
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      await initializeApp();
-    } catch (error) {
-      console.error('Failed to initialize app:', error);
-      alert('⚠️ Błąd inicjalizacji aplikacji. Sprawdź konfigurację Firebase.');
+  if (!authService.getCurrentUser()) {
+    window.location.replace('login.html');
+  } else {
+    // Logout button
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Logout error:', error);
+          window.location.href = 'login.html';
+        }
+      });
     }
-  });
 
-  showStep(0);
+    showStep(0);
+  }
 </script>
 
 </body>

@@ -13,29 +13,38 @@ import { initializeApp } from './init.js';
  */
 function waitForAuthInitialization(timeout = 5000) {
   return new Promise((resolve) => {
+    let resolved = false;
     const startTime = Date.now();
 
     const check = () => {
-      const user = authService.getCurrentUser();
+      if (resolved) return;
 
-      // Jeśli mamy user (zalogowany)
+      const user = authService.getCurrentUser();
+      const elapsed = Date.now() - startTime;
+
       if (user !== null) {
+        resolved = true;
         resolve(true);
         return;
       }
 
-      // Timeout
-      if (Date.now() - startTime > timeout) {
+      if (elapsed >= timeout) {
+        resolved = true;
         resolve(false);
         return;
       }
 
-      // Czekaj 100ms i spróbuj ponownie
       setTimeout(check, 100);
     };
 
-    // Rozpocznij sprawdzanie
     check();
+
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(false);
+      }
+    }, timeout);
   });
 }
 
@@ -49,14 +58,14 @@ export async function protectPage() {
     const isAuthenticated = await waitForAuthInitialization();
 
     if (!isAuthenticated) {
-      window.location.href = 'login.html';
+      window.location.replace('login.html');
       return false;
     }
 
     return true;
   } catch (error) {
     console.error('Page protection error:', error);
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
     return false;
   }
 }

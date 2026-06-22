@@ -299,10 +299,23 @@
 
 <script type="module">
   (async () => {
-    const { protectPage } = await import('./src/lib/guards.js');
     const { authService } = await import('./src/services/AuthService.js');
+    const { initializeApp } = await import('./src/lib/init.js');
 
-    await protectPage();
+    // Initialize app and check auth
+    await initializeApp();
+
+    // Wait for auth to load
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const user = authService.getCurrentUser();
+    console.log('[INDEX] Auth check - user:', user ? user.email : 'null');
+
+    if (!user) {
+      console.log('[INDEX] No user found, redirecting to login');
+      window.location.replace('login.html');
+      return;
+    }
 
     const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
     if (logoutBtn) {

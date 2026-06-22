@@ -168,10 +168,16 @@
 
 <script type="module">
   (async () => {
-    const { protectPage } = await import('./src/lib/guards.js');
     const { authService } = await import('./src/services/AuthService.js');
+    const { initializeApp } = await import('./src/lib/init.js');
 
-    await protectPage();
+    await initializeApp();
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (!authService.getCurrentUser()) {
+      window.location.replace('login.html');
+      return;
+    }
 
     const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
     if (logoutBtn) {

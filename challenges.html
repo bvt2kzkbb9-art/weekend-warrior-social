@@ -497,44 +497,37 @@
   });
 
   // Protect page - user must be logged in
-  try {
-    await protectPage();
-  } catch (error) {
-    console.error('Page protection error:', error);
-  }
+  await initializeApp();
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Logout button
-  const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await authService.logout();
-        window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Logout error:', error);
-        window.location.href = 'login.html';
+  if (!authService.getCurrentUser()) {
+    window.location.replace('login.html');
+  } else {
+    // Load challenges only if user is authenticated
+    await loadChallengesRealtime();
+
+    // Logout button
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Logout error:', error);
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    // Clean up listener when page unloads
+    window.addEventListener('beforeunload', () => {
+      if (unsubscribe) {
+        unsubscribe();
       }
     });
   }
-
-  // Initialize app and load challenges on page load
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      await initializeApp();
-      await loadChallengesRealtime();
-    } catch (error) {
-      console.error('Failed to initialize page:', error);
-      alert('⚠️ Błąd inicjalizacji. Sprawdź konfigurację Firebase.');
-    }
-  });
-
-  // Clean up listener when page unloads
-  window.addEventListener('beforeunload', () => {
-    if (unsubscribe) {
-      unsubscribe();
-    }
-  });
 </script>
 
 </body>
