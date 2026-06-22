@@ -4,25 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080B14">
-  <title>Zaloguj się - Warrior OS 2.0</title>
+  <title>Zarejestruj się - Warrior OS 2.0</title>
   <link rel="stylesheet" href="css/auth.css">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="auth-page login-page">
+<body class="auth-page register-page">
   <div class="auth-container">
     <!-- Background animation -->
     <div class="background-glow"></div>
     
-    <!-- Główny formularz logowania -->
-    <div class="auth-box">
+    <!-- Główny formularz rejestracji -->
+    <div class="auth-box auth-box-wide">
       <!-- Header -->
       <div class="auth-header">
         <h1 class="brand-title">⚔️ WARRIOR OS</h1>
-        <p class="brand-subtitle">Twoja droga do zwycięstwa</p>
+        <p class="brand-subtitle">Rozpocznij swoją przygodę</p>
       </div>
 
       <!-- Formularz -->
-      <form id="loginForm" class="auth-form">
+      <form id="registerForm" class="auth-form">
         <!-- Email -->
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
@@ -39,6 +39,26 @@
             <span class="input-icon">📧</span>
           </div>
           <span class="form-error" id="emailError"></span>
+          <span class="form-hint">Będziesz go używać do logowania</span>
+        </div>
+
+        <!-- Nazwa użytkownika -->
+        <div class="form-group">
+          <label for="username" class="form-label">Nazwa użytkownika</label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="username" 
+              name="username"
+              class="form-input"
+              placeholder="TwojaNazwa"
+              required
+              autocomplete="username"
+            >
+            <span class="input-icon" id="usernameIcon">👤</span>
+          </div>
+          <span class="form-error" id="usernameError"></span>
+          <span class="form-hint">3-20 znaków, litery, cyfry, podkreślenia</span>
         </div>
 
         <!-- Hasło -->
@@ -52,22 +72,47 @@
               class="form-input"
               placeholder="••••••••"
               required
-              autocomplete="current-password"
+              autocomplete="new-password"
             >
             <button type="button" class="toggle-password" id="togglePassword">👁️</button>
           </div>
           <span class="form-error" id="passwordError"></span>
+          <div class="password-strength">
+            <div class="strength-bar" id="strengthBar"></div>
+            <span class="strength-text" id="strengthText">Słabe</span>
+          </div>
         </div>
 
-        <!-- Remember me -->
+        <!-- Potwierdź hasło -->
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">Potwierdź hasło</label>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              name="confirmPassword"
+              class="form-input"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password"
+            >
+            <button type="button" class="toggle-password" id="toggleConfirmPassword">👁️</button>
+          </div>
+          <span class="form-error" id="confirmPasswordError"></span>
+        </div>
+
+        <!-- Zgoda na warunki -->
         <div class="form-checkbox">
-          <input type="checkbox" id="rememberMe" name="rememberMe">
-          <label for="rememberMe">Zapamiętaj mnie</label>
+          <input type="checkbox" id="terms" name="terms" required>
+          <label for="terms">
+            Akceptuję <a href="#" class="link link-inline">Regulamin i Politykę Prywatności</a>
+          </label>
+          <span class="form-error" id="termsError"></span>
         </div>
 
         <!-- Button submit -->
         <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
-          <span class="btn-text">Zaloguj się</span>
+          <span class="btn-text">Utwórz konto</span>
           <span class="btn-loader hidden">⚡</span>
         </button>
 
@@ -84,17 +129,16 @@
       <!-- Social login -->
       <div class="social-login">
         <button type="button" class="btn btn-social" id="googleBtn">
-          🔵 Zaloguj się przez Google
+          🔵 Zarejestruj się przez Google
         </button>
       </div>
 
       <!-- Footer links -->
       <div class="auth-footer">
         <p class="auth-footer-text">
-          Nie masz konta? 
-          <a href="register.html" class="link">Zarejestruj się</a>
+          Masz już konto? 
+          <a href="login.html" class="link">Zaloguj się</a>
         </p>
-        <a href="forgot-password.html" class="link link-secondary">Zapomniałeś hasła?</a>
       </div>
     </div>
 
@@ -108,6 +152,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
 
   <!-- App script -->
-  <script type="module" src="js/login.js"></script>
+  <script type="module" src="js/register.js"></script>
 </body>
 </html>
