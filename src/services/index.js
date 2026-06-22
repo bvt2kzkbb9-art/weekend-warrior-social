@@ -5,6 +5,7 @@
  * Import z tego pliku zamiast z poszczególnych plików.
  */
 
+export { authService, AuthService } from './AuthService.js';
 export { cloudinaryService, CloudinaryStorageService } from './CloudinaryStorageService.js';
 export { firestoreService, FirestoreService } from './FirestoreService.js';
 export { challengeService, ChallengeService } from './ChallengeService.js';
@@ -15,3 +16,4 @@ export { missionService, MissionService } from './MissionService.js';
 export { achievementService, AchievementService } from './AchievementService.js';
 export { rankingService, RankingService } from './RankingService.js';
 export { notificationService, NotificationService } from './NotificationService.js';
+export { connectionManager, ConnectionManager } from './ConnectionManager.js';
