@@ -385,6 +385,225 @@
   </div>
 </div>
 
-<script type="module" src="/src/pages/login-init.js"></script>
+<script type="module">
+  (async () => {
+    const { authService } = await import('./src/services/AuthService.js');
+    const { protectAuthPage } = await import('./src/lib/guards.js');
+
+    await protectAuthPage();
+
+    // ... [auth modal initialization code] ...
+    const authModal = document.getElementById('authModal');
+    const closeAuthModalBtn = document.getElementById('closeAuthModal');
+    const loginFormDiv = document.getElementById('loginForm');
+    const registerFormDiv = document.getElementById('registerForm');
+    const resetPasswordFormDiv = document.getElementById('resetPasswordForm');
+
+    const loginMainBtn = document.querySelector('.auth-button');
+    const registerLink = document.getElementById('registerLink');
+
+    const showRegisterLink = document.getElementById('showRegisterLink');
+    const showLoginLink = document.getElementById('showLoginLink');
+    const resetPasswordLink = document.getElementById('resetPasswordLink');
+    const backToLoginLink = document.getElementById('backToLoginLink');
+
+    const loginEmailInput = document.getElementById('loginEmail');
+    const loginPasswordInput = document.getElementById('loginPassword');
+    const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+    const loginError = document.getElementById('loginError');
+
+    const registerDisplayNameInput = document.getElementById('registerDisplayName');
+    const registerEmailInput = document.getElementById('registerEmail');
+    const registerPasswordInput = document.getElementById('registerPassword');
+    const registerConfirmPasswordInput = document.getElementById('registerConfirmPassword');
+    const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+    const registerError = document.getElementById('registerError');
+
+    const resetEmailInput = document.getElementById('resetEmail');
+    const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+    const resetError = document.getElementById('resetError');
+
+    function openAuthModal(form = 'login') {
+      authModal?.classList.add('active');
+      if (form === 'login') {
+        if (loginFormDiv) loginFormDiv.style.display = 'block';
+        if (registerFormDiv) registerFormDiv.style.display = 'none';
+        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'none';
+        loginEmailInput?.focus();
+      } else if (form === 'register') {
+        if (loginFormDiv) loginFormDiv.style.display = 'none';
+        if (registerFormDiv) registerFormDiv.style.display = 'block';
+        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'none';
+        registerDisplayNameInput?.focus();
+      } else if (form === 'reset') {
+        if (loginFormDiv) loginFormDiv.style.display = 'none';
+        if (registerFormDiv) registerFormDiv.style.display = 'none';
+        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'block';
+        resetEmailInput?.focus();
+      }
+    }
+
+    function closeAuthModal() {
+      authModal?.classList.remove('active');
+      clearErrors();
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.auth-error').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('show');
+      });
+    }
+
+    function showError(elementId, message) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.textContent = message;
+        el.classList.add('show');
+      }
+    }
+
+    loginMainBtn?.addEventListener('click', () => openAuthModal('login'));
+    registerLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('register');
+    });
+
+    closeAuthModalBtn?.addEventListener('click', closeAuthModal);
+    authModal?.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+
+    showRegisterLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('register');
+    });
+
+    showLoginLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('login');
+    });
+
+    resetPasswordLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('reset');
+    });
+
+    backToLoginLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('login');
+    });
+
+    loginSubmitBtn?.addEventListener('click', async () => {
+      clearErrors();
+      const email = loginEmailInput?.value?.trim() || '';
+      const password = loginPasswordInput?.value || '';
+
+      if (!email) {
+        showError('loginEmailError', 'Email jest wymagany');
+        return;
+      }
+
+      if (!password) {
+        showError('loginPasswordError', 'Hasło jest wymagane');
+        return;
+      }
+
+      loginSubmitBtn.disabled = true;
+      loginSubmitBtn.textContent = '⏳ Logowanie...';
+
+      try {
+        await authService.login(email, password);
+        closeAuthModal();
+        window.location.href = 'index.html';
+      } catch (error) {
+        showError('loginError', error.message || 'Błąd logowania');
+      } finally {
+        loginSubmitBtn.disabled = false;
+        loginSubmitBtn.textContent = 'Zaloguj się';
+      }
+    });
+
+    registerSubmitBtn?.addEventListener('click', async () => {
+      clearErrors();
+      const displayName = registerDisplayNameInput?.value?.trim() || '';
+      const email = registerEmailInput?.value?.trim() || '';
+      const password = registerPasswordInput?.value || '';
+      const confirmPassword = registerConfirmPasswordInput?.value || '';
+
+      let hasError = false;
+
+      if (!displayName) {
+        showError('registerDisplayNameError', 'Nazwa użytkownika jest wymagana');
+        hasError = true;
+      }
+
+      if (!email) {
+        showError('registerEmailError', 'Email jest wymagany');
+        hasError = true;
+      }
+
+      if (!password) {
+        showError('registerPasswordError', 'Hasło jest wymagane');
+        hasError = true;
+      }
+
+      if (password !== confirmPassword) {
+        showError('registerConfirmPasswordError', 'Hasła się nie zgadzają');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      registerSubmitBtn.disabled = true;
+      registerSubmitBtn.textContent = '⏳ Rejestracja...';
+
+      try {
+        await authService.register(email, password, displayName);
+        if (registerError) {
+          registerError.textContent = '✅ Konto utworzone! Teraz się zaloguj.';
+          registerError.classList.add('show');
+        }
+        setTimeout(() => {
+          openAuthModal('login');
+        }, 2000);
+      } catch (error) {
+        showError('registerError', error.message || 'Błąd rejestracji');
+      } finally {
+        registerSubmitBtn.disabled = false;
+        registerSubmitBtn.textContent = 'Zarejestruj się';
+      }
+    });
+
+    resetSubmitBtn?.addEventListener('click', async () => {
+      clearErrors();
+      const email = resetEmailInput?.value?.trim() || '';
+
+      if (!email) {
+        showError('resetEmailError', 'Email jest wymagany');
+        return;
+      }
+
+      resetSubmitBtn.disabled = true;
+      resetSubmitBtn.textContent = '⏳ Wysyłanie...';
+
+      try {
+        await authService.resetPassword(email);
+        if (resetError) {
+          resetError.textContent = '✅ Email wysłany! Sprawdź swoją skrzynkę.';
+          resetError.classList.add('show');
+        }
+        setTimeout(() => {
+          openAuthModal('login');
+        }, 3000);
+      } catch (error) {
+        showError('resetError', error.message || 'Błąd wysyłania emaila');
+      } finally {
+        resetSubmitBtn.disabled = false;
+        resetSubmitBtn.textContent = 'Wyślij link';
+      }
+    });
+  })();
+</script>
 </body>
 </html>

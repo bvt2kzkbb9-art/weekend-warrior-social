@@ -297,6 +297,26 @@
   <div style="height: 1rem;"></div>
 </main>
 
-<script type="module" src="/src/pages/index-init.js"></script>
+<script type="module">
+  (async () => {
+    const { protectPage } = await import('./src/lib/guards.js');
+    const { authService } = await import('./src/services/AuthService.js');
+
+    await protectPage();
+
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+  })();
+</script>
 </body>
 </html>
