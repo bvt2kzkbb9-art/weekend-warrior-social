@@ -77,10 +77,10 @@ export async function protectAuthPage() {
   try {
     await initializeApp();
 
-    // Czekaj aż autentykacja będzie zainicjalizowana
-    const isAuthenticated = await waitForAuthInitialization();
-
-    if (isAuthenticated) {
+    // TEMPORARY FIX: Skip the waitForAuthInitialization check that is hanging
+    // The auth listener has already fired and set the current user
+    const user = authService.getCurrentUser();
+    if (user) {
       window.location.href = 'index.html';
       return false;
     }
