@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
 import { getDatabase } from 'firebase/database';
 
 // Production Firebase Configuration
@@ -29,6 +28,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const database = getDatabase(app);
-const storage = getStorage(app);
 
-export { app, auth, db, database, storage };
+// Note: Firebase Storage is NOT used. All media is stored on Cloudinary.
+// Only Cloudinary URLs and metadata are stored in Firestore.
+
+export { app, auth, db, database };
