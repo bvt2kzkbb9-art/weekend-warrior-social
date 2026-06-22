@@ -4,606 +4,134 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#06050A"/>
-  <meta name="description" content="Logowanie — Weekend Warrior Social"/>
-  <title>Logowanie — Weekend Warrior Social</title>
+  <title>Brama Areny — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/design-system.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/premium-components.css"/>
-  <link rel="stylesheet" href="css/animations.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/unified-system.css"/>
+  <link rel="stylesheet" href="css/premium-effects.css"/>
   <style>
-    .auth-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-
-    .auth-card {
-      background: var(--glass-light);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: var(--radius-md);
-      padding: 2rem;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-    }
-
-    .auth-logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1.5rem;
-      opacity: 0.8;
-    }
-
-    .auth-title {
-      font-size: 1.375rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 0.5rem;
-      font-family: var(--font-heading);
-    }
-
-    .auth-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-    }
-
-    .auth-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      width: 100%;
-      padding: 0.875rem 1.25rem;
-      background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
-      color: #000;
-      border: none;
-      border-radius: var(--radius-md);
-      font-size: 0.95rem;
-      font-weight: 600;
-      font-family: var(--font-heading);
-      cursor: pointer;
-      transition: all 180ms ease;
-      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-    }
-
-    .auth-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
-    }
-
-    .auth-button:active {
-      transform: translateY(0);
-    }
-
-    .divider-text {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin: 1.5rem 0;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(212, 175, 55, 0.15);
-    }
-
-    /* Modal dla formularza logowania - minimalna stylizacja */
-    .auth-modal {
-      display: none;
+    .login-bg-glow {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(ellipse, rgba(212,175,55,.08) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+      animation: orb-drift-1 8s ease-in-out infinite alternate;
     }
-
-    .auth-modal.active {
-      display: flex;
-    }
-
-    .auth-modal-content {
-      position: relative;
-      background: var(--glass-light);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: var(--radius-md);
-      padding: 2rem;
-      width: 100%;
-      max-width: 380px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .auth-close-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.5rem;
-      padding: 0;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .auth-form-group {
-      margin-bottom: 1rem;
-    }
-
-    .auth-form-label {
+    .auth-swords {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
       display: block;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .auth-form-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: all 180ms ease;
-    }
-
-    .auth-form-input:focus {
-      outline: none;
-      border-color: rgba(212, 175, 55, 0.5);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .auth-error {
-      color: #ff4444;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
-    .auth-error.show {
-      display: block;
-    }
-
-    .auth-submit-btn {
-      width: 100%;
-      padding: 0.875rem;
-      margin-top: 1rem;
-      background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
-      color: #000;
-      border: none;
-      border-radius: var(--radius-md);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 180ms ease;
-      font-family: var(--font-heading);
-    }
-
-    .auth-submit-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .auth-submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .auth-toggle-link {
       text-align: center;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      animation: glow-pulse 2.5s ease-in-out infinite;
     }
-
-    .auth-toggle-link a {
-      color: var(--color-gold);
-      text-decoration: none;
-      cursor: pointer;
+    .auth-divider {
+      display: flex; align-items: center; gap: .75rem;
+      font-family: var(--font-heading);
+      font-size: .5rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-faint);
+      margin: .875rem 0;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border-dim);
+    }
+    .google-btn {
+      display: flex; align-items: center; justify-content: center; gap: .625rem;
+      width: 100%; padding: .75rem 1rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--r-md);
+      color: var(--text-parchment);
+      font-family: var(--font-heading);
+      font-size: .6rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+    .google-btn:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+    .google-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
     }
   </style>
 </head>
 <body>
-
 <div class="bg-orbs" aria-hidden="true"></div>
+<div class="login-bg-glow" aria-hidden="true"></div>
 <div class="particles" aria-hidden="true">
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div><div class="particle"></div>
   <div class="particle"></div>
 </div>
 
-<div class="auth-container">
+<div class="auth-page" style="position:relative;z-index:1;">
   <div class="auth-card">
-    <div class="auth-logo">
-      <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-            <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <path d="M60 10L30 22V50C30 72 60 90 60 90C60 90 90 72 90 50V22L60 10Z"
-              fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M45 35L35 15L37 60L50 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M75 35L85 15L83 60L70 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <circle cx="60" cy="55" r="4" fill="url(#goldGradient)"/>
-      </svg>
+    <div class="auth-header">
+      <span class="auth-swords">⚔️</span>
+      <div class="auth-brand">Weekend Warrior</div>
+      <div class="auth-subtitle">Social · Brama Areny</div>
     </div>
 
-    <h1 class="auth-title">Weekend Warrior</h1>
-    <p class="auth-subtitle">Dołącz. Walcz. Zwyciężaj.</p>
-
-    <button class="auth-button">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 6v6l4 2"/>
-      </svg>
-      Zaloguj się
-    </button>
-
-    <div class="divider-text">lub</div>
-
-    <button class="auth-button">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-      </svg>
-      Facebook
-    </button>
-
-    <div class="divider-text">lub</div>
-
-    <button class="auth-button">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-      </svg>
-      GitHub
-    </button>
-
-    <p class="auth-subtitle" style="margin-top: 1.5rem; margin-bottom: 0;">
-      Nie masz konta? <a href="#register" style="color: var(--color-gold); text-decoration: none;" id="registerLink">Zarejestruj się</a>
-    </p>
-  </div>
-</div>
-
-<!-- Modal dla formularza logowania/rejestracji -->
-<div class="auth-modal" id="authModal">
-  <div class="auth-modal-content">
-    <button class="auth-close-btn" id="closeAuthModal">&times;</button>
-
-    <!-- Formularz logowania -->
-    <div id="loginForm" class="auth-form">
-      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Logowanie</h2>
-
-      <div class="auth-form-group">
-        <label class="auth-form-label">Email</label>
-        <input type="email" id="loginEmail" class="auth-form-input" placeholder="twój@email.com">
-        <div class="auth-error" id="loginEmailError"></div>
+    <form class="auth-form" id="login-form">
+      <div style="text-align:center;padding-bottom:.25rem;">
+        <div style="font-family:var(--font-body);font-size:.9375rem;color:var(--text-muted);font-style:italic;line-height:1.6;">
+          Wejdź do Areny Wojowników.<br>Twoja legenda czeka.
+        </div>
       </div>
 
-      <div class="auth-form-group">
-        <label class="auth-form-label">Hasło</label>
-        <input type="password" id="loginPassword" class="auth-form-input" placeholder="Twoje hasło">
-        <div class="auth-error" id="loginPasswordError"></div>
+      <div class="form-group">
+        <label class="form-label" for="email">✉ Adres Krwi (e-mail)</label>
+        <input type="email" id="email" class="form-input" placeholder="wojownik@arena.pl" autocomplete="email" required/>
       </div>
 
-      <div class="auth-error" id="loginError"></div>
-
-      <button class="auth-submit-btn" id="loginSubmitBtn">Zaloguj się</button>
-
-      <div class="auth-toggle-link">
-        Nie masz konta? <a id="showRegisterLink">Zarejestruj się</a>
+      <div class="form-group">
+        <label class="form-label" for="password">🔑 Słowo Mocy (hasło)</label>
+        <input type="password" id="password" class="form-input" placeholder="••••••••" autocomplete="current-password" required/>
       </div>
 
-      <div class="auth-toggle-link">
-        <a href="#" id="resetPasswordLink">Zapomniałeś hasła?</a>
-      </div>
-    </div>
+      <div id="error-msg" class="form-error" style="display:none;text-align:center;"></div>
 
-    <!-- Formularz rejestracji -->
-    <div id="registerForm" class="auth-form" style="display: none;">
-      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Rejestracja</h2>
+      <button id="login-btn" class="btn btn-primary btn-md btn-full">
+        ⚔ Wejdź do Areny
+      </button>
 
-      <div class="auth-form-group">
-        <label class="auth-form-label">Nazwa użytkownika</label>
-        <input type="text" id="registerDisplayName" class="auth-form-input" placeholder="Twoja nazwa">
-        <div class="auth-error" id="registerDisplayNameError"></div>
-      </div>
+      <div class="auth-divider">lub</div>
 
-      <div class="auth-form-group">
-        <label class="auth-form-label">Email</label>
-        <input type="email" id="registerEmail" class="auth-form-input" placeholder="twój@email.com">
-        <div class="auth-error" id="registerEmailError"></div>
-      </div>
+      <button type="button" id="google-btn" class="google-btn">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Wejdź przez Google
+      </button>
 
-      <div class="auth-form-group">
-        <label class="auth-form-label">Hasło</label>
-        <input type="password" id="registerPassword" class="auth-form-input" placeholder="Min. 6 znaków">
-        <div class="auth-error" id="registerPasswordError"></div>
+      <div class="auth-link">
+        Nie masz konta?
+        <a href="register.html">Zaprzysiężenie Wojownika →</a>
       </div>
 
-      <div class="auth-form-group">
-        <label class="auth-form-label">Powtórz hasło</label>
-        <input type="password" id="registerConfirmPassword" class="auth-form-input" placeholder="Powtórz hasło">
-        <div class="auth-error" id="registerConfirmPasswordError"></div>
+      <div style="text-align:center;">
+        <a href="#" id="forgot-link" style="font-family:var(--font-heading);font-size:.5rem;
+           letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;">
+          Zapomniałem słowa mocy
+        </a>
       </div>
-
-      <div class="auth-error" id="registerError"></div>
-
-      <button class="auth-submit-btn" id="registerSubmitBtn">Zarejestruj się</button>
-
-      <div class="auth-toggle-link">
-        Masz już konto? <a id="showLoginLink">Zaloguj się</a>
-      </div>
-    </div>
-
-    <!-- Formularz resetowania hasła -->
-    <div id="resetPasswordForm" class="auth-form" style="display: none;">
-      <h2 class="auth-title" style="margin-bottom: 1.5rem;">Reset hasła</h2>
-
-      <p class="auth-subtitle">Wpisz swój email, a wyślemy Ci link do resetowania hasła.</p>
-
-      <div class="auth-form-group">
-        <label class="auth-form-label">Email</label>
-        <input type="email" id="resetEmail" class="auth-form-input" placeholder="twój@email.com">
-        <div class="auth-error" id="resetEmailError"></div>
-      </div>
-
-      <div class="auth-error" id="resetError"></div>
-
-      <button class="auth-submit-btn" id="resetSubmitBtn">Wyślij link</button>
-
-      <div class="auth-toggle-link">
-        <a id="backToLoginLink">Wróć do logowania</a>
-      </div>
-    </div>
+    </form>
   </div>
 </div>
 
 <script type="module">
-  (async () => {
-    const { authService } = await import('./src/services/AuthService.js');
-    const { protectAuthPage } = await import('./src/lib/guards.js');
+import { initLoginForm, redirectIfLogged } from './js/auth.js';
 
-    await protectAuthPage();
+redirectIfLogged();
 
-    // ... [auth modal initialization code] ...
-    const authModal = document.getElementById('authModal');
-    const closeAuthModalBtn = document.getElementById('closeAuthModal');
-    const loginFormDiv = document.getElementById('loginForm');
-    const registerFormDiv = document.getElementById('registerForm');
-    const resetPasswordFormDiv = document.getElementById('resetPasswordForm');
-
-    const loginMainBtn = document.querySelector('.auth-button');
-    const registerLink = document.getElementById('registerLink');
-
-    const showRegisterLink = document.getElementById('showRegisterLink');
-    const showLoginLink = document.getElementById('showLoginLink');
-    const resetPasswordLink = document.getElementById('resetPasswordLink');
-    const backToLoginLink = document.getElementById('backToLoginLink');
-
-    const loginEmailInput = document.getElementById('loginEmail');
-    const loginPasswordInput = document.getElementById('loginPassword');
-    const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-    const loginError = document.getElementById('loginError');
-
-    const registerDisplayNameInput = document.getElementById('registerDisplayName');
-    const registerEmailInput = document.getElementById('registerEmail');
-    const registerPasswordInput = document.getElementById('registerPassword');
-    const registerConfirmPasswordInput = document.getElementById('registerConfirmPassword');
-    const registerSubmitBtn = document.getElementById('registerSubmitBtn');
-    const registerError = document.getElementById('registerError');
-
-    const resetEmailInput = document.getElementById('resetEmail');
-    const resetSubmitBtn = document.getElementById('resetSubmitBtn');
-    const resetError = document.getElementById('resetError');
-
-    function openAuthModal(form = 'login') {
-      authModal?.classList.add('active');
-      if (form === 'login') {
-        if (loginFormDiv) loginFormDiv.style.display = 'block';
-        if (registerFormDiv) registerFormDiv.style.display = 'none';
-        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'none';
-        loginEmailInput?.focus();
-      } else if (form === 'register') {
-        if (loginFormDiv) loginFormDiv.style.display = 'none';
-        if (registerFormDiv) registerFormDiv.style.display = 'block';
-        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'none';
-        registerDisplayNameInput?.focus();
-      } else if (form === 'reset') {
-        if (loginFormDiv) loginFormDiv.style.display = 'none';
-        if (registerFormDiv) registerFormDiv.style.display = 'none';
-        if (resetPasswordFormDiv) resetPasswordFormDiv.style.display = 'block';
-        resetEmailInput?.focus();
-      }
-    }
-
-    function closeAuthModal() {
-      authModal?.classList.remove('active');
-      clearErrors();
-    }
-
-    function clearErrors() {
-      document.querySelectorAll('.auth-error').forEach(el => {
-        el.textContent = '';
-        el.classList.remove('show');
-      });
-    }
-
-    function showError(elementId, message) {
-      const el = document.getElementById(elementId);
-      if (el) {
-        el.textContent = message;
-        el.classList.add('show');
-      }
-    }
-
-    loginMainBtn?.addEventListener('click', () => openAuthModal('login'));
-    registerLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal('register');
-    });
-
-    closeAuthModalBtn?.addEventListener('click', closeAuthModal);
-    authModal?.addEventListener('click', (e) => {
-      if (e.target === authModal) closeAuthModal();
-    });
-
-    showRegisterLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal('register');
-    });
-
-    showLoginLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal('login');
-    });
-
-    resetPasswordLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal('reset');
-    });
-
-    backToLoginLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal('login');
-    });
-
-    loginSubmitBtn?.addEventListener('click', async () => {
-      clearErrors();
-      const email = loginEmailInput?.value?.trim() || '';
-      const password = loginPasswordInput?.value || '';
-
-      if (!email) {
-        showError('loginEmailError', 'Email jest wymagany');
-        return;
-      }
-
-      if (!password) {
-        showError('loginPasswordError', 'Hasło jest wymagane');
-        return;
-      }
-
-      loginSubmitBtn.disabled = true;
-      loginSubmitBtn.textContent = '⏳ Logowanie...';
-
-      try {
-        await authService.login(email, password);
-        closeAuthModal();
-        window.location.href = 'index.html';
-      } catch (error) {
-        showError('loginError', error.message || 'Błąd logowania');
-      } finally {
-        loginSubmitBtn.disabled = false;
-        loginSubmitBtn.textContent = 'Zaloguj się';
-      }
-    });
-
-    registerSubmitBtn?.addEventListener('click', async () => {
-      clearErrors();
-      const displayName = registerDisplayNameInput?.value?.trim() || '';
-      const email = registerEmailInput?.value?.trim() || '';
-      const password = registerPasswordInput?.value || '';
-      const confirmPassword = registerConfirmPasswordInput?.value || '';
-
-      let hasError = false;
-
-      if (!displayName) {
-        showError('registerDisplayNameError', 'Nazwa użytkownika jest wymagana');
-        hasError = true;
-      }
-
-      if (!email) {
-        showError('registerEmailError', 'Email jest wymagany');
-        hasError = true;
-      }
-
-      if (!password) {
-        showError('registerPasswordError', 'Hasło jest wymagane');
-        hasError = true;
-      }
-
-      if (password !== confirmPassword) {
-        showError('registerConfirmPasswordError', 'Hasła się nie zgadzają');
-        hasError = true;
-      }
-
-      if (hasError) return;
-
-      registerSubmitBtn.disabled = true;
-      registerSubmitBtn.textContent = '⏳ Rejestracja...';
-
-      try {
-        await authService.register(email, password, displayName);
-        if (registerError) {
-          registerError.textContent = '✅ Konto utworzone! Teraz się zaloguj.';
-          registerError.classList.add('show');
-        }
-        setTimeout(() => {
-          openAuthModal('login');
-        }, 2000);
-      } catch (error) {
-        showError('registerError', error.message || 'Błąd rejestracji');
-      } finally {
-        registerSubmitBtn.disabled = false;
-        registerSubmitBtn.textContent = 'Zarejestruj się';
-      }
-    });
-
-    resetSubmitBtn?.addEventListener('click', async () => {
-      clearErrors();
-      const email = resetEmailInput?.value?.trim() || '';
-
-      if (!email) {
-        showError('resetEmailError', 'Email jest wymagany');
-        return;
-      }
-
-      resetSubmitBtn.disabled = true;
-      resetSubmitBtn.textContent = '⏳ Wysyłanie...';
-
-      try {
-        await authService.resetPassword(email);
-        if (resetError) {
-          resetError.textContent = '✅ Email wysłany! Sprawdź swoją skrzynkę.';
-          resetError.classList.add('show');
-        }
-        setTimeout(() => {
-          openAuthModal('login');
-        }, 3000);
-      } catch (error) {
-        showError('resetError', error.message || 'Błąd wysyłania emaila');
-      } finally {
-        resetSubmitBtn.disabled = false;
-        resetSubmitBtn.textContent = 'Wyślij link';
-      }
-    });
-  })();
+document.addEventListener('DOMContentLoaded', () => {
+  initLoginForm();
+});
 </script>
 </body>
 </html>

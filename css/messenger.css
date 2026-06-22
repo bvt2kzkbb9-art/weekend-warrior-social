@@ -30,7 +30,8 @@
   overflow: hidden;
 }
 
-@media (max-width: 640px) {
+/* Mobile portrait only — landscape stays 2-column for now */
+@media (max-width: 812px) and (orientation: portrait) {
   .conv-sidebar {
     width: 100%;
     position: absolute;

@@ -4,21 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#06050A"/>
-  <meta name="description" content="Sala Chwały — Weekend Warrior Social"/>
   <title>Sala Chwały — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="css/design-system.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/premium-components.css"/>
-  <link rel="stylesheet" href="css/animations.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
-  <link rel="stylesheet" href="css/unified-system.css"/>
+  <link rel="stylesheet" href="css/premium-effects.css"/>
 </head>
 <body>
-
 <div class="bg-orbs" aria-hidden="true"></div>
 <div class="particles" aria-hidden="true">
   <div class="particle"></div><div class="particle"></div>
@@ -26,190 +19,243 @@
   <div class="particle"></div>
 </div>
 
-<!-- TOP NAVIGATION BAR -->
-<!-- ══════════════════════════════════════════
-     TOP NAVIGATION BAR
-══════════════════════════════════════════ -->
-<nav class="navbar-top" role="banner">
-  <a href="index.html" class="navbar-top-brand">
-    <img src="assets/images/logo.png" alt="Weekend Warrior Social" class="navbar-logo">
-  </a>
-
-  <div class="navbar-top-actions">
-    <a href="#" class="navbar-top-item" id="notif-btn" title="Powiadomienia" aria-label="Powiadomienia">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 12C10 9.2 12.2 7 15 7C17.8 7 20 9.2 20 12V17L22 20H8L10 17V12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 24H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="22" cy="10" r="2.5" fill="currentColor"/>
-      </svg>
-      <span class="navbar-top-notification-badge" id="notif-badge" style="display:none;">0</span>
-    </a>
-
-    <a href="messenger.html" class="navbar-top-item" title="Wiadomości" aria-label="Wiadomości">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 6C4 4.9 4.9 4 6 4H26C27.1 4 28 4.9 28 6V20C28 21.1 27.1 22 26 22H8L4 26V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="10" y1="11" x2="22" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="10" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
-      <span class="navbar-top-notification-badge" id="msg-badge" style="display:none;">0</span>
-    </a>
-
-    <a href="profile.html" class="navbar-top-item" title="Profil" aria-label="Profil">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="10" r="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M6 24C6 20.1 9.6 17 14 17H18C22.4 17 26 20.1 26 24V26H6V24Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </a>
-
-    <a href="login.html" class="navbar-top-item" title="Wylogowanie" aria-label="Wylogowanie">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 4H26C27.1 4 28 4.9 28 6V26C28 27.1 27.1 28 26 28H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 22L22 16L14 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="22" y1="16" x2="6" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </a>
-  </div>
-</nav>
-
-<!-- BOTTOM NAVIGATION BAR -->
-<nav class="navbar-bottom" role="navigation" aria-label="Główna nawigacja">
-  <a href="index.html" class="navbar-bottom-item">
-    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M16 2L8 5V14C8 22 16 28 16 28C16 28 24 22 24 14V5L16 2Z"/>
-      <path d="M11 16L21 21"/>
-      <path d="M21 16L11 21"/>
-    </svg>
+<!-- Nav -->
+<nav class="nav" aria-label="Główna nawigacja">
+  <span class="nav-brand">⚔ WWS</span>
+  <a href="index.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/></svg>
     <span>Arena</span>
   </a>
-
-  <a href="feed.html" class="navbar-bottom-item">
-    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="6" y="2" width="20" height="28" rx="1.5"/>
-      <line x1="10" y1="8" x2="22" y2="8"/>
-      <line x1="10" y1="13" x2="22" y2="13"/>
-      <line x1="10" y1="18" x2="22" y2="18"/>
-      <line x1="10" y1="23" x2="18" y2="23"/>
-    </svg>
+  <a href="feed.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <span>Kroniki</span>
   </a>
-
-  <a href="challenges.html" class="navbar-bottom-item">
-    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 10L14 4L20 10"/>
-      <path d="M14 4V22"/>
-      <path d="M10 16L18 24"/>
-      <path d="M18 16L10 24"/>
-      <circle cx="14" cy="16" r="2.5"/>
-    </svg>
+  <a href="challenges.html" class="nav-item-hero nav-item">
+    <div class="nav-hero-shield">⚔</div>
     <span>Misje</span>
   </a>
-
-  <a href="ranking.html" class="navbar-bottom-item active" aria-current="page">
-    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 24H28V26C28 27.1 27.1 28 26 28H6C4.9 28 4 27.1 4 26V24Z"/>
-      <path d="M8 24V14L12 8L16 12L20 8L24 14V24"/>
-      <circle cx="12" cy="10" r="1.5" fill="currentColor"/>
-      <circle cx="20" cy="10" r="1.5" fill="currentColor"/>
-      <circle cx="16" cy="6" r="1.5" fill="currentColor"/>
-    </svg>
+  <a href="ranking.html" class="nav-item active" aria-current="page">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
     <span>Chwała</span>
   </a>
-
-  <a href="profile.html" class="navbar-bottom-item">
-    <svg class="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M16 2C10 2 6 5 6 10V12C6 15 8 17 10 18V26H22V18C24 17 26 15 26 12V10C26 5 22 2 16 2Z"/>
-      <path d="M10 10H22"/>
-      <line x1="13" y1="2" x2="13" y2="8"/>
-      <line x1="19" y1="2" x2="19" y2="8"/>
-    </svg>
+  <a href="profile.html" class="nav-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Bohater</span>
   </a>
+  <a href="messenger.html" class="nav-item" style="position:relative;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+    <span id="msg-nav-badge" style="display:none;position:absolute;top:-3px;right:2px;min-width:16px;height:16px;border-radius:9999px;background:var(--gold);color:#000;font-size:.5rem;font-weight:800;align-items:center;justify-content:center;border:2px solid var(--bg-nav);font-family:var(--font-hd);">0</span>
+    <span>Wiadomości</span>
+  </a>
+  <div class="nav-actions">
+    <button id="logout-btn" class="btn btn-ghost btn-sm" style="padding:.5rem;color:var(--text-faint);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
 </nav>
 
-<!-- MAIN CONTENT -->
-<main class="page-container">
+<main class="content-area" style="position:relative;z-index:1;">
+  <div class="ranking-page">
 
-  <!-- Page header -->
-  <div class="page-header">
-    <div class="page-header-title">
-      <div class="page-title">👑 Sala Chwały</div>
-      <div class="page-subtitle">Tabela Najlepszych Wojowników Areny</div>
+    <!-- Header -->
+    <div class="ranking-header">
+      <div class="ranking-title">👑 Sala Chwały</div>
+      <div class="ranking-subtitle">Tabela Najlepszych Wojowników Areny</div>
     </div>
-  </div>
 
-  <div class="divider"></div>
+    <div class="rpg-panel" style="margin-bottom:.875rem;overflow:visible;">
+      <!-- Podium skeleton -->
+      <div id="podium-skeleton" style="padding:1.5rem 1rem 1rem;display:flex;justify-content:center;align-items:flex-end;gap:.75rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;">
+          <div class="skeleton" style="width:56px;height:56px;border-radius:50%;"></div>
+          <div class="skeleton" style="height:10px;width:50px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:8px;width:40px;border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:8px;">
+          <div class="skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="skeleton" style="height:10px;width:60px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:8px;width:50px;border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.375rem;margin-bottom:16px;">
+          <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
+          <div class="skeleton" style="height:10px;width:44px;border-radius:4px;"></div>
+          <div class="skeleton" style="height:8px;width:36px;border-radius:4px;"></div>
+        </div>
+      </div>
 
-  <!-- Placeholder ranking items -->
-  <div class="ranking-item">
-    <div class="ranking-position">1</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #1</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">5500 XP</span>
-        <span>Wygrane: 23</span>
+      <!-- Podium content -->
+      <div id="ranking-podium" class="ranking-podium hidden"></div>
+    </div>
+
+    <!-- Ranking list -->
+    <div class="rpg-panel">
+      <div class="rpg-panel-header">
+        <div class="rpg-panel-title">🗡 Tablice Wojowników</div>
+        <div id="total-count" class="label-caps" style="font-size:.45rem;">—</div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;gap:.375rem;padding:.625rem .875rem;border-bottom:1px solid var(--border-dim);overflow-x:auto;scrollbar-width:none;">
+        <button class="btn btn-primary btn-sm rank-filter active" data-filter="xp">⚔ XP</button>
+        <button class="btn btn-outline btn-sm rank-filter" data-filter="wins">🏆 Wygrane</button>
+        <button class="btn btn-outline btn-sm rank-filter" data-filter="streak">🔥 Seria</button>
+      </div>
+
+      <div id="ranking-list" class="ranking-list">
+        <!-- Skeleton rows (static) -->
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:55%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:35%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:48%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:30%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:60%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:38%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:42%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:28%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+        <div class="ranking-row"><div class="skeleton" style="width:22px;height:14px;border-radius:3px;"></div><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:.3rem;"><div class="skeleton" style="height:12px;width:52%;border-radius:3px;"></div><div class="skeleton" style="height:9px;width:33%;border-radius:3px;"></div></div><div class="skeleton" style="width:50px;height:12px;border-radius:3px;"></div></div>
+      </div>
+
+      <div id="load-more-ranking" style="padding:.625rem;text-align:center;display:none;">
+        <button id="load-more-btn" class="btn btn-outline btn-sm">Załaduj więcej</button>
       </div>
     </div>
-  </div>
 
-  <div class="ranking-item">
-    <div class="ranking-position">2</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #2</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">5200 XP</span>
-        <span>Wygrane: 21</span>
-      </div>
-    </div>
+    <div style="height:.5rem;"></div>
   </div>
-
-  <div class="ranking-item">
-    <div class="ranking-position">3</div>
-    <div class="ranking-info">
-      <div class="ranking-name">Wojownik #3</div>
-      <div class="ranking-details">
-        <span class="ranking-xp">4800 XP</span>
-        <span>Wygrane: 19</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Empty state fallback -->
-  <div id="ranking-empty" class="empty-state" style="display:none;">
-    <div class="empty-state-icon">👑</div>
-    <div class="empty-state-title">Ranking się ładuje</div>
-    <p class="empty-state-subtitle">Czekaj na wyniki pozostałych<br>wojowników areny</p>
-  </div>
-
-  <div style="height: 1rem;"></div>
 </main>
 
 <script type="module">
-  (async () => {
-    const { authService } = await import('./src/services/AuthService.js');
-    const { initializeApp } = await import('./src/lib/init.js');
+  import { injectMessengerBadge } from './js/messenger.js';
+  import { injectNotifBell } from './js/notifications.js';
+  import { initTheme, injectLightModeCSS } from './js/weekly-ranking.js';
+  import { checkAuth, logout } from './js/auth.js';
+  import { db, COL, getRank, getLevel } from './js/firebase.js';
+  import { collection, query, orderBy, limit, getDocs, startAfter } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-    await initializeApp();
-    await new Promise(resolve => setTimeout(resolve, 500));
+  document.getElementById('logout-btn').addEventListener('click', logout);
 
-    if (!authService.getCurrentUser()) {
-      window.location.replace('login.html');
-      return;
-    }
+  let myUid = null;
+  let lastDoc = null;
+  let currentFilter = 'points';
+  const PAGE_SIZE = 20;
 
-    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-          await authService.logout();
-          window.location.href = 'login.html';
-        } catch (error) {
-          window.location.href = 'login.html';
-        }
+  injectLightModeCSS();
+  initTheme();
+
+  checkAuth(async (user) => {
+    myUid = user.uid;
+    injectMessengerBadge(user.uid);
+    injectNotifBell(user.uid);
+    // 2s skeleton timeout safety
+    const skeletonTimeout = setTimeout(() => {
+      const sk = document.getElementById('podium-skeleton');
+      if (sk && sk.style.display !== 'none') {
+        sk.style.display = 'none';
+        document.getElementById('ranking-podium').classList.remove('hidden');
+      }
+    }, 2000);
+    await _loadPodium();
+    clearTimeout(skeletonTimeout);
+    await _loadRankingPage(true);
+    _setupFilters();
+  });
+
+  async function _loadPodium() {
+    try {
+      const snap = await getDocs(query(collection(db, COL.USERS), orderBy('points','desc'), limit(3)));
+      const users = []; snap.forEach(d => users.push({uid:d.id,...d.data()}));
+      const podium = document.getElementById('ranking-podium');
+      const skeleton = document.getElementById('podium-skeleton');
+      skeleton.style.display = 'none';
+      podium.classList.remove('hidden');
+
+      const slots = [
+        {rank:2, i:1, users},
+        {rank:1, i:0, users},
+        {rank:3, i:2, users},
+      ];
+      slots.forEach(({rank, i}) => {
+        const u = users[i];
+        if (!u) return;
+        const ini = (u.displayName||'?')[0].toUpperCase();
+        const crown = ['','👑','🥈','🥉'][rank];
+        const colors = ['','var(--podium-1)','var(--podium-2)','var(--podium-3)'];
+        const div = document.createElement('div');
+        div.className = `podium-slot rank-${rank}`;
+        div.style.animationDelay = (i * .12) + 's';
+        div.innerHTML = `
+          <div class="podium-crown-wrap" style="color:${colors[rank]};">${crown}</div>
+          <div class="podium-avatar-wrap">
+            <div class="podium-avatar">
+              ${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
+              :ini}
+            </div>
+          </div>
+          <div class="podium-base">
+            <div class="podium-name">${_esc((u.displayName||'?').split(' ')[0])}</div>
+            <div class="podium-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>
+          </div>`;
+        if (u.uid === myUid) div.style.filter = 'drop-shadow(0 0 12px rgba(212,175,55,.4))';
+        podium.appendChild(div);
       });
-    }
-  })();
-</script>
+    } catch(e) { console.warn('[podium]', e); }
+  }
 
+  async function _loadRankingPage(reset = false) {
+    if (reset) { lastDoc = null; }
+    const list = document.getElementById('ranking-list');
+    if (reset) list.innerHTML = '';
+
+    try {
+      let q = query(collection(db, COL.USERS), orderBy(currentFilter,'desc'), limit(PAGE_SIZE));
+      if (lastDoc) q = query(collection(db, COL.USERS), orderBy(currentFilter,'desc'), startAfter(lastDoc), limit(PAGE_SIZE));
+      const snap = await getDocs(q);
+      const docs = snap.docs;
+      lastDoc = docs[docs.length - 1];
+
+      const startPos = reset ? 1 : list.querySelectorAll('.ranking-row').length + 1;
+      docs.forEach((d, i) => {
+        const u = {uid:d.id,...d.data()};
+        const pos = startPos + i;
+        const ini = (u.displayName||'?')[0].toUpperCase();
+        const rankObj = getRank(u.points||0);
+        const row = document.createElement('div');
+        row.className = 'ranking-row' + (u.uid===myUid?' is-me':'');
+        row.style.animationDelay = (i*.04)+'s';
+        row.innerHTML = `
+          <div class="rank-number">${pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : pos}</div>
+          <div class="rank-avatar">${u.photoURL?`<img src="${_esc(u.photoURL)}" onerror="this.parentElement.textContent='${ini}'">`
+            :ini}</div>
+          <div class="rank-info">
+            <div class="rank-name">${_esc(u.displayName||'Wojownik')}${u.uid===myUid?' (Ty)':''}</div>
+            <div class="rank-sub">${rankObj.emoji} ${rankObj.label}</div>
+          </div>
+          <div class="rank-pts">${(u.points||0).toLocaleString('pl-PL')} XP</div>
+          ${(u.streak||0)>=3?`<div class="rank-streak">${u.streak}🔥</div>`:''}`;
+        row.addEventListener('click', () => { window.location.href = `user.html?uid=${u.uid}`; });
+        list.appendChild(row);
+      });
+
+      const loadMoreWrap = document.getElementById('load-more-ranking');
+      loadMoreWrap.style.display = docs.length === PAGE_SIZE ? 'block' : 'none';
+    } catch(e) { console.warn('[ranking]', e); }
+  }
+
+  function _setupFilters() {
+    document.querySelectorAll('.rank-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.rank-filter').forEach(b => {
+          b.classList.remove('active');
+          b.className = b.className.replace('btn-primary','btn-outline');
+        });
+        btn.classList.add('active');
+        btn.className = btn.className.replace('btn-outline','btn-primary');
+        const f = btn.dataset.filter;
+        currentFilter = f === 'xp' ? 'points' : f === 'wins' ? 'challengesCompleted' : 'streak';
+        _loadRankingPage(true);
+      });
+    });
+    document.getElementById('load-more-btn')?.addEventListener('click', () => _loadRankingPage(false));
+  }
+
+  function _esc(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
 </body>
 </html>

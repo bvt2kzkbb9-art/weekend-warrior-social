@@ -1,286 +1,326 @@
-# Konfiguracja Weekend Warrior Social
+# 🎯 WEEKEND WARRIOR SOCIAL — QUICK START GUIDE
 
-## Przegląd Architektury
+**Wersja:** Clean Build (22 czerwca 2026)  
+**Status:** ✅ Production Ready  
+**Baza:** weekend-warrior-social-main 15 (refactored)
 
-Weekend Warrior Social jest zbudowany na trzech filarach:
+---
 
-```
-┌─────────────────────────────────────────────────────┐
-│           Weekend Warrior Social                     │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│  ┌──────────────────────────────────────────────┐  │
-│  │  Frontend (HTML/CSS/JavaScript)              │  │
-│  │  - UI Components                             │  │
-│  │  - Pages                                     │  │
-│  │  - Services (abstraction layer)              │  │
-│  └──────────────────────────────────────────────┘  │
-│           ↓                        ↓                │
-│  ┌──────────────────────┐ ┌──────────────────────┐ │
-│  │   Cloudinary CDN     │ │    Firebase          │ │
-│  │  ────────────────    │ │  ────────────────    │ │
-│  │  • Wszystkie pliki   │ │  • Autentykacja      │ │
-│  │  • Obrazy/Wideo      │ │  • Baza danych       │ │
-│  │  • Optymalizacja     │ │  • Metadane zasobów  │ │
-│  │  • CDN               │ │  • Messaging         │ │
-│  └──────────────────────┘ └──────────────────────┘ │
-│                                                      │
-└─────────────────────────────────────────────────────┘
-```
+## ⚡ 5-MINUTOWY SETUP
 
-## Konfiguracja Cloudinary
-
-### 1. Utwórz konto Cloudinary
-
-1. Przejdź do https://cloudinary.com/users/register/free
-2. Zarejestruj się bezpłatnie
-3. Zweryfikuj email
-
-### 2. Pobierz dane dostępowe
-
-1. Zaloguj się do https://cloudinary.com/console
-2. Skopiuj swoje dane:
-   - **Cloud Name** (widoczny na stronie głównej)
-   - **API Key** (sekcja Account Details)
-   - **API Secret** (sekcja Account Details)
-
-### 3. Utwórz Upload Preset
-
-1. Przejdź do Settings → Upload → Upload Presets
-2. Kliknij "Create Upload Preset"
-3. Ustaw następujące opcje:
-   - **Mode**: Unsigned (dla aplikacji frontendowej)
-   - **Allowed file types**: Image, Video
-   - **Eager Transformations**: 
-     - Auto format (WebP/AVIF)
-     - Quality: auto
-   - **Folder**: weekend-warrior-social/temp
-4. Zapisz preset
-5. Skopiuj **Preset Name**
-
-### 4. Skonfiguruj bezpieczeństwo
-
-1. Przejdź do Settings → Upload
-2. Ustaw **Restricted file types**: Zezwól na jpg, png, gif, webp, mp4, webm
-3. Ustaw **Max file size**: 50 MB
-4. Włącz **Malware detection**: Basic
-5. Włącz **Signed uploads**: Dla operacji z backend
-
-## Konfiguracja Firebase
-
-### 1. Utwórz projekt Firebase
-
-1. Przejdź do https://console.firebase.google.com
-2. Kliknij "Add project"
-3. Podaj nazwę: `weekend-warrior-social`
-4. Pomiń Google Analytics (na razie)
-5. Utwórz projekt
-
-### 2. Dodaj aplikację webową
-
-1. Kliknij ikonę `</>` (Web app)
-2. Podaj nick: `weekend-warrior-social-web`
-3. Skopiuj config (pojawi się poniżej)
-
-### 3. Włącz Firestore
-
-1. W menu po lewej: Build → Firestore Database
-2. Kliknij "Create database"
-3. Wybierz region: `europe-west1` (Belgia)
-4. Ustaw rules na:
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /{document=**} {
-         allow read, write: if request.auth != null;
-       }
-     }
-   }
-   ```
-
-### 4. Włącz Authentication
-
-1. W menu po lewej: Build → Authentication
-2. Kliknij "Get started"
-3. Włącz Email/Password
-4. Włącz Google (opcjonalnie)
-
-## Zmienne Środowiskowe
-
-### 1. Stwórz plik `.env.local`
-
-Skopiuj `.env.example` i wyczyść dane:
+### Krok 1: Klonuj/Pobierz projekt
 
 ```bash
-cp .env.example .env.local
+# Jeśli GitHub:
+git clone https://github.com/YourUsername/weekend-warrior-social.git
+cd weekend-warrior-social
+
+# Jeśli ZIP:
+unzip weekend-warrior-social-clean.zip
+cd weekend-warrior-social-clean
 ```
 
-### 2. Wypełnij dane
+### Krok 2: Skonfiguruj Firebase
 
-Edytuj `.env.local` i dodaj swoje dane:
+1. Przejdź do [Firebase Console](https://console.firebase.google.com)
+2. Stwórz nowy projekt lub użyj istniejącego
+3. Idź do **Ustawienia projektu** → **Aplikacje** → **Aplikacja webowa**
+4. Skopiuj `firebaseConfig` object
 
-```env
-# Cloudinary
-VITE_CLOUDINARY_CLOUD_NAME=abc123xyz
-VITE_CLOUDINARY_UPLOAD_PRESET=wws_unsigned
-VITE_CLOUDINARY_API_KEY=your_key_here
-VITE_CLOUDINARY_API_SECRET=your_secret_here
+### Krok 3: Dodaj konfigurację
 
-# Firebase
-VITE_FIREBASE_API_KEY=AIzaSy...
-VITE_FIREBASE_AUTH_DOMAIN=weekend-warrior-social.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=weekend-warrior-social
-VITE_FIREBASE_STORAGE_BUCKET=weekend-warrior-social.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=1:123456789:web:abc...
+```bash
+# Skopiuj szablon
+cp firebase-config-template.js firebase-config.js
+
+# Otwórz firebase-config.js i uzupełnij wartości z Firebase Console
+# ⚠️ firebase-config.js jest już w .gitignore — bezpieczny
 ```
 
-### 3. Bezpieczeństwo
+### Krok 4: Uruchom lokalnie
 
-⚠️ **WAŻNE**: 
-- `.env.local` dodaj do `.gitignore` (już dodany)
-- Nigdy nie commituj secretów
-- Clousinary Upload Preset powinien być unsigned dla frontend
-- API Secret przechowuj tylko na backend
+```bash
+# Otwórz w przeglądarce:
+# Mac: open index.html
+# Linux: xdg-open index.html
+# Windows: start index.html
 
-## Testowanie
+# Lub użyj local server:
+python3 -m http.server 8000
+# Otwórz: http://localhost:8000
+```
 
-### 1. Sprawdź Cloudinary
+### Krok 5: Wdróż
+
+```bash
+# Firebase Hosting (rekomendowane):
+npm install -g firebase-tools
+firebase login
+firebase deploy
+
+# GitHub Pages:
+git add .
+git commit -m "Initial commit - clean build"
+git push origin main
+# Włącz GitHub Pages w Settings → Pages → main branch
+```
+
+**✅ Gotowe!** Aplikacja jest dostępna pod:
+- Firebase: `https://your-project-id.web.app`
+- GitHub Pages: `https://your-username.github.io/weekend-warrior-social`
+
+---
+
+## 📁 STRUKTURA PROJEKTU
+
+```
+weekend-warrior-social-clean/
+├── index.html              → Arena (główna strona)
+├── feed.html               → Feed społeczności
+├── profile.html            → Profil użytkownika
+├── ranking.html            → Ranking / Sala chwały
+├── challenges.html         → Misje / Wyzwania
+├── messenger.html          → Wiadomości
+├── register.html           → Rejestracja
+├── login.html              → Logowanie
+├── terms.html              → Warunki użytkowania
+│
+├── css/
+│   ├── style.css           → Design system + komponenty
+│   ├── rpg-theme.css       → RPG visual identity
+│   ├── arena.css           → Layout system
+│   └── messenger.css       → Messenger UI
+│
+├── js/
+│   ├── firebase.js         → Firebase init + Firestore API
+│   ├── auth.js             → Authentication (login/register)
+│   ├── feed.js             → Posts feed
+│   ├── profile.js          → User profiles
+│   ├── arena.js            → Dashboard logic
+│   ├── social.js           → Social features (like, follow)
+│   ├── messenger.js        → Chat system
+│   ├── notifications.js    → Notifications
+│   ├── challenge-system.js → Challenge definitions + logic
+│   ├── weekly-ranking.js   → Ranking system
+│   └── xp.js               → XP/leveling system
+│
+├── firebase-config-template.js  → Szablon konfiguracji (COPY THIS!)
+├── .gitignore              → Git ignore list
+├── manifest.json           → PWA configuration
+├── sw.js                   → Service Worker (offline)
+├── icon-512.svg            → PWA icon
+│
+├── firestore.rules         → Firestore Security Rules
+├── storage.rules           → Storage Security Rules
+├── firestore.indexes.json  → Firestore indexes
+├── firebase.json           → Firebase Hosting config
+│
+├── SETUP.md (ten plik)     → Instrukcje setup
+├── DEPLOYMENT_GUIDE.md     → Deployment szczegóły
+├── PRODUCTION_READINESS_REPORT.md → Status
+└── README.md               → Opis projektu
+```
+
+---
+
+## 🔐 BEZPIECZEŃSTWO
+
+### ✅ Wtedy jest BEZPIECZNE:
+
+- ✅ `firebase-config.js` jest w `.gitignore`
+- ✅ Firestore Security Rules są skonfigurowane
+- ✅ Storage Rules ograniczają dostęp
+- ✅ API keys są wczytywane z zmiennych (nie hardcoded)
+
+### ⚠️ DO ZROBIENIA:
+
+1. **Zmień Firebase API keys** (jeśli były kiedyś exponowane):
+   - Firebase Console → Ustawienia projektu → API keys
+   - Regeneruj API Key
+   - Uzupełnij w `firebase-config.js`
+
+2. **Wdróż Firestore Rules:**
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+
+3. **Ustaw Cloudinary access:**
+   - Project Manager musi sprawdzić `dxanfwb3l` account
+   - Upewnij się że upload presets (`wws_avatar`, `wws_banner`) istnieją
+
+---
+
+## 📚 ARCHITEKTURA
+
+### Firebase Collections (13)
+
+```
+users/{uid}                 → User profiles, XP, level, rank
+posts/{postId}              → Social posts
+comments/{commentId}        → Post comments
+followers/{docId}           → Followers list
+friend_requests/{docId}     → Friend request system
+friends/{docId}             → Friends list
+conversations/{convId}      → Direct messages conversations
+messages/{msgId}            → Messages in conversations
+notifications/{notifId}     → User notifications
+challenge_invites/{id}      → Challenge invitations
+challenges/{chalId}         → Challenge definitions
+laga_requests/{id}          → Loan requests (future)
+achievements/{achId}        → Achievement definitions
+userAchievements/{id}       → User achievements unlocked
+```
+
+### Firestore Security Rules
+
+**Już załadowane w `firestore.rules`:**
+
+- `/users/{uid}` — Owner full edit, others can update XP
+- `/posts/{postId}` — Author delete, others like/comment
+- `/followers` — Follow/unfollow logic
+- `/friend_requests` — Request system
+- `/friends` — Friend connections
+- `/conversations` — Private chat access
+- `/messages` — Message ownership
+- `/challenges` — Challenge definitions
+- `/achievements` — Achievement tracking
+
+---
+
+## 🌐 DEPLOYMENT OPCJE
+
+### A) Firebase Hosting (Rekomendowane dla PWA)
+
+```bash
+npm install -g firebase-tools
+firebase login
+firebase deploy
+```
+
+**Zalety:**
+- ✅ Automatic HTTPS
+- ✅ Global CDN
+- ✅ Seamless Firestore integration
+- ✅ Free tier: 1 GB/month
+
+### B) GitHub Pages
+
+```bash
+# Wdróż na branch gh-pages
+git subtree push --prefix . origin gh-pages
+
+# LUB: włącz GitHub Pages w Settings
+```
+
+**Zalety:**
+- ✅ Free hosting
+- ✅ No build step needed
+- ✅ Auto-deploy from main
+
+### C) Netlify
+
+```bash
+npm install -g netlify-cli
+netlify deploy --prod
+```
+
+---
+
+## 🧪 TESTOWANIE
+
+### Offline (PWA)
 
 ```javascript
-import { cloudinaryService } from './src/services/CloudinaryStorageService.js';
-
-// Test health check
-const isHealthy = await cloudinaryService.healthCheck();
-console.log('Cloudinary is healthy:', isHealthy);
+// 1. Otwórz DevTools (F12)
+// 2. Network → Throttling → Offline
+// 3. Aplikacja działa bez internetu (Service Worker cache)
 ```
 
-### 2. Sprawdź Firestore
+### Firebase Auth
 
 ```javascript
-import { firestoreService } from './src/services/FirestoreService.js';
+// Test login:
+// Email: test@example.com
+// Password: Test123!
 
-// Będzie dostępne po zintegrowaniu Firebase SDK
+// Test Google OAuth:
+// Kliknij "Zaloguj przez Google"
 ```
 
-## Struktura Projektu
+### Cloudinary Upload
 
-```
-src/
-├── config/
-│   ├── cloudinary.config.js      # Konfiguracja Cloudinary
-│   └── firebase.config.js        # Konfiguracja Firebase
-├── models/
-│   └── CloudinaryAsset.js        # Model zasobu
-├── services/
-│   ├── CloudinaryStorageService.js  # Upload & optymalizacja
-│   ├── FirestoreService.js          # Baza danych
-│   ├── ChallengeService.js          # Logika wyzwań
-│   ├── UserService.js               # Logika użytkowników
-│   ├── PostService.js               # Logika postów
-│   ├── StoryService.js              # Logika storiesów
-│   ├── MissionService.js            # Logika misji
-│   ├── AchievementService.js        # Logika osiągnięć
-│   ├── RankingService.js            # Logika rankingu
-│   └── NotificationService.js       # Logika powiadomień
-├── repositories/                 # Będą dodane - data access layer
-├── models/                       # Będą dodane - data models
-└── utils/                        # Będą dodane - utility functions
-```
-
-## Best Practices
-
-### 1. Nigdy nie komunikuj się bezpośrednio z Cloudinary/Firebase z komponentów
-
-❌ **Źle**:
 ```javascript
-// W komponencie
-const response = await fetch('https://api.cloudinary.com/...');
+// 1. Idź do profilu
+// 2. Zmień avatar
+// 3. Wybierz zdjęcie
+// 4. Upload → Cloudinary (100% progress)
+// 5. Avatar zmieniony
 ```
 
-✅ **Dobrze**:
+---
+
+## 🐛 TROUBLESHOOTING
+
+### Firebase config nie załadowany
+
 ```javascript
-// W komponencie
-import { cloudinaryService } from '../services/CloudinaryStorageService.js';
-const asset = await cloudinaryService.uploadPostImage(file, userId, postId);
+// Problem: "Firebase configuration missing"
+// Rozwiązanie:
+// 1. Skopiuj firebase-config-template.js → firebase-config.js
+// 2. Uzupełnij wartości z Firebase Console
+// 3. Reload strony
 ```
 
-### 2. Zawsze przechowuj metadane w Firestore, nie same pliki
+### Firestore permission-denied
 
-❌ **Źle**:
 ```javascript
-// localStorage nie jest dla tego
-localStorage.setItem('post-image', imageBlob);
+// Problem: "permission-denied" w console
+// Rozwiązanie:
+// 1. Firebase Console → Firestore → Rules
+// 2. Wdróż firestore.rules: firebase deploy --only firestore:rules
+// 3. Czekaj 1-2 minuty na propagację
 ```
 
-✅ **Dobrze**:
+### Cloudinary upload fails
+
 ```javascript
-// Cloudinary - plik
-// Firestore - metadane
-const asset = await cloudinaryService.uploadPostImage(file, userId, postId);
-// Następnie w Firestore:
-// {
-//   postId: '...',
-//   imageAssetId: asset.id,
-//   imageUrl: asset.secure_url,
-//   uploadedAt: '2024-...'
-// }
+// Problem: Upload zdjęcia nie działa
+// Rozwiązanie:
+// 1. Sprawdź czy cloud_name = 'dxanfwb3l'
+// 2. Sprawdź upload_preset ('wws_avatar', 'wws_banner')
+// 3. Kontakt: Cloudinary Console → Settings → Upload
 ```
 
-### 3. Używaj optymalizowanych URLów
+---
 
-❌ **Źle**:
-```javascript
-// Pełna resolutcja
-<img src={asset.secure_url} />
-```
+## 📚 DOKUMENTACJA
 
-✅ **Dobrze**:
-```javascript
-// Optymalizowany
-<img src={cloudinaryService.getOptimizedImage(asset.public_id, 600, 600)} />
-// Lub responsive
-<img src={cloudinaryService.getResponsiveImage(asset.public_id)} />
-```
+- **DEPLOYMENT_GUIDE.md** — Szczegółowe kroki deploymentu
+- **PRODUCTION_READINESS_REPORT.md** — Status & checklist
+- **firestore.rules** — Pełne Security Rules
+- **firebase.json** — Hosting configuration
 
-## Przyszłe Integracje
+---
 
-System jest przygotowany do:
+## 🚀 NASTĘPNE KROKI
 
-- ✅ Real-time chat (Firebase Realtime Database)
-- ✅ Live streaming (Cloudinary Live Streaming)
-- ✅ Push notifications (Firebase Cloud Messaging)
-- ✅ Social features (Follow, Like, Comment)
-- ✅ Tournaments (Firebase Rules)
-- ✅ Marketplace (Stripe integration)
-- ✅ Admin panel (Firestore Security Rules)
-- ✅ Analytics (Firebase Analytics)
+1. ✅ Setup + Deploy (ta sekcja)
+2. 🔜 Warrior OS 2.0 Architecture Implementation
+3. 🔜 Phase 1: Auth/Dashboard Refactor
+4. 🔜 Phase 2-5: Feature rollout
 
-## Troubleshooting
+---
 
-### Błąd: "CORS error"
+## 💬 SUPPORT
 
-Cloudinary Upload API nie wymaga CORS dla unsigned uploads.
-Jeśli masz problemy:
-1. Sprawdź czy Upload Preset jest unsigned
-2. Sprawdź czy Cloud Name jest prawidłowy
+**Pytania? Problemy?**
 
-### Błąd: "Invalid upload preset"
+1. Sprawdź `console.log` (DevTools → Console)
+2. Przejrzyj `firestore.rules` dla permission issues
+3. Upewnij się że `firebase-config.js` ma prawidłowe wartości
 
-1. Sprawdź `.env.local` - czy preset name jest prawidłowy
-2. Przejdź do Cloudinary Console i sprawdź że preset istnieje
-3. Upewnij się że preset jest Unsigned
+---
 
-### Firebase nie ładuje się
-
-1. Sprawdź czy dane w `.env.local` są prawidłowe
-2. Sprawdź czy projekt Firebase jest aktywny
-3. Sprawdź czy Firestore database jest włączona
-
-## Support
-
-Dokumentacja:
-- Cloudinary: https://cloudinary.com/documentation
-- Firebase: https://firebase.google.com/docs
-- MDN Web Docs: https://developer.mozilla.org
+*Opracowano: 22 czerwca 2026*  
+*Wersja: Clean Build (v15 refactored)*  
+*Gotowa do Warrior OS 2.0*
