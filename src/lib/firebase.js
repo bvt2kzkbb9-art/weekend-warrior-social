@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -24,5 +24,16 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+
+// Connect to emulators if running locally
+if (import.meta.env.VITE_FIREBASE_EMULATOR_AUTH_HOST) {
+  const [authHost, authPort] = import.meta.env.VITE_FIREBASE_EMULATOR_AUTH_HOST.split(':');
+  connectAuthEmulator(auth, `http://${authHost}:${authPort}`, { disableWarnings: true });
+}
+
+if (import.meta.env.VITE_FIREBASE_EMULATOR_FIRESTORE_HOST) {
+  const [firestoreHost, firestorePort] = import.meta.env.VITE_FIREBASE_EMULATOR_FIRESTORE_HOST.split(':');
+  connectFirestoreEmulator(db, firestoreHost, parseInt(firestorePort));
+}
 
 export { app, db, auth, storage };
