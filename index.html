@@ -297,15 +297,28 @@
   <div style="height: 1rem;"></div>
 </main>
 
+<script>
+  console.log('[REGULAR] Non-module script is running');
+</script>
+
 <script type="module">
+  console.log('[INDEX] Module script loaded');
   import { protectPage } from './src/lib/guards.js';
   import { authService } from './src/services/AuthService.js';
 
+  console.log('[INDEX] Imports completed');
+
   // Protect page - user must be logged in
   try {
-    await protectPage();
+    console.log('[INDEX] Starting page protection...');
+    const result = await protectPage();
+    console.log('[INDEX] protectPage() returned:', result);
+    if (!result) {
+      console.log('[INDEX] protectPage returned false, should have redirected');
+    }
   } catch (error) {
-    console.error('Page protection error:', error);
+    console.error('[INDEX] Page protection error:', error);
+    window.location.href = 'login.html';
   }
 
   // Logout button
