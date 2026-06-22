@@ -1,39 +1,34 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+import { getDatabase } from 'firebase/database';
 
+// Production Firebase Configuration
+// Weekend Warrior Social - weekend-warrior-social-c23ae
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCbDrX7ZXjz_78wvYIpZt95UDElLne3EWA",
+  authDomain: "weekend-warrior-social-c23ae.firebaseapp.com",
+  databaseURL: "https://weekend-warrior-social-c23ae-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "weekend-warrior-social-c23ae",
+  storageBucket: "weekend-warrior-social-c23ae.firebasestorage.app",
+  messagingSenderId: "493489696733",
+  appId: "1:493489696733:web:88173236a68210c1ca9034"
 };
 
 if (!firebaseConfig.projectId) {
   throw new Error(
-    'Firebase configuration is missing. Please check your .env file or environment variables. ' +
-    'Required: VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, ' +
-    'VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID, VITE_FIREBASE_APP_ID'
+    'Firebase configuration is missing. Production Firebase project weekend-warrior-social-c23ae must be configured.'
   );
 }
 
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+// Initialize Firebase Services
 const auth = getAuth(app);
+const db = getFirestore(app);
+const database = getDatabase(app);
 const storage = getStorage(app);
 
-// Connect to emulators if running locally
-if (import.meta.env.VITE_FIREBASE_EMULATOR_AUTH_HOST) {
-  const [authHost, authPort] = import.meta.env.VITE_FIREBASE_EMULATOR_AUTH_HOST.split(':');
-  connectAuthEmulator(auth, `http://${authHost}:${authPort}`, { disableWarnings: true });
-}
-
-if (import.meta.env.VITE_FIREBASE_EMULATOR_FIRESTORE_HOST) {
-  const [firestoreHost, firestorePort] = import.meta.env.VITE_FIREBASE_EMULATOR_FIRESTORE_HOST.split(':');
-  connectFirestoreEmulator(db, firestoreHost, parseInt(firestorePort));
-}
-
-export { app, db, auth, storage };
+export { app, auth, db, database, storage };

@@ -1,18 +1,9 @@
 /**
- * Firebase Configuration
- * 
- * Konfiguracja Firebase dla bazy danych (Firestore) i autentykacji.
- * Przechowywania metadanych uploadów z Cloudinary.
+ * Firebase Configuration Constants
+ *
+ * Firestore collections and constraints for Weekend Warrior Social.
+ * Firebase initialization is handled in src/lib/firebase.js
  */
-
-const FIREBASE_CONFIG = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-};
 
 const FIRESTORE_COLLECTIONS = {
   USERS: 'users',
@@ -38,7 +29,6 @@ const FIRESTORE_CONSTRAINTS = {
 };
 
 export {
-  FIREBASE_CONFIG,
   FIRESTORE_COLLECTIONS,
   FIRESTORE_CONSTRAINTS,
 };
