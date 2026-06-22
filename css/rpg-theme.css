@@ -193,7 +193,10 @@
   border-radius: 50%;
   opacity: 0;
   animation: particle-float linear infinite;
-  box-shadow: 0 0 6px var(--gold-glow);
+  box-shadow:
+    0 0 6px var(--gold-glow),
+    0 0 12px rgba(212, 175, 55, 0.3),
+    0 0 20px rgba(212, 175, 55, 0.15);
 }
 .particle:nth-child(1)  { left:5%;  bottom:10%; animation-duration:8s;  animation-delay:0s;   width:2px; height:2px; }
 .particle:nth-child(2)  { left:12%; bottom:5%;  animation-duration:10s; animation-delay:1s;   }
@@ -213,15 +216,21 @@
   position: fixed;
   bottom: calc(var(--nav-h) + var(--safe-b));
   left: 0; right: 0;
-  height: 80px;
-  background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(7,6,10,.3) 60%,
-    rgba(7,6,10,.6) 100%
-  );
+  height: 120px;
+  background:
+    linear-gradient(180deg,
+      transparent 0%,
+      rgba(10, 9, 15, 0.15) 20%,
+      rgba(7, 6, 10, 0.35) 50%,
+      rgba(5, 4, 8, 0.7) 100%),
+    linear-gradient(180deg,
+      transparent 0%,
+      rgba(107, 79, 187, 0.05) 30%,
+      rgba(50, 40, 80, 0.1) 100%);
   pointer-events: none;
   z-index: 0;
   animation: fog-drift 20s ease-in-out infinite alternate;
+  backdrop-filter: blur(1px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

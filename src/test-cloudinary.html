@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="theme-color" content="#06050A"/>
+  <title>Test Cloudinary Integration — Weekend Warrior Social</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="../css/design-system.css"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #06050A 0%, #1a1625 100%);
+      color: #FFFFFF;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(30,30,40,0.6);
+      border: 1.5px solid rgba(212,175,55,0.2);
+      border-radius: 12px;
+      padding: 2rem;
+      backdrop-filter: blur(8px);
+    }
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #D4AF37;
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 2rem;
+    }
+    .test-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 1px solid rgba(212,175,55,0.1);
+    }
+    .test-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    input[type="file"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(30,30,40,0.8);
+      border: 1.5px solid rgba(212,175,55,0.2);
+      border-radius: 6px;
+      color: #FFFFFF;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(212,175,55,0.5);
+      box-shadow: 0 0 12px rgba(212,175,55,0.2);
+    }
+    .btn {
+      background: linear-gradient(135deg, #D4AF37 0%, #aa8c2a 100%);
+      color: #06050A;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212,175,55,0.3);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(76,175,80,0.1);
+      border: 1px solid rgba(76,175,80,0.3);
+      border-radius: 6px;
+      display: none;
+    }
+    .result.show {
+      display: block;
+    }
+    .result.error {
+      background: rgba(244,67,54,0.1);
+      border-color: rgba(244,67,54,0.3);
+    }
+    .result-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .result-text {
+      font-size: 0.85rem;
+      font-family: 'Courier New', monospace;
+      word-break: break-all;
+      color: rgba(255,255,255,0.8);
+    }
+    .preview {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .preview img,
+    .preview video {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 6px;
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .status.loading {
+      background: rgba(255,193,7,0.2);
+      color: #FFC107;
+    }
+    .status.success {
+      background: rgba(76,175,80,0.2);
+      color: #4CAF50;
+    }
+    .status.error {
+      background: rgba(244,67,54,0.2);
+      color: #f44336;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">🧪 Test Cloudinary Integration</div>
+  <div class="subtitle">Testuj upload i optymalizacje Cloudinary</div>
+
+  <!-- Cloudinary Health Check -->
+  <div class="test-section">
+    <div class="test-title">1. Sprawdzenie dostępności Cloudinary</div>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
+      Sprawdź czy Cloudinary jest dostępny
+    </p>
+    <button class="btn" onclick="testCloudinaryHealth()">Sprawdź dostępność</button>
+    <div id="health-result" class="result"></div>
+  </div>
+
+  <!-- Test Avatar Upload -->
+  <div class="test-section">
+    <div class="test-title">2. Upload Avatar</div>
+    <div class="form-group">
+      <label for="avatar-input">Wybierz zdjęcie (JPG, PNG):</label>
+      <input type="file" id="avatar-input" accept="image/*"/>
+    </div>
+    <button class="btn" onclick="testAvatarUpload()">Uploaduj Avatar</button>
+    <div id="avatar-result" class="result"></div>
+  </div>
+
+  <!-- Test Post Image Upload -->
+  <div class="test-section">
+    <div class="test-title">3. Upload Zdjęcia do Posta</div>
+    <div class="form-group">
+      <label for="post-input">Wybierz zdjęcie:</label>
+      <input type="file" id="post-input" accept="image/*"/>
+    </div>
+    <button class="btn" onclick="testPostImageUpload()">Uploaduj Zdjęcie Posta</button>
+    <div id="post-result" class="result"></div>
+  </div>
+
+  <!-- Test Image Optimization -->
+  <div class="test-section">
+    <div class="test-title">4. Testowanie Optymalizacji</div>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
+      Wygeneruj optymalizowane URLy zasobu
+    </p>
+    <div class="form-group">
+      <label for="public-id-input">Public ID zasobu:</label>
+      <input type="text" id="public-id-input" placeholder="np. weekend-warrior-social/avatars/avatar-123"/>
+    </div>
+    <button class="btn" onclick="testImageOptimization()">Generuj Optymalizowane URLy</button>
+    <div id="optimization-result" class="result"></div>
+  </div>
+
+  <!-- Configuration Check -->
+  <div class="test-section">
+    <div class="test-title">5. Sprawdzenie Konfiguracji</div>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
+      Sprawdź czy zmienne środowiskowe są prawidłowo ustawione
+    </p>
+    <button class="btn" onclick="testConfiguration()">Sprawdź Konfigurację</button>
+    <div id="config-result" class="result"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { cloudinaryService } from '../src/services/CloudinaryStorageService.js';
+  import { CLOUDINARY_CONFIG } from '../src/config/cloudinary.config.js';
+
+  // Expose functions to global scope
+  window.testCloudinaryHealth = async function() {
+    const resultDiv = document.getElementById('health-result');
+    resultDiv.className = 'result show loading';
+    resultDiv.innerHTML = '<div class="status loading">🔄 Sprawdzanie...</div>';
+
+    try {
+      const isHealthy = await cloudinaryService.healthCheck();
+      resultDiv.classList.remove('loading');
+
+      if (isHealthy) {
+        resultDiv.className = 'result show success';
+        resultDiv.innerHTML = `
+          <div class="status success">✅ Cloudinary jest dostępny</div>
+          <div class="result-text">Połączenie z Cloudinary działa prawidłowo</div>
+        `;
+      } else {
+        throw new Error('Health check failed');
+      }
+    } catch (error) {
+      resultDiv.className = 'result show error';
+      resultDiv.innerHTML = `
+        <div class="status error">❌ Błąd</div>
+        <div class="result-text">${error.message}</div>
+      `;
+    }
+  };
+
+  window.testAvatarUpload = async function() {
+    const fileInput = document.getElementById('avatar-input');
+    const resultDiv = document.getElementById('avatar-result');
+
+    if (!fileInput.files[0]) {
+      alert('Wybierz plik');
+      return;
+    }
+
+    resultDiv.className = 'result show loading';
+    resultDiv.innerHTML = '<div class="status loading">📤 Uploadowanie...</div>';
+
+    try {
+      const asset = await cloudinaryService.uploadAvatar(fileInput.files[0], 'user-123');
+
+      resultDiv.classList.remove('loading');
+      resultDiv.className = 'result show success';
+      resultDiv.innerHTML = `
+        <div class="status success">✅ Upload успешен</div>
+        <div class="result-title">Metadane zasobu:</div>
+        <div class="result-text">
+          <strong>Public ID:</strong> ${asset.public_id}<br/>
+          <strong>URL:</strong> ${asset.secure_url}<br/>
+          <strong>Format:</strong> ${asset.format}<br/>
+          <strong>Rozmiar:</strong> ${asset.getFileSize()}<br/>
+          <strong>Wymiary:</strong> ${asset.width}x${asset.height}px
+        </div>
+        <div class="preview">
+          <img src="${cloudinaryService.getAvatarUrl(asset.public_id)}" alt="Avatar"/>
+        </div>
+      `;
+    } catch (error) {
+      resultDiv.className = 'result show error';
+      resultDiv.innerHTML = `
+        <div class="status error">❌ Błąd uploadu</div>
+        <div class="result-text">${error.message}</div>
+      `;
+    }
+  };
+
+  window.testPostImageUpload = async function() {
+    const fileInput = document.getElementById('post-input');
+    const resultDiv = document.getElementById('post-result');
+
+    if (!fileInput.files[0]) {
+      alert('Wybierz plik');
+      return;
+    }
+
+    resultDiv.className = 'result show loading';
+    resultDiv.innerHTML = '<div class="status loading">📤 Uploadowanie...</div>';
+
+    try {
+      const asset = await cloudinaryService.uploadPostImage(
+        fileInput.files[0],
+        'user-123',
+        'post-456'
+      );
+
+      resultDiv.classList.remove('loading');
+      resultDiv.className = 'result show success';
+      resultDiv.innerHTML = `
+        <div class="status success">✅ Upload uspešen</div>
+        <div class="result-title">Metadane zasobu:</div>
+        <div class="result-text">
+          <strong>Public ID:</strong> ${asset.public_id}<br/>
+          <strong>URL:</strong> ${asset.secure_url}<br/>
+          <strong>Folder:</strong> ${asset.folder}<br/>
+          <strong>Format:</strong> ${asset.format}<br/>
+          <strong>Rozmiar:</strong> ${asset.getFileSize()}
+        </div>
+        <div class="preview">
+          <img src="${cloudinaryService.getPostImageUrl(asset.public_id)}" alt="Post"/>
+        </div>
+      `;
+    } catch (error) {
+      resultDiv.className = 'result show error';
+      resultDiv.innerHTML = `
+        <div class="status error">❌ Błąd uploadu</div>
+        <div class="result-text">${error.message}</div>
+      `;
+    }
+  };
+
+  window.testImageOptimization = function() {
+    const publicIdInput = document.getElementById('public-id-input');
+    const resultDiv = document.getElementById('optimization-result');
+
+    const publicId = publicIdInput.value.trim();
+    if (!publicId) {
+      alert('Podaj Public ID');
+      return;
+    }
+
+    try {
+      const optimized = cloudinaryService.getOptimizedImage(publicId);
+      const responsive = cloudinaryService.getResponsiveImage(publicId);
+      const thumbnail = cloudinaryService.getThumbnail(publicId);
+
+      resultDiv.className = 'result show success';
+      resultDiv.innerHTML = `
+        <div class="status success">✅ Optymalizacyjne URLy wygenerowane</div>
+        <div class="result-title">Optymalizowany URL:</div>
+        <div class="result-text">${optimized}</div>
+        <div class="result-title" style="margin-top: 1rem;">Responsywny URL:</div>
+        <div class="result-text">${responsive}</div>
+        <div class="result-title" style="margin-top: 1rem;">Miniatura:</div>
+        <div class="result-text">${thumbnail}</div>
+      `;
+    } catch (error) {
+      resultDiv.className = 'result show error';
+      resultDiv.innerHTML = `
+        <div class="status error">❌ Błąd</div>
+        <div class="result-text">${error.message}</div>
+      `;
+    }
+  };
+
+  window.testConfiguration = function() {
+    const resultDiv = document.getElementById('config-result');
+
+    const cloudName = CLOUDINARY_CONFIG.CLOUD_NAME;
+    const uploadPreset = CLOUDINARY_CONFIG.UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      resultDiv.className = 'result show error';
+      resultDiv.innerHTML = `
+        <div class="status error">❌ Konfiguracja niepełna</div>
+        <div class="result-text">
+          Zmienne środowiskowe nie są ustawione.<br/>
+          Przeczytaj plik SETUP.md aby dowiedzieć się jak skonfigurować Cloudinary.
+        </div>
+      `;
+      return;
+    }
+
+    resultDiv.className = 'result show success';
+    resultDiv.innerHTML = `
+      <div class="status success">✅ Konfiguracja prawidłowa</div>
+      <div class="result-title">Zmienne środowiskowe:</div>
+      <div class="result-text">
+        <strong>Cloud Name:</strong> ${cloudName.substring(0, 5)}...<br/>
+        <strong>Upload Preset:</strong> ${uploadPreset.substring(0, 5)}...<br/>
+        <strong>Status:</strong> ✅ Gotowy do użytku
+      </div>
+    `;
+  };
+</script>
+
+</body>
+</html>

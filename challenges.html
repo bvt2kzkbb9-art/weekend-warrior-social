@@ -4,8 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <meta name="theme-color" content="#06050A"/>
-  <meta name="description" content="Misje Areny — Weekend Warrior Social"/>
-  <title>Misje — Weekend Warrior Social</title>
+  <meta name="description" content="Wyzwania — Weekend Warrior Social"/>
+  <title>Wyzwania — Weekend Warrior Social</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/design-system.css"/>
@@ -16,6 +16,195 @@
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/rpg-theme.css"/>
   <link rel="stylesheet" href="css/unified-system.css"/>
+  <style>
+    .challenge-card {
+      background: rgba(30,30,40,0.6);
+      border: 1.5px solid rgba(212,175,55,0.2);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+    .challenge-card:hover {
+      border-color: rgba(212,175,55,0.4);
+      background: rgba(30,30,40,0.8);
+    }
+    .challenge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.75rem;
+    }
+    .challenge-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #FFFFFF;
+      margin-bottom: 0.25rem;
+    }
+    .challenge-category {
+      display: inline-block;
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .challenge-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .status-pending {
+      background: rgba(255,193,7,0.2);
+      color: #FFC107;
+    }
+    .status-accepted {
+      background: rgba(76,175,80,0.2);
+      color: #4CAF50;
+    }
+    .status-in-progress {
+      background: rgba(33,150,243,0.2);
+      color: #2196F3;
+    }
+    .status-completed {
+      background: rgba(156,39,176,0.2);
+      color: #9C27B0;
+    }
+    .challenge-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .challenge-opponent {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+    }
+    .opponent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(107,79,187,0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .opponent-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .opponent-name {
+      font-weight: 700;
+      color: #FFFFFF;
+      font-size: 0.9rem;
+    }
+    .opponent-level {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .challenge-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .btn-accept {
+      flex: 1;
+      background: rgba(76,175,80,0.8);
+      color: #FFFFFF;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .btn-accept:hover {
+      background: rgba(76,175,80,1);
+    }
+    .btn-decline {
+      flex: 1;
+      background: rgba(244,67,54,0.8);
+      color: #FFFFFF;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .btn-decline:hover {
+      background: rgba(244,67,54,1);
+    }
+    .btn-view {
+      flex: 1;
+      background: rgba(33,150,243,0.8);
+      color: #FFFFFF;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .btn-view:hover {
+      background: rgba(33,150,243,1);
+    }
+    .empty-state-box {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .empty-state-title {
+      font-weight: 700;
+      color: #FFFFFF;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .empty-state-subtitle {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+    }
+    .challenge-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .challenge-tab-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(30,30,40,0.6);
+      border: 1.5px solid rgba(212,175,55,0.2);
+      color: rgba(255,255,255,0.7);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .challenge-tab-btn:hover {
+      border-color: rgba(212,175,55,0.4);
+    }
+    .challenge-tab-btn.active {
+      background: rgba(212,175,55,0.15);
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+    }
+  </style>
 </head>
 <body>
 
@@ -27,32 +216,9 @@
 </div>
 
 <!-- TOP NAVIGATION BAR -->
-<!-- ══════════════════════════════════════════
-     TOP NAVIGATION BAR
-══════════════════════════════════════════ -->
 <nav class="navbar-top" role="banner">
   <a href="index.html" class="navbar-top-brand">
-    <svg class="icon icon-xl" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
-        </linearGradient>
-        <filter id="goldGlow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <path d="M60 10L30 22V50C30 72 60 90 60 90C60 90 90 72 90 50V22L60 10Z"
-            fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#goldGlow)"/>
-      <path d="M45 35L35 15L37 60L50 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <path d="M75 35L85 15L83 60L70 50" stroke="url(#goldGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <circle cx="60" cy="55" r="4" fill="url(#goldGradient)"/>
-    </svg>
+    <img src="assets/images/logo.png" alt="Weekend Warrior Social" class="navbar-logo">
   </a>
 
   <div class="navbar-top-actions">
@@ -152,42 +318,217 @@
   <!-- Page header -->
   <div class="page-header">
     <div class="page-header-title">
-      <div class="page-title">⚔️ Misje Areny</div>
-      <div class="page-subtitle">Wybierz swoją probe, wojowniku</div>
+      <div class="page-title">⚔️ Wyzwania</div>
+      <div class="page-subtitle">Aktywne bitwy i duele</div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- Placeholder content cards -->
-  <div class="content-card">
-    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 6px;"></div>
+  <!-- Challenge tabs -->
+  <div class="challenge-tabs">
+    <button class="challenge-tab-btn active" data-filter="all">Wszystkie</button>
+    <button class="challenge-tab-btn" data-filter="pending">Oczekujące</button>
+    <button class="challenge-tab-btn" data-filter="accepted">Przyjęte</button>
+    <button class="challenge-tab-btn" data-filter="completed">Ukończone</button>
   </div>
 
-  <div class="content-card">
-    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 6px;"></div>
+  <!-- Challenges list -->
+  <div id="challenges-container">
+    <!-- Challenges will be loaded here by JavaScript -->
   </div>
 
-  <div class="content-card">
-    <div style="height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 6px;"></div>
-  </div>
-
-  <!-- Empty state fallback -->
-  <div id="missions-empty" class="empty-state" style="display:none;">
+  <!-- Empty state -->
+  <div id="challenges-empty" class="empty-state-box" style="display:none;">
     <div class="empty-state-icon">⚔️</div>
-    <div class="empty-state-title">Brak misji</div>
-    <p class="empty-state-subtitle">Czekaj na nowe wyzwania<br>od innych wojowników</p>
+    <div class="empty-state-title">Brak wyzwań</div>
+    <div class="empty-state-subtitle">
+      Rzuć wyzwanie innym wojownikom<br/>lub czekaj na zaproszenie
+    </div>
   </div>
 
   <div style="height: 1rem;"></div>
 </main>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+<script type="module">
+  import { challengeService } from './src/services/ChallengeService.js';
+  import { initializeApp } from './src/lib/init.js';
+  import { firestoreService } from './src/services/FirestoreService.js';
+  import { protectPage } from './src/lib/guards.js';
+  import { authService } from './src/services/AuthService.js';
+  import { where } from 'firebase/firestore';
+
+  const categoryMap = {
+    combat: '⚔️ Walka',
+    duel: '🛡️ Pojedynek',
+    tournament: '🏆 Turniej',
+    friendly: '👊 Amistyczny'
+  };
+
+  const statusMap = {
+    pending: { label: 'Oczekujące', class: 'status-pending' },
+    accepted: { label: 'Przyjęte', class: 'status-accepted' },
+    'in-progress': { label: 'W trakcie', class: 'status-in-progress' },
+    completed: { label: 'Ukończone', class: 'status-completed' }
+  };
+
+  let currentFilter = 'all';
+  let challenges = [];
+  let unsubscribe = null;
+
+  function renderChallenges() {
+    const container = document.getElementById('challenges-container');
+    const emptyState = document.getElementById('challenges-empty');
+
+    let filtered = challenges;
+    if (currentFilter !== 'all') {
+      filtered = challenges.filter(c => c.status === currentFilter);
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    container.innerHTML = filtered.map(challenge => {
+      const statusInfo = statusMap[challenge.status];
+      const categoryLabel = categoryMap[challenge.category];
+
+      let actionsHTML = '';
+      if (challenge.status === 'pending') {
+        actionsHTML = `
+          <div class="challenge-actions">
+            <button class="btn-accept" onclick="window.acceptChallenge('${challenge.id}')">✓ Przyjmij</button>
+            <button class="btn-decline" onclick="window.declineChallenge('${challenge.id}')">✕ Odrzuć</button>
+          </div>
+        `;
+      } else if (challenge.status === 'accepted' || challenge.status === 'in-progress') {
+        actionsHTML = `
+          <div class="challenge-actions">
+            <button class="btn-view" onclick="window.viewChallengeDetails('${challenge.id}')">Przejdź do wyzwania</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="challenge-card">
+          <div class="challenge-header">
+            <div>
+              <span class="challenge-category">${categoryLabel}</span>
+              <div class="challenge-title">${challenge.title || 'Bez tytułu'}</div>
+            </div>
+            <span class="challenge-status ${statusInfo.class}">${statusInfo.label}</span>
+          </div>
+
+          <div class="challenge-meta">
+            <div>⏱️ ${challenge.responseTime}h na odpowiedź</div>
+            <div>⭐ ${challenge.xpStake} XP</div>
+          </div>
+
+          <div class="challenge-opponent">
+            <div class="opponent-avatar">${challenge.opponent?.emoji || '👤'}</div>
+            <div class="opponent-info">
+              <div class="opponent-name">${challenge.opponent?.name || 'Nieznany'}</div>
+              <div class="opponent-level">LVL ${challenge.opponent?.level || '?'}</div>
+            </div>
+          </div>
+
+          ${challenge.description ? `<p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin: 0.75rem 0;">${challenge.description}</p>` : ''}
+
+          ${actionsHTML}
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.acceptChallenge = async (challengeId) => {
+    try {
+      await challengeService.updateChallengeStatus(challengeId, 'accepted');
+      alert('✅ Wyzwanie przyjęte! Walka się rozpoczyna!');
+    } catch (error) {
+      alert('❌ Błąd: ' + error.message);
+      console.error('Error accepting challenge:', error);
+    }
+  };
+
+  window.declineChallenge = async (challengeId) => {
+    try {
+      await challengeService.deleteChallenge(challengeId);
+      alert('Wyzwanie odrzucone.');
+    } catch (error) {
+      alert('❌ Błąd: ' + error.message);
+      console.error('Error declining challenge:', error);
+    }
+  };
+
+  window.viewChallengeDetails = (challengeId) => {
+    window.location.href = `challenge-detail.html?id=${challengeId}`;
+  };
+
+  async function loadChallengesRealtime() {
+    try {
+      // Set up real-time listener for all challenges
+      unsubscribe = firestoreService.onCollectionChange(
+        'challenges',
+        [],
+        (snapshot) => {
+          challenges = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          renderChallenges();
+        }
+      );
+    } catch (error) {
+      console.error('Error setting up real-time listener:', error);
+      alert('⚠️ Błąd ładowania wyzwań. Sprawdź konfigurację Firebase.');
+    }
+  }
+
+  document.querySelectorAll('.challenge-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.challenge-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderChallenges();
+    });
   });
-}
+
+  // Protect page - user must be logged in
+  await initializeApp();
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  if (!authService.getCurrentUser()) {
+    window.location.replace('login.html');
+  } else {
+    // Load challenges only if user is authenticated
+    await loadChallengesRealtime();
+
+    // Logout button
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Logout error:', error);
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    // Clean up listener when page unloads
+    window.addEventListener('beforeunload', () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    });
+  }
 </script>
+
 </body>
 </html>

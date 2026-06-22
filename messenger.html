@@ -166,12 +166,33 @@
   <div style="height: 1rem;"></div>
 </main>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  });
-}
+<script type="module">
+  (async () => {
+    const { authService } = await import('./src/services/AuthService.js');
+    const { initializeApp } = await import('./src/lib/init.js');
+
+    await initializeApp();
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (!authService.getCurrentUser()) {
+      window.location.replace('login.html');
+      return;
+    }
+
+    const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await authService.logout();
+          window.location.href = 'login.html';
+        } catch (error) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+  })();
 </script>
+
 </body>
 </html>
