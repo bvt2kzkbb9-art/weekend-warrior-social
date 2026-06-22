@@ -45,26 +45,17 @@ function waitForAuthInitialization(timeout = 5000) {
  */
 export async function protectPage() {
   try {
-    console.log('[PROTECT] protectPage() called');
     await initializeApp();
-    console.log('[PROTECT] initializeApp() completed');
-
-    // Czekaj aż autentykacja będzie zainicjalizowana
-    console.log('[PROTECT] Calling waitForAuthInitialization()');
     const isAuthenticated = await waitForAuthInitialization();
-    console.log('[PROTECT] waitForAuthInitialization() returned:', isAuthenticated);
 
     if (!isAuthenticated) {
-      console.log('[PROTECT] User not authenticated, redirecting to login.html');
       window.location.href = 'login.html';
       return false;
     }
 
-    console.log('[PROTECT] User authenticated, allowing access');
     return true;
   } catch (error) {
-    console.error('[PROTECT] Page protection error:', error);
-    console.log('[PROTECT] Redirecting to login.html due to error');
+    console.error('Page protection error:', error);
     window.location.href = 'login.html';
     return false;
   }

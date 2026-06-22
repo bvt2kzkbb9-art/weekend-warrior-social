@@ -297,51 +297,6 @@
   <div style="height: 1rem;"></div>
 </main>
 
-<script>
-  console.log('[REGULAR] Non-module script is running');
-</script>
-
-<script type="module">
-  console.log('[INDEX] Module script loaded');
-  import { protectPage } from './src/lib/guards.js';
-  import { authService } from './src/services/AuthService.js';
-
-  console.log('[INDEX] Imports completed');
-
-  // Protect page - user must be logged in
-  try {
-    console.log('[INDEX] Starting page protection...');
-    const result = await protectPage();
-    console.log('[INDEX] protectPage() returned:', result);
-    if (!result) {
-      console.log('[INDEX] protectPage returned false, should have redirected');
-    }
-  } catch (error) {
-    console.error('[INDEX] Page protection error:', error);
-    window.location.href = 'login.html';
-  }
-
-  // Logout button
-  const logoutBtn = document.querySelector('a[href="login.html"][title="Wylogowanie"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await authService.logout();
-        window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Logout error:', error);
-        window.location.href = 'login.html';
-      }
-    });
-  }
-
-  // Service Worker
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
-</script>
+<script type="module" src="/src/pages/index-init.js"></script>
 </body>
 </html>
